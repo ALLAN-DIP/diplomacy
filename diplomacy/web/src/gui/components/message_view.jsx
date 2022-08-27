@@ -46,6 +46,9 @@ export class MessageView extends React.Component {
                     <div className="message-header col-md-auto text-md-right text-center">
                         {message.phase}
                     </div>
+                    <div>
+                        {message.sender}
+                    </div>
                     <div className="message-content col-md">
                         {messagesLines.map((line, lineIndex) => <div key={lineIndex}>{
                             line.replace(/(<([^>]+)>)/ig, "")
