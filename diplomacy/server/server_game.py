@@ -483,7 +483,7 @@ class ServerGame(Game):
         # Kick powers if necessary.
         all_orderable_locations = self.get_orderable_locations()
         kicked_powers = {}
-        for power in self.powers.values():
+        '''for power in self.powers.values():
             if (power.is_controlled()
                     and not power.order_is_set
                     and not self.civil_disorder
@@ -492,7 +492,7 @@ class ServerGame(Game):
                 # and this power WAS allowed to submit orders for this phase.
                 # We kick such power.
                 kicked_powers[power.name] = set(power.tokens)
-                power.set_controlled(None)
+                power.set_controlled(None)'''
 
         if kicked_powers:
             # Some powers were kicked from an active game before processing.
