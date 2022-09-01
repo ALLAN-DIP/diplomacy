@@ -1153,12 +1153,12 @@ export class ContentGame extends React.Component {
         return (
             <Tab id={'tab-phase-history'} display={toDisplay}>
                 <Row>
-                    <div className={'col-xl'}>
+                    {/*<div className={'col-xl'}>
                         {this.state.historyCurrentOrders && (
                             <div className={'history-current-orders'}>{this.state.historyCurrentOrders.join(', ')}</div>
                         )}
                         {this.renderMapForMessages(engine, this.state.historyShowOrders)}
-                    </div>
+                    </div>*/}
                     <div className={'col-xl'}>
                         {this.__form_phases(pastPhases, phaseIndex)}
                         {pastPhases[phaseIndex] === initialEngine.phase ? (
@@ -1340,7 +1340,10 @@ export class ContentGame extends React.Component {
         let highlights = this.state.messageHighlights;
         let count = 0;
         for (const [key, value] of Object.entries(highlights)) {
-            count += value;
+            if (key !== 'messages') {
+                console.log(key);
+                count += value;
+            }
         }
         highlights['messages'] = count;
 
