@@ -66,4 +66,8 @@ class BaseAPI(metaclass=ABCMeta):
             :return: True for success, False for failure
             :type game: diplomacy.Game
         """
-        raise NotImplementedError()
+
+        game.set_orders(power_name, orders)
+        if wait is not None:
+            game.set_wait(power_name, wait)
+        return True
