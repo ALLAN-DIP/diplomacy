@@ -1220,6 +1220,7 @@ export class ContentGame extends React.Component {
     renderTabCurrentPhase(toDisplay, engine, powerName, orderType, orderPath, currentPowerName, currentTabOrderCreation) {
         const powerNames = Object.keys(engine.powers);
         powerNames.sort();
+
         const orderedPowers = powerNames.map(pn => engine.powers[pn]);
         return (
             <Tab id={'tab-current-phase'} display={toDisplay}>
@@ -1377,6 +1378,13 @@ export class ContentGame extends React.Component {
             </div>
         );
 
+        let highlights = this.state.messageHighlights;
+        let count = 0;
+        for (const [key, value] of Object.entries(highlights)) {
+            count += value;
+        }
+        highlights['messages'] = count;
+
         return (
             <main>
                 <Helmet>
@@ -1386,7 +1394,7 @@ export class ContentGame extends React.Component {
                             afterTitle={navAfterTitle}
                             username={page.channel.username}
                             navigation={navigation}/>
-                <Tabs menu={tabNames} titles={tabTitles} onChange={this.onChangeMainTab} active={mainTab}>
+                <Tabs menu={tabNames} titles={tabTitles} onChange={this.onChangeMainTab} active={mainTab} highlights={highlights}>
                     {/* Tab Phase history. */}
                     {(hasTabPhaseHistory && mainTab === 'phase_history' && this.renderTabResults(mainTab === 'phase_history', engine)) || ''}
                     {mainTab === 'messages' && this.renderTabMessages(mainTab === 'messages', engine, currentPowerName)}
