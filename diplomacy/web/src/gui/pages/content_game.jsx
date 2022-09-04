@@ -1340,7 +1340,7 @@ export class ContentGame extends React.Component {
         let highlights = this.state.messageHighlights;
         let count = 0;
         for (const [key, value] of Object.entries(highlights)) {
-            if (key !== 'messages') {
+            if (key !== 'messages' || (currentPowerName && key !== currentPowerName)) {
                 console.log(key);
                 count += value;
             }
