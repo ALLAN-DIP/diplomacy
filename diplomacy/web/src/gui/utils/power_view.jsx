@@ -60,6 +60,9 @@ export class PowerView {
     }
 
     get(key) {
-        return GETTERS[key](this.power);
+        if (key in GETTERS) {
+            return GETTERS[key](this.power);
+        }
+
     }
 }
