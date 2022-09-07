@@ -72,7 +72,7 @@ const TABLE_POWER_VIEW = {
     name: ['Power', 0],
     controller: ['Controller', 1],
     order_is_set: ['With orders', 2],
-    wait: ['Waiting', 3]
+    wait: ['Waiting', 3],
 };
 
 const PRETTY_ROLES = {
@@ -1181,6 +1181,7 @@ export class ContentGame extends React.Component {
         powerNames.sort();
 
         const orderedPowers = powerNames.map(pn => engine.powers[pn]);
+        console.log('orderedPowers', orderedPowers);
         return (
             <Tab id={'tab-current-phase'} display={toDisplay}>
                 <Row>
@@ -1340,7 +1341,7 @@ export class ContentGame extends React.Component {
         let highlights = this.state.messageHighlights;
         let count = 0;
         for (const [key, value] of Object.entries(highlights)) {
-            if (key !== 'messages') {
+            if (key !== 'messages' || (currentPowerName && key !== currentPowerName)) {
                 console.log(key);
                 count += value;
             }

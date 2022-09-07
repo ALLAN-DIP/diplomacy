@@ -67,6 +67,20 @@ It is also possible to install a web interface in React to play against bots and
 The web interface can be installed with:
 
 ```bash
+# update
+sudo apt update
+# install npm
+sudo apt-get install npm
+
+# install conda
+wget http://repo.continuum.io/archive/Anaconda3-4.0.0-Linux-x86_64.sh
+bash Anaconda3-4.0.0-Linux-x86_64.sh
+export PATH="/home/username/anaconda3/bin:$PATH"
+source ~/.bashrc
+conda update conda
+conda create -n paquette python=3.6
+source activate paquette
+
 # Install NVM
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.34.0/install.sh | bash
 
@@ -90,6 +104,15 @@ npm start
 python -m diplomacy.server.run
 ```
 
+Use use ps -fA | grep <COMMAND> to find the background python process
+and kill <PID> to kill it
+
+The HTTP get requests are implemented on port 8888
+Usage:
+```
+GET xx.xx.xx.xx:8888/?game=<GAMEID>
+```
+  
 The web interface will be accessible at http://localhost:3000.
 
 To login, users can use admin/password or username/password. Additional users can be created by logging in with a username that does not exist in the database.

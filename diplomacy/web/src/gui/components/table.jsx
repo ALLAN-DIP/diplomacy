@@ -18,6 +18,7 @@
 
 import React from "react";
 import PropTypes from 'prop-types';
+import {Slider} from "./slider";
 
 class DefaultWrapper {
     constructor(data) {
@@ -66,37 +67,57 @@ export class Table extends React.Component {
                 t = a[2].localeCompare(b[2]);
             return t;
         });
+
         return header;
     }
 
-    static getHeaderLine(header) {
-        return (
-            <thead className={'thead-light'}>
-            <tr>{header.map((column, colIndex) => <th key={colIndex}>{column[2]}</th>)}</tr>
-            </thead>
-        );
+    static getHeaderLine(header, caption) {
+        if (caption === 'Powers info') {
+            return (
+                <thead className={'thead-light'}>
+                <tr>{header.map((column, colIndex) => <th key={colIndex}>{column[2]}</th>)}<th>Stance</th></tr>
+                </thead>
+            );
+        } else {
+            return (
+                <thead className={'thead-light'}>
+                <tr>{header.map((column, colIndex) => <th key={colIndex}>{column[2]}</th>)}</tr>
+                </thead>
+            );
+        }
+
     }
 
-    static getBodyRow(header, row, rowIndex, wrapper) {
+    static getBodyRow(header, row, rowIndex, wrapper, caption) {
         const wrapped = wrapper(row);
-        return (<tr key={rowIndex}>
-            {header.map((headerColumn, colIndex) => <td className={'align-middle'}
-                                                        key={colIndex}>{wrapped.get(headerColumn[1])}</td>)}
-        </tr>);
+
+        if (caption === 'Powers info') {
+            return (<tr key={rowIndex}>
+                {header.map((headerColumn, colIndex) => <td className={'align-middle'}
+                                                            key={colIndex}>{wrapped.get(headerColumn[1])}</td>)}
+                <td><Slider/></td>
+            </tr>);
+        } else {
+            return (<tr key={rowIndex}>
+                {header.map((headerColumn, colIndex) => <td className={'align-middle'}
+                                                            key={colIndex}>{wrapped.get(headerColumn[1])}</td>)}
+            </tr>);
+        }
     }
 
-    static getBodyLines(header, data, wrapper) {
-        return (<tbody>{data.map((row, rowIndex) => Table.getBodyRow(header, row, rowIndex, wrapper))}</tbody>);
+    static getBodyLines(header, data, wrapper, caption) {
+        return (
+            <tbody>{data.map((row, rowIndex) => Table.getBodyRow(header, row, rowIndex, wrapper, caption))}</tbody>);
     }
 
     render() {
-        const header = Table.getHeader(this.props.columns);
+        const header = Table.getHeader(this.props.columns, this.props.caption);
         return (
             <div className={'table-responsive'}>
                 <table className={this.props.className}>
                     <caption>{this.props.caption} ({this.props.data.length})</caption>
-                    {Table.getHeaderLine(header)}
-                    {Table.getBodyLines(header, this.props.data, this.props.wrapper)}
+                    {Table.getHeaderLine(header, this.props.caption)}
+                    {Table.getBodyLines(header, this.props.data, this.props.wrapper, this.props.caption)}
                 </table>
             </div>
         );
