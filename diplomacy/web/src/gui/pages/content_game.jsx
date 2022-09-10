@@ -1176,6 +1176,11 @@ export class ContentGame extends React.Component {
         );
     }
 
+    handleStance = (country, stance) => {
+        // TODO: set country and stance
+        console.log(country, parseInt(stance));
+    }
+
     renderTabCurrentPhase(toDisplay, engine, powerName, orderType, orderPath, currentPowerName, currentTabOrderCreation) {
         const powerNames = Object.keys(engine.powers);
         powerNames.sort();
@@ -1205,7 +1210,9 @@ export class ContentGame extends React.Component {
                                        caption={'Powers info'}
                                        columns={TABLE_POWER_VIEW}
                                        data={orderedPowers}
-                                       wrapper={PowerView.wrap}/>
+                                       wrapper={PowerView.wrap}
+                                       countries={powerNames}
+                                       onChangeStance={this.handleStance}/>
                             </div>
                         </div>
                     </div>
