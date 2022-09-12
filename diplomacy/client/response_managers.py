@@ -220,6 +220,20 @@ def on_send_log_data(context, response):
     log.time_sent = response.data
     Game.add_log(context.game,log)
 
+def on_send_stance(context, response):
+    """ Manage response for request SendStance.
+
+        :param context: request context
+        :param response: response received
+        :return: None
+        :type context: RequestFutureContext
+    """
+    request = context.request  # type: requests.SendStance
+    power_name = request.power_name
+    stance = request.stance
+    print('on_send_stance: {} -> {}'.format(power_name, stance))
+    Game.add_stance(context.game, power_name, stance)
+
 def on_send_game_message(context, response):
     """ Manage response for request SendGameMessage.
 
@@ -340,6 +354,7 @@ MAPPING = {
     requests.ProcessGame: default_manager,
     requests.QuerySchedule: default_manager,
     requests.SaveGame: default_manager,
+    requests.SendStance: on_send_stance,
     requests.SendGameMessage: on_send_game_message,
     requests.SetDummyPowers: default_manager,
     requests.SendLogData: on_send_log_data,

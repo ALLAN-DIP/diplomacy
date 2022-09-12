@@ -778,6 +778,22 @@ def on_save_game(server, request, connection_handler):
     game_json = export.to_saved_game_format(level.game)
     return responses.DataSavedGame(data=game_json, request_id=request.request_id)
 
+def on_send_stance(server, request, connection_handler):
+    """ Manage request SendStance.
+
+        :param server: server which receives the request.
+        :param request: request to manage.
+        :param connection_handler: connection handler from which the request was sent.
+        :return: None
+        :type server: diplomacy.Server
+        :type request: diplomacy.communication.requests.SendStance
+    """
+    level = verify_request(server, request, connection_handler, observer_role=False, omniscient_role=False)
+    token, power_name, stance = request.token, request.power_name, request.stance
+    assert_game_not_finished(level.game)
+    level.game.add_stance(power_name, stance)
+
+
 def on_send_game_message(server, request, connection_handler):
     """ Manage request SendGameMessage.
 
@@ -1253,6 +1269,7 @@ MAPPING = {
     requests.ProcessGame: on_process_game,
     requests.QuerySchedule: on_query_schedule,
     requests.SaveGame: on_save_game,
+    requests.SendStance: on_send_stance,
     requests.SendGameMessage: on_send_game_message,
     requests.SetDummyPowers: on_set_dummy_powers,
     requests.SetGameState: on_set_game_state,

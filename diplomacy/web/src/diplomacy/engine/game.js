@@ -221,6 +221,10 @@ export class Game {
         this.log_history.put(phaseData.name, new SortedDict(phaseData.logs, parseInt));
     }
 
+    addStance(powerName, stance) {
+        this.stances[powerName] = stance;
+    }
+
     addMessage(message) {
         message = new Message(message);
         if (!message.time_sent)
