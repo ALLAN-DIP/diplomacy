@@ -491,6 +491,7 @@ export class ContentGame extends React.Component {
 
     sendMessage(networkGame, recipient, body) {
         const engine = networkGame.local;
+
         const message = new Message({
             phase: engine.phase,
             sender: engine.role,
@@ -1218,8 +1219,10 @@ export class ContentGame extends React.Component {
     }
 
     handleStance = (country, stance) => {
-        // TODO: set country and stance
-        console.log(country, parseInt(stance));
+        const engine = this.props.data;
+        // get diff power
+        const power = engine.getPower(engine.role);
+        power.setStances(country, parseInt(stance));
     }
 
     renderTabCurrentPhase(toDisplay, engine, powerName, orderType, orderPath, currentPowerName, currentTabOrderCreation) {

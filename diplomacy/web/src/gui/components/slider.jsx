@@ -13,6 +13,7 @@ export class Slider extends React.Component {
     }
 
     STANCE = {0: 'Stance not given', 1: 'Very hostile', 2: 'Hostile', 3: 'Neutral', 4: 'Friendly', 5: 'Very friendly'};
+
     country = this.props.country;
 
     handleChange = (event) => {
