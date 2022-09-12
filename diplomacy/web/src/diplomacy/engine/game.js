@@ -210,6 +210,10 @@ export class Game {
         this.message_history.put(phaseData.name, new SortedDict(phaseData.messages, parseInt));
     }
 
+    addStance(powerName, stance) {
+        this.stances[powerName] = stance;
+    }
+
     addMessage(message) {
         message = new Message(message);
         if (!message.time_sent)

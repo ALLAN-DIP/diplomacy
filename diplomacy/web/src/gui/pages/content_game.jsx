@@ -139,7 +139,8 @@ export class ContentGame extends React.Component {
             power: null,
             orderBuildingType: null,
             orderBuildingPath: [],
-            showAbbreviations: true
+            showAbbreviations: true,
+            stances: {}
         };
 
         // Bind some class methods to this instance.
@@ -487,6 +488,23 @@ export class ContentGame extends React.Component {
 
     onChangeTabPastMessages(tab) {
         return this.setState({tabPastMessages: tab});
+    }
+
+    handleStance = (country, stance) => {
+        const engine = this.props.data;
+        // TODO : maybe remove stances from power.js
+        const power = engine.getPower(engine.role);
+        power.setStances(country, parseInt(stance));
+        this.sendGameStance(engine.client, engine.role, power.getStances());
+    }
+
+    sendGameStance(networkGame, powerName, stance) {
+        const engine = networkGame.local;
+        const info = {
+            power_name: powerName,
+            stance: stance,
+        }
+        networkGame.sendStance({stance: info});
     }
 
     sendMessage(networkGame, recipient, body) {
@@ -1177,19 +1195,12 @@ export class ContentGame extends React.Component {
         );
     }
 
-    handleStance = (country, stance) => {
-        const engine = this.props.data;
-        // get diff power
-        const power = engine.getPower(engine.role);
-        power.setStances(country, parseInt(stance));
-    }
 
     renderTabCurrentPhase(toDisplay, engine, powerName, orderType, orderPath, currentPowerName, currentTabOrderCreation) {
         const powerNames = Object.keys(engine.powers);
         powerNames.sort();
 
         const orderedPowers = powerNames.map(pn => engine.powers[pn]);
-        console.log('orderedPowers', orderedPowers);
         return (
             <Tab id={'tab-current-phase'} display={toDisplay}>
                 <Row>
@@ -1328,11 +1339,11 @@ export class ContentGame extends React.Component {
                                         role={engine.role}
                                         power={currentPower}/>
                 {(allowedPowerOrderTypes.length && (
-                    <span>
+                        <span>
                                 <strong>Orderable locations</strong>: {orderTypeToLocs[orderBuildingType].join(', ')}
                             </span>
-                ))
-                || (<strong>&nbsp;No orderable location.</strong>)}
+                    ))
+                    || (<strong>&nbsp;No orderable location.</strong>)}
                 {phaseType === 'A' && (
                     (buildCount === null && (
                         <strong>&nbsp;(unknown build count)</strong>
@@ -1352,7 +1363,6 @@ export class ContentGame extends React.Component {
         let count = 0;
         for (const [key, value] of Object.entries(highlights)) {
             if (key !== 'messages' || (currentPowerName && key !== currentPowerName)) {
-                console.log(key);
                 count += value;
             }
         }
@@ -1367,7 +1377,8 @@ export class ContentGame extends React.Component {
                             afterTitle={navAfterTitle}
                             username={page.channel.username}
                             navigation={navigation}/>
-                <Tabs menu={tabNames} titles={tabTitles} onChange={this.onChangeMainTab} active={mainTab} highlights={highlights}>
+                <Tabs menu={tabNames} titles={tabTitles} onChange={this.onChangeMainTab} active={mainTab}
+                      highlights={highlights}>
                     {/* Tab Phase history. */}
                     {(hasTabPhaseHistory && mainTab === 'phase_history' && this.renderTabResults(mainTab === 'phase_history', engine)) || ''}
                     {mainTab === 'messages' && this.renderTabMessages(mainTab === 'messages', engine, currentPowerName)}

@@ -661,6 +661,19 @@ class SaveGame(_AbstractGameRequest):
     """
     __slots__ = []
 
+class SendStance(_AbstractGameRequest):
+    __slots__ = ['power_name', 'stance']
+
+    params = {
+        strings.POWER_NAME: parsing.OptionalValueType(str),
+        strings.STANCE: parsing.OptionalValueType(dict),
+    }
+
+    def __init__(self, **kwargs):
+        self.power_name = 'stance'
+        self.stance = {}
+        super(SendStance, self).__init__(**kwargs)
+
 class SendGameMessage(_AbstractGameRequest):
     """ Game message to send a user request.
 

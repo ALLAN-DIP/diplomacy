@@ -172,6 +172,12 @@ export class Channel {
         return this._req('leave_game', undefined, undefined, parameters, game);
     }
 
+    sendStance(parameters, game) {
+        console.log('channel')
+        console.log(parameters)
+        return this._req('send_stance', undefined, undefined, parameters, game);
+    }
+
     sendGameMessage(parameters, game) {
         return this._req('send_game_message', undefined, undefined, parameters, game);
     }

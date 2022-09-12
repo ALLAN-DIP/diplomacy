@@ -75,6 +75,10 @@ export class NetworkGame {
         return this._req(Channel.prototype.leaveGame, parameters);
     }
 
+    sendStance(parameters) {
+        return this._req(Channel.prototype.sendStance, parameters);
+    }
+
     sendGameMessage(parameters) {
         return this._req(Channel.prototype.sendGameMessage, parameters);
     }
