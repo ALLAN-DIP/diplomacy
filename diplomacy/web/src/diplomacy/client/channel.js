@@ -173,8 +173,6 @@ export class Channel {
     }
 
     sendStance(parameters, game) {
-        console.log('channel')
-        console.log(parameters)
         return this._req('send_stance', undefined, undefined, parameters, game);
     }
 

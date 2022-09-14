@@ -18,29 +18,46 @@ import React from 'react';
 import {Forms} from "../components/forms";
 import {UTILS} from "../../diplomacy/utils/utils";
 import PropTypes from "prop-types";
+import {Button} from "../components/button";
 
 export class MessageForm extends React.Component {
     constructor(props) {
         super(props);
         this.state = this.initState();
+        this.handleChange = this.handleChange.bind(this);
     }
 
     initState() {
-        return {message: ''};
+        return {message: '', truth: false};
+    }
+    
+    handleChange = (event) => {
+        this.setState({message: event.target.value});
     }
 
     render() {
         const onChange = Forms.createOnChangeCallback(this, this.props.onChange);
-        const onSubmit = Forms.createOnSubmitCallback(this, this.props.onSubmit, this.initState());
+        const onSubmitTruth = Forms.createOnSubmitCallbackWithInit(this, this.props.onSubmit, this.initState(), true);
+        const onSubmitLie = Forms.createOnSubmitCallbackWithInit(this, this.props.onSubmit, this.initState(), false);
+        const truthTitle = `send (${this.props.sender} ${UTILS.html.UNICODE_SMALL_RIGHT_ARROW} ${this.props.recipient})`;
+        const lieTitle = `send (${this.props.sender} ${UTILS.html.UNICODE_SMALL_RIGHT_ARROW} ${this.props.recipient})`;
+
         return (
-            <form>
+            <div className='message-form'>
                 <div className={'form-group'}>
                     {Forms.createLabel('message', '', 'sr-only')}
                     <textarea id={'message'} className={'form-control'}
-                              value={Forms.getValue(this.state, 'message')} onChange={onChange}/>
+                              value={this.state.message} onChange={this.handleChange}/>
                 </div>
-                {Forms.createSubmit(`send (${this.props.sender} ${UTILS.html.UNICODE_SMALL_RIGHT_ARROW} ${this.props.recipient})`, true, onSubmit)}
-            </form>
+                <Button key={'t'} title={truthTitle} onClick={() => {
+                    this.props.onSendMessage(this.props.engine, this.props.recipient, this.state.message, true);
+                    this.setState({message: ''});
+                }} pickEvent={true}/>
+                <Button key={'l'} title={lieTitle} onClick={() => {
+                    this.props.onSendMessage(this.props.engine, this.props.recipient, this.state.message, false)
+                    this.setState({message: ''});
+                }} pickEvent={true}/>
+            </div>
         );
     }
 }
