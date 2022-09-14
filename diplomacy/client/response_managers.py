@@ -231,7 +231,6 @@ def on_send_stance(context, response):
     request = context.request  # type: requests.SendStance
     power_name = request.power_name
     stance = request.stance
-    print('on_send_stance: {} -> {}'.format(power_name, stance))
     Game.add_stance(context.game, power_name, stance)
 
 def on_send_game_message(context, response):

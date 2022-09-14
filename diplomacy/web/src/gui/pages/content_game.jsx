@@ -495,6 +495,7 @@ export class ContentGame extends React.Component {
         // TODO : maybe remove stances from power.js
         const power = engine.getPower(engine.role);
         power.setStances(country, parseInt(stance));
+
         this.sendGameStance(engine.client, engine.role, power.getStances());
     }
 
@@ -507,14 +508,16 @@ export class ContentGame extends React.Component {
         networkGame.sendStance({stance: info});
     }
 
-    sendMessage(networkGame, recipient, body) {
+    sendMessage(networkGame, recipient, body, deception) {
+        console.log('body', body);
         const engine = networkGame.local;
 
         const message = new Message({
             phase: engine.phase,
             sender: engine.role,
             recipient: recipient,
-            message: body
+            message: body,
+            truth: deception,
         });
         const page = this.getPage();
         networkGame.sendGameMessage({message: message})
@@ -981,10 +984,13 @@ export class ContentGame extends React.Component {
                 )}
                 {/* Send form. */}
                 {engine.isPlayerGame() && (
-                    <MessageForm sender={role} recipient={currentTabId} onSubmit={form =>
-                        this.sendMessage(engine.client, currentTabId, form.message)}/>)}
+                    <MessageForm sender={role} recipient={currentTabId} onSendMessage={this.sendMessage} engine={engine.client}/>)}
             </div>
         );
+    }
+
+    handleMessage = (engine, recipient, message, stance) => {
+        this.sendMessage(this.props.data.client, recipient, message, stance);
     }
 
     renderMapForResults(gameEngine, showOrders) {

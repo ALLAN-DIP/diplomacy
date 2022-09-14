@@ -226,6 +226,7 @@ ZOBRIST_HASH = 'zobrist_hash'
 STANCE = 'stance'
 # Every country's stance towards every other country.
 STANCES = 'stances'
+TRUTH = 'truth'
 
 # Special name sets.
 ALL_GAME_STATUSES = (FORMING, ACTIVE, PAUSED, COMPLETED, CANCELED)

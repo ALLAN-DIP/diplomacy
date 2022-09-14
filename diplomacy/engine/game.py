@@ -946,6 +946,7 @@ class Game(Jsonable):
         self.stances[power] = stance_to_add
 
     def add_message(self, message):
+        print(message)
         """ Add message to current game data.
             Only a server game can add a message with no timestamp:
             game will auto-generate a timestamp for the message.
@@ -1529,7 +1530,6 @@ class Game(Jsonable):
             self.powers = {}
 
     def process(self):
-        print(self.stances)
         """ Processes the current phase of the game.
 
             :return: game phase data with data before processing.
