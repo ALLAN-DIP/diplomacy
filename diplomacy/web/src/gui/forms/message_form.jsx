@@ -39,8 +39,8 @@ export class MessageForm extends React.Component {
         const onChange = Forms.createOnChangeCallback(this, this.props.onChange);
         const onSubmitTruth = Forms.createOnSubmitCallbackWithInit(this, this.props.onSubmit, this.initState(), true);
         const onSubmitLie = Forms.createOnSubmitCallbackWithInit(this, this.props.onSubmit, this.initState(), false);
-        const truthTitle = `send (${this.props.sender} ${UTILS.html.UNICODE_SMALL_RIGHT_ARROW} ${this.props.recipient})`;
-        const lieTitle = `send (${this.props.sender} ${UTILS.html.UNICODE_SMALL_RIGHT_ARROW} ${this.props.recipient})`;
+        const truthTitle = `Send Truth`;
+        const lieTitle = `Send Lie`;
 
         return (
             <div className='message-form'>
@@ -49,14 +49,23 @@ export class MessageForm extends React.Component {
                     <textarea id={'message'} className={'form-control'}
                               value={this.state.message} onChange={this.handleChange}/>
                 </div>
-                <Button key={'t'} title={truthTitle} onClick={() => {
-                    this.props.onSendMessage(this.props.engine, this.props.recipient, this.state.message, true);
-                    this.setState({message: ''});
-                }} pickEvent={true}/>
-                <Button key={'l'} title={lieTitle} onClick={() => {
-                    this.props.onSendMessage(this.props.engine, this.props.recipient, this.state.message, false)
-                    this.setState({message: ''});
-                }} pickEvent={true}/>
+                <div className={'send-buttons'}>
+                    <div className={"truth-button"}>
+                        <Button key={'t'} title={truthTitle} onClick={() => {
+                            this.props.onSendMessage(this.props.engine, this.props.recipient, this.state.message, true);
+                            this.setState({message: ''});
+                        }} pickEvent={true}/>
+                    </div>
+
+                    <div className={"deception-button"}>
+                        <Button key={'l'} title={lieTitle} onClick={() => {
+                            this.props.onSendMessage(this.props.engine, this.props.recipient, this.state.message, false)
+                            this.setState({message: ''});
+                        }} pickEvent={true}/>
+                    </div>
+
+                </div>
+
             </div>
         );
     }

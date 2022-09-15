@@ -429,6 +429,33 @@ button.collapsed .roll {
     visibility: hidden;
 }
 
+.send-buttons {
+    display: flex;
+}
+
+.send-buttons>* {
+    height: 40px;
+    display: flex;
+}
+
+.truth-button{
+    flex: 1;
+}
+
+.deception-button{
+    flex: 1;
+}
+
+.truth-button>* {
+    background-color: rgb(65, 172, 35);
+    flex: 1;
+}
+
+.deception-button>* {
+    background-color: crimson;
+    flex: 1;
+}
+
 /** Page login. **/
 /** Page games. **/
 /** Page game. **/
