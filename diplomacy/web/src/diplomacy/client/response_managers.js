@@ -63,6 +63,11 @@ export const RESPONSE_MANAGERS = {
     logout: function (context, response) {
         context.removeChannel();
     },
+    send_stance: function (context, response) {
+      const powerName = context.request.power_name;
+      const stance = context.request.stance;
+      context.game.local.addStance(powerName, stance);
+    },
     send_game_message: function (context, response) {
         const message = context.request.message;
         message.time_sent = response.data;

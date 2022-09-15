@@ -41,6 +41,18 @@ export class Forms {
         };
     }
 
+    static createOnSubmitCallbackWithInit(component, callback, resetState, init) {
+        return (event) => {
+            console.log('state:');
+            console.log(component.state);
+            if (callback)
+                callback(Object.assign({}, component.state), init);
+            if (resetState)
+                component.setState(resetState);
+            event.preventDefault();
+        };
+    }
+
     static createOnResetCallback(component, onChangeCallback, resetState) {
         return (event) => {
             if (onChangeCallback)
@@ -61,6 +73,10 @@ export class Forms {
 
     static createSubmit(title, large, onSubmit) {
         return <Button key={'submit'} title={title || 'submit'} onClick={onSubmit} pickEvent={true} large={large}/>;
+    }
+
+    static createSubmitWithKey(title, large, onSubmit, key) {
+        return <Button key={key} title={title || 'submit'} onClick={onSubmit} pickEvent={true} large={large}/>;
     }
 
     static createButton(title, fn, color, large) {

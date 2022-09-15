@@ -139,7 +139,8 @@ export class ContentGame extends React.Component {
             power: null,
             orderBuildingType: null,
             orderBuildingPath: [],
-            showAbbreviations: true
+            showAbbreviations: true,
+            stances: {}
         };
 
         // Bind some class methods to this instance.
@@ -489,13 +490,34 @@ export class ContentGame extends React.Component {
         return this.setState({tabPastMessages: tab});
     }
 
-    sendMessage(networkGame, recipient, body) {
+    handleStance = (country, stance) => {
+        const engine = this.props.data;
+        // TODO : maybe remove stances from power.js
+        const power = engine.getPower(engine.role);
+        power.setStances(country, parseInt(stance));
+
+        this.sendGameStance(engine.client, engine.role, power.getStances());
+    }
+
+    sendGameStance(networkGame, powerName, stance) {
         const engine = networkGame.local;
+        const info = {
+            power_name: powerName,
+            stance: stance,
+        }
+        networkGame.sendStance({stance: info});
+    }
+
+    sendMessage(networkGame, recipient, body, deception) {
+        console.log('body', body);
+        const engine = networkGame.local;
+
         const message = new Message({
             phase: engine.phase,
             sender: engine.role,
             recipient: recipient,
-            message: body
+            message: body,
+            truth: deception,
         });
         const page = this.getPage();
         networkGame.sendGameMessage({message: message})
@@ -962,10 +984,13 @@ export class ContentGame extends React.Component {
                 )}
                 {/* Send form. */}
                 {engine.isPlayerGame() && (
-                    <MessageForm sender={role} recipient={currentTabId} onSubmit={form =>
-                        this.sendMessage(engine.client, currentTabId, form.message)}/>)}
+                    <MessageForm sender={role} recipient={currentTabId} onSendMessage={this.sendMessage} engine={engine.client}/>)}
             </div>
         );
+    }
+
+    handleMessage = (engine, recipient, message, stance) => {
+        this.sendMessage(this.props.data.client, recipient, message, stance);
     }
 
     renderMapForResults(gameEngine, showOrders) {
@@ -1176,12 +1201,12 @@ export class ContentGame extends React.Component {
         );
     }
 
+
     renderTabCurrentPhase(toDisplay, engine, powerName, orderType, orderPath, currentPowerName, currentTabOrderCreation) {
         const powerNames = Object.keys(engine.powers);
         powerNames.sort();
 
         const orderedPowers = powerNames.map(pn => engine.powers[pn]);
-        console.log('orderedPowers', orderedPowers);
         return (
             <Tab id={'tab-current-phase'} display={toDisplay}>
                 <Row>
@@ -1205,7 +1230,9 @@ export class ContentGame extends React.Component {
                                        caption={'Powers info'}
                                        columns={TABLE_POWER_VIEW}
                                        data={orderedPowers}
-                                       wrapper={PowerView.wrap}/>
+                                       wrapper={PowerView.wrap}
+                                       countries={powerNames}
+                                       onChangeStance={this.handleStance}/>
                             </div>
                         </div>
                     </div>
@@ -1318,11 +1345,11 @@ export class ContentGame extends React.Component {
                                         role={engine.role}
                                         power={currentPower}/>
                 {(allowedPowerOrderTypes.length && (
-                    <span>
+                        <span>
                                 <strong>Orderable locations</strong>: {orderTypeToLocs[orderBuildingType].join(', ')}
                             </span>
-                ))
-                || (<strong>&nbsp;No orderable location.</strong>)}
+                    ))
+                    || (<strong>&nbsp;No orderable location.</strong>)}
                 {phaseType === 'A' && (
                     (buildCount === null && (
                         <strong>&nbsp;(unknown build count)</strong>
@@ -1342,7 +1369,6 @@ export class ContentGame extends React.Component {
         let count = 0;
         for (const [key, value] of Object.entries(highlights)) {
             if (key !== 'messages' || (currentPowerName && key !== currentPowerName)) {
-                console.log(key);
                 count += value;
             }
         }
@@ -1357,7 +1383,8 @@ export class ContentGame extends React.Component {
                             afterTitle={navAfterTitle}
                             username={page.channel.username}
                             navigation={navigation}/>
-                <Tabs menu={tabNames} titles={tabTitles} onChange={this.onChangeMainTab} active={mainTab} highlights={highlights}>
+                <Tabs menu={tabNames} titles={tabTitles} onChange={this.onChangeMainTab} active={mainTab}
+                      highlights={highlights}>
                     {/* Tab Phase history. */}
                     {(hasTabPhaseHistory && mainTab === 'phase_history' && this.renderTabResults(mainTab === 'phase_history', engine)) || ''}
                     {mainTab === 'messages' && this.renderTabMessages(mainTab === 'messages', engine, currentPowerName)}

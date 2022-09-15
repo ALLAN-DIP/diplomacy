@@ -51,7 +51,7 @@ export class Table extends React.Component {
             this.props.wrapper = defaultWrapper;
     }
 
-    static getHeader(columns) {
+     getHeader(columns) {
         const header = [];
         for (let entry of Object.entries(columns)) {
             const name = entry[0];
@@ -71,7 +71,7 @@ export class Table extends React.Component {
         return header;
     }
 
-    static getHeaderLine(header, caption) {
+     getHeaderLine(header, caption) {
         if (caption === 'Powers info') {
             return (
                 <thead className={'thead-light'}>
@@ -88,14 +88,18 @@ export class Table extends React.Component {
 
     }
 
-    static getBodyRow(header, row, rowIndex, wrapper, caption) {
+    handleStance = (country, stance) => {
+        this.props.onChangeStance(country, stance);
+    }
+
+     getBodyRow(header, row, rowIndex, wrapper, caption, countries) {
         const wrapped = wrapper(row);
 
         if (caption === 'Powers info') {
             return (<tr key={rowIndex}>
                 {header.map((headerColumn, colIndex) => <td className={'align-middle'}
                                                             key={colIndex}>{wrapped.get(headerColumn[1])}</td>)}
-                <td><Slider/></td>
+                <td><Slider country={countries[rowIndex]} onChangeStance={this.handleStance}/></td>
             </tr>);
         } else {
             return (<tr key={rowIndex}>
@@ -105,19 +109,19 @@ export class Table extends React.Component {
         }
     }
 
-    static getBodyLines(header, data, wrapper, caption) {
+     getBodyLines(header, data, wrapper, caption, countries) {
         return (
-            <tbody>{data.map((row, rowIndex) => Table.getBodyRow(header, row, rowIndex, wrapper, caption))}</tbody>);
+            <tbody>{data.map((row, rowIndex) => this.getBodyRow(header, row, rowIndex, wrapper, caption, countries))}</tbody>);
     }
 
     render() {
-        const header = Table.getHeader(this.props.columns, this.props.caption);
+        const header = this.getHeader(this.props.columns, this.props.caption);
         return (
             <div className={'table-responsive'}>
                 <table className={this.props.className}>
                     <caption>{this.props.caption} ({this.props.data.length})</caption>
-                    {Table.getHeaderLine(header, this.props.caption)}
-                    {Table.getBodyLines(header, this.props.data, this.props.wrapper, this.props.caption)}
+                    {this.getHeaderLine(header, this.props.caption)}
+                    {this.getBodyLines(header, this.props.data, this.props.wrapper, this.props.caption, this.props.countries)}
                 </table>
             </div>
         );

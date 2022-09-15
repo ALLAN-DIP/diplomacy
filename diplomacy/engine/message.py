@@ -65,13 +65,14 @@ class Message(Jsonable):
         are stored on server. Therefore, message timestamp is the time when server stores the message, not the time
         when message was sent by any client.
     """
-    __slots__ = ['sender', 'recipient', 'time_sent', 'phase', 'message']
+    __slots__ = ['sender', 'recipient', 'time_sent', 'phase', 'message', 'truth']
     model = {
         strings.SENDER: str,                                # either SYSTEM or a power name.
         strings.RECIPIENT: str,                             # either GLOBAL, OBSERVER, OMNISCIENT or a power name.
         strings.TIME_SENT: parsing.OptionalValueType(int),  # given by server.
         strings.PHASE: str,                                 # phase short name (e.g. 'S1901M' or 'COMPLETED')
         strings.MESSAGE: str,
+        strings.TRUTH: bool
     }
 
     def __init__(self, **kwargs):
@@ -80,9 +81,11 @@ class Message(Jsonable):
         self.time_sent = None               # type: int
         self.phase = None                   # type: str
         self.message = None                 # type: str
+        self.truth = True                   # type: bool
         super(Message, self).__init__(**kwargs)
 
     def __str__(self):
+        print(self.truth)
         return '[%d/%s/%s->%s](%s)' % (self.time_sent or 0, self.phase, self.sender, self.recipient, self.message)
 
     def __hash__(self):

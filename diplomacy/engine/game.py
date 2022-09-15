@@ -224,7 +224,7 @@ class Game(Jsonable):
                  'convoy_paths_dest', 'zobrist_hash', 'renderer', 'game_id', 'map_name', 'role', 'rules',
                  'message_history', 'state_history', 'result_history', 'status', 'timestamp_created', 'n_controls',
                  'deadline', 'registration_password', 'observer_level', 'controlled_powers', '_phase_wrapper_type',
-                 'phase_abbr', '_unit_owner_cache', 'daide_port', 'fixed_state']
+                 'phase_abbr', '_unit_owner_cache', 'daide_port', 'fixed_state', 'stances']
     zobrist_tables = {}
     rule_cache = ()
     model = {
@@ -259,6 +259,7 @@ class Game(Jsonable):
         strings.VICTORY: parsing.DefaultValueType(parsing.SequenceType(int), []),
         strings.WIN: parsing.DefaultValueType(int, 0),
         strings.ZOBRIST_HASH: parsing.DefaultValueType(int, 0),
+        strings.STANCES: parsing.DefaultValueType(parsing.DictType(str, parsing.DictType(str, int)), {}),
     }
 
     def __init__(self, game_id=None, **kwargs):
@@ -293,6 +294,8 @@ class Game(Jsonable):
         self.controlled_powers = None
         self.daide_port = None
         self.fixed_state = None
+
+        self.stances = {}
 
         # Caches
         self._unit_owner_cache = None               # {(unit, coast_required): owner}
@@ -842,7 +845,18 @@ class Game(Jsonable):
         assert self.is_player_game()
         return Message(phase=self.current_short_phase, sender=self.role, recipient=GLOBAL, message=body)
 
+    def add_stance(self, power_name, stance):
+        """ Add stance to power with given name.
+
+            :param power_name: power name (string).
+            :param stance: stance to add (string).
+        """
+        power = stance['power_name']
+        stance_to_add = stance['stance']
+        self.stances[power] = stance_to_add
+
     def add_message(self, message):
+        print(message)
         """ Add message to current game data.
             Only a server game can add a message with no timestamp:
             game will auto-generate a timestamp for the message.

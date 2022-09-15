@@ -102,6 +102,8 @@ export class Game {
         this.controlled_powers = gameData.controlled_powers;
         this.daide_port = gameData.daide_port;
         this.result = gameData.result || null;
+        // represents stances from every power to every other power
+        this.stances = {};
 
         this.phase = gameData.phase_abbr || null; // phase abbreviation
 
@@ -112,6 +114,7 @@ export class Game {
                 const powerState = entry[1];
                 if (powerState instanceof Power) {
                     this.powers[power_name] = powerState.copy();
+                    Object.assign(this.stances, powerState.getStances());
                 } else {
                     this.powers[power_name] = new Power(power_name, (this.isPlayerGame() ? power_name : this.role), this);
                     this.powers[power_name].setState(powerState);
@@ -205,6 +208,10 @@ export class Game {
         this.order_history.put(phaseData.name, phaseData.orders);
         this.result_history.put(phaseData.name, phaseData.results);
         this.message_history.put(phaseData.name, new SortedDict(phaseData.messages, parseInt));
+    }
+
+    addStance(powerName, stance) {
+        this.stances[powerName] = stance;
     }
 
     addMessage(message) {
@@ -359,6 +366,15 @@ export class Game {
                     this.powers[power_name].civil_disorder = state.civil_disorder[power_name];
         if (state.builds)
             this.builds = state.builds;
+        if (state.stances) {
+            for (let power of Object.keys(state.stances)) {
+                if (this.powers.hasOwnProperty(power)) {
+                    const country = this.powers[power];
+                    const stances = state.stances[power];
+                    country.setStances(stances);
+                }
+            }
+        }
     }
 
     setStatus(status) {

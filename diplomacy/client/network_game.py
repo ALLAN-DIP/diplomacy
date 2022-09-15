@@ -108,6 +108,7 @@ class NetworkGame(Game):
     get_phase_history = _game_request_method(Channel._get_phase_history)
     leave = _game_request_method(Channel._leave_game)
     send_game_message = _game_request_method(Channel._send_game_message)
+    send_stance = _game_request_method(Channel._send_stance)
     set_orders = _game_request_method(Channel._set_orders)
 
     clear_centers = _game_request_method(Channel._clear_centers)
