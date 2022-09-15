@@ -30,7 +30,7 @@ export class MessageForm extends React.Component {
     initState() {
         return {message: '', truth: false};
     }
-    
+
     handleChange = (event) => {
         this.setState({message: event.target.value});
     }
