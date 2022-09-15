@@ -1232,7 +1232,8 @@ export class ContentGame extends React.Component {
                                        data={orderedPowers}
                                        wrapper={PowerView.wrap}
                                        countries={powerNames}
-                                       onChangeStance={this.handleStance}/>
+                                       onChangeStance={this.handleStance}
+                                       player={engine.role}/>
                             </div>
                         </div>
                     </div>
