@@ -51,7 +51,7 @@ export class Table extends React.Component {
             this.props.wrapper = defaultWrapper;
     }
 
-     getHeader(columns) {
+    getHeader(columns) {
         const header = [];
         for (let entry of Object.entries(columns)) {
             const name = entry[0];
@@ -71,11 +71,13 @@ export class Table extends React.Component {
         return header;
     }
 
-     getHeaderLine(header, caption) {
+    getHeaderLine(header, caption) {
         if (caption === 'Powers info') {
             return (
                 <thead className={'thead-light'}>
-                <tr>{header.map((column, colIndex) => <th key={colIndex}>{column[2]}</th>)}<th>Stance</th></tr>
+                <tr>{header.map((column, colIndex) => <th key={colIndex}>{column[2]}</th>)}
+                    <th>Stance</th>
+                </tr>
                 </thead>
             );
         } else {
@@ -92,14 +94,18 @@ export class Table extends React.Component {
         this.props.onChangeStance(country, stance);
     }
 
-     getBodyRow(header, row, rowIndex, wrapper, caption, countries) {
+    getBodyRow(header, row, rowIndex, wrapper, caption, countries, player) {
         const wrapped = wrapper(row);
 
-        if (caption === 'Powers info') {
+        if (caption === 'Powers info' && player !== countries[rowIndex]) {
             return (<tr key={rowIndex}>
                 {header.map((headerColumn, colIndex) => <td className={'align-middle'}
                                                             key={colIndex}>{wrapped.get(headerColumn[1])}</td>)}
-                <td><Slider country={countries[rowIndex]} onChangeStance={this.handleStance}/></td>
+                {<td>
+
+                    <Slider country={countries[rowIndex]} onChangeStance={this.handleStance}/>
+
+                </td>}
             </tr>);
         } else {
             return (<tr key={rowIndex}>
@@ -109,9 +115,9 @@ export class Table extends React.Component {
         }
     }
 
-     getBodyLines(header, data, wrapper, caption, countries) {
+    getBodyLines(header, data, wrapper, caption, countries, player) {
         return (
-            <tbody>{data.map((row, rowIndex) => this.getBodyRow(header, row, rowIndex, wrapper, caption, countries))}</tbody>);
+            <tbody>{data.map((row, rowIndex) => this.getBodyRow(header, row, rowIndex, wrapper, caption, countries, player))}</tbody>);
     }
 
     render() {
@@ -121,7 +127,7 @@ export class Table extends React.Component {
                 <table className={this.props.className}>
                     <caption>{this.props.caption} ({this.props.data.length})</caption>
                     {this.getHeaderLine(header, this.props.caption)}
-                    {this.getBodyLines(header, this.props.data, this.props.wrapper, this.props.caption, this.props.countries)}
+                    {this.getBodyLines(header, this.props.data, this.props.wrapper, this.props.caption, this.props.countries, this.props.player)}
                 </table>
             </div>
         );
