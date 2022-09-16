@@ -16,7 +16,6 @@
 // ==============================================================================
 import React from 'react';
 import {Forms} from "../components/forms";
-import {UTILS} from "../../diplomacy/utils/utils";
 import PropTypes from "prop-types";
 import {Button} from "../components/button";
 
@@ -36,9 +35,6 @@ export class MessageForm extends React.Component {
     }
 
     render() {
-        const onChange = Forms.createOnChangeCallback(this, this.props.onChange);
-        const onSubmitTruth = Forms.createOnSubmitCallbackWithInit(this, this.props.onSubmit, this.initState(), true);
-        const onSubmitLie = Forms.createOnSubmitCallbackWithInit(this, this.props.onSubmit, this.initState(), false);
         const truthTitle = `Send Truth`;
         const lieTitle = `Send Lie`;
 

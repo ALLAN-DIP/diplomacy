@@ -38,10 +38,14 @@ export class Slider extends React.Component {
     }
 }
 
-/*Slider.propTypes = {
+Slider.propTypes = {
+    country: PropTypes.string,
+    stance: PropTypes.number,
+    onChangeStance: PropTypes.func,
 
 };
 
+/*
 Slider.defaultProps = {
 
 };*/
