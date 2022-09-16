@@ -56,7 +56,7 @@ export class Game {
 
         const nonNullFields = [
             'game_id', 'map_name', 'messages', 'role', 'rules', 'status', 'timestamp_created', 'deadline',
-            'message_history', 'order_history', 'state_history'
+            'message_history', 'order_history', 'state_history', 'stances'
         ];
         // These fields may be null.
         const nullFields = ['n_controls', 'registration_password'];
@@ -103,7 +103,7 @@ export class Game {
         this.daide_port = gameData.daide_port;
         this.result = gameData.result || null;
         // represents stances from every power to every other power
-        this.stances = {};
+        this.stances = gameData.stances;
 
         this.phase = gameData.phase_abbr || null; // phase abbreviation
 
@@ -114,7 +114,11 @@ export class Game {
                 const powerState = entry[1];
                 if (powerState instanceof Power) {
                     this.powers[power_name] = powerState.copy();
-                    Object.assign(this.stances, powerState.getStances());
+                    const stance = gameData.stances[power_name];
+
+                    for (const [power, stance] of Object.entries(stance)) {
+                        powerState.setStances(power, stance);
+                    }
                 } else {
                     this.powers[power_name] = new Power(power_name, (this.isPlayerGame() ? power_name : this.role), this);
                     this.powers[power_name].setState(powerState);
