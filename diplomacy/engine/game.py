@@ -853,10 +853,12 @@ class Game(Jsonable):
         """
         power = stance['power_name']
         stance_to_add = stance['stance']
-        self.stances[power] = stance_to_add
+        phase = stance['phase']
+        if power not in self.stances:
+            self.stances[power] = {}
+        self.stances[power][phase] = stance_to_add
 
     def add_message(self, message):
-        print(message)
         """ Add message to current game data.
             Only a server game can add a message with no timestamp:
             game will auto-generate a timestamp for the message.

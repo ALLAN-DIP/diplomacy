@@ -412,14 +412,10 @@ export class ContentGame extends React.Component {
         if (notification.message.recipient === 'GLOBAL')
             protagonist = notification.message.recipient;
         const messageHighlights = Object.assign({}, this.state.messageHighlights);
-        if (!messageHighlights.hasOwnProperty(protagonist)) {
+        if (!messageHighlights.hasOwnProperty(protagonist))
             messageHighlights[protagonist] = 1;
-            messageHighlights['messages'] = 1;
-        }
-        else {
+        else
             ++messageHighlights[protagonist];
-            ++messageHighlights['messages'];
-        }
         return this.setState({messageHighlights: messageHighlights})
             .then(() => this.notifiedNetworkGame(networkGame, notification));
     }
@@ -500,14 +496,15 @@ export class ContentGame extends React.Component {
         const power = engine.getPower(engine.role);
         power.setStances(country, parseInt(stance));
 
-        this.sendGameStance(engine.client, engine.role, power.getStances());
+        this.sendGameStance(engine.client, engine.role, power.getStances(), engine.phase);
     }
 
-    sendGameStance(networkGame, powerName, stance) {
+    sendGameStance(networkGame, powerName, stance, phase) {
         const engine = networkGame.local;
         const info = {
             power_name: powerName,
             stance: stance,
+            phase: phase
         }
         networkGame.sendStance({stance: info});
     }
@@ -880,7 +877,6 @@ export class ContentGame extends React.Component {
             if (this.state.messageHighlights.hasOwnProperty(protagonist) && this.state.messageHighlights[protagonist] > 0) {
                 const messageHighlights = Object.assign({}, this.state.messageHighlights);
                 --messageHighlights[protagonist];
-                --messageHighlights['messages'];
                 this.setState({messageHighlights: messageHighlights});
             }
         }
@@ -1212,6 +1208,7 @@ export class ContentGame extends React.Component {
         powerNames.sort();
 
         const orderedPowers = powerNames.map(pn => engine.powers[pn]);
+        console.log(engine.getPower(engine.role).getStances());
         return (
             <Tab id={'tab-current-phase'} display={toDisplay}>
                 <Row>
@@ -1238,7 +1235,8 @@ export class ContentGame extends React.Component {
                                        wrapper={PowerView.wrap}
                                        countries={powerNames}
                                        onChangeStance={this.handleStance}
-                                       player={engine.role}/>
+                                       stances={engine.getPower(engine.role).getStances()}
+                                       />
                             </div>
                         </div>
                     </div>
@@ -1371,6 +1369,14 @@ export class ContentGame extends React.Component {
             </div>
         );
 
+        let highlights = this.state.messageHighlights;
+        let count = 0;
+        for (const [key, value] of Object.entries(highlights)) {
+            if (key !== 'messages' || (currentPowerName && key !== currentPowerName)) {
+                count += value;
+            }
+        }
+        highlights['messages'] = count;
 
         return (
             <main>
@@ -1382,7 +1388,7 @@ export class ContentGame extends React.Component {
                             username={page.channel.username}
                             navigation={navigation}/>
                 <Tabs menu={tabNames} titles={tabTitles} onChange={this.onChangeMainTab} active={mainTab}
-                      highlights={this.state.messageHighlights}>
+                      highlights={highlights}>
                     {/* Tab Phase history. */}
                     {(hasTabPhaseHistory && mainTab === 'phase_history' && this.renderTabResults(mainTab === 'phase_history', engine)) || ''}
                     {mainTab === 'messages' && this.renderTabMessages(mainTab === 'messages', engine, currentPowerName)}
