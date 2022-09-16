@@ -510,7 +510,6 @@ export class ContentGame extends React.Component {
             stance: stance,
             phase: phase
         }
-        console.log(info);
         networkGame.sendStance({stance: info});
     }
 
@@ -1255,6 +1254,7 @@ export class ContentGame extends React.Component {
         powerNames.sort();
 
         const orderedPowers = powerNames.map(pn => engine.powers[pn]);
+        console.log(engine.getPower(engine.role).getStances());
         return (
             <Tab id={'tab-current-phase'} display={toDisplay}>
                 <Row>
@@ -1281,7 +1281,9 @@ export class ContentGame extends React.Component {
                                        wrapper={PowerView.wrap}
                                        countries={powerNames}
                                        onChangeStance={this.handleStance}
-                                       player={engine.role}/>
+                                       player={engine.role}
+                                       stances={engine.getPower(engine.role).getStances()}
+                                       />
                             </div>
                         </div>
                     </div>
