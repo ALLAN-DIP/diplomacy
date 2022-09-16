@@ -1725,6 +1725,9 @@ class Game(Jsonable):
         self.logs = current_phase_data.logs.copy()
         # We ignore 'results' for current phase data.
 
+    def get_stance(self):
+        return self.stances
+
     def get_state(self):
         """ Gets the internal saved state of the game.
             This state is intended to represent current game view

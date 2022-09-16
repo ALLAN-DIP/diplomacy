@@ -113,6 +113,15 @@ export class Game {
         this.result = gameData.result || null;
         // represents stances from every power to every other power
         this.stances = gameData.stances;
+        /*for (const [power, stances] of Object.entries(this.stances)) {
+            console.log('Power: ' + power);
+            for (const [otherPower, stance] of Object.entries(stances)) {
+
+                console.log('Other Power: ' + otherPower);
+                console.log('Stance: ' + stance);
+
+            }
+        }*/
 
         this.phase = gameData.phase_abbr || null; // phase abbreviation
 
@@ -123,14 +132,17 @@ export class Game {
                 const powerState = entry[1];
                 if (powerState instanceof Power) {
                     this.powers[power_name] = powerState.copy();
-                    const stance = gameData.stances[power_name];
 
-                    for (const [power, stance] of Object.entries(stance)) {
-                        powerState.setStances(power, stance);
-                    }
                 } else {
                     this.powers[power_name] = new Power(power_name, (this.isPlayerGame() ? power_name : this.role), this);
                     this.powers[power_name].setState(powerState);
+                }
+
+                const stance = gameData.stances[power_name];
+                if (stance !== null && stance !== undefined) {
+                    for (const [power, stance] of Object.entries(stance)) {
+                        this.powers[power_name].setStances(power, stance);
+                    }
                 }
             }
         } else if (this.state_history.size()) {
