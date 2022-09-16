@@ -106,6 +106,14 @@ export class Table extends React.Component {
                 </td>
             </tr>);
         } else {
+            if (caption === 'Powers info'){
+                return(
+                    <tr key={rowIndex}>
+                    {header.map((headerColumn, colIndex) => <td className={'align-middle'}
+                                                            key={colIndex}>{wrapped.get(headerColumn[1])}</td>)} <td></td>
+                    </tr>
+                )
+            }
             return (<tr key={rowIndex}>
                 {header.map((headerColumn, colIndex) => <td className={'align-middle'}
                                                             key={colIndex}>{wrapped.get(headerColumn[1])}</td>)}
