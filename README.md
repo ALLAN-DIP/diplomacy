@@ -108,13 +108,15 @@ To avoid
 error:0308010C:digital envelope routines::unsupported
 
 # In a terminal window or tab - Launch React server
+pm2 start "npm start" # for background activity
 npm start
 
 # In another terminal window or tab - Launch diplomacy server
+nohup python3 -m diplomacy.server.run # for background activity
 python -m diplomacy.server.run
 ```
 
-Use use ps -fA | grep <COMMAND> to find the background python process
+Use ps -fA | grep <COMMAND> to find the background python process
 and kill <PID> to kill it
 
 The HTTP get requests are implemented on port 8888
