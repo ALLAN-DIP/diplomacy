@@ -496,15 +496,17 @@ export class ContentGame extends React.Component {
         const power = engine.getPower(engine.role);
         power.setStances(country, parseInt(stance));
 
-        this.sendGameStance(engine.client, engine.role, power.getStances());
+        this.sendGameStance(engine.client, engine.role, power.getStances(), engine.phase);
     }
 
-    sendGameStance(networkGame, powerName, stance) {
+    sendGameStance(networkGame, powerName, stance, phase) {
         const engine = networkGame.local;
         const info = {
             power_name: powerName,
             stance: stance,
+            phase: phase
         }
+        console.log(info);
         networkGame.sendStance({stance: info});
     }
 
