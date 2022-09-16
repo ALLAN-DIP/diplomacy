@@ -97,6 +97,16 @@ cd diplomacy/web
 npm install .
 npm install . --only=dev
 
+```
+use node version <= 16 or
+```
+export NODE_OPTIONS=--openssl-legacy-provider
+```
+To avoid 
+
+```
+error:0308010C:digital envelope routines::unsupported
+
 # In a terminal window or tab - Launch React server
 npm start
 
