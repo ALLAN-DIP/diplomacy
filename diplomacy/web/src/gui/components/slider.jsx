@@ -6,7 +6,6 @@ export class Slider extends React.Component {
         super(props);
         if (props.stance > 0) {
             this.state = {value: props.stance}
-
         } else{
             this.state = this.getInitialValue();
         }

@@ -23,11 +23,12 @@ from diplomacy.utils.sorted_dict import SortedDict
 MESSAGES_TYPE = parsing.IndexedSequenceType(
     parsing.DictType(int, parsing.JsonableClassType(Message), SortedDict.builder(int, Message)), 'time_sent')
 
+
 class GamePhaseData(Jsonable):
     """ Small class to represent data for a game phase:
         phase name, state, orders, orders results and messages for this phase.
     """
-    __slots__ = ['name', 'state', 'orders', 'results', 'messages']
+    __slots__ = ['name', 'state', 'orders', 'results', 'messages', 'stances']
 
     model = {
         strings.NAME: str,
@@ -35,13 +36,15 @@ class GamePhaseData(Jsonable):
         strings.ORDERS: parsing.DictType(str, parsing.OptionalValueType(parsing.SequenceType(str))),
         strings.RESULTS: parsing.DictType(str, parsing.SequenceType(parsing.StringableType(common.StringableCode))),
         strings.MESSAGES: MESSAGES_TYPE,
+        strings.STANCES: parsing.DefaultValueType(parsing.DictType(str, parsing.DictType(str, int)), {}),
     }
 
-    def __init__(self, name, state, orders, results, messages):
+    def __init__(self, name, state, orders, results, messages, stances):
         """ Constructor. """
         self.name = ''
         self.state = {}
         self.orders = {}
         self.results = {}
         self.messages = {}
-        super(GamePhaseData, self).__init__(name=name, state=state, orders=orders, results=results, messages=messages)
+        super(GamePhaseData, self).__init__(name=name, state=state, orders=orders, results=results, messages=messages,
+                                            stances=stances)
