@@ -504,7 +504,6 @@ export class ContentGame extends React.Component {
     }
 
     sendGameStance(networkGame, powerName, stance) {
-        const engine = networkGame.local;
         const info = {
             power_name: powerName,
             stance: stance,

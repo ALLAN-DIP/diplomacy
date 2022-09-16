@@ -138,9 +138,9 @@ export class Game {
                     this.powers[power_name].setState(powerState);
                 }
 
-                const stance = gameData.stances[power_name];
-                if (stance !== null && stance !== undefined) {
-                    for (const [power, stance] of Object.entries(stance)) {
+                const stances = gameData.stances[power_name];
+                if (stances !== null && stances !== undefined) {
+                    for (const [power, stance] of Object.entries(stances)) {
                         this.powers[power_name].setStances(power, stance);
                     }
                 }
