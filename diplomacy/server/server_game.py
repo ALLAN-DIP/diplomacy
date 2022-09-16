@@ -91,7 +91,8 @@ class ServerGame(Game):
                                  state=phase_data.state,
                                  orders=phase_data.orders,
                                  results=phase_data.results,
-                                 messages=self.filter_messages(phase_data.messages, role))
+                                 messages=self.filter_messages(phase_data.messages, role),
+                                 stances=phase_data.stances,)
         # Filter for power roles.
         related_power_names = self.get_related_power_names(role)
         # Filter messages.
@@ -109,7 +110,8 @@ class ServerGame(Game):
                              state=phase_data.state,
                              orders=orders,
                              messages=messages,
-                             results=phase_data.results)
+                             results=phase_data.results,
+                             stances=phase_data.stances,)
 
     def game_can_start(self):
         """ Return True if server game can start.

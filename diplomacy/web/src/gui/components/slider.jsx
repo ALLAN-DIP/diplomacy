@@ -4,7 +4,11 @@ import PropTypes from "prop-types";
 export class Slider extends React.Component {
     constructor(props) {
         super(props);
-        this.state = this.getInitialValue();
+        if (props.stance > 0) {
+            this.state = {value: props.stance}
+        } else{
+            this.state = this.getInitialValue();
+        }
         this.handleChange = this.handleChange.bind(this);
     }
 
@@ -34,10 +38,14 @@ export class Slider extends React.Component {
     }
 }
 
-/*Slider.propTypes = {
+Slider.propTypes = {
+    country: PropTypes.string,
+    stance: PropTypes.number,
+    onChangeStance: PropTypes.func,
 
 };
 
+/*
 Slider.defaultProps = {
 
 };*/

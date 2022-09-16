@@ -500,11 +500,10 @@ export class ContentGame extends React.Component {
     }
 
     sendGameStance(networkGame, powerName, stance) {
-        const engine = networkGame.local;
         const info = {
             power_name: powerName,
             stance: stance,
-        }
+        };
         networkGame.sendStance({stance: info});
     }
 
@@ -1232,7 +1231,10 @@ export class ContentGame extends React.Component {
                                        data={orderedPowers}
                                        wrapper={PowerView.wrap}
                                        countries={powerNames}
-                                       onChangeStance={this.handleStance}/>
+                                       onChangeStance={this.handleStance}
+                                       stances={engine.getPower(engine.role).getStances()}
+                                       player={engine.role}
+                                       />
                             </div>
                         </div>
                     </div>
