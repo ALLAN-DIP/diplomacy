@@ -227,6 +227,7 @@ STANCE = 'stance'
 # Every country's stance towards every other country.
 STANCES = 'stances'
 TRUTH = 'truth'
+STANCES_HISTORY = 'stances_history'
 
 # Special name sets.
 ALL_GAME_STATUSES = (FORMING, ACTIVE, PAUSED, COMPLETED, CANCELED)

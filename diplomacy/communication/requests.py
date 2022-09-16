@@ -747,12 +747,13 @@ class SetGameState(_AbstractGameRequest):
         :type messages: dict
         :return: None
     """
-    __slots__ = ['state', 'orders', 'results', 'messages']
+    __slots__ = ['state', 'orders', 'results', 'messages', 'stances']
     params = {
         strings.STATE: dict,
         strings.ORDERS: parsing.DictType(str, parsing.SequenceType(str)),
         strings.RESULTS: parsing.DictType(str, parsing.SequenceType(str)),
         strings.MESSAGES: parsing.DictType(int, parsing.JsonableClassType(Message), SortedDict.builder(int, Message)),
+        strings.STANCES: parsing.DefaultValueType(parsing.DictType(str, parsing.DictType(str, int)), {}),
     }
 
     def __init__(self, **kwargs):

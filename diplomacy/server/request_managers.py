@@ -890,7 +890,7 @@ def on_set_game_state(server, request, connection_handler):
     """
     level = verify_request(server, request, connection_handler, observer_role=False, power_role=False)
     level.game.set_phase_data(GamePhaseData(
-        request.phase, request.state, request.orders, request.results, request.messages))
+        request.phase, request.state, request.orders, request.results, request.messages, request.stances))
     server.stop_game_if_needed(level.game)
     Notifier(server, ignore_addresses=[request.address_in_game]).notify_game_phase_data(level.game)
     server.save_game(level.game)

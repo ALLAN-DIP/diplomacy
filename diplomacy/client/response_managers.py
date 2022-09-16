@@ -260,7 +260,8 @@ def on_set_game_state(context, response):
                                               state=request.state,
                                               orders=request.orders,
                                               messages=request.messages,
-                                              results=request.results))
+                                              results=request.results,
+                                              stances=request.stances))
 
 def on_set_game_status(context, response):
     """ Manage response for request SetGameStatus.
