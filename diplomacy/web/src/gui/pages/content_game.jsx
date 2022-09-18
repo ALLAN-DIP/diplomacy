@@ -1252,6 +1252,8 @@ export class ContentGame extends React.Component {
         powerNames.sort();
 
         const orderedPowers = powerNames.map(pn => engine.powers[pn]);
+        const stances = engine.getPower(engine.role) === null ? {} : engine.getPower(engine.role).getStances();
+
         return (
             <Tab id={'tab-current-phase'} display={toDisplay}>
                 <Row>
@@ -1278,8 +1280,7 @@ export class ContentGame extends React.Component {
                                        wrapper={PowerView.wrap}
                                        countries={powerNames}
                                        onChangeStance={this.handleStance}
-                                       player={engine.role}
-                                       stances={engine.getPower(engine.role).getStances()}
+                                       stances={stances}
                                        player={engine.role}
                                        />
                             </div>
