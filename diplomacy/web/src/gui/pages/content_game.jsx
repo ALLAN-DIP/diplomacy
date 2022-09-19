@@ -415,8 +415,7 @@ export class ContentGame extends React.Component {
         if (!messageHighlights.hasOwnProperty(protagonist)) {
             messageHighlights[protagonist] = 1;
             messageHighlights['messages'] = 1;
-        }
-        else {
+        } else {
             ++messageHighlights[protagonist];
             ++messageHighlights['messages'];
         }
