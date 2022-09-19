@@ -110,7 +110,7 @@ export class Table extends React.Component {
                 return(
                     <tr key={rowIndex}>
                     {header.map((headerColumn, colIndex) => <td className={'align-middle'}
-                                                            key={colIndex}>{wrapped.get(headerColumn[1])}</td>)} <td></td>
+                                                            key={colIndex}>{wrapped.get(headerColumn[1])}</td>)}<td></td>
                     </tr>
                 )
             }
