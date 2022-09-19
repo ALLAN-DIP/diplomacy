@@ -412,10 +412,13 @@ export class ContentGame extends React.Component {
         if (notification.message.recipient === 'GLOBAL')
             protagonist = notification.message.recipient;
         const messageHighlights = Object.assign({}, this.state.messageHighlights);
-        if (!messageHighlights.hasOwnProperty(protagonist))
+        if (!messageHighlights.hasOwnProperty(protagonist)) {
             messageHighlights[protagonist] = 1;
-        else
+            messageHighlights['messages'] = 1;
+        } else {
             ++messageHighlights[protagonist];
+            ++messageHighlights['messages'];
+        }
         return this.setState({messageHighlights: messageHighlights})
             .then(() => this.notifiedNetworkGame(networkGame, notification));
     }
@@ -875,6 +878,7 @@ export class ContentGame extends React.Component {
             if (this.state.messageHighlights.hasOwnProperty(protagonist) && this.state.messageHighlights[protagonist] > 0) {
                 const messageHighlights = Object.assign({}, this.state.messageHighlights);
                 --messageHighlights[protagonist];
+                --messageHighlights['messages'];
                 this.setState({messageHighlights: messageHighlights});
             }
         }
@@ -1369,14 +1373,6 @@ export class ContentGame extends React.Component {
             </div>
         );
 
-        let highlights = this.state.messageHighlights;
-        let count = 0;
-        for (const [key, value] of Object.entries(highlights)) {
-            if (key !== 'messages' || (currentPowerName && key !== currentPowerName)) {
-                count += value;
-            }
-        }
-        highlights['messages'] = count;
 
         return (
             <main>
@@ -1388,7 +1384,7 @@ export class ContentGame extends React.Component {
                             username={page.channel.username}
                             navigation={navigation}/>
                 <Tabs menu={tabNames} titles={tabTitles} onChange={this.onChangeMainTab} active={mainTab}
-                      highlights={highlights}>
+                      highlights={this.state.messageHighlights}>
                     {/* Tab Phase history. */}
                     {(hasTabPhaseHistory && mainTab === 'phase_history' && this.renderTabResults(mainTab === 'phase_history', engine)) || ''}
                     {mainTab === 'messages' && this.renderTabMessages(mainTab === 'messages', engine, currentPowerName)}
