@@ -112,7 +112,7 @@ pm2 start "npm start" # for background activity
 npm start
 
 # In another terminal window or tab - Launch diplomacy server
-nohup python3 -m diplomacy.server.run # for background activity
+nohup python3 -m diplomacy.server.run & # for background activity
 python -m diplomacy.server.run
 ```
 
