@@ -52,7 +52,7 @@ export class JoinForm extends React.Component {
                     {Forms.createLabel(this.getPowerNameID(), 'Power:')}
                     <select id={this.getPowerNameID()} className={'from-control custom-select ml-2'}
                             value={Forms.getValue(this.state, this.getPowerNameID())} onChange={onChange}>
-                        {Forms.createSelectOptions(this.props.availablePowers, true)}
+                        {Forms.createSelectOptions(this.props.availablePowers, false)}
                     </select>
                 </div>
                 {this.props.password_required ? (
