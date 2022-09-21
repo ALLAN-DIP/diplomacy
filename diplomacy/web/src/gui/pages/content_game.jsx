@@ -140,7 +140,8 @@ export class ContentGame extends React.Component {
             orderBuildingType: null,
             orderBuildingPath: [],
             showAbbreviations: true,
-            stances: {}
+            stances: {},
+            currentMessage: '',
         };
 
         // Bind some class methods to this instance.
@@ -957,6 +958,10 @@ export class ContentGame extends React.Component {
         const highlights = this.state.messageHighlights;
         const unreadMarked = new Set();
 
+        const onChangeMessage = (msg) => {
+            this.setState({currentMessage: msg});
+        }
+
         return (
             <div className={'panel-messages'} key={'panel-messages'}>
                 {/* Messages. */}
@@ -995,7 +1000,7 @@ export class ContentGame extends React.Component {
                 )}
                 {/* Send form. */}
                 {engine.isPlayerGame() && (
-                    <MessageForm sender={role} recipient={currentTabId} onSendMessage={this.sendMessage} engine={engine.client}/>)}
+                    <MessageForm sender={role} recipient={currentTabId} onSendMessage={this.sendMessage} engine={engine.client} defaultMessage={this.state.currentMessage} handleMessage={onChangeMessage}/>)}
             </div>
         );
     }
