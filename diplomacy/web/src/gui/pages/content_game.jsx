@@ -511,26 +511,33 @@ export class ContentGame extends React.Component {
     }
 
     sendMessage(networkGame, recipient, body, deception) {
-        console.log('body', body);
-        const engine = networkGame.local;
+        // make sure the message is not empty
+        if (/\S/.test(body)) {
+            console.log('body', body);
+            const engine = networkGame.local;
 
-        const message = new Message({
-            phase: engine.phase,
-            sender: engine.role,
-            recipient: recipient,
-            message: body,
-            truth: deception,
-        });
-        const page = this.getPage();
-        networkGame.sendGameMessage({message: message})
-            .then(() => {
-                page.load(
-                    `game: ${engine.game_id}`,
-                    <ContentGame data={engine}/>,
-                    {success: `Message sent: ${JSON.stringify(message)}`}
-                );
-            })
-            .catch(error => page.error(error.toString()));
+            const message = new Message({
+                phase: engine.phase,
+                sender: engine.role,
+                recipient: recipient,
+                message: body,
+                truth: deception,
+            });
+            const page = this.getPage();
+            networkGame.sendGameMessage({message: message})
+                .then(() => {
+                    page.load(
+                        `game: ${engine.game_id}`,
+                        <ContentGame data={engine}/>,
+                        {success: `Message sent: ${JSON.stringify(message)}`}
+                    );
+                })
+                .catch(error => page.error(error.toString()));
+        } else {
+            alert('Message cannot be empty.');
+        }
+
+
     }
 
     onProcessGame() {
@@ -990,10 +997,6 @@ export class ContentGame extends React.Component {
                     <MessageForm sender={role} recipient={currentTabId} onSendMessage={this.sendMessage} engine={engine.client}/>)}
             </div>
         );
-    }
-
-    handleMessage = (engine, recipient, message, stance) => {
-        this.sendMessage(this.props.data.client, recipient, message, stance);
     }
 
     renderMapForResults(gameEngine, showOrders) {
