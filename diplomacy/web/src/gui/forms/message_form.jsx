@@ -27,11 +27,12 @@ export class MessageForm extends React.Component {
     }
 
     initState() {
-        return {message: '', truth: false};
+        return {message: this.props.defaultMessage, truth: false};
     }
 
     handleChange = (event) => {
         this.setState({message: event.target.value});
+        this.props.handleMessage(event.target.value);
     }
 
     render() {
@@ -47,16 +48,18 @@ export class MessageForm extends React.Component {
                 </div>
                 <div className={'send-buttons'}>
                     <div className={"truth-button"}>
-                        <Button key={'t'} title={truthTitle} onClick={() => {
+                        <Button key={'t'} title={truthTitle + ` to ${this.props.recipient}`} onClick={() => {
                             this.props.onSendMessage(this.props.engine, this.props.recipient, this.state.message, true);
                             this.setState({message: ''});
+                            this.props.handleMessage('');
                         }} pickEvent={true}/>
                     </div>
 
                     <div className={"deception-button"}>
-                        <Button key={'l'} title={lieTitle} onClick={() => {
+                        <Button key={'l'} title={lieTitle + ` to ${this.props.recipient}`} onClick={() => {
                             this.props.onSendMessage(this.props.engine, this.props.recipient, this.state.message, false)
                             this.setState({message: ''});
+                            this.props.handleMessage('');
                         }} pickEvent={true}/>
                     </div>
 
@@ -71,5 +74,6 @@ MessageForm.propTypes = {
     sender: PropTypes.string,
     recipient: PropTypes.string,
     onChange: PropTypes.func,
-    onSubmit: PropTypes.func
+    onSubmit: PropTypes.func,
+    defaultMessage: PropTypes.string,
 };
