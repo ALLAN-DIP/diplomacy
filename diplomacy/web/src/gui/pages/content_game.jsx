@@ -511,6 +511,8 @@ export class ContentGame extends React.Component {
     }
 
     sendMessage(networkGame, recipient, body, deception) {
+            const page = this.getPage();
+
         // make sure the message is not empty
         if (/\S/.test(body)) {
             console.log('body', body);
@@ -523,7 +525,6 @@ export class ContentGame extends React.Component {
                 message: body,
                 truth: deception,
             });
-            const page = this.getPage();
             networkGame.sendGameMessage({message: message})
                 .then(() => {
                     page.load(
@@ -534,7 +535,7 @@ export class ContentGame extends React.Component {
                 })
                 .catch(error => page.error(error.toString()));
         } else {
-            alert('Message cannot be empty.');
+            page.error('Message cannot be empty.');
         }
 
 
