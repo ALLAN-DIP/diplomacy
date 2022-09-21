@@ -415,9 +415,12 @@ export class ContentGame extends React.Component {
         const messageHighlights = Object.assign({}, this.state.messageHighlights);
         if (!messageHighlights.hasOwnProperty(protagonist)) {
             messageHighlights[protagonist] = 1;
-            messageHighlights['messages'] = 1;
         } else {
             ++messageHighlights[protagonist];
+        }
+        if (!messageHighlights.hasOwnProperty('messages')) {
+            messageHighlights['messages'] = 1;
+        } else {
             ++messageHighlights['messages'];
         }
         return this.setState({messageHighlights: messageHighlights})
