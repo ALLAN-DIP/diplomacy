@@ -38,7 +38,9 @@ export class MessageView extends React.Component {
                 classNames.push('message-read');
             onClick = this.props.onClick ? {onClick: () => this.props.onClick(message)} : {};
         }
-        return (
+
+        if (message.sender !== owner) {
+            return (
             <div className={'game-message-wrapper' + (
                 this.props.phase && this.props.phase !== message.phase ? ' other-phase' : ' new-phase')}
                  {...id}>
@@ -47,7 +49,33 @@ export class MessageView extends React.Component {
                         {message.phase}
                     </div>
                     <div>
-                        {message.sender}
+                        {message.sender + ':'}
+                    </div>
+                    <div className="message-content col-md">
+                        {messagesLines.map((line, lineIndex) => <div key={lineIndex}>{
+                            line.replace(/(<([^>]+)>)/ig, "")
+                        }</div>)}
+                    </div>
+                    <div>
+                        <input type="radio" name="annotation" value="true" />
+                        <text>True</text>
+                        <input type="radio" name="annotation" value="false" />
+                        <text>False</text>
+                    </div>
+                </div>
+            </div>
+        );
+        } else {
+            return (
+            <div className={'game-message-wrapper' + (
+                this.props.phase && this.props.phase !== message.phase ? ' other-phase' : ' new-phase')}
+                 {...id}>
+                <div className={classNames.join(' ')} {...onClick}>
+                    <div className="message-header col-md-auto text-md-right text-center">
+                        {message.phase}
+                    </div>
+                    <div>
+                        {message.sender + ':'}
                     </div>
                     <div className="message-content col-md">
                         {messagesLines.map((line, lineIndex) => <div key={lineIndex}>{
@@ -57,6 +85,10 @@ export class MessageView extends React.Component {
                 </div>
             </div>
         );
+        }
+
+
+
     }
 }
 
