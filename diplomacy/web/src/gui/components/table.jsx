@@ -97,28 +97,16 @@ export class Table extends React.Component {
      getBodyRow(header, row, rowIndex, wrapper, caption, countries, stances, player) {
         const wrapped = wrapper(row);
 
-        if (caption === 'Powers info' && player !== countries[rowIndex]) {
-            return (<tr key={rowIndex}>
+        return (<tr key={rowIndex}>
                 {header.map((headerColumn, colIndex) => <td className={'align-middle'}
                                                             key={colIndex}>{wrapped.get(headerColumn[1])}</td>)}
-                <td><Slider country={countries[rowIndex]} onChangeStance={this.handleStance}
+
+                {(caption === 'Powers info' && player !== countries[rowIndex]) ?
+                    (<td><Slider country={countries[rowIndex]} onChangeStance={this.handleStance}
                             stance={stances[countries[rowIndex]]}/>
-                </td>
+                </td>) : null}
+
             </tr>);
-        } else {
-            if (caption === 'Powers info'){
-                return(
-                    <tr key={rowIndex}>
-                    {header.map((headerColumn, colIndex) => <td className={'align-middle'}
-                                                            key={colIndex}>{wrapped.get(headerColumn[1])}</td>)}<td></td>
-                    </tr>
-                )
-            }
-            return (<tr key={rowIndex}>
-                {header.map((headerColumn, colIndex) => <td className={'align-middle'}
-                                                            key={colIndex}>{wrapped.get(headerColumn[1])}</td>)}
-            </tr>);
-        }
     }
 
     getBodyLines(header, data, wrapper, caption, countries, stances, player) {
