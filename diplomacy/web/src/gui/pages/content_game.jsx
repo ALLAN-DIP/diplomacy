@@ -197,10 +197,22 @@ export class ContentGame extends React.Component {
         if (game.daide_port)
             title += ` | DAIDE ${game.daide_port}`;
         const remainingTime = game.deadline_timer;
+        const remainingHour = Math.floor(remainingTime / 3600);
+        const remainingMinute = Math.floor((remainingTime - remainingHour * 3600) / 60);
+        const remainingSecond = remainingTime - remainingHour * 3600 - remainingMinute * 60;
+
         if (remainingTime === undefined)
             title += ` (deadline: ${game.deadline} sec)`;
         else if (remainingTime)
-            title += ` (remaining ${remainingTime} sec)`;
+
+            title += ' (remaining ';
+            if (remainingHour > 0) {
+                title += `${remainingHour}h `;
+            }
+            if (remainingMinute > 0) {
+                title += `${remainingMinute}m `;
+            }
+            title += `${remainingSecond}s)`;
         return title;
     }
 
