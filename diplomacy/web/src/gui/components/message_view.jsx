@@ -42,7 +42,7 @@ export class MessageView extends React.Component {
         }
 
 
-            return (
+        return (
             <div className={'game-message-wrapper' + (
                 this.props.phase && this.props.phase !== message.phase ? ' other-phase' : ' new-phase')}
                  {...id}>
@@ -59,16 +59,18 @@ export class MessageView extends React.Component {
                         }</div>)}
                     </div>
                     {message.sender !== owner ? (
-                    <div>
-                        <input type="radio" name="annotation" value="true" />
-                        <text>True</text>
-                        <input type="radio" name="annotation" value="false" />
-                        <text>False</text>
-                    </div>) : null}
+                        <div>
+
+                            <input type="radio" name="annotation" value="true"
+                                   onClick={() => this.props.onSendRecipientAnnotation(this.props.message, true)}/>
+                            True
+                            <input type="radio" name="annotation" value="false"
+                                   onClick={() => this.props.onSendRecipientAnnotation(this.props.message, false)}/>
+                            False
+                        </div>) : null}
                 </div>
             </div>
-            );
-
+        );
 
 
     }

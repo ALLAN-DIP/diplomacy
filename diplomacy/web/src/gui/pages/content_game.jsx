@@ -178,6 +178,8 @@ export class ContentGame extends React.Component {
         this.reloadServerOrders = this.reloadServerOrders.bind(this);
         this.renderOrders = this.renderOrders.bind(this);
         this.sendMessage = this.sendMessage.bind(this);
+        this.sendGameStance = this.sendGameStance.bind(this);
+        this.sendRecipientAnnotation = this.sendRecipientAnnotation.bind(this);
         this.setOrders = this.setOrders.bind(this);
         this.setSelectedLocation = this.setSelectedLocation.bind(this);
         this.setSelectedVia = this.setSelectedVia.bind(this);
@@ -499,11 +501,21 @@ export class ContentGame extends React.Component {
 
     handleStance = (country, stance) => {
         const engine = this.props.data;
-        // TODO : maybe remove stances from power.js
         const power = engine.getPower(engine.role);
         power.setStances(country, parseInt(stance));
 
         this.sendGameStance(engine.client, engine.role, power.getStances());
+    }
+
+    handleRecipientAnnotation = (message, annotation) => {
+        const engine = this.props.data;
+        console.log(message, annotation);
+        this.sendRecipientAnnotation(engine.client, message.time_sent, annotation);
+    }
+
+    sendRecipientAnnotation(networkGame, time_sent, annotation) {
+        const info = {time_sent: time_sent, annotation: annotation};
+        networkGame.sendRecipientAnnotation({annotation: info});
     }
 
     sendGameStance(networkGame, powerName, stance) {
@@ -939,7 +951,7 @@ export class ContentGame extends React.Component {
                                         messages{engine.isPlayerGame() ? ` with ${protagonist}` : ''}.</div>) :
                                     messageChannels[protagonist].map((message, index) => (
                                         <MessageView key={index} phase={engine.phase} owner={role} message={message}
-                                                     read={true}/>
+                                                     read={true} onSendRecipientAnnotation={this.handleRecipientAnnotation}/>
                                     ))
                             )}
                         </Tab>
@@ -987,7 +999,7 @@ export class ContentGame extends React.Component {
                                         return <MessageView key={index} phase={engine.phase} owner={role}
                                                             message={message}
                                                             read={message.phase !== engine.phase}
-                                                            id={id} onClick={this.onClickMessage}/>;
+                                                            id={id} onClick={this.onClickMessage} onSendRecipientAnnotation={this.handleRecipientAnnotation}/>;
                                     }))
                             )}
                         </Tab>

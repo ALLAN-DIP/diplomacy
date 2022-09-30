@@ -858,7 +858,12 @@ class Game(Jsonable):
         assert self.is_player_game()
         return Message(phase=self.current_short_phase, sender=self.role, recipient=GLOBAL, message=body)
 
-    def add_stance(self, power_name, stance):
+    def add_recipient_annotation(self, annotation):
+        print('--- start ---')
+        print(annotation)
+        print('--- end ---')
+
+    def add_stance(self, stance):
         """ Add stance to power with given name.
 
             :param power_name: power name (string).

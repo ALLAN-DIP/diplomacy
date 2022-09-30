@@ -67,6 +67,7 @@ export const REQUESTS = {
         leave_game: {level: STRINGS.GAME, model: {}},
         process_game: {level: STRINGS.GAME, model: {}},
         query_schedule: {level: STRINGS.GAME, model: {}},
+        send_recipient_annotation: {level: STRINGS.GAME, model: {time_sent: null, annotation: null}},
         send_stance: {level: STRINGS.GAME, model: {power_name: null, stance: null}},
         send_game_message: {level: STRINGS.GAME, model: {message: null}},
         set_dummy_powers: {level: STRINGS.GAME, model: {username: null, power_names: null}},
