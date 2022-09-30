@@ -75,6 +75,11 @@ export class NetworkGame {
         return this._req(Channel.prototype.leaveGame, parameters);
     }
 
+    sendRecipientAnnotation(parameters) {
+        console.log('network game', parameters);
+        return this._req(Channel.prototype.sendRecipientAnnotation, parameters);
+    }
+
     sendStance(parameters) {
         return this._req(Channel.prototype.sendStance, parameters);
     }

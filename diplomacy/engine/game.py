@@ -948,7 +948,12 @@ class Game(Jsonable):
 
         self.logs.put(log.time_sent, log)
         return log.time_sent
-    def add_stance(self, power_name, stance):
+    def add_recipient_annotation(self, annotation):
+        print('--- start ---')
+        print(annotation)
+        print('--- end ---')
+
+    def add_stance(self, stance):
         """ Add stance to power with given name.
 
             :param power_name: power name (string).

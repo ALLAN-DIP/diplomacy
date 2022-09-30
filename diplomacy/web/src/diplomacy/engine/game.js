@@ -237,6 +237,14 @@ export class Game {
         this.log_history.put(phaseData.name, new SortedDict(phaseData.logs, parseInt));
     }
 
+    addRecipientAnnotation(time_sent, annotation) {
+        // TODO add annotation
+        console.log('addRecipientAnnotation starts')
+        console.log(time_sent)
+        console.log(annotation)
+        console.log('addRecipientAnnotation ends')
+    }
+
     addStance(powerName, stance) {
         this.stances[powerName] = stance;
     }
