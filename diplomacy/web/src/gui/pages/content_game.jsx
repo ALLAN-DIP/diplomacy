@@ -521,7 +521,6 @@ export class ContentGame extends React.Component {
 
     handleRecipientAnnotation = (message, annotation) => {
         const engine = this.props.data;
-        console.log(message, annotation);
         this.sendRecipientAnnotation(engine.client, message.time_sent, annotation);
     }
 
@@ -543,7 +542,6 @@ export class ContentGame extends React.Component {
 
         // make sure the message is not empty
         if (/\S/.test(body)) {
-            console.log('body', body);
             const engine = networkGame.local;
 
             const message = new Message({
@@ -963,7 +961,7 @@ export class ContentGame extends React.Component {
                                         messages{engine.isPlayerGame() ? ` with ${protagonist}` : ''}.</div>) :
                                     messageChannels[protagonist].map((message, index) => (
                                         <MessageView key={index} phase={engine.phase} owner={role} message={message}
-                                                     read={true} onSendRecipientAnnotation={this.handleRecipientAnnotation}/>
+                                                     read={true} onSendRecipientAnnotation={this.handleRecipientAnnotation} />
                                     ))
                             )}
                         </Tab>

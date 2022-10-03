@@ -87,7 +87,6 @@ class Message(Jsonable):
         super(Message, self).__init__(**kwargs)
 
     def __str__(self):
-        print(self.truth)
         return '[%d/%s/%s->%s](%s)' % (self.time_sent or 0, self.phase, self.sender, self.recipient, self.message)
 
     def __hash__(self):

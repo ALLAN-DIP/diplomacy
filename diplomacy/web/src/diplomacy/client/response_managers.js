@@ -64,8 +64,8 @@ export const RESPONSE_MANAGERS = {
         context.removeChannel();
     },
     send_recipient_annotation: function (context, response) {
-        const timeSent = context.request.time_sent;
-        const annotation = context.request.annotation;
+        const timeSent = context.request.annotation['time_sent'];
+        const annotation = context.request.annotation['annotation'];
         context.game.local.addRecipientAnnotation(timeSent, annotation);
     },
     send_stance: function (context, response) {

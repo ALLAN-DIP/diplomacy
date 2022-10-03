@@ -113,15 +113,7 @@ export class Game {
         this.result = gameData.result || null;
         // represents stances from every power to every other power
         this.stances = gameData.stances;
-        /*for (const [power, stances] of Object.entries(this.stances)) {
-            console.log('Power: ' + power);
-            for (const [otherPower, stance] of Object.entries(stances)) {
-
-                console.log('Other Power: ' + otherPower);
-                console.log('Stance: ' + stance);
-
-            }
-        }*/
+        this.recipient_annotations = gameData.annotated_messages || {};
 
         this.phase = gameData.phase_abbr || null; // phase abbreviation
 
@@ -237,12 +229,8 @@ export class Game {
         this.log_history.put(phaseData.name, new SortedDict(phaseData.logs, parseInt));
     }
 
-    addRecipientAnnotation(time_sent, annotation) {
-        // TODO add annotation
-        console.log('addRecipientAnnotation starts')
-        console.log(time_sent)
-        console.log(annotation)
-        console.log('addRecipientAnnotation ends')
+    addRecipientAnnotation(timeSent, annotation) {
+        this.recipient_annotations[timeSent] = annotation;
     }
 
     addStance(powerName, stance) {
@@ -258,6 +246,7 @@ export class Game {
         if (this.isPlayerGame() && !message.isGlobal() && this.role !== message.sender && this.role !== message.recipient)
             throw new Error('Given message is not related to current player ' + this.role);
         this.messages.put(message.time_sent, message);
+        this.recipient_annotations[message.time_sent] = message;
     }
 
     assertPlayerGame(powerName) {
@@ -566,6 +555,11 @@ export class Game {
                     protagonist = message.sender;
                 if (!messageChannels.hasOwnProperty(protagonist))
                     messageChannels[protagonist] = [];
+
+                if (message.time_sent in this.recipient_annotations) {
+                    message.recipient_annotation = this.recipient_annotations[message.time_sent].recipient_annotation;
+                }
+
                 messageChannels[protagonist].push(message);
             }
         }
