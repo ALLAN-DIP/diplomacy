@@ -1116,11 +1116,6 @@ export class ContentGame extends React.Component {
                     <Button title={UTILS.html.UNICODE_RIGHT_ARROW} onClick={this.onIncrementPastPhase} pickEvent={true}
                             disabled={phaseIndex === pastPhases.length - 1}/>
                 </div>
-                <div className="custom-control custom-control-inline custom-checkbox">
-                    <input className="custom-control-input" id="show-orders" type="checkbox"
-                           checked={this.state.historyShowOrders} onChange={this.onChangeShowPastOrders}/>
-                    <label className="custom-control-label" htmlFor="show-orders">Show orders</label>
-                </div>
             </form>
         );
     }
