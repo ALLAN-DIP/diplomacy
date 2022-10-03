@@ -60,11 +60,10 @@ export class MessageView extends React.Component {
                     </div>
                     {message.sender !== owner ? (
                         <div>
-
-                            <input type="radio" name="annotation" value="true"
+                            <input type="radio" name="annotation" value="true" defaultChecked={this.props.message.recipient_annotation && this.props.message.recipient_annotation === 'True'}
                                    onClick={() => this.props.onSendRecipientAnnotation(this.props.message, true)}/>
                             True
-                            <input type="radio" name="annotation" value="false"
+                            <input type="radio" name="annotation" value="false" defaultChecked={this.props.message.recipient_annotation && this.props.message.recipient_annotation === 'False'}
                                    onClick={() => this.props.onSendRecipientAnnotation(this.props.message, false)}/>
                             False
                         </div>) : null}

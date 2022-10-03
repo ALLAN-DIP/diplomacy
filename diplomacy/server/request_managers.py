@@ -795,7 +795,6 @@ def on_save_game(server, request, connection_handler):
 def on_send_recipient_annotation(server, request, connection_handler):
     level = verify_request(server, request, connection_handler, observer_role=False, omniscient_role=False)
     token, annotation = request.token, request.annotation
-    print('on_send_recipient_annotation', annotation)
     assert_game_not_finished(level.game)
     level.game.add_recipient_annotation(annotation)
 
