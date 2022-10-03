@@ -226,7 +226,8 @@ class Game(Jsonable):
                  'convoy_paths_dest', 'zobrist_hash', 'renderer', 'game_id', 'map_name', 'role', 'rules',
                  'message_history', 'state_history', 'result_history', 'status', 'timestamp_created', 'n_controls',
                  'deadline', 'registration_password', 'observer_level', 'controlled_powers', '_phase_wrapper_type',
-                 'phase_abbr', '_unit_owner_cache', 'daide_port', 'fixed_state', 'log_history','logs', 'stances', 'stances_history']
+                 'phase_abbr', '_unit_owner_cache', 'daide_port', 'fixed_state', 'log_history','logs', 'stances', 'stances_history',
+                 'annotated_messages']
     zobrist_tables = {}
     rule_cache = ()
     model = {
@@ -266,6 +267,8 @@ class Game(Jsonable):
         strings.STANCES: parsing.DefaultValueType(parsing.DictType(str, parsing.DictType(str, int)), {}),
         strings.STANCES_HISTORY: parsing.DefaultValueType(
             parsing.DictType(str, parsing.DictType(str, parsing.DictType(str, int))), {}),
+        'annotated_messages': parsing.DefaultValueType(
+            parsing.DictType(int, parsing.DictType(str, str)), {}),
     }
 
     def __init__(self, game_id=None, **kwargs):
@@ -399,8 +402,8 @@ class Game(Jsonable):
                                           {self._phase_wrapper_type(key): value
                                            for key, value in self.log_history.items()})
         self.stances_history = SortedDict(self._phase_wrapper_type, dict,
-                                            {self._phase_wrapper_type(key): value
-                                                for key, value in self.stances_history.items()})
+                                          {self._phase_wrapper_type(key): value
+                                           for key, value in self.stances_history.items()})
 
     def __str__(self):
         """ Returns a string representation of the game instance """
@@ -949,9 +952,12 @@ class Game(Jsonable):
         self.logs.put(log.time_sent, log)
         return log.time_sent
     def add_recipient_annotation(self, annotation):
-        print('--- start ---')
-        print(annotation)
-        print('--- end ---')
+        time_sent = annotation['time_sent']
+        annotation = annotation['annotation']
+        message = self.annotated_messages[time_sent]
+        message['recipient_annotation'] = str(annotation)
+
+        self.annotated_messages[time_sent] = message
 
     def add_stance(self, stance):
         """ Add stance to power with given name.
@@ -989,6 +995,16 @@ class Game(Jsonable):
             message.time_sent = common.timestamp_microseconds()
 
         self.messages.put(message.time_sent, message)
+
+        annotated_message = {
+            'sender': message.sender,
+            'recipient': message.recipient,
+            'phase': message.phase,
+            'message': message.message,
+            'truth': str(message.truth),
+        }
+        self.annotated_messages[message.time_sent] = annotated_message
+
         return message.time_sent
 
     # Vote methods. For server and omniscient games only.
