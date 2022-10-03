@@ -21,6 +21,8 @@ export class MessageView extends React.Component {
     // message
     render() {
         const message = this.props.message;
+        // TODO: get annotation from json
+        //  const recipient_annotation = message.recipient_annotation;
         const owner = this.props.owner;
         const id = this.props.id ? {id: this.props.id} : {};
         const messagesLines = message.message.replace('\r\n', '\n')
@@ -38,6 +40,8 @@ export class MessageView extends React.Component {
                 classNames.push('message-read');
             onClick = this.props.onClick ? {onClick: () => this.props.onClick(message)} : {};
         }
+
+
         return (
             <div className={'game-message-wrapper' + (
                 this.props.phase && this.props.phase !== message.phase ? ' other-phase' : ' new-phase')}
@@ -47,16 +51,27 @@ export class MessageView extends React.Component {
                         {message.phase}
                     </div>
                     <div>
-                        {message.sender}
+                        {message.sender + ':'}
                     </div>
                     <div className="message-content col-md">
                         {messagesLines.map((line, lineIndex) => <div key={lineIndex}>{
                             line.replace(/(<([^>]+)>)/ig, "")
                         }</div>)}
                     </div>
+                    {message.sender !== owner ? (
+                        <div>
+                            <input type="radio" name="annotation" value="true" defaultChecked={this.props.message.recipient_annotation && this.props.message.recipient_annotation === 'True'}
+                                   onClick={() => this.props.onSendRecipientAnnotation(this.props.message, true)}/>
+                            True
+                            <input type="radio" name="annotation" value="false" defaultChecked={this.props.message.recipient_annotation && this.props.message.recipient_annotation === 'False'}
+                                   onClick={() => this.props.onSendRecipientAnnotation(this.props.message, false)}/>
+                            False
+                        </div>) : null}
                 </div>
             </div>
         );
+
+
     }
 }
 

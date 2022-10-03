@@ -211,6 +211,13 @@ def on_logout(context, response):
     """
     context.remove_channel()
 
+def on_send_recipient_annotation(context, response):
+    request = context.request
+    time_sent = request.time_sent
+    annotation = request.annotation
+    Game.add_recipient_annotation(context.game, time_sent, annotation)
+    print('Added recipient annotation: {} {}'.format(time_sent, annotation))
+
 def on_send_stance(context, response):
     """ Manage response for request SendStance.
 
@@ -222,7 +229,7 @@ def on_send_stance(context, response):
     request = context.request  # type: requests.SendStance
     power_name = request.power_name
     stance = request.stance
-    Game.add_stance(context.game, power_name, stance)
+    Game.add_stance(context.game, stance)
 
 def on_send_game_message(context, response):
     """ Manage response for request SendGameMessage.
@@ -346,6 +353,7 @@ MAPPING = {
     requests.QuerySchedule: default_manager,
     requests.SaveGame: default_manager,
     requests.SendStance: on_send_stance,
+    requests.SendRecipientAnnotation: on_send_recipient_annotation,
     requests.SendGameMessage: on_send_game_message,
     requests.SetDummyPowers: default_manager,
     requests.SetGameState: on_set_game_state,

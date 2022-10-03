@@ -63,6 +63,11 @@ export const RESPONSE_MANAGERS = {
     logout: function (context, response) {
         context.removeChannel();
     },
+    send_recipient_annotation: function (context, response) {
+        const timeSent = context.request.annotation['time_sent'];
+        const annotation = context.request.annotation['annotation'];
+        context.game.local.addRecipientAnnotation(timeSent, annotation);
+    },
     send_stance: function (context, response) {
       const powerName = context.request.power_name;
       const stance = context.request.stance;

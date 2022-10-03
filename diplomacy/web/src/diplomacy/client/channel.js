@@ -47,6 +47,7 @@ export class Channel {
          * request parameters passed to channel request method.
          * **/
         parameters = Object.assign(parameters || {}, forcedParameters || {});
+        console.log('Channel request:', name, parameters);
         const level = REQUESTS.getLevel(name);
         if (level === STRINGS.GAME) {
             if (!game)
@@ -170,6 +171,10 @@ export class Channel {
 
     leaveGame(parameters, game) {
         return this._req('leave_game', undefined, undefined, parameters, game);
+    }
+
+    sendRecipientAnnotation(parameters, game) {
+        return this._req('send_recipient_annotation', undefined, undefined, parameters, game);
     }
 
     sendStance(parameters, game) {
