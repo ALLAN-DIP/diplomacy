@@ -714,7 +714,6 @@ class SendStance(_AbstractGameRequest):
     }
 
     def __init__(self, **kwargs):
-        self.power_name = 'stance'
         self.stance = {}
         super(SendStance, self).__init__(**kwargs)
 
