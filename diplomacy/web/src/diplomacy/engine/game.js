@@ -559,8 +559,11 @@ export class Game {
                 if (message.time_sent in this.recipient_annotations) {
                     message.recipient_annotation = this.recipient_annotations[message.time_sent].recipient_annotation;
                 }
-
                 messageChannels[protagonist].push(message);
+
+                console.log('meessage channel:')
+                console.log(messageChannels)
+                //}
             }
         }
         return messageChannels;
