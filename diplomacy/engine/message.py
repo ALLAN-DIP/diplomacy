@@ -72,7 +72,7 @@ class Message(Jsonable):
         strings.TIME_SENT: parsing.OptionalValueType(int),  # given by server.
         strings.PHASE: str,                                 # phase short name (e.g. 'S1901M' or 'COMPLETED')
         strings.MESSAGE: str,
-        strings.TRUTH: bool,
+        strings.TRUTH: parsing.OptionalValueType(bool),
         'recipient_annotation': parsing.OptionalValueType(bool)
     }
 
@@ -82,7 +82,7 @@ class Message(Jsonable):
         self.time_sent = None               # type: int
         self.phase = None                   # type: str
         self.message = None                 # type: str
-        self.truth = True                   # type: bool
+        self.truth = None                   # type: bool
         self.recipient_annotation = None   # type: bool
         super(Message, self).__init__(**kwargs)
 
