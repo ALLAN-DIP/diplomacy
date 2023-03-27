@@ -893,7 +893,7 @@ class Server:
         """ Return map power names for given map name. """
         return self.available_maps.get(map_name, None)
 
-    def start_new_daide_server(self, game_id, port=None):
+    def start_new_daide_server(self, game_id, port=8431):
         """ Start a new DAIDE TCP server to handle DAIDE clients connections
 
             :param game_id: game id to pass to the DAIDE server
