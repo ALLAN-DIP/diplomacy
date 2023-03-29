@@ -84,6 +84,7 @@ import inspect
 import logging
 
 from diplomacy.engine.message import Message
+from diplomacy.engine.log import Log
 from diplomacy.utils import common, exceptions, parsing, strings
 from diplomacy.utils.network_data import NetworkData
 from diplomacy.utils.parsing import OptionalValueType
@@ -257,6 +258,7 @@ class CreateGame(_AbstractChannelRequest):
         :param map_name: (default ``'standard'``) map to play on.
             You can retrieve maps available on server by sending request :class:`GetAvailableMaps`.
         :param rules: list of strings - game rules (for expert users).
+        :param daide_port: explicitly set daide port for a given game, default None -> random port
         :type game_id: str, optional
         :type n_controls: int, optional
         :type deadline: int, optional
@@ -265,6 +267,7 @@ class CreateGame(_AbstractChannelRequest):
         :type state: dict, optional
         :type map_name: str, optional
         :type rules: list, optional
+        :type daide_port: int, optional
         :return:
 
             - Server: :class:`.DataGame`
@@ -272,7 +275,7 @@ class CreateGame(_AbstractChannelRequest):
               game created and joined. Either a power game (if power name given) or an omniscient game.
     """
     __slots__ = ['game_id', 'power_name', 'state', 'map_name', 'rules', 'n_controls', 'deadline',
-                 'registration_password']
+                 'registration_password', 'daide_port']
     params = {
         strings.GAME_ID: parsing.OptionalValueType(str),
         strings.N_CONTROLS: parsing.OptionalValueType(int),
@@ -282,6 +285,7 @@ class CreateGame(_AbstractChannelRequest):
         strings.STATE: parsing.OptionalValueType(dict),
         strings.MAP_NAME: parsing.DefaultValueType(str, 'standard'),
         strings.RULES: parsing.OptionalValueType(parsing.SequenceType(str, sequence_builder=set)),
+        strings.DAIDE_PORT: parsing.OptionalValueType(int)
     }
 
     def __init__(self, **kwargs):
@@ -293,6 +297,7 @@ class CreateGame(_AbstractChannelRequest):
         self.state = {}
         self.map_name = ''
         self.rules = set()
+        self.daide_port = None
         super(CreateGame, self).__init__(**kwargs)
 
 
@@ -734,6 +739,17 @@ class SendGameMessage(_AbstractGameRequest):
         self.message = None  # type: Message
         super(SendGameMessage, self).__init__(**kwargs)
 
+class SendLogData(_AbstractGameRequest):
+    """Data to log intent, rationalize decision, note observations about universe
+    """
+    __slots__ = ['log']
+    params = {
+        strings.LOG: parsing.JsonableClassType(Log)
+    }
+
+    def __init__(self, **kwargs):
+        self.log = None
+        super(SendLogData, self).__init__(**kwargs)
 
 class SetDummyPowers(_AbstractGameRequest):
     """ Game request to set dummy powers. Require game master privileges.

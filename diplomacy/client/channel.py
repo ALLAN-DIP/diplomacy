@@ -162,6 +162,7 @@ class Channel:
     _send_recipient_annotation = _req_fn(requests.SendRecipientAnnotation)
     _send_game_message = _req_fn(requests.SendGameMessage)
     _set_orders = _req_fn(requests.SetOrders)
+    _send_log_data = _req_fn(requests.SendLogData)
 
     _clear_centers = _req_fn(requests.ClearCenters)
     _clear_orders = _req_fn(requests.ClearOrders)

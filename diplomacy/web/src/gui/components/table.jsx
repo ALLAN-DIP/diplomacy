@@ -94,7 +94,7 @@ export class Table extends React.Component {
         this.props.onChangeStance(country, stance);
     }
 
-    getBodyRow(header, row, rowIndex, wrapper, caption, countries, stances, player) {
+     getBodyRow(header, row, rowIndex, wrapper, caption, countries, stances, player) {
         const wrapped = wrapper(row);
 
         return (<tr key={rowIndex}>

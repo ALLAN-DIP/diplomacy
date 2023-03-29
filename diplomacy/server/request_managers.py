@@ -113,7 +113,7 @@ def on_create_game(server, request, connection_handler):
 
     # Check request token.
     verify_request(server, request, connection_handler)
-    game_id, token, power_name, state = request.game_id, request.token, request.power_name, request.state
+    game_id, token, power_name, state, daide_port = request.game_id, request.token, request.power_name, request.state, request.daide_port
 
     # Check if server still accepts to create new games.
     if server.cannot_create_more_games():
@@ -139,13 +139,21 @@ def on_create_game(server, request, connection_handler):
         game_id = server.create_game_id()
     elif server.has_game_id(game_id):
         raise exceptions.GameIdException('Game ID already used (%s).' % game_id)
+    
+    #JAD: added code to hash registration_password. It was bombinb on utils.common.is_password_valid()
+    #when users tried to join password-protected games
+    password = None
+    if request.registration_password is not None:
+        password = hash_password(request.registration_password)
+        LOGGER.debug("HASHING REGISTRATION_PASSWORD")
+    #LOGGER.debug("password = " + str(password or ''))
     server_game = ServerGame(map_name=request.map_name,
                              rules=request.rules or SERVER_GAME_RULES,
                              game_id=game_id,
                              initial_state=state,
                              n_controls=request.n_controls,
                              deadline=request.deadline,
-                             registration_password=request.registration_password,
+                             registration_password=password,
                              server=server)
 
     # Make sure game creator will be a game master (set him as moderator if he's not an admin).
@@ -153,7 +161,7 @@ def on_create_game(server, request, connection_handler):
         server_game.promote_moderator(username)
 
     # Register game on server.
-    server.add_new_game(server_game)
+    server.add_new_game(server_game, daide_port=daide_port)
 
     # Register game creator, as either power player or omniscient observer.
     if power_name:
@@ -1055,6 +1063,26 @@ def on_set_grade(server, request, connection_handler):
             if user_is_omniscient_before != user_is_omniscient_after:
                 transfer_special_tokens(server_game, server, username, grade_update, user_is_omniscient_after)
 
+def on_send_log_data(server, request, connection_handler):
+    """Manage request SendLogData
+
+    :param server: server which receives the request.
+    :param request: request to manage.
+    :param connection_handler: connection handler from which the request was sent
+    :return:
+    """
+    level = verify_request(server, request, connection_handler, omniscient_role=False, observer_role=False)
+    assert_game_not_finished(level.game)
+
+    log = request.log
+
+    if not level.game.is_game_active:
+        raise exceptions.GameNotPlayingException()
+    log.time_sent = level.game.add_log(log)
+    #Notifier(server, ignore_addresses=[(request.game_role, token)]).notify_game_message(level.game, message)
+    server.save_game(level.game)
+    return responses.DataTimeStamp(data=log.time_sent, request_id=request.request_id)
+
 
 def on_set_orders(server, request, connection_handler):
     """ Manage request SetOrders.
@@ -1287,6 +1315,7 @@ MAPPING = {
     requests.SetGameStatus: on_set_game_status,
     requests.SetGrade: on_set_grade,
     requests.SetOrders: on_set_orders,
+    requests.SendLogData: on_send_log_data,
     requests.SetWaitFlag: on_set_wait_flag,
     requests.SignIn: on_sign_in,
     requests.Synchronize: on_synchronize,
