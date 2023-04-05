@@ -124,7 +124,7 @@ export class Forms {
         const options = values.slice();
         const components = options.map((option, index) => <option key={index} value={option}>{option}</option>);
         if (none) {
-            components.splice(0, 0, [<option key={-1} value={''}>{none === true ? '(none)' : `${none}`}</option>]);
+            components.splice(0, 0, [<option key={-1} value={''}>{none === true ? '(observer)' : `${none}`}</option>]);
         }
         return components;
     }
