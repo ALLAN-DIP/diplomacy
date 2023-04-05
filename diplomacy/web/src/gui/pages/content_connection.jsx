@@ -95,7 +95,6 @@ export class ContentConnection extends React.Component {
     componentDidMount() {
         window.scrollTo(0, 0);
         const hasUserCredentials = window.localStorage.getItem("hostname");
-        console.log("hasUserCredentials", hasUserCredentials);
         if (hasUserCredentials) {
             const storage = DipStorage.getConnectionForm();
             const username = storage.username;
