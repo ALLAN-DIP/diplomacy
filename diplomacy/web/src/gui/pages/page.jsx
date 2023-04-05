@@ -158,7 +158,7 @@ export class Page extends React.Component {
     }
 
     logout() {
-        window.localStorage.getItem("hostname");
+        window.localStorage.removeItem("hostname");
         // Disconnect channel and go back to connection page.
         if (this.channel) {
             return this.channel.logout()
