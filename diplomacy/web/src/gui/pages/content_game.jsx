@@ -203,10 +203,9 @@ export class ContentGame extends React.Component {
         const remainingMinute = Math.floor((remainingTime - remainingHour * 3600) / 60);
         const remainingSecond = remainingTime - remainingHour * 3600 - remainingMinute * 60;
 
-        if (remainingTime === undefined)
+        if (remainingTime === undefined){
             title += ` (deadline: ${game.deadline} sec)`;
-        else if (remainingTime)
-
+        } else {
             title += ' (remaining ';
             if (remainingHour > 0) {
                 title += `${remainingHour}h `;
@@ -215,6 +214,7 @@ export class ContentGame extends React.Component {
                 title += `${remainingMinute}m `;
             }
             title += `${remainingSecond}s)`;
+        }
         return title;
     }
 
