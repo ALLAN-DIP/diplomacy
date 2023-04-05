@@ -49,7 +49,7 @@ export class FindForm extends React.Component {
                     Forms.createColLabel('status', 'status:'),
                     (<select className={'form-control custom-select'}
                              id={'status'} value={Forms.getValue(this.state, 'status')} onChange={onChange}>
-                        {Forms.createSelectOptions(STRINGS.ALL_GAME_STATUSES, false)}
+                        {Forms.createSelectOptions(STRINGS.ALL_GAME_STATUSES, true)}
                     </select>)
                 )}
                 <div className={'form-check'}>
