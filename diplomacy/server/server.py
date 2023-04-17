@@ -83,7 +83,7 @@ from diplomacy.server.scheduler import Scheduler
 from diplomacy.server.server_game import ServerGame
 from diplomacy.server.users import Users
 from diplomacy.engine.map import Map
-from diplomacy.utils import common, exceptions, strings, constants
+from diplomacy.utils import common, exceptions, strings, constants, convoy_paths
 
 LOGGER = logging.getLogger(__name__)
 
@@ -198,7 +198,7 @@ class Server:
     __slots__ = ['data_path', 'games_path', 'available_maps', 'maps_mtime', 'notifications',
                  'games_scheduler', 'allow_registrations', 'max_games', 'remove_canceled_games', 'users', 'games',
                  'daide_servers', 'backup_server', 'backup_games', 'backup_delay_seconds', 'ping_seconds',
-                 'interruption_handler', 'backend', 'games_with_dummy_powers', 'dispatched_dummy_powers']
+                 'interruption_handler', 'backend', 'games_with_dummy_powers', 'dispatched_dummy_powers','server_dir', 'daide_min_port', 'daide_max_port']
 
     # Servers cache.
     __cache__ = {}  # {absolute path of working folder => Server}
@@ -212,7 +212,7 @@ class Server:
             server = object.__new__(cls)
         return server
 
-    def __init__(self, server_dir=None, **kwargs):
+    def __init__(self, server_dir=None, daide_min_port=8000, daide_max_port=8999, **kwargs):
         """ Initialize the server.
             Server data is stored in folder ``<working directory>/data``.
 
@@ -224,12 +224,19 @@ class Server:
 
         # File paths and attributes related to database.
         server_dir = get_absolute_path(server_dir)
+        ensure_path(server_dir)
         if server_dir in self.__class__.__cache__:
             return
+        self.server_dir = server_dir
+
         if not os.path.exists(server_dir) or not os.path.isdir(server_dir):
             raise exceptions.ServerDirException(server_dir)
         self.data_path = os.path.join(server_dir, 'data')
         self.games_path = os.path.join(self.data_path, 'games')
+        convoy_paths.set_server_dir(server_dir)
+        # DAIDE port range
+        self.daide_min_port = daide_min_port
+        self.daide_max_port = daide_max_port
 
         # Data in memory (not stored on disk).
         self.notifications = Queue()
@@ -254,7 +261,7 @@ class Server:
         # Server games loaded on memory (stored on disk).
         # Saved separately (each game in one JSON file).
         # Each game also stores tokens connected (player tokens, observer tokens, omniscient tokens).
-        self.games = {}  # type: Dict[str, ServerGame]
+        self.games = {}  #type: Dict[str, ServerGame]
 
         # Dictionary mapping game ID to list of power names.
         self.games_with_dummy_powers = {}  # type: Dict[str, List[str]]
@@ -342,7 +349,7 @@ class Server:
             self.backup_now(force=True)
         # Add default accounts.
         for (username, password) in (
-                ('admin', 'password'),
+                ('admin', os.environ.get('DIPLOMACY_ADMIN_PASSWORD', 'password')),
                 (constants.PRIVATE_BOT_USERNAME, constants.PRIVATE_BOT_PASSWORD)
         ):
             if not self.users.has_username(username):
@@ -506,6 +513,8 @@ class Server:
         self.backend.port = port
         self.set_tasks(io_loop)
         LOGGER.info('Running on port %d', self.backend.port)
+        LOGGER.info('Serving DAIDE on ports %d:%d', self.daide_min_port, self.daide_max_port)
+        LOGGER.info('Writing server data to %s', self.server_dir)
         if not io_loop.asyncio_loop.is_running():
             io_loop.start()
 
@@ -656,7 +665,7 @@ class Server:
                 # This should be an internal server error.
                 raise exc
 
-    def add_new_game(self, server_game):
+    def add_new_game(self, server_game, daide_port=None):
         """ Add a new game data on server in memory and perform any addition processing.
             This does not save the game on disk.
 
@@ -665,7 +674,7 @@ class Server:
         # Register game on memory.
         self.games[server_game.game_id] = server_game
         # Start DAIDE server for this game.
-        self.start_new_daide_server(server_game.game_id)
+        self.start_new_daide_server(server_game.game_id, port=daide_port)
 
     def get_game(self, game_id):
         """ Return game saved on server matching given game ID.
@@ -898,7 +907,7 @@ class Server:
                 return None
 
         while port is None or is_port_opened(port):
-            port = randint(8000, 8999)
+            port = randint(self.daide_min_port, self.daide_max_port)
 
         # Create DAIDE TCP server
         daide_server = DaideServer(self, game_id)
