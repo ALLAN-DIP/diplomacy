@@ -56,7 +56,7 @@ export class Game {
 
         const nonNullFields = [
             'game_id', 'map_name', 'messages', 'role', 'rules', 'status', 'timestamp_created', 'deadline',
-            'message_history', 'order_history', 'state_history', 'logs', 'log_history', 'stances', 'stances'
+            'message_history', 'order_history', 'state_history', 'logs', 'log_history'
         ];
         // These fields may be null.
         const nullFields = ['n_controls', 'registration_password'];
@@ -222,6 +222,7 @@ export class Game {
         if (this.log_history.contains(phaseData.name)) throw new Error(`Phase ${phaseData.phase} already in log history.`);
         if (this.order_history.contains(phaseData.name)) throw new Error(`Phase ${phaseData.phase} already in order history.`);
         if (this.result_history.contains(phaseData.name)) throw new Error(`Phase ${phaseData.phase} already in result history.`);
+        if (this.log_history.contains(phaseData.name)) throw new Error(`Phase ${phaseData.phase} already in result history.`);
         this.state_history.put(phaseData.name, phaseData.state);
         this.order_history.put(phaseData.name, phaseData.orders);
         this.result_history.put(phaseData.name, phaseData.results);
@@ -247,6 +248,17 @@ export class Game {
             throw new Error('Given message is not related to current player ' + this.role);
         this.messages.put(message.time_sent, message);
         this.recipient_annotations[message.time_sent] = message;
+    }
+
+    addLog(message) {
+        message = new Message(message);
+        if (!message.time_sent)
+            throw new Error('No time sent for given message.');
+        if (this.logs.hasOwnProperty(message.time_sent))
+            throw new Error('There is already a log with time sent ' + message.time_sent + ' in message history.');
+        if (this.isPlayerGame() && !message.isGlobal() && this.role !== message.sender && this.role !== message.recipient)
+            throw new Error('Given message is not related to current player ' + this.role);
+        this.logs.put(message.time_sent, message);
     }
 
     assertPlayerGame(powerName) {
@@ -532,6 +544,29 @@ export class Game {
         return powerLogs;
     }
 
+    getLogsForPower(role, all) {
+        let logList = [];
+        role = role || this.role;
+        let powerLogs = [];
+        if (all) {
+            logList = this.log_history.values();
+            if (this.logs.size() && !this.log_history.contains(this.phase))
+                logList.push(this.logs);
+        } else {
+            if (this.logs.size())
+                logList = [this.logs];
+            else if (this.log_history.contains(this.phase))
+                logList = this.log_history.get(this.phase);
+        }
+        for (let logs of logList) {
+            for (let log of logs.values()) {
+                let sender = log.sender;
+                if (sender === role)
+                    powerLogs.push(log);
+            }
+        }
+        return powerLogs;
+    }
     getMessageChannels(role, all) {
         const messageChannels = {};
         role = role || this.role;
