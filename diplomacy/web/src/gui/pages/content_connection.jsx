@@ -49,6 +49,7 @@ export class ContentConnection extends React.Component {
                 page.connection.authenticate(data.username, data.password)
                     .then((channel) => {
                         window.localStorage.setItem('hostname', data.hostname);
+                        window.localStorage.setItem('username', data.username);
                         page.channel = channel;
                         return channel.getAvailableMaps();
                     })

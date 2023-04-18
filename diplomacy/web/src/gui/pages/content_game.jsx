@@ -1241,6 +1241,8 @@ export class ContentGame extends React.Component {
                             </ChatContainer>
                     </MainContainer>
                 </div>
+                { localStorage.getItem("username") === "admin" &&
+
                 <div className={"col"} style={{height:"500px"}}>
                     <ChatContainer>
                         <ConversationHeader>
@@ -1261,6 +1263,7 @@ export class ContentGame extends React.Component {
                             showChatInput={engine.isPlayerGame() || (currentTabId == STRINGS.OMNISCIENT)}
                 /> */}
                 </div>
+    }
             </Row>
         );
     }
@@ -1455,6 +1458,8 @@ export class ContentGame extends React.Component {
                         </ChatContainer>
                     </MainContainer>
                 </div>
+                { localStorage.getItem("username") === "admin" &&
+
                 <div className={"col"} style={{height:"500px"}}>
                     <MainContainer responsive>
                         <ChatContainer>
@@ -1487,6 +1492,7 @@ export class ContentGame extends React.Component {
                         showChatInput={engine.isPlayerGame() || engine.isOmniscientGame() }
                     />*/}
                 </div>
+    }
             </Row>
         );
     }
