@@ -24,7 +24,7 @@
     - server saving
     - notifications sending
 """
-#pylint:disable=too-many-lines
+# pylint:disable=too-many-lines
 import logging
 
 from tornado import gen
@@ -48,6 +48,7 @@ LOGGER = logging.getLogger(__name__)
 
 SERVER_GAME_RULES = ['NO_PRESS', 'IGNORE_ERRORS', 'POWER_CHOICE']
 
+
 def on_clear_centers(server, request, connection_handler):
     """ Manage request ClearCenters.
 
@@ -62,6 +63,7 @@ def on_clear_centers(server, request, connection_handler):
     assert_game_not_finished(level.game)
     level.game.clear_centers(level.power_name)
     Notifier(server, ignore_addresses=[request.address_in_game]).notify_cleared_centers(level.game, level.power_name)
+
 
 def on_clear_orders(server, request, connection_handler):
     """ Manage request ClearOrders.
@@ -81,6 +83,7 @@ def on_clear_orders(server, request, connection_handler):
     level.game.clear_orders(level.power_name)
     Notifier(server, ignore_addresses=[request.address_in_game]).notify_cleared_orders(level.game, level.power_name)
 
+
 def on_clear_units(server, request, connection_handler):
     """ Manage request ClearUnits.
 
@@ -95,6 +98,7 @@ def on_clear_units(server, request, connection_handler):
     assert_game_not_finished(level.game)
     level.game.clear_units(level.power_name)
     Notifier(server, ignore_addresses=[request.address_in_game]).notify_cleared_units(level.game, level.power_name)
+
 
 def on_create_game(server, request, connection_handler):
     """ Manage request CreateGame.
@@ -175,6 +179,7 @@ def on_create_game(server, request, connection_handler):
 
     return responses.DataGame(data=client_game, request_id=request.request_id)
 
+
 def on_delete_account(server, request, connection_handler):
     """ Manage request DeleteAccount.
 
@@ -223,6 +228,7 @@ def on_delete_account(server, request, connection_handler):
         # Require server data disk backup.
         server.save_data()
 
+
 def on_delete_game(server, request, connection_handler):
     """ Manage request DeleteGame.
 
@@ -236,6 +242,7 @@ def on_delete_game(server, request, connection_handler):
     server.delete_game(level.game)
     server.unschedule_game(level.game)
     Notifier(server, ignore_tokens=[request.token]).notify_game_deleted(level.game)
+
 
 def on_get_all_possible_orders(server, request, connection_handler):
     """ Manage request GetAllPossibleOrders
@@ -251,6 +258,7 @@ def on_get_all_possible_orders(server, request, connection_handler):
                                         orderable_locations=level.game.get_orderable_locations(),
                                         request_id=request.request_id)
 
+
 def on_get_available_maps(server, request, connection_handler):
     """ Manage request GetAvailableMaps.
 
@@ -263,6 +271,7 @@ def on_get_available_maps(server, request, connection_handler):
     """
     verify_request(server, request, connection_handler)
     return responses.DataMaps(data=server.available_maps, request_id=request.request_id)
+
 
 def on_get_daide_port(server, request, connection_handler):
     """ Manage request GetDaidePort.
@@ -281,6 +290,7 @@ def on_get_daide_port(server, request, connection_handler):
             "Invalid game id %s or game's DAIDE server is not started for that game" % request.game_id)
     return responses.DataPort(data=daide_port, request_id=request.request_id)
 
+
 def on_get_dummy_waiting_powers(server, request, connection_handler):
     """ Manage request GetAllDummyPowerNames.
 
@@ -294,6 +304,7 @@ def on_get_dummy_waiting_powers(server, request, connection_handler):
     verify_request(server, request, connection_handler)
     return responses.DataGamesToPowerNames(
         data=server.get_dummy_waiting_power_names(request.buffer_size, request.token), request_id=request.request_id)
+
 
 def on_get_games_info(server, request, connection_handler):
     """ Manage request GetGamesInfo.
@@ -331,6 +342,7 @@ def on_get_games_info(server, request, connection_handler):
             pass
     return responses.DataGames(data=games, request_id=request.request_id)
 
+
 def on_get_phase_history(server, request, connection_handler):
     """ Manage request GetPhaseHistory.
 
@@ -346,6 +358,7 @@ def on_get_phase_history(server, request, connection_handler):
     game_phases = level.game.get_phase_history(request.from_phase, request.to_phase, request.game_role)
     return responses.DataGamePhases(data=game_phases, request_id=request.request_id)
 
+
 def on_get_playable_powers(server, request, connection_handler):
     """ Manage request GetPlayablePowers.
 
@@ -359,6 +372,7 @@ def on_get_playable_powers(server, request, connection_handler):
     verify_request(server, request, connection_handler)
     return responses.DataPowerNames(
         data=server.get_game(request.game_id).get_dummy_power_names(), request_id=request.request_id)
+
 
 def on_join_game(server, request, connection_handler):
     """ Manage request JoinGame.
@@ -532,6 +546,7 @@ def on_join_game(server, request, connection_handler):
 
     return responses.DataGame(data=client_game, request_id=request.request_id)
 
+
 def on_join_powers(server, request, connection_handler):
     """ Manage request JoinPowers.
         Current code does not care about rule POWER_CHOICE. It only
@@ -642,6 +657,7 @@ def on_join_powers(server, request, connection_handler):
     # Require game disk backup.
     server.save_game(server_game)
 
+
 def on_leave_game(server, request, connection_handler):
     """ Manage request LeaveGame.
         If user is an (omniscient) observer, stop observation.
@@ -662,6 +678,7 @@ def on_leave_game(server, request, connection_handler):
     else:
         level.game.remove_special_token(request.game_role, request.token)
     server.save_game(level.game)
+
 
 def on_list_games(server, request, connection_handler):
     """ Manage request ListGames.
@@ -708,6 +725,7 @@ def on_list_games(server, request, connection_handler):
         ))
     return responses.DataGames(data=selected_game_indices, request_id=request.request_id)
 
+
 def on_logout(server, request, connection_handler):
     """ Manage request Logout.
 
@@ -720,6 +738,7 @@ def on_logout(server, request, connection_handler):
     """
     verify_request(server, request, connection_handler)
     server.remove_token(request.token)
+
 
 def on_process_game(server, request, connection_handler):
     """ Manage request ProcessGame. Force a game to be processed the sooner.
@@ -743,6 +762,7 @@ def on_process_game(server, request, connection_handler):
         level.game.set_status(strings.ACTIVE)
     server.force_game_processing(level.game)
 
+
 @gen.coroutine
 def on_query_schedule(server, request, connection_handler):
     """ Manage request QuerySchedule.
@@ -765,6 +785,7 @@ def on_query_schedule(server, request, connection_handler):
         request_id=request.request_id
     )
 
+
 def on_save_game(server, request, connection_handler):
     """ Manage request SaveGame
 
@@ -777,6 +798,30 @@ def on_save_game(server, request, connection_handler):
     level = verify_request(server, request, connection_handler, require_master=False)
     game_json = export.to_saved_game_format(level.game)
     return responses.DataSavedGame(data=game_json, request_id=request.request_id)
+
+
+def on_send_recipient_annotation(server, request, connection_handler):
+    level = verify_request(server, request, connection_handler, observer_role=False, omniscient_role=False)
+    token, annotation = request.token, request.annotation
+    assert_game_not_finished(level.game)
+    level.game.add_recipient_annotation(annotation)
+
+
+def on_send_stance(server, request, connection_handler):
+    """ Manage request SendStance.
+
+        :param server: server which receives the request.
+        :param request: request to manage.
+        :param connection_handler: connection handler from which the request was sent.
+        :return: None
+        :type server: diplomacy.Server
+        :type request: diplomacy.communication.requests.SendStance
+    """
+    level = verify_request(server, request, connection_handler, observer_role=False, omniscient_role=False)
+    token, stance = request.token, request.stance
+    assert_game_not_finished(level.game)
+    level.game.add_stance(stance)
+
 
 def on_send_game_message(server, request, connection_handler):
     """ Manage request SendGameMessage.
@@ -833,6 +878,7 @@ def on_send_game_message(server, request, connection_handler):
     server.save_game(level.game)
     return responses.DataTimeStamp(data=message.time_sent, request_id=request.request_id)
 
+
 def on_set_dummy_powers(server, request, connection_handler):
     """ Manage request SetDummyPowers.
 
@@ -862,6 +908,7 @@ def on_set_dummy_powers(server, request, connection_handler):
         Notifier(server).notify_game_powers_controllers(level.game)
         server.save_game(level.game)
 
+
 def on_set_game_state(server, request, connection_handler):
     """ Manage request SetGameState.
 
@@ -874,10 +921,11 @@ def on_set_game_state(server, request, connection_handler):
     """
     level = verify_request(server, request, connection_handler, observer_role=False, power_role=False)
     level.game.set_phase_data(GamePhaseData(
-        request.phase, request.state, request.orders, request.results, request.messages))
+        request.phase, request.state, request.orders, request.results, request.messages, request.stances))
     server.stop_game_if_needed(level.game)
     Notifier(server, ignore_addresses=[request.address_in_game]).notify_game_phase_data(level.game)
     server.save_game(level.game)
+
 
 def on_set_game_status(server, request, connection_handler):
     """ Manage request SetGameStatus.
@@ -913,6 +961,7 @@ def on_set_game_status(server, request, connection_handler):
                     server.delete_game(level.game)
             Notifier(server, ignore_addresses=[request.address_in_game]).notify_game_status(level.game)
         server.save_game(level.game)
+
 
 def on_set_grade(server, request, connection_handler):
     """ Manage request SetGrade.
@@ -1066,6 +1115,7 @@ def on_set_orders(server, request, connection_handler):
         server.force_game_processing(level.game)
     server.save_game(level.game)
 
+
 def on_set_wait_flag(server, request, connection_handler):
     """ Manage request SetWaitFlag.
 
@@ -1085,6 +1135,7 @@ def on_set_wait_flag(server, request, connection_handler):
     if level.game.does_not_wait():
         server.force_game_processing(level.game)
     server.save_game(level.game)
+
 
 def on_sign_in(server, request, connection_handler):
     """ Manage request SignIn.
@@ -1117,6 +1168,7 @@ def on_sign_in(server, request, connection_handler):
     token = server.users.connect_user(username, connection_handler)
     server.save_data()
     return responses.DataToken(data=token, request_id=request.request_id)
+
 
 def on_synchronize(server, request, connection_handler):
     """ Manage request Synchronize.
@@ -1186,6 +1238,7 @@ def on_synchronize(server, request, connection_handler):
                                   timestamp_created=level.game.timestamp_created,
                                   request_id=request.request_id)
 
+
 def on_unknown_token(server, request, connection_handler):
     """ Manage notification request UnknownToken.
 
@@ -1196,11 +1249,12 @@ def on_unknown_token(server, request, connection_handler):
         :type server: diplomacy.Server
         :type request: diplomacy.communication.requests.UnknownToken
     """
-    del connection_handler                  # Unused - Not sending any responses back
+    del connection_handler  # Unused - Not sending any responses back
     LOGGER.debug('Removing token %s', request.token)
     if server.users.has_token(request.token):
         server.remove_token(request.token)
     return responses.NoResponse()
+
 
 def on_vote(server, request, connection_handler):
     """ Manage request Vote.
@@ -1253,6 +1307,8 @@ MAPPING = {
     requests.ProcessGame: on_process_game,
     requests.QuerySchedule: on_query_schedule,
     requests.SaveGame: on_save_game,
+    requests.SendStance: on_send_stance,
+    requests.SendRecipientAnnotation: on_send_recipient_annotation,
     requests.SendGameMessage: on_send_game_message,
     requests.SetDummyPowers: on_set_dummy_powers,
     requests.SetGameState: on_set_game_state,
@@ -1266,6 +1322,7 @@ MAPPING = {
     requests.UnknownToken: on_unknown_token,
     requests.Vote: on_vote,
 }
+
 
 def handle_request(server, request, connection_handler):
     """ (coroutine) Find request handler function for associated request, run it and return its result.

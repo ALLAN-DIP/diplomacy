@@ -48,6 +48,7 @@ export class ContentConnection extends React.Component {
                 page.success(`Successfully connected to server ${data.username}:${data.port}`);
                 page.connection.authenticate(data.username, data.password)
                     .then((channel) => {
+                        window.localStorage.setItem('hostname', data.hostname);
                         page.channel = channel;
                         return channel.getAvailableMaps();
                     })
@@ -93,6 +94,13 @@ export class ContentConnection extends React.Component {
 
     componentDidMount() {
         window.scrollTo(0, 0);
+        const hasUserCredentials = window.localStorage.getItem("hostname");
+        if (hasUserCredentials) {
+            const storage = DipStorage.getConnectionForm();
+            const username = storage.username;
+            const password = storage.password;
+            this.onSubmit({"hostname": window.location.hostname, "port": 8432, "username": username, "password": password, "showServerFields": false});
+        }
     }
 }
 

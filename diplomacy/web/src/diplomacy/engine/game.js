@@ -111,6 +111,9 @@ export class Game {
         this.controlled_powers = gameData.controlled_powers;
         this.daide_port = gameData.daide_port;
         this.result = gameData.result || null;
+        // represents stances from every power to every other power
+        this.stances = gameData.stances;
+        this.recipient_annotations = gameData.annotated_messages || {};
 
         this.phase = gameData.phase_abbr || null; // phase abbreviation
 
@@ -121,9 +124,17 @@ export class Game {
                 const powerState = entry[1];
                 if (powerState instanceof Power) {
                     this.powers[power_name] = powerState.copy();
+
                 } else {
                     this.powers[power_name] = new Power(power_name, (this.isPlayerGame() ? power_name : this.role), this);
                     this.powers[power_name].setState(powerState);
+                }
+
+                const stances = gameData.stances[power_name];
+                if (stances !== null && stances !== undefined) {
+                    for (const [power, stance] of Object.entries(stances)) {
+                        this.powers[power_name].setStances(power, stance);
+                    }
                 }
             }
         } else if (this.state_history.size()) {
@@ -208,6 +219,7 @@ export class Game {
     extendPhaseHistory(phaseData) {
         if (this.state_history.contains(phaseData.name)) throw new Error(`Phase ${phaseData.phase} already in state history.`);
         if (this.message_history.contains(phaseData.name)) throw new Error(`Phase ${phaseData.phase} already in message history.`);
+        if (this.log_history.contains(phaseData.name)) throw new Error(`Phase ${phaseData.phase} already in log history.`);
         if (this.order_history.contains(phaseData.name)) throw new Error(`Phase ${phaseData.phase} already in order history.`);
         if (this.result_history.contains(phaseData.name)) throw new Error(`Phase ${phaseData.phase} already in result history.`);
         if (this.log_history.contains(phaseData.name)) throw new Error(`Phase ${phaseData.phase} already in result history.`);
@@ -216,6 +228,14 @@ export class Game {
         this.result_history.put(phaseData.name, phaseData.results);
         this.message_history.put(phaseData.name, new SortedDict(phaseData.messages, parseInt));
         this.log_history.put(phaseData.name, new SortedDict(phaseData.logs, parseInt));
+    }
+
+    addRecipientAnnotation(timeSent, annotation) {
+        this.recipient_annotations[timeSent] = annotation;
+    }
+
+    addStance(powerName, stance) {
+        this.stances[powerName] = stance;
     }
 
     addMessage(message) {
@@ -227,6 +247,7 @@ export class Game {
         if (this.isPlayerGame() && !message.isGlobal() && this.role !== message.sender && this.role !== message.recipient)
             throw new Error('Given message is not related to current player ' + this.role);
         this.messages.put(message.time_sent, message);
+        this.recipient_annotations[message.time_sent] = message;
     }
 
     addLog(message) {
@@ -382,6 +403,15 @@ export class Game {
                     this.powers[power_name].civil_disorder = state.civil_disorder[power_name];
         if (state.builds)
             this.builds = state.builds;
+        if (state.stances) {
+            for (let power of Object.keys(state.stances)) {
+                if (this.powers.hasOwnProperty(power)) {
+                    const country = this.powers[power];
+                    const stances = state.stances[power];
+                    country.setStances(stances);
+                }
+            }
+        }
     }
 
     setStatus(status) {
@@ -469,6 +499,50 @@ export class Game {
         }
         return orders;
     }
+    getLogsForPower(role, all) {
+        let logList = [];
+        role = role || this.role;
+        let powerLogs = [];
+        if (all) {
+            logList = this.log_history.values();
+            if (this.logs.size() && !this.log_history.contains(this.phase))
+                logList.push(this.logs);
+        } else {
+            if (this.logs.size())
+                logList = [this.logs];
+            else if (this.log_history.contains(this.phase))
+                logList = this.log_history.get(this.phase);
+        }
+        for (let logs of logList) {
+            for (let log of logs.values()) {
+                let sender = log.sender;
+                if (sender === role)
+                    powerLogs.push(log);
+            }
+        }
+        return powerLogs;
+    }
+
+    getLogsForPowerByPhase(role, all) {
+        let logList = [];
+        role = role || this.role;
+        let powerLogs = [];
+        if (this.logs.size() && !this.log_history.contains(this.phase)) {
+            logList.push(this.logs)
+        }
+        if (this.log_history.contains(this.phase)) {
+            logList.push(this.log_history.get(this.phase));
+        }
+
+        for (let logs of logList) {
+            for (let log of logs.values()) {
+                let sender = log.sender;
+                if (sender === role)
+                    powerLogs.push(log);
+            }
+        }
+        return powerLogs;
+    }
 
     getLogsForPower(role, all) {
         let logList = [];
@@ -516,7 +590,15 @@ export class Game {
                     protagonist = message.sender;
                 if (!messageChannels.hasOwnProperty(protagonist))
                     messageChannels[protagonist] = [];
+
+                if (message.time_sent in this.recipient_annotations) {
+                    message.recipient_annotation = this.recipient_annotations[message.time_sent].recipient_annotation;
+                }
                 messageChannels[protagonist].push(message);
+
+                console.log('meessage channel:')
+                console.log(messageChannels)
+                //}
             }
         }
         return messageChannels;

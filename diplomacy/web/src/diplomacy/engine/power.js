@@ -19,6 +19,8 @@ import {SortedDict} from "../utils/sorted_dict";
 import {STRINGS} from "../utils/strings";
 
 export class Power {
+    COUNTRIES = ['Austria', 'England', 'France', 'Germany', 'Italy', 'Russia', 'Turkey'];
+
     constructor(name, role, game) {
         this.game = game;
         this.role = role;
@@ -34,6 +36,8 @@ export class Power {
         this.retreats = {};
         this.orders = [];
         this.influence = [];
+        // represents a stance towards every other power
+        this.stances = {};
     }
 
     isControlled() {
@@ -57,6 +61,14 @@ export class Power {
         return !(this.units.length || this.centers.length || Object.keys(this.retreats).length);
     }
 
+    setStances(country, stance) {
+        this.stances[country] = stance;
+    }
+
+    getStances() {
+        return this.stances;
+    }
+
     setState(powerState) {
         this.name = powerState.name;
         this.controller = new SortedDict(powerState.controller);
@@ -68,6 +80,7 @@ export class Power {
         this.units = powerState.units;
         this.retreats = powerState.retreats;
         this.influence = powerState.influence || [];
+
         // Get orders.
         this.orders = [];
         if (this.game.phase.charAt(this.game.phase.length - 1) === 'M') {
@@ -98,6 +111,7 @@ export class Power {
         power.retreats = Object.assign({}, this.retreats);
         power.influence = this.influence.slice();
         power.orders = this.orders.slice();
+        power.stances = this.stances;
         return power;
     }
 

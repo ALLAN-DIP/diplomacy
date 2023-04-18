@@ -222,6 +222,12 @@ WINNERS = 'winners'
 WINTER_UNDECIDED_PLAYER_MODE = 'winter_undecided_player_mode'
 YES = 'yes'
 ZOBRIST_HASH = 'zobrist_hash'
+# A country's stance towards every other country.
+STANCE = 'stance'
+# Every country's stance towards every other country.
+STANCES = 'stances'
+TRUTH = 'truth'
+STANCES_HISTORY = 'stances_history'
 
 # Special name sets.
 ALL_GAME_STATUSES = (FORMING, ACTIVE, PAUSED, COMPLETED, CANCELED)

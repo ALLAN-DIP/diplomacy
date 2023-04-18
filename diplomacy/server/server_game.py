@@ -92,7 +92,8 @@ class ServerGame(Game):
                                  orders=phase_data.orders,
                                  results=phase_data.results,
                                  messages=self.filter_messages(phase_data.messages, role),
-                                 logs=self.filter_logs(phase_data.messages, role))
+                                 logs=self.filter_logs(phase_data.logs, role),
+                                 stances=phase_data.stances,)
         # Filter for power roles.
         related_power_names = self.get_related_power_names(role)
         # Filter messages.
@@ -112,7 +113,8 @@ class ServerGame(Game):
                              orders=orders,
                              messages=messages,
                              logs=logs,
-                             results=phase_data.results)
+                             results=phase_data.results,
+                             stances=phase_data.stances,)
 
     def game_can_start(self):
         """ Return True if server game can start.
@@ -483,7 +485,7 @@ class ServerGame(Game):
         # Kick powers if necessary.
         all_orderable_locations = self.get_orderable_locations()
         kicked_powers = {}
-        for power in self.powers.values():
+        '''for power in self.powers.values():
             if (power.is_controlled()
                     and not power.order_is_set
                     and not self.civil_disorder
@@ -492,7 +494,7 @@ class ServerGame(Game):
                 # and this power WAS allowed to submit orders for this phase.
                 # We kick such power.
                 kicked_powers[power.name] = set(power.tokens)
-                power.set_controlled(None)
+                power.set_controlled(None)'''
 
         if kicked_powers:
             # Some powers were kicked from an active game before processing.

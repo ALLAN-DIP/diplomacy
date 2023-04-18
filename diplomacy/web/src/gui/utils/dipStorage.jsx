@@ -40,6 +40,7 @@ export class DipStorage {
                 global: (global && JSON.parse(global)) || {
                     connection: {
                         username: null,
+                        password: null,
                         hostname: null,
                         port: null,
                         showServerFields: null
@@ -80,6 +81,12 @@ export class DipStorage {
     static setConnectionUsername(username) {
         DipStorage.load();
         STORAGE.global.connection.username = username;
+        DipStorage.save();
+    }
+
+    static setConnectionPassword(password) {
+        DipStorage.load();
+        STORAGE.global.connection.password = password;
         DipStorage.save();
     }
 

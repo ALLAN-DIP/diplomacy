@@ -19,6 +19,7 @@ from abc import ABCMeta, abstractmethod
 import logging
 from tornado import gen
 from tornado.httpclient import AsyncHTTPClient
+from diplomacy.utils.export import load_saved_games_from_disk
 
 # Constants
 LOGGER = logging.getLogger(__name__)
@@ -43,16 +44,15 @@ class BaseAPI(metaclass=ABCMeta):
 
     @gen.coroutine
     @abstractmethod
-    def get_game_and_power(self, *args, **kwargs):
+    def get_game_and_power(self, game_file):
         """ Returns the game and the power we are playing
             *Arguments are specific to each implementation.*
 
             :return: A tuple consisting of
 
                 #. The diplomacy.Game object or None if an error occurred
-                #. The power name (e.g. 'FRANCE')
         """
-        raise NotImplementedError()
+        return load_saved_games_from_disk(game_file)
 
     @gen.coroutine
     @abstractmethod
@@ -66,4 +66,8 @@ class BaseAPI(metaclass=ABCMeta):
             :return: True for success, False for failure
             :type game: diplomacy.Game
         """
-        raise NotImplementedError()
+
+        game.set_orders(power_name, orders)
+        if wait is not None:
+            game.set_wait(power_name, wait)
+        return True

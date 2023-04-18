@@ -106,7 +106,7 @@ const TABLE_POWER_VIEW = {
     name: ['Power', 0],
     controller: ['Controller', 1],
     order_is_set: ['With orders', 2],
-    wait: ['Waiting', 3]
+    wait: ['Waiting', 3],
 };
 
 const PRETTY_ROLES = {
@@ -330,6 +330,8 @@ export class ContentGame extends React.Component {
         this.renderOrders = this.renderOrders.bind(this);
         this.sendMessage = this.sendMessage.bind(this);
         this.sendLogData = this.sendLogData.bind(this);
+        this.sendGameStance = this.sendGameStance.bind(this);
+        this.sendRecipientAnnotation = this.sendRecipientAnnotation.bind(this);
         this.setOrders = this.setOrders.bind(this);
         this.setSelectedLocation = this.setSelectedLocation.bind(this);
         this.setSelectedVia = this.setSelectedVia.bind(this);
@@ -349,10 +351,22 @@ export class ContentGame extends React.Component {
         if (game.daide_port)
             title += ` | DAIDE ${game.daide_port}`;
         const remainingTime = game.deadline_timer;
-        if (remainingTime === undefined)
+        const remainingHour = Math.floor(remainingTime / 3600);
+        const remainingMinute = Math.floor((remainingTime - remainingHour * 3600) / 60);
+        const remainingSecond = remainingTime - remainingHour * 3600 - remainingMinute * 60;
+
+        if (remainingTime === undefined){
             title += ` (deadline: ${game.deadline} sec)`;
-        else if (remainingTime)
-            title += ` (remaining ${remainingTime} sec)`;
+        } else {
+            title += ' (remaining ';
+            if (remainingHour > 0) {
+                title += `${remainingHour}h `;
+            }
+            if (remainingMinute > 0) {
+                title += `${remainingMinute}m `;
+            }
+            title += `${remainingSecond}s)`;
+        }
         return title;
     }
 
@@ -565,10 +579,16 @@ export class ContentGame extends React.Component {
         if (notification.message.recipient === 'GLOBAL')
             protagonist = notification.message.recipient;
         const messageHighlights = Object.assign({}, this.state.messageHighlights);
-        if (!messageHighlights.hasOwnProperty(protagonist))
+        if (!messageHighlights.hasOwnProperty(protagonist)) {
             messageHighlights[protagonist] = 1;
-        else
+        } else {
             ++messageHighlights[protagonist];
+        }
+        if (!messageHighlights.hasOwnProperty('messages')) {
+            messageHighlights['messages'] = 1;
+        } else {
+            ++messageHighlights['messages'];
+        }
         return this.setState({messageHighlights: messageHighlights})
             .then(() => this.notifiedNetworkGame(networkGame, notification));
     }
@@ -654,24 +674,60 @@ export class ContentGame extends React.Component {
         return this.setState({logData: val});
     }
 
-    sendMessage(networkGame, recipient, body) {
-        const engine = networkGame.local;
-        const message = new Message({
-            phase: engine.phase,
-            sender: engine.role,
-            recipient: recipient,
-            message: body
-        });
-        const page = this.getPage();
-        networkGame.sendGameMessage({message: message})
-            .then(() => {
-                page.load(
-                    `game: ${engine.game_id}`,
-                    <ContentGame data={engine}/>,
-                    {success: `Message sent: ${JSON.stringify(message)}`}
-                );
-            })
-            .catch(error => page.error(error.toString()));
+    handleStance = (country, stance) => {
+        const engine = this.props.data;
+        const power = engine.getPower(engine.role);
+        power.setStances(country, parseInt(stance));
+
+        this.sendGameStance(engine.client, engine.role, power.getStances());
+    }
+
+    handleRecipientAnnotation = (message, annotation) => {
+        const engine = this.props.data;
+        this.sendRecipientAnnotation(engine.client, message.time_sent, annotation);
+    }
+
+    sendRecipientAnnotation(networkGame, time_sent, annotation) {
+        const info = {time_sent: time_sent, annotation: annotation};
+        networkGame.sendRecipientAnnotation({annotation: info});
+    }
+
+    sendGameStance(networkGame, powerName, stance) {
+        const info = {
+            power_name: powerName,
+            stance: stance,
+        };
+        networkGame.sendStance({stance: info});
+    }
+
+    sendMessage(networkGame, recipient, body, deception) {
+            const page = this.getPage();
+
+        // make sure the message is not empty
+        if (/\S/.test(body)) {
+            const engine = networkGame.local;
+
+            const message = new Message({
+                phase: engine.phase,
+                sender: engine.role,
+                recipient: recipient,
+                message: body,
+                truth: deception,
+            });
+            networkGame.sendGameMessage({message: message})
+                .then(() => {
+                    page.load(
+                        `game: ${engine.game_id}`,
+                        <ContentGame data={engine}/>,
+                        {success: `Message sent: ${JSON.stringify(message)}`}
+                    );
+                })
+                .catch(error => page.error(error.toString()));
+        } else {
+            page.error('Message cannot be empty.');
+        }
+
+
     }
 
     sendLogData(networkGame, body) {
@@ -1041,6 +1097,7 @@ export class ContentGame extends React.Component {
             if (this.state.messageHighlights.hasOwnProperty(protagonist) && this.state.messageHighlights[protagonist] > 0) {
                 const messageHighlights = Object.assign({}, this.state.messageHighlights);
                 --messageHighlights[protagonist];
+                --messageHighlights['messages'];
                 this.setState({messageHighlights: messageHighlights});
             }
         }
@@ -1585,11 +1642,6 @@ export class ContentGame extends React.Component {
                     <Button title={UTILS.html.UNICODE_RIGHT_ARROW} onClick={this.onIncrementPastPhase} pickEvent={true}
                             disabled={phaseIndex === pastPhases.length - 1}/>
                 </div>
-                <div className="custom-control custom-control-inline custom-checkbox">
-                    <input className="custom-control-input" id="show-orders" type="checkbox"
-                           checked={this.state.historyShowOrders} onChange={this.onChangeShowPastOrders}/>
-                    <label className="custom-control-label" htmlFor="show-orders">Show orders</label>
-                </div>
             </form>
         );
     }
@@ -1628,7 +1680,7 @@ export class ContentGame extends React.Component {
                 }
             }
             return '';
-        };
+        }
 
         const orderView = [
             //this.__form_phases(pastPhases, phaseIndex),
@@ -1721,10 +1773,14 @@ export class ContentGame extends React.Component {
         );
     }
 
+
     renderTabCurrentPhase(toDisplay, engine, powerName, orderType, orderPath, currentPowerName, currentTabOrderCreation) {
         const powerNames = Object.keys(engine.powers);
         powerNames.sort();
+
         const orderedPowers = powerNames.map(pn => engine.powers[pn]);
+        const stances = engine.getPower(engine.role) === null ? {} : engine.getPower(engine.role).getStances();
+
         return (
             <Tab id={'tab-current-phase'} display={toDisplay}>
                 <Row >
@@ -1748,7 +1804,12 @@ export class ContentGame extends React.Component {
                                        caption={'Powers info'}
                                        columns={TABLE_POWER_VIEW}
                                        data={orderedPowers}
-                                       wrapper={PowerView.wrap}/>
+                                       wrapper={PowerView.wrap}
+                                       countries={powerNames}
+                                       onChangeStance={this.handleStance}
+                                       stances={stances}
+                                       player={engine.role}
+                                       />
                             </div>
                         </div>
                     </div>
@@ -1896,11 +1957,11 @@ export class ContentGame extends React.Component {
                                         role={engine.role}
                                         power={currentPower}/>
                 {(allowedPowerOrderTypes.length && (
-                    <span>
+                        <span>
                                 <strong>Orderable locations</strong>: {orderTypeToLocs[orderBuildingType].join(', ')}
                             </span>
-                ))
-                || (<strong>&nbsp;No orderable location.</strong>)}
+                    ))
+                    || (<strong>&nbsp;No orderable location.</strong>)}
                 {phaseType === 'A' && (
                     (buildCount === null && (
                         <strong>&nbsp;(unknown build count)</strong>

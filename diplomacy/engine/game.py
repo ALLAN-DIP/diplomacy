@@ -46,6 +46,7 @@ from diplomacy.utils.game_phase_data import GamePhaseData, MESSAGES_TYPE, LOGS_T
 UNDETERMINED, POWER, UNIT, LOCATION, COAST, ORDER, MOVE_SEP, OTHER = 0, 1, 2, 3, 4, 5, 6, 7
 LOGGER = logging.getLogger(__name__)
 
+
 class Game(Jsonable):
     """ Game class.
 
@@ -225,7 +226,8 @@ class Game(Jsonable):
                  'convoy_paths_dest', 'zobrist_hash', 'renderer', 'game_id', 'map_name', 'role', 'rules',
                  'message_history', 'state_history', 'result_history', 'status', 'timestamp_created', 'n_controls',
                  'deadline', 'registration_password', 'observer_level', 'controlled_powers', '_phase_wrapper_type',
-                 'phase_abbr', '_unit_owner_cache', 'daide_port', 'fixed_state', 'log_history','logs']
+                 'phase_abbr', '_unit_owner_cache', 'daide_port', 'fixed_state', 'log_history','logs', 'stances', 'stances_history',
+                 'annotated_messages']
     zobrist_tables = {}
     rule_cache = ()
     model = {
@@ -262,6 +264,11 @@ class Game(Jsonable):
         strings.VICTORY: parsing.DefaultValueType(parsing.SequenceType(int), []),
         strings.WIN: parsing.DefaultValueType(int, 0),
         strings.ZOBRIST_HASH: parsing.DefaultValueType(int, 0),
+        strings.STANCES: parsing.DefaultValueType(parsing.DictType(str, parsing.DictType(str, int)), {}),
+        strings.STANCES_HISTORY: parsing.DefaultValueType(
+            parsing.DictType(str, parsing.DictType(str, parsing.DictType(str, int))), {}),
+        'annotated_messages': parsing.DefaultValueType(
+            parsing.DictType(int, parsing.DictType(str, str)), {}),
     }
 
     def __init__(self, game_id=None, **kwargs):
@@ -299,8 +306,10 @@ class Game(Jsonable):
         self.daide_port = None
         self.fixed_state = None
 
+        self.stances = {}
+
         # Caches
-        self._unit_owner_cache = None               # {(unit, coast_required): owner}
+        self._unit_owner_cache = None  # {(unit, coast_required): owner}
 
         # Remove rules from kwargs (if present), as we want to add them manually using self.add_rule().
         rules = kwargs.pop(strings.RULES, None)
@@ -392,6 +401,9 @@ class Game(Jsonable):
         self.log_history = SortedDict(self._phase_wrapper_type, SortedDict,
                                           {self._phase_wrapper_type(key): value
                                            for key, value in self.log_history.items()})
+        self.stances_history = SortedDict(self._phase_wrapper_type, dict,
+                                          {self._phase_wrapper_type(key): value
+                                           for key, value in self.stances_history.items()})
 
     def __str__(self):
         """ Returns a string representation of the game instance """
@@ -740,17 +752,19 @@ class Game(Jsonable):
         messages = self.message_history.sub(from_phase, to_phase)
         logs = self.log_history.sub(from_phase, to_phase)
         results = self.result_history.sub(from_phase, to_phase)
+        stances = self.stances_history.sub(from_phase, to_phase)
         if game_role:
             messages = [self.filter_messages(msg_dict, game_role) for msg_dict in messages]
             logs = [self.filter_logs(log_dict, game_role) for log_dict in logs]
-        assert len(phases) == len(states) == len(orders) == len(messages) == len(results) == len(logs), (
-            len(phases), len(states), len(orders), len(messages), len(results), len(logs))
+        assert len(phases) == len(states) == len(orders) == len(messages) == len(results) == len(logs) == len(stances), (
+            len(phases), len(states), len(orders), len(messages), len(results), len(stances), len(logs))
         return [GamePhaseData(name=str(phases[i]),
                               state=states[i],
                               orders=orders[i],
                               messages=messages[i],
                               logs=logs[i],
-                              results=results[i])
+                              results=results[i],
+                              stances=stances[i])
                 for i in range(len(phases))]
 
     def get_phase_from_history(self, short_phase_name, game_role=None):
@@ -783,6 +797,7 @@ class Game(Jsonable):
         self.log_history.put(phase, game_phase_data.logs)
         self.order_history.put(phase, game_phase_data.orders)
         self.result_history.put(phase, game_phase_data.results)
+        self.stances_history[phase] = game_phase_data.stances
 
     def set_status(self, status):
         """ Set game status with given status (should be in diplomacy.utils.strings.ALL_GAME_STATUSES). """
@@ -810,6 +825,7 @@ class Game(Jsonable):
         previous_messages = self.messages.copy()
         previous_logs = self.logs.copy()
         previous_state = self.get_state()
+        previous_stance = self.stances.copy()
 
         # Finish the game.
         self._finish(winners)
@@ -824,6 +840,7 @@ class Game(Jsonable):
         self.log_history.put(previous_phase, previous_logs)
         self.state_history.put(previous_phase, previous_state)
         self.result_history.put(previous_phase, {})
+        self.stances_history[previous_phase] = previous_stance
 
         # There are no expected results for orders, as there are no orders processed.
 
@@ -832,13 +849,15 @@ class Game(Jsonable):
                                             orders=previous_orders,
                                             messages=previous_messages,
                                             logs=previous_logs,
-                                            results={})
+                                            results={},
+                                            stances=previous_stance)
         current_phase_data = GamePhaseData(name=self.current_short_phase,
                                            state=self.get_state(),
                                            orders={},
                                            messages={},
                                            logs={},
-                                           results={})
+                                           results={},
+                                           stances={})
 
         return previous_phase_data, current_phase_data
 
@@ -932,6 +951,24 @@ class Game(Jsonable):
 
         self.logs.put(log.time_sent, log)
         return log.time_sent
+    def add_recipient_annotation(self, annotation):
+        time_sent = annotation['time_sent']
+        annotation = annotation['annotation']
+        message = self.annotated_messages[time_sent]
+        message['recipient_annotation'] = str(annotation)
+
+        self.annotated_messages[time_sent] = message
+
+    def add_stance(self, stance):
+        """ Add stance to power with given name.
+
+            :param power_name: power name (string).
+            :param stance: stance to add (string).
+        """
+        power = stance['power_name']
+        stance_to_add = stance['stance']
+        self.stances[power] = stance_to_add
+
     def add_message(self, message):
         """ Add message to current game data.
             Only a server game can add a message with no timestamp:
@@ -958,6 +995,16 @@ class Game(Jsonable):
             message.time_sent = common.timestamp_microseconds()
 
         self.messages.put(message.time_sent, message)
+
+        annotated_message = {
+            'sender': message.sender,
+            'recipient': message.recipient,
+            'phase': message.phase,
+            'message': message.message,
+            'truth': str(message.truth),
+        }
+        self.annotated_messages[message.time_sent] = annotated_message
+
         return message.time_sent
 
     # Vote methods. For server and omniscient games only.
@@ -1357,7 +1404,7 @@ class Game(Jsonable):
         if not self.has_power(power_name):
             return
 
-        power = self.get_power(power_name.upper())          # type: diplomacy.engine.power.Power
+        power = self.get_power(power_name.upper())  # type: diplomacy.engine.power.Power
         power.wait = wait
 
     def clear_units(self, power_name=None):
@@ -1525,6 +1572,7 @@ class Game(Jsonable):
         previous_messages = self.messages.copy()
         previous_state = self.get_state()
         previous_logs = self.logs.copy()
+        previous_stances = self.stances.copy()
 
         if self.error:
             if 'IGNORE_ERRORS' not in self.rules:
@@ -1545,6 +1593,8 @@ class Game(Jsonable):
         self.message_history.put(previous_phase, previous_messages)
         self.state_history.put(previous_phase, previous_state)
         self.log_history.put(previous_phase, previous_logs)
+        # load the stances to history
+        self.stances_history[previous_phase] = previous_stances
 
         # Set empty orders for unorderable powers.
         # JAD: commenting the following if statement. This block will automatically set
@@ -1563,7 +1613,8 @@ class Game(Jsonable):
                              orders=previous_orders,
                              messages=previous_messages,
                              logs=previous_logs,
-                             results=self.result_history[previous_phase])
+                             results=self.result_history[previous_phase],
+                             stances=previous_stances)
 
     def build_caches(self):
         """ Rebuilds the various caches """
@@ -1653,7 +1704,8 @@ class Game(Jsonable):
                              orders=current_orders,
                              messages=self.messages.copy(),
                              logs=self.logs.copy(),
-                             results={})
+                             results={},
+                             stances=self.stances.copy())
 
     def set_phase_data(self, phase_data, clear_history=True):
         """ Set game from phase data.
@@ -1693,6 +1745,9 @@ class Game(Jsonable):
         self.messages = current_phase_data.messages.copy()
         self.logs = current_phase_data.logs.copy()
         # We ignore 'results' for current phase data.
+
+    def get_stance(self):
+        return self.stances
 
     def get_state(self):
         """ Gets the internal saved state of the game.
@@ -1935,7 +1990,7 @@ class Game(Jsonable):
             for unit_loc, (unit, is_dislodged, retreat_list, duplicate) in unit_dict.items():
                 if not is_dislodged or duplicate:
                     continue
-                unit_loc = unit_loc[1:]                 # Removing the leading *
+                unit_loc = unit_loc[1:]  # Removing the leading *
                 unit_on_coast = '/' in unit_loc
 
                 # Disband
@@ -3395,7 +3450,7 @@ class Game(Jsonable):
             # Checking if retreat destination is valid
             elif len(word) == 4 and word[2] in 'R-':
                 word[2] = 'R'
-                if word[3] not in power.retreats[unit]\
+                if word[3] not in power.retreats[unit] \
                         or self._unit_owner('A {}'.format(word[3][:3]), coast_required=0) \
                         or self._unit_owner('F {}'.format(word[3][:3]), coast_required=0):
                     self.error.append(err.GAME_INVALID_RETREAT_DEST % ' '.join(word))
@@ -3679,7 +3734,7 @@ class Game(Jsonable):
         self._unit_owner_cache = {}
         for owner in self.powers.values():
             for unit in owner.units:
-                self._unit_owner_cache[(unit, True)] = owner                    # (unit, coast_required): owner
+                self._unit_owner_cache[(unit, True)] = owner  # (unit, coast_required): owner
                 self._unit_owner_cache[(unit, False)] = owner
                 if '/' in unit:
                     self._unit_owner_cache[(unit.split('/')[0], False)] = owner
@@ -4054,6 +4109,7 @@ class Game(Jsonable):
                 continue
 
             offset = 1 if word[-1] == 'VIA' else 0
+
             def flatten(nested_list):
                 """ Flattens a sublist """
                 return [list_item for sublist in nested_list for list_item in sublist]

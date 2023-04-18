@@ -33,6 +33,8 @@ export class ConnectionForm extends React.Component {
                 initialState.port = savedState.port;
             if (savedState.username)
                 initialState.username = savedState.username;
+            if (savedState.password)
+                initialState.password = savedState.password;
             if (savedState.showServerFields)
                 initialState.showServerFields = savedState.showServerFields;
         }
@@ -70,6 +72,10 @@ export class ConnectionForm extends React.Component {
             DipStorage.setConnectionUsername(newState.username);
         else
             DipStorage.setConnectionUsername(null);
+        if (newState.password !== initialState.password)
+            DipStorage.setConnectionPassword(newState.password);
+        else
+            DipStorage.setConnectionPassword(null);
         if (this.props.onChange)
             this.props.onChange(newState);
     }

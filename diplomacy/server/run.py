@@ -14,7 +14,7 @@
 #
 #  You should have received a copy of the GNU Affero General Public License along
 #  with this program.  If not, see <https://www.gnu.org/licenses/>.
-# ==============================================================================
+# =============================================================================
 """ Small module script to quickly start a server with pretty log-printing.
 
     You can stop the server with keyboard interruption (Ctrl+C). Usage:
@@ -30,15 +30,24 @@
 """
 import argparse
 import os
+import asyncio
+
 from diplomacy import Server
 from diplomacy.utils import constants
+import tornado.web
+import tornado.ioloop
+import json
 
-if __name__ == '__main__':
-    
-    # Read in defaults from ENV first, then constants
-    default_port = int(os.environ.get("SERVER_PORT", constants.DEFAULT_PORT))
-    default_daide_ports = os.environ.get("DAIDE_PORT_RANGE", constants.DEFAULT_DAIDE_PORT_RANGE)
+class RequestHandler(tornado.web.RequestHandler):
+    def get(self):
+        game = self.get_argument('game', None)
+        path = '../web/data/games/' + game + '.json'
+        with open(path) as f:
+            data = json.load(f)
+        self.write(data)
+        f.close()
 
+async def main():
     PARSER = argparse.ArgumentParser(description='Run server.')
     PARSER.add_argument('--port', '-p', type=int, default=default_port,
                         help='run on the given port (default: %s)' % default_port)
@@ -51,5 +60,33 @@ if __name__ == '__main__':
     try:
         daide_ports = [int(p) for p in ARGS.daide_ports.split(":")]
         Server(server_dir=ARGS.server_dir, daide_min_port=daide_ports[0], daide_max_port=daide_ports[1]).start(port=ARGS.port)
+        print('Server started on port %s.' % ARGS.port)
+
+        app = tornado.web.Application([
+            (r'/', RequestHandler),
+        ])
+
+        app.listen(8888)
+        print('Tornado started on port 8888.')
+        #tornado.ioloop.IOLoop.current().start()
+        await asyncio.Event().wait()
+
+        print('Server started on port %s.' % ARGS.port)
+
+        app = tornado.web.Application([
+            (r'/', RequestHandler),
+        ])
+
+        app.listen(8888)
+        print('Tornado started on port 8888.')
+        #tornado.ioloop.IOLoop.current().start()
+        await asyncio.Event().wait()
+
     except KeyboardInterrupt:
         print('Keyboard interruption.')
+
+if __name__ == '__main__':
+    default_port = int(os.environ.get("SERVER_PORT", constants.DEFAULT_PORT))
+    default_daide_ports = os.environ.get("DAIDE_PORT_RANGE", constants.DEFAULT_DAIDE_PORT_RANGE)
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(main())

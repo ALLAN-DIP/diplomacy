@@ -92,6 +92,7 @@ from diplomacy.utils.sorted_dict import SortedDict
 
 LOGGER = logging.getLogger(__name__)
 
+
 class _AbstractRequest(NetworkData):
     """ Abstract request class.
 
@@ -127,6 +128,7 @@ class _AbstractRequest(NetworkData):
         """ Hack: we just use it to validate level. """
         assert cls.level is None or cls.level in strings.ALL_COMM_LEVELS
 
+
 class _AbstractChannelRequest(_AbstractRequest):
     """ Abstract class representing a channel request.
         Token field is automatically filled by a Channel object before sending request.
@@ -140,6 +142,7 @@ class _AbstractChannelRequest(_AbstractRequest):
     def __init__(self, **kwargs):
         self.token = None  # type: str
         super(_AbstractChannelRequest, self).__init__(**kwargs)
+
 
 class _AbstractGameRequest(_AbstractChannelRequest):
     """ Abstract class representing a game request.
@@ -169,6 +172,7 @@ class _AbstractGameRequest(_AbstractChannelRequest):
     # See request managers in diplomacy.server.request_managers.
     address_in_game = property(lambda self: (self.game_role, self.token))
 
+
 # ====================
 # Connection requests.
 # ====================
@@ -194,6 +198,7 @@ class GetDaidePort(_AbstractRequest):
         self.game_id = None
         super(GetDaidePort, self).__init__(**kwargs)
 
+
 class SignIn(_AbstractRequest):
     """ Connection request. Log in or sign in to server.
 
@@ -218,6 +223,7 @@ class SignIn(_AbstractRequest):
         self.username = None
         self.password = None
         super(SignIn, self).__init__(**kwargs)
+
 
 # =================
 # Channel requests.
@@ -294,6 +300,7 @@ class CreateGame(_AbstractChannelRequest):
         self.daide_port = None
         super(CreateGame, self).__init__(**kwargs)
 
+
 class DeleteAccount(_AbstractChannelRequest):
     """ Channel request to delete an account.
 
@@ -313,6 +320,7 @@ class DeleteAccount(_AbstractChannelRequest):
     def __init__(self, **kwargs):
         self.username = None
         super(DeleteAccount, self).__init__(**kwargs)
+
 
 class GetDummyWaitingPowers(_AbstractChannelRequest):
     """ Channel request to get games with dummy waiting powers.
@@ -344,6 +352,7 @@ class GetDummyWaitingPowers(_AbstractChannelRequest):
         self.buffer_size = 0
         super(GetDummyWaitingPowers, self).__init__(**kwargs)
 
+
 class GetAvailableMaps(_AbstractChannelRequest):
     """ Channel request to get maps available on server.
 
@@ -354,6 +363,7 @@ class GetAvailableMaps(_AbstractChannelRequest):
               to the map. You can especially check key ``'powers'`` to get the list of map power names.
     """
     __slots__ = []
+
 
 class GetPlayablePowers(_AbstractChannelRequest):
     """ Channel request to get the list of playable powers for a game.
@@ -374,6 +384,7 @@ class GetPlayablePowers(_AbstractChannelRequest):
     def __init__(self, **kwargs):
         self.game_id = None
         super(GetPlayablePowers, self).__init__(**kwargs)
+
 
 class JoinGame(_AbstractChannelRequest):
     """ Channel request to join a game.
@@ -416,6 +427,7 @@ class JoinGame(_AbstractChannelRequest):
         self.registration_password = None
         super(JoinGame, self).__init__(**kwargs)
 
+
 class JoinPowers(_AbstractChannelRequest):
     """ Channel request to join many powers of a game with one request.
 
@@ -446,6 +458,7 @@ class JoinPowers(_AbstractChannelRequest):
         self.power_names = None
         self.registration_password = None
         super(JoinPowers, self).__init__(**kwargs)
+
 
 class ListGames(_AbstractChannelRequest):
     """ Channel request to find games.
@@ -483,6 +496,7 @@ class ListGames(_AbstractChannelRequest):
         self.for_omniscience = None
         super(ListGames, self).__init__(**kwargs)
 
+
 class GetGamesInfo(_AbstractChannelRequest):
     """ Channel request to get information for a given list of game indices.
 
@@ -502,9 +516,11 @@ class GetGamesInfo(_AbstractChannelRequest):
         self.games = []
         super(GetGamesInfo, self).__init__(**kwargs)
 
+
 class Logout(_AbstractChannelRequest):
     """ Channel request to logout. Returns nothing. """
     __slots__ = []
+
 
 class UnknownToken(_AbstractChannelRequest):
     """ Channel request to tell server that a channel token is unknown.
@@ -515,6 +531,7 @@ class UnknownToken(_AbstractChannelRequest):
             which acts more like a "client notification" sent to server.
     """
     __slots__ = []
+
 
 class SetGrade(_AbstractChannelRequest):
     """ Channel request to modify the grade of a user.
@@ -547,6 +564,7 @@ class SetGrade(_AbstractChannelRequest):
         self.game_id = None
         super(SetGrade, self).__init__(**kwargs)
 
+
 # ==============
 # Game requests.
 # ==============
@@ -567,6 +585,7 @@ class ClearCenters(_AbstractGameRequest):
         self.power_name = None  # type: str
         super(ClearCenters, self).__init__(**kwargs)
 
+
 class ClearOrders(_AbstractGameRequest):
     """ Game request to clear orders.
 
@@ -582,6 +601,7 @@ class ClearOrders(_AbstractGameRequest):
     def __init__(self, **kwargs):
         self.power_name = None  # type: str
         super(ClearOrders, self).__init__(**kwargs)
+
 
 class ClearUnits(_AbstractGameRequest):
     """ Game request to clear units.
@@ -599,10 +619,12 @@ class ClearUnits(_AbstractGameRequest):
         self.power_name = None  # type: str
         super(ClearUnits, self).__init__(**kwargs)
 
+
 class DeleteGame(_AbstractGameRequest):
     """ Game request to delete a game. Require game master privileges. Returns nothing. """
     __slots__ = []
     phase_dependent = False
+
 
 class GetAllPossibleOrders(_AbstractGameRequest):
     """ Game request to get all possible orders.
@@ -610,6 +632,7 @@ class GetAllPossibleOrders(_AbstractGameRequest):
         containing possible orders and orderable locations.
     """
     __slots__ = []
+
 
 class GetPhaseHistory(_AbstractGameRequest):
     """ Game request to get a list of game phase data from game history for given phases interval.
@@ -638,6 +661,7 @@ class GetPhaseHistory(_AbstractGameRequest):
         self.to_phase = ''
         super(GetPhaseHistory, self).__init__(**kwargs)
 
+
 class LeaveGame(_AbstractGameRequest):
     """ Game request to leave a game (logout from game). If request power name is set
         (ie. request user was a player), then power will become uncontrolled.
@@ -646,15 +670,18 @@ class LeaveGame(_AbstractGameRequest):
     """
     __slots__ = []
 
+
 class ProcessGame(_AbstractGameRequest):
     """ Game request to force a game processing. Require master privileges. Return nothing. """
     __slots__ = []
+
 
 class QuerySchedule(_AbstractGameRequest):
     """ Game request to get info about current scheduling for a game in server.
         Returns (server and client) a :class:`.DataGameSchedule` object.
     """
     __slots__ = []
+
 
 class SaveGame(_AbstractGameRequest):
     """ Game request to get game exported in JSON format.
@@ -665,6 +692,31 @@ class SaveGame(_AbstractGameRequest):
             - Client: dict - the JSON dictionary.
     """
     __slots__ = []
+
+
+class SendRecipientAnnotation(_AbstractGameRequest):
+    __slots__ = ['annotation']
+
+    params = {
+        'annotation': parsing.OptionalValueType(dict),
+    }
+
+    def __init__(self, **kwargs):
+        self.annotation = {}
+        super(SendRecipientAnnotation, self).__init__(**kwargs)
+
+
+class SendStance(_AbstractGameRequest):
+    __slots__ = ['stance']
+
+    params = {
+        strings.STANCE: parsing.OptionalValueType(dict),
+    }
+
+    def __init__(self, **kwargs):
+        self.stance = {}
+        super(SendStance, self).__init__(**kwargs)
+
 
 class SendGameMessage(_AbstractGameRequest):
     """ Game message to send a user request.
@@ -721,6 +773,7 @@ class SetDummyPowers(_AbstractGameRequest):
         self.power_names = None
         super(SetDummyPowers, self).__init__(**kwargs)
 
+
 class SetGameState(_AbstractGameRequest):
     """ Game request to set a game state (for exper users). Require game master privileges.
 
@@ -734,12 +787,13 @@ class SetGameState(_AbstractGameRequest):
         :type messages: dict
         :return: None
     """
-    __slots__ = ['state', 'orders', 'results', 'messages']
+    __slots__ = ['state', 'orders', 'results', 'messages', 'stances']
     params = {
         strings.STATE: dict,
         strings.ORDERS: parsing.DictType(str, parsing.SequenceType(str)),
         strings.RESULTS: parsing.DictType(str, parsing.SequenceType(str)),
         strings.MESSAGES: parsing.DictType(int, parsing.JsonableClassType(Message), SortedDict.builder(int, Message)),
+        strings.STANCES: parsing.DefaultValueType(parsing.DictType(str, parsing.DictType(str, int)), {}),
     }
 
     def __init__(self, **kwargs):
@@ -748,6 +802,7 @@ class SetGameState(_AbstractGameRequest):
         self.results = {}
         self.messages = {}  # type: SortedDict
         super(SetGameState, self).__init__(**kwargs)
+
 
 class SetGameStatus(_AbstractGameRequest):
     """ Game request to force game status (only if new status differs from previous one).
@@ -771,6 +826,7 @@ class SetGameStatus(_AbstractGameRequest):
     def __init__(self, **kwargs):
         self.status = None
         super(SetGameStatus, self).__init__(**kwargs)
+
 
 class SetOrders(_AbstractGameRequest):
     """ Game request to set orders for a power.
@@ -797,6 +853,7 @@ class SetOrders(_AbstractGameRequest):
         self.wait = None
         super(SetOrders, self).__init__(**kwargs)
 
+
 class SetWaitFlag(_AbstractGameRequest):
     """ Game request to set orders for a power.
 
@@ -818,6 +875,7 @@ class SetWaitFlag(_AbstractGameRequest):
         self.wait = None
         super(SetWaitFlag, self).__init__(**kwargs)
 
+
 class Synchronize(_AbstractGameRequest):
     """ Game request to force synchronization of client game with server game.
         If necessary, server will send appropriate notifications to client game so that it can
@@ -836,6 +894,7 @@ class Synchronize(_AbstractGameRequest):
     def __init__(self, **kwargs):
         self.timestamp = None  # type: int
         super(Synchronize, self).__init__(**kwargs)
+
 
 class Vote(_AbstractGameRequest):
     """ Game request to vote for draw decision.
@@ -861,6 +920,7 @@ class Vote(_AbstractGameRequest):
         self.power_name = ''
         self.vote = ''
         super(Vote, self).__init__(**kwargs)
+
 
 def parse_dict(json_request):
     """ Parse a JSON dictionary expected to represent a request.
