@@ -1223,6 +1223,14 @@ export class ContentGame extends React.Component {
                     <Avatar src = {POWER_ICONS[sender]} name={sender} size="sm" />
                 </ChatMessage>
             );
+            if (role !== sender) {
+                renderedMessages.push(
+                    <div style={{display: "flex", justifyContent: 'flex-end'}}>
+                    <input type="radio" value="true" name="tf"/> True
+                    <input type="radio" value="false" name="tf"/> False
+                    </div>
+                );
+            }
         }
 
         return(
@@ -1427,6 +1435,14 @@ export class ContentGame extends React.Component {
                     <Avatar src = {POWER_ICONS[sender]} name={sender} size="sm" />
                 </ChatMessage>
             );
+            if (role !== sender) {
+                renderedMessages.push(
+                    <div style={{display: "flex", justifyContent: 'flex-end'}}>
+                    <input type="radio" value="true" name="tf"/> True
+                    <input type="radio" value="false" name="tf"/> False
+                    </div>
+                );
+            }
         }
 
         return (
