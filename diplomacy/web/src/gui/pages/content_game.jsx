@@ -1352,6 +1352,7 @@ export class ContentGame extends React.Component {
         // const titles = tabNames.map(tabName => (tabName === 'GLOBAL' ? tabName : tabName.substr(0, 3)));
         const currentTabId = this.state.tabCurrentMessages || tabNames[0];
         const curController = engine.powers[role].getController()
+        var messageCount = 0;
         // const highlights = this.state.messageHighlights;
 
 
@@ -1438,10 +1439,11 @@ export class ContentGame extends React.Component {
             if (role !== sender) {
                 renderedMessages.push(
                     <div style={{display: "flex", justifyContent: 'flex-end'}}>
-                    <input type="radio" value="true" name="tf"/> True
-                    <input type="radio" value="false" name="tf"/> False
+                    <input type="radio" value="true" name={messageCount} defaultChecked={msg.recipient_annotation == "True"} onClick={() => this.handleRecipientAnnotation(msg, true)}/> True
+                    <input type="radio" value="false" name={messageCount} defaultChecked={msg.recipient_annotation == "False"} onClick={() => this.handleRecipientAnnotation(msg, false)}/> False
                     </div>
                 );
+                messageCount++;
             }
         }
 

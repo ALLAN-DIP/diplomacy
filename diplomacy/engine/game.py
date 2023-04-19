@@ -956,8 +956,22 @@ class Game(Jsonable):
         annotation = annotation['annotation']
         message = self.annotated_messages[time_sent]
         message['recipient_annotation'] = str(annotation)
+        messages_copy = self.messages.copy()
+
+        message_copy = messages_copy.remove(time_sent)
+        message_with_annotation = Message(
+            sender = message_copy.sender,
+            recipient= message_copy.recipient,
+            time_sent= message_copy.time_sent,
+            phase= message_copy.phase,
+            message= message_copy.message,
+            truth= message_copy.truth,
+            recipient_annotation= str(annotation)
+        )
+        messages_copy.put(time_sent, message_with_annotation)
 
         self.annotated_messages[time_sent] = message
+        self.messages = messages_copy
 
     def add_stance(self, stance):
         """ Add stance to power with given name.

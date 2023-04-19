@@ -805,6 +805,7 @@ def on_send_recipient_annotation(server, request, connection_handler):
     token, annotation = request.token, request.annotation
     assert_game_not_finished(level.game)
     level.game.add_recipient_annotation(annotation)
+    server.backup_now(force=True)
 
 
 def on_send_stance(server, request, connection_handler):

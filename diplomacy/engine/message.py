@@ -73,7 +73,7 @@ class Message(Jsonable):
         strings.PHASE: str,                                 # phase short name (e.g. 'S1901M' or 'COMPLETED')
         strings.MESSAGE: str,
         strings.TRUTH: parsing.OptionalValueType(bool),
-        'recipient_annotation': parsing.OptionalValueType(bool)
+        'recipient_annotation': parsing.OptionalValueType(str)
     }
 
     def __init__(self, **kwargs):
