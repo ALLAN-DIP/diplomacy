@@ -822,6 +822,7 @@ def on_send_stance(server, request, connection_handler):
     token, stance = request.token, request.stance
     assert_game_not_finished(level.game)
     level.game.add_stance(stance)
+    server.backup_now(force=True)
 
 
 def on_send_game_message(server, request, connection_handler):
