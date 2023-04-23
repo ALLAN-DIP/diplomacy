@@ -877,6 +877,7 @@ def on_send_game_message(server, request, connection_handler):
     message.time_sent = level.game.add_message(message)
     Notifier(server, ignore_addresses=[(request.game_role, token)]).notify_game_message(level.game, message)
     server.save_game(level.game)
+    server.backup_now(force=True)
     return responses.DataTimeStamp(data=message.time_sent, request_id=request.request_id)
 
 

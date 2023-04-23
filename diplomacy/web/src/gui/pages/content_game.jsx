@@ -63,6 +63,7 @@ import {
     ConversationHeader,
     Avatar,
     Message as ChatMessage,
+    InputToolbox,
 } from '@chatscope/chat-ui-kit-react';
 import AUS from '../assets/AUS.png';
 import ENG from '../assets/ENG.png';
@@ -1438,7 +1439,7 @@ export class ContentGame extends React.Component {
             );
             if (role !== sender) {
                 renderedMessages.push(
-                    <div style={{display: "flex", justifyContent: 'flex-end'}}>
+                    <div>
                     <input type="radio" value="true" name={messageCount} defaultChecked={msg.recipient_annotation == "True"} onClick={() => this.handleRecipientAnnotation(msg, true)}/> True
                     <input type="radio" value="false" name={messageCount} defaultChecked={msg.recipient_annotation == "False"} onClick={() => this.handleRecipientAnnotation(msg, false)}/> False
                     </div>
@@ -1460,9 +1461,15 @@ export class ContentGame extends React.Component {
                             <MessageList>
                                 {renderedMessages}
                             </MessageList>
-                            {engine.isPlayerGame() && (
+                            
+                        </ChatContainer>
+                    </MainContainer>
+                    <div style={{display: 'flex', flexDirection: 'row'}}>
+                    {engine.isPlayerGame() && (
                                 <MessageInput
+                                    style={{flex: 1}}
                                     attachButton={false}
+                                    sendButton={false}
                                     onChange={val => this.setMessageInputValue(val)}
                                     onSend={() =>  {
                                         this.sendMessage(
@@ -1473,8 +1480,23 @@ export class ContentGame extends React.Component {
                                     }}
                                 />
                             )}
-                        </ChatContainer>
-                    </MainContainer>
+                            {engine.isPlayerGame() && (
+                                <div>
+                                <Button key={'t'} pickEvent={true} title={'Truth'} onClick={() => {this.sendMessage(
+                                            engine.client,
+                                            currentTabId,
+                                            this.state.message,
+                                            'True'
+                                        ); this.setState({message: ''})}}></Button>
+                                <Button key={'f'} pickEvent={true} title={'Lie'} onClick={() => {this.sendMessage(
+                                            engine.client,
+                                            currentTabId,
+                                            this.state.message,
+                                            'False'
+                                        ); this.setState({message: ''})}}></Button>
+                                </div>
+                            )}
+                    </div>
                 </div>
                 { localStorage.getItem("username") === "admin" &&
 
