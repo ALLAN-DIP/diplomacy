@@ -234,6 +234,10 @@ export class Game {
         this.recipient_annotations[timeSent] = annotation;
     }
 
+    addOrderEdits(timeSent, orderEdits) {
+        // TODO
+    }
+
     addStance(powerName, stance) {
         this.stances[powerName] = stance;
     }

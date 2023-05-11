@@ -29,7 +29,7 @@ class GamePhaseData(Jsonable):
     """ Small class to represent data for a game phase:
         phase name, state, orders, orders results and messages for this phase.
     """
-    __slots__ = ['name', 'state', 'orders', 'results', 'messages','logs', 'stances']
+    __slots__ = ['name', 'state', 'orders', 'results', 'messages','logs', 'stances', 'order_edits']
 
     model = {
         strings.NAME: str,
@@ -38,10 +38,11 @@ class GamePhaseData(Jsonable):
         strings.RESULTS: parsing.DictType(str, parsing.SequenceType(parsing.StringableType(common.StringableCode))),
         strings.MESSAGES: MESSAGES_TYPE,
         strings.LOGS: LOGS_TYPE,
-        strings.STANCES: parsing.DefaultValueType(parsing.DictType(str, parsing.DictType(str, int)), {})
+        strings.STANCES: parsing.DefaultValueType(parsing.DictType(str, parsing.DictType(str, int)), {}),
+        'order_edits': parsing.DefaultValueType(parsing.DictType(str, parsing.SequenceType(str)), {})
     }
 
-    def __init__(self, name, state, orders, results, messages, stances, logs):
+    def __init__(self, name, state, orders, results, messages, stances, logs, order_edits):
         """ Constructor. """
         self.name = ''
         self.state = {}
@@ -49,5 +50,6 @@ class GamePhaseData(Jsonable):
         self.results = {}
         self.messages = {}
         self.logs = {}
+        self.order_edits = {}
         super(GamePhaseData, self).__init__(name=name, state=state, orders=orders, results=results, messages=messages, logs=logs,
-                                            stances=stances)
+                                            stances=stances, order_edits=order_edits)

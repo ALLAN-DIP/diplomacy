@@ -227,7 +227,7 @@ class Game(Jsonable):
                  'message_history', 'state_history', 'result_history', 'status', 'timestamp_created', 'n_controls',
                  'deadline', 'registration_password', 'observer_level', 'controlled_powers', '_phase_wrapper_type',
                  'phase_abbr', '_unit_owner_cache', 'daide_port', 'fixed_state', 'log_history','logs', 'stances', 'stances_history',
-                 'annotated_messages']
+                 'annotated_messages', 'order_edits', 'order_edits_history']
     zobrist_tables = {}
     rule_cache = ()
     model = {
@@ -269,6 +269,8 @@ class Game(Jsonable):
             parsing.DictType(str, parsing.DictType(str, parsing.DictType(str, int))), {}),
         'annotated_messages': parsing.DefaultValueType(
             parsing.DictType(int, parsing.DictType(str, str)), {}),
+        'order_edits': parsing.DefaultValueType(parsing.DictType(str, parsing.SequenceType(str)), {}),
+        'order_edits_history': parsing.DefaultValueType(parsing.DictType(str, parsing.DictType(str, parsing.SequenceType(str))), {}),
     }
 
     def __init__(self, game_id=None, **kwargs):
@@ -307,6 +309,8 @@ class Game(Jsonable):
         self.fixed_state = None
 
         self.stances = {}
+        self.order_edits_history = {}
+        self.order_edits = {}
 
         # Caches
         self._unit_owner_cache = None  # {(unit, coast_required): owner}
@@ -404,6 +408,9 @@ class Game(Jsonable):
         self.stances_history = SortedDict(self._phase_wrapper_type, dict,
                                           {self._phase_wrapper_type(key): value
                                            for key, value in self.stances_history.items()})
+        self.order_edits_history = SortedDict(self._phase_wrapper_type, dict,
+                                            {self._phase_wrapper_type(key): value
+                                                for key, value in self.order_edits_history.items()})
 
     def __str__(self):
         """ Returns a string representation of the game instance """
@@ -753,6 +760,7 @@ class Game(Jsonable):
         logs = self.log_history.sub(from_phase, to_phase)
         results = self.result_history.sub(from_phase, to_phase)
         stances = self.stances_history.sub(from_phase, to_phase)
+        order_edits = self.order_edits_history.sub(from_phase, to_phase)
         if game_role:
             messages = [self.filter_messages(msg_dict, game_role) for msg_dict in messages]
             logs = [self.filter_logs(log_dict, game_role) for log_dict in logs]
@@ -764,7 +772,8 @@ class Game(Jsonable):
                               messages=messages[i],
                               logs=logs[i],
                               results=results[i],
-                              stances=stances[i])
+                              stances=stances[i],
+                              order_edits=order_edits[i])
                 for i in range(len(phases))]
 
     def get_phase_from_history(self, short_phase_name, game_role=None):
@@ -798,6 +807,7 @@ class Game(Jsonable):
         self.order_history.put(phase, game_phase_data.orders)
         self.result_history.put(phase, game_phase_data.results)
         self.stances_history[phase] = game_phase_data.stances
+        self.order_edits_history[phase] = game_phase_data.order_edits
 
     def set_status(self, status):
         """ Set game status with given status (should be in diplomacy.utils.strings.ALL_GAME_STATUSES). """
@@ -826,6 +836,7 @@ class Game(Jsonable):
         previous_logs = self.logs.copy()
         previous_state = self.get_state()
         previous_stance = self.stances.copy()
+        previous_order_edits = self.order_edits.copy()
 
         # Finish the game.
         self._finish(winners)
@@ -835,12 +846,14 @@ class Game(Jsonable):
         self.clear_orders()
         self.messages.clear()
         self.logs.clear()
+        self.order_edits = {}
         self.order_history.put(previous_phase, previous_orders)
         self.message_history.put(previous_phase, previous_messages)
         self.log_history.put(previous_phase, previous_logs)
         self.state_history.put(previous_phase, previous_state)
         self.result_history.put(previous_phase, {})
         self.stances_history[previous_phase] = previous_stance
+        self.order_edits_history[previous_phase] = previous_order_edits
 
         # There are no expected results for orders, as there are no orders processed.
 
@@ -850,14 +863,16 @@ class Game(Jsonable):
                                             messages=previous_messages,
                                             logs=previous_logs,
                                             results={},
-                                            stances=previous_stance)
+                                            stances=previous_stance,
+                                            order_edits=previous_order_edits)
         current_phase_data = GamePhaseData(name=self.current_short_phase,
                                            state=self.get_state(),
                                            orders={},
                                            messages={},
                                            logs={},
                                            results={},
-                                           stances={})
+                                           stances={},
+                                           order_edits={})
 
         return previous_phase_data, current_phase_data
 
@@ -1394,6 +1409,12 @@ class Game(Jsonable):
         # Remove any empty string from orders.
         orders = [order for order in orders if order]
 
+        for order in orders:
+            if power_name in self.order_edits:
+                self.order_edits[power_name].append(order)
+            else:
+                self.order_edits[power_name] = [order]
+
         # Setting orders depending on phase type
         if self.phase_type == 'R':
             self._update_retreat_orders(power, orders, expand=expand, replace=replace)
@@ -1587,6 +1608,7 @@ class Game(Jsonable):
         previous_state = self.get_state()
         previous_logs = self.logs.copy()
         previous_stances = self.stances.copy()
+        previous_order_edits = self.order_edits.copy()
 
         if self.error:
             if 'IGNORE_ERRORS' not in self.rules:
@@ -1603,12 +1625,14 @@ class Game(Jsonable):
         self.clear_orders()
         self.messages.clear()
         self.logs.clear()
+        self.order_edits = {}
         self.order_history.put(previous_phase, previous_orders)
         self.message_history.put(previous_phase, previous_messages)
         self.state_history.put(previous_phase, previous_state)
         self.log_history.put(previous_phase, previous_logs)
         # load the stances to history
         self.stances_history[previous_phase] = previous_stances
+        self.order_edits_history[previous_phase] = previous_order_edits
 
         # Set empty orders for unorderable powers.
         # JAD: commenting the following if statement. This block will automatically set
@@ -1628,7 +1652,8 @@ class Game(Jsonable):
                              messages=previous_messages,
                              logs=previous_logs,
                              results=self.result_history[previous_phase],
-                             stances=previous_stances)
+                             stances=previous_stances,
+                             order_edits=previous_order_edits)
 
     def build_caches(self):
         """ Rebuilds the various caches """
@@ -1719,7 +1744,8 @@ class Game(Jsonable):
                              messages=self.messages.copy(),
                              logs=self.logs.copy(),
                              results={},
-                             stances=self.stances.copy())
+                             stances=self.stances.copy(),
+                             order_edits=self.order_edits.copy())
 
     def set_phase_data(self, phase_data, clear_history=True):
         """ Set game from phase data.
@@ -1758,6 +1784,8 @@ class Game(Jsonable):
                 Game.set_orders(self, power_name, power_orders)
         self.messages = current_phase_data.messages.copy()
         self.logs = current_phase_data.logs.copy()
+        self.stances = current_phase_data.stances.copy()
+        self.order_edits = current_phase_data.order_edits.copy()
         # We ignore 'results' for current phase data.
 
     def get_stance(self):

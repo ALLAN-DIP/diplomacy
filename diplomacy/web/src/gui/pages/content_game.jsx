@@ -811,6 +811,7 @@ export class ContentGame extends React.Component {
      * @private
      */
     __store_orders(orders) {
+        console.log('Storing orders:', orders);
         const username = this.props.data.client.channel.username;
         const gameID = this.props.data.game_id;
         const gamePhase = this.props.data.phase;
@@ -993,6 +994,7 @@ export class ContentGame extends React.Component {
         state.orders = allOrders;
         this.getPage().success(`Built order: ${orderString}`);
         this.__store_orders(allOrders);
+        this.setOrders();
         return this.setState(state);
     }
 

@@ -21,8 +21,6 @@ export class MessageView extends React.Component {
     // message
     render() {
         const message = this.props.message;
-        // TODO: get annotation from json
-        //  const recipient_annotation = message.recipient_annotation;
         const owner = this.props.owner;
         const id = this.props.id ? {id: this.props.id} : {};
         const messagesLines = message.message.replace('\r\n', '\n')
