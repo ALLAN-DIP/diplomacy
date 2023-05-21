@@ -922,7 +922,6 @@ export class ContentGame extends React.Component {
      * @private
      */
     __store_orders(orders) {
-        console.log("Storing orders:", orders);
         const username = this.props.data.client.channel.username;
         const gameID = this.props.data.game_id;
         const gamePhase = this.props.data.phase;
@@ -1716,13 +1715,7 @@ export class ContentGame extends React.Component {
                                 onChange={(val) =>
                                     this.setMessageInputValue(val)
                                 }
-                                onSend={() => {
-                                    this.sendMessage(
-                                        engine.client,
-                                        currentTabId,
-                                        this.state.message
-                                    );
-                                }}
+                                value={this.state.message}
                             />
                         )}
                         {engine.isPlayerGame() && (
@@ -1738,7 +1731,7 @@ export class ContentGame extends React.Component {
                                             this.state.message,
                                             "Truth"
                                         );
-                                        this.setState({ message: "" });
+                                        this.setMessageInputValue("");
                                     }}
                                 ></Button>
                                 <Button
@@ -1752,7 +1745,7 @@ export class ContentGame extends React.Component {
                                             this.state.message,
                                             "Lie"
                                         );
-                                        this.setState({ message: "" });
+                                        this.setMessageInputValue("");
                                     }}
                                 ></Button>
                             </div>

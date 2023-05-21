@@ -600,8 +600,6 @@ export class Game {
                 }
                 messageChannels[protagonist].push(message);
 
-                console.log('meessage channel:')
-                console.log(messageChannels)
                 //}
             }
         }
