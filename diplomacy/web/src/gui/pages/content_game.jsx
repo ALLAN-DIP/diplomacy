@@ -349,6 +349,13 @@ export class ContentGame extends React.Component {
         this.setWaitFlag = this.setWaitFlag.bind(this);
         this.vote = this.vote.bind(this);
         this.updateDeadlineTimer = this.updateDeadlineTimer.bind(this);
+
+        let engine = this.props.data;
+        let role = this.state.power ||
+        (engine.getControllablePowers().length && engine.getControllablePowers()[0]);
+        let messageChannels = engine.getMessageChannels(role, true);
+
+        console.log("messageChannels", messageChannels);
     }
 
     static prettyRole(role) {
@@ -768,9 +775,15 @@ export class ContentGame extends React.Component {
     handleStance = (country, stance) => {
         const engine = this.props.data;
         const power = engine.getPower(engine.role);
-        power.setStances(country, parseInt(stance));
 
-        this.sendGameStance(engine.client, engine.role, power.getStances());
+        try {
+            power.setStances(country, parseInt(stance));
+            this.sendGameStance(engine.client, engine.role, power.getStances());
+        } catch (e) {
+            this.getPage().error(
+                "Will not update stance of a noncontrollable power."
+            )
+        }
     };
 
     handleRecipientAnnotation = (message, annotation) => {

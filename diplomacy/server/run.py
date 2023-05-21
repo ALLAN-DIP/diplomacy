@@ -38,15 +38,6 @@ import tornado.web
 import tornado.ioloop
 import json
 
-class RequestHandler(tornado.web.RequestHandler):
-    def get(self):
-        game = self.get_argument('game', None)
-        path = '../web/data/games/' + game + '.json'
-        with open(path) as f:
-            data = json.load(f)
-        self.write(data)
-        f.close()
-
 async def main():
     PARSER = argparse.ArgumentParser(description='Run server.')
     PARSER.add_argument('--port', '-p', type=int, default=default_port,
@@ -62,23 +53,6 @@ async def main():
         Server(server_dir=ARGS.server_dir, daide_min_port=daide_ports[0], daide_max_port=daide_ports[1]).start(port=ARGS.port)
         print('Server started on port %s.' % ARGS.port)
 
-        app = tornado.web.Application([
-            (r'/', RequestHandler),
-        ])
-
-        app.listen(8888)
-        print('Tornado started on port 8888.')
-        #tornado.ioloop.IOLoop.current().start()
-        await asyncio.Event().wait()
-
-        print('Server started on port %s.' % ARGS.port)
-
-        app = tornado.web.Application([
-            (r'/', RequestHandler),
-        ])
-
-        app.listen(8888)
-        print('Tornado started on port 8888.')
         #tornado.ioloop.IOLoop.current().start()
         await asyncio.Event().wait()
 

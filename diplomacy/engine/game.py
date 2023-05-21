@@ -309,6 +309,7 @@ class Game(Jsonable):
         self.fixed_state = None
 
         self.stances = {}
+        self.stances_history = {}
         self.order_edits_history = {}
         self.order_edits = {}
 

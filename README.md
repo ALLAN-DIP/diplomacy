@@ -118,12 +118,6 @@ python -m diplomacy.server.run
 
 Use ps -fA | grep <COMMAND> to find the background python process
 and kill <PID> to kill it
-
-The HTTP get requests are implemented on port 8888
-Usage:
-```
-GET xx.xx.xx.xx:8888/?game=<GAMEID>
-```
   
 The web interface will be accessible at http://localhost:3000.
 
