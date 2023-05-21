@@ -17,8 +17,8 @@
 //// Tables.
 
 import React from "react";
-import PropTypes from 'prop-types';
-import {Slider} from "./slider";
+import PropTypes from "prop-types";
+import { Slider } from "./slider";
 
 class DefaultWrapper {
     constructor(data) {
@@ -47,8 +47,7 @@ export class Table extends React.Component {
 
     constructor(props) {
         super(props);
-        if (!this.props.wrapper)
-            this.props.wrapper = defaultWrapper;
+        if (!this.props.wrapper) this.props.wrapper = defaultWrapper;
     }
 
     getHeader(columns) {
@@ -61,10 +60,8 @@ export class Table extends React.Component {
         }
         header.sort((a, b) => {
             let t = a[0] - b[0];
-            if (t === 0)
-                t = a[1].localeCompare(b[1]);
-            if (t === 0)
-                t = a[2].localeCompare(b[2]);
+            if (t === 0) t = a[1].localeCompare(b[1]);
+            if (t === 0) t = a[2].localeCompare(b[2]);
             return t;
         });
 
@@ -72,56 +69,104 @@ export class Table extends React.Component {
     }
 
     getHeaderLine(header, caption) {
-        if (caption === 'Powers info') {
+        if (caption === "Powers info") {
             return (
-                <thead className={'thead-light'}>
-                <tr>{header.map((column, colIndex) => <th key={colIndex}>{column[2]}</th>)}
-                    <th>Stance</th>
-                </tr>
+                <thead className={"thead-light"}>
+                    <tr>
+                        {header.map((column, colIndex) => (
+                            <th key={colIndex}>{column[2]}</th>
+                        ))}
+                        <th>Stance</th>
+                    </tr>
                 </thead>
             );
         } else {
             return (
-                <thead className={'thead-light'}>
-                <tr>{header.map((column, colIndex) => <th key={colIndex}>{column[2]}</th>)}</tr>
+                <thead className={"thead-light"}>
+                    <tr>
+                        {header.map((column, colIndex) => (
+                            <th key={colIndex}>{column[2]}</th>
+                        ))}
+                    </tr>
                 </thead>
             );
         }
-
     }
 
     handleStance = (country, stance) => {
         this.props.onChangeStance(country, stance);
-    }
+    };
 
-     getBodyRow(header, row, rowIndex, wrapper, caption, countries, stances, player) {
+    getBodyRow(
+        header,
+        row,
+        rowIndex,
+        wrapper,
+        caption,
+        countries,
+        stances,
+        player
+    ) {
         const wrapped = wrapper(row);
 
-        return (<tr key={rowIndex}>
-                {header.map((headerColumn, colIndex) => <td className={'align-middle'}
-                                                            key={colIndex}>{wrapped.get(headerColumn[1])}</td>)}
+        return (
+            <tr key={rowIndex}>
+                {header.map((headerColumn, colIndex) => (
+                    <td className={"align-middle"} key={colIndex} >
+                        {wrapped.get(headerColumn[1])}
+                    </td>
+                ))}
 
-                {(caption === 'Powers info' && player !== countries[rowIndex]) ?
-                    (<td><Slider country={countries[rowIndex]} onChangeStance={this.handleStance}
-                            stance={stances[countries[rowIndex]]}/>
-                </td>) : null}
-
-            </tr>);
+                {caption === "Powers info" && player !== countries[rowIndex] ? (
+                    <td>
+                        <Slider
+                            country={countries[rowIndex]}
+                            onChangeStance={this.handleStance}
+                            stance={stances[countries[rowIndex]]}
+                        />
+                    </td>
+                ) : null}
+            </tr>
+        );
     }
 
     getBodyLines(header, data, wrapper, caption, countries, stances, player) {
         return (
-            <tbody>{data.map((row, rowIndex) => this.getBodyRow(header, row, rowIndex, wrapper, caption, countries, stances, player))}</tbody>);
+            <tbody>
+                {data.map((row, rowIndex) =>
+                    this.getBodyRow(
+                        header,
+                        row,
+                        rowIndex,
+                        wrapper,
+                        caption,
+                        countries,
+                        stances,
+                        player
+                    )
+                )}
+            </tbody>
+        );
     }
 
     render() {
         const header = this.getHeader(this.props.columns, this.props.caption);
         return (
-            <div className={'table-responsive'}>
+            <div className={"table-responsive"}>
                 <table className={this.props.className}>
-                    <caption>{this.props.caption} ({this.props.data.length})</caption>
+                    <caption>
+                        {this.props.caption} ({this.props.data.length})
+                    </caption>
                     {this.getHeaderLine(header, this.props.caption)}
-                    {this.getBodyLines(header, this.props.data, this.props.wrapper, this.props.caption, this.props.countries, this.props.stances, this.props.player)}
+                    {this.getBodyLines(
+                        header,
+                        this.props.data,
+                        this.props.wrapper,
+                        this.props.caption,
+                        this.props.countries,
+                        this.props.stances,
+                        this.props.player
+                    )}
                 </table>
             </div>
         );

@@ -26,8 +26,8 @@ function getName(power) {
 function getController(power) {
     if (power.isEliminated())
         return <span className="dummy"><em>N/A</em></span>;
-    const controller = power.getController();
-    return <span className={controller === STRINGS.DUMMY ? 'dummy' : 'controller'}>{controller}</span>;
+    const controller = power.getController().length > 10 ? power.getController().substring(0, 10) + '...' : power.getController();
+    return <span title={power.getController()} className={controller === STRINGS.DUMMY ? 'dummy' : 'controller'}>{controller}</span>;
 }
 
 function getOrderFlag(power) {

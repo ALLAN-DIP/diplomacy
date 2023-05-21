@@ -2244,7 +2244,7 @@ export class ContentGame extends React.Component {
                             orderPath
                         )}
                     </div>
-                    <div className={"col"}>
+                    <div className={"col-6"}>
                         {/* Orders. */}
                         <div
                             className={"panel-orders mb-4"}
