@@ -47,7 +47,6 @@ export class Channel {
          * request parameters passed to channel request method.
          * **/
         parameters = Object.assign(parameters || {}, forcedParameters || {});
-        console.log('Channel request:', name, parameters);
         const level = REQUESTS.getLevel(name);
         if (level === STRINGS.GAME) {
             if (!game)

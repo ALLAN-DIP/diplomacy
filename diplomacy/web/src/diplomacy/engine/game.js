@@ -113,7 +113,6 @@ export class Game {
         this.result = gameData.result || null;
         // represents stances from every power to every other power
         this.stances = gameData.stances;
-        this.recipient_annotations = gameData.annotated_messages || {};
 
         this.phase = gameData.phase_abbr || null; // phase abbreviation
 
@@ -231,7 +230,13 @@ export class Game {
     }
 
     addRecipientAnnotation(timeSent, annotation) {
-        this.recipient_annotations[timeSent] = annotation;
+        for (const [key, value] of Object.entries(this.messages.values())) {
+            if (this.role === value.recipient && value.time_sent === timeSent) {
+                let message = this.messages.remove(key);
+                message.recipient_annotation = annotation;
+                this.addMessage(message);
+            }
+        }
     }
 
     addOrderEdits(timeSent, orderEdits) {
@@ -251,7 +256,6 @@ export class Game {
         if (this.isPlayerGame() && !message.isGlobal() && this.role !== message.sender && this.role !== message.recipient)
             throw new Error('Given message is not related to current player ' + this.role);
         this.messages.put(message.time_sent, message);
-        this.recipient_annotations[message.time_sent] = message;
     }
 
     addLog(message) {
@@ -595,11 +599,10 @@ export class Game {
                 if (!messageChannels.hasOwnProperty(protagonist))
                     messageChannels[protagonist] = [];
 
-                if (message.time_sent in this.recipient_annotations) {
+                /*if (message.time_sent in this.recipient_annotations) {
                     message.recipient_annotation = this.recipient_annotations[message.time_sent].recipient_annotation;
-                }
+                }*/
                 messageChannels[protagonist].push(message);
-
                 //}
             }
         }

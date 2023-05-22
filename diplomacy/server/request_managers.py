@@ -804,8 +804,10 @@ def on_send_recipient_annotation(server, request, connection_handler):
     level = verify_request(server, request, connection_handler, observer_role=False, omniscient_role=False)
     token, annotation = request.token, request.annotation
     assert_game_not_finished(level.game)
-    level.game.add_recipient_annotation(annotation)
+    time_sent = level.game.add_recipient_annotation(annotation)
+    server.save_game(level.game)
     server.backup_now(force=True)
+    return responses.DataTimeStamp(data=time_sent, request_id=request.request_id)
 
 
 def on_send_stance(server, request, connection_handler):
@@ -822,6 +824,7 @@ def on_send_stance(server, request, connection_handler):
     token, stance = request.token, request.stance
     assert_game_not_finished(level.game)
     level.game.add_stance(stance)
+    server.save_game(level.game)
     server.backup_now(force=True)
 
 

@@ -76,7 +76,6 @@ export class NetworkGame {
     }
 
     sendRecipientAnnotation(parameters) {
-        console.log('network game', parameters);
         return this._req(Channel.prototype.sendRecipientAnnotation, parameters);
     }
 
@@ -206,6 +205,10 @@ export class NetworkGame {
         this.addCallback('log_received', callback);
     }
 
+    addOnRecipientAnnotationReceived(callback) {
+        this.addCallback('recipient_annotation_received', callback);
+    }
+
     addOnGameProcessed(callback) {
         this.addCallback('game_processed', callback);
     }
@@ -274,6 +277,10 @@ export class NetworkGame {
 
     clearOnLogReceived() {
         this.clearCallbacks('log_received');
+    }
+
+    clearOnRecipientAnnotationReceived() {
+        this.clearCallbacks('recipient_annotation_received');
     }
 
     clearOnGameProcessed() {

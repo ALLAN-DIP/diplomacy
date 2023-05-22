@@ -170,7 +170,6 @@ class ConnectionProcessing {
         // When opening a socket, we configure only onOpen callback.
         // We will configure onMessage and onClose callbacks only when the socket will be effectively open.
         try {
-            console.log('tryConnect', this.connection.getUrl());
             this.connection.socket = new WebSocket(this.connection.getUrl());
             this.connection.socket.onopen = this.onSocketOpen;
             this.timeoutID = setTimeout(this.onSocketTimeout, UTILS.ATTEMPT_DELAY_SECONDS * 1000);

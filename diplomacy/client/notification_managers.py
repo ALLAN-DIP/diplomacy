@@ -107,6 +107,9 @@ def on_game_deleted(game, notification):
     else:
         game.channel.game_id_to_instances[game.game_id].remove_special()
 
+def on_recipient_annotation_received(game, notification):
+    Game.add_recipient_annotation(game, notification)
+
 def on_game_message_received(game, notification):
     """ Manage notification GameMessageReceived.
 

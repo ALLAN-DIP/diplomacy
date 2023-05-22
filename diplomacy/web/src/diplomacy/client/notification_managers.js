@@ -47,6 +47,9 @@ export const NOTIFICATION_MANAGERS = {
     game_deleted: function (game, notification) {
         game.channel.game_id_to_instances[game.local.game_id].remove(game.local.role);
     },
+    recipient_annotation_received: function (game, notification) {
+        game.local.addRecipientAnnotation(notification.time_sent, notification.annotation);
+    },
     game_message_received: function (game, notification) {
         game.local.addMessage(notification.message);
     },

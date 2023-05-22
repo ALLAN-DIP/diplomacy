@@ -26,7 +26,7 @@ export class Message {
         this.recipient = message.recipient;
         this.message = message.message;
         this.truth = message.truth;
-        this.recipient_annotation = null;
+        this.recipient_annotation = message.recipient_annotation;
     }
 
     isGlobal() {

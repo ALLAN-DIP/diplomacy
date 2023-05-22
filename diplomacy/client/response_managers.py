@@ -224,8 +224,7 @@ def on_send_recipient_annotation(context, response):
     request = context.request
     time_sent = request.time_sent
     annotation = request.annotation
-    Game.add_recipient_annotation(context.game, time_sent, annotation)
-    print('Added recipient annotation: {} {}'.format(time_sent, annotation))
+    Game.add_recipient_annotation(context.game, annotation)
 
 def on_send_stance(context, response):
     """ Manage response for request SendStance.

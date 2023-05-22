@@ -349,13 +349,6 @@ export class ContentGame extends React.Component {
         this.setWaitFlag = this.setWaitFlag.bind(this);
         this.vote = this.vote.bind(this);
         this.updateDeadlineTimer = this.updateDeadlineTimer.bind(this);
-
-        let engine = this.props.data;
-        let role = this.state.power ||
-        (engine.getControllablePowers().length && engine.getControllablePowers()[0]);
-        let messageChannels = engine.getMessageChannels(role, true);
-
-        console.log("messageChannels", messageChannels);
     }
 
     static prettyRole(role) {
@@ -694,6 +687,11 @@ export class ContentGame extends React.Component {
                         networkGame,
                         notification
                     );
+                case "recipients_annotation_received":
+                    return this.notifiedNewGameMessage(
+                        networkGame,
+                        notification
+                    );
                 case "game_processed":
                 case "game_phase_update":
                     return this.notifiedGamePhaseUpdated(
@@ -796,8 +794,18 @@ export class ContentGame extends React.Component {
     };
 
     sendRecipientAnnotation(networkGame, time_sent, annotation) {
+        const page = this.getPage();
         const info = { time_sent: time_sent, annotation: annotation };
-        networkGame.sendRecipientAnnotation({ annotation: info });
+
+        networkGame.sendRecipientAnnotation({ annotation: info }).then(() => {
+            page.load(
+                `game: ${networkGame.local.game_id}`,
+                <ContentGame data={networkGame.local} />,
+                { success: `Annotation sent: ${JSON.stringify(info)}` }
+            );
+        }).catch((error) => {
+            page.error(error.toString());
+        });
     }
 
     sendGameStance(networkGame, powerName, stance) {
@@ -1639,6 +1647,7 @@ export class ContentGame extends React.Component {
 
             if (role === sender) dir = "outgoing";
             if (role === rec) dir = "incoming";
+
             renderedMessages.push(
                 <ChatMessage
                     model={{
@@ -1654,7 +1663,8 @@ export class ContentGame extends React.Component {
                     <Avatar src={POWER_ICONS[sender]} name={sender} size="sm" />
                 </ChatMessage>
             );
-            if (role !== sender) {
+
+            if (dir === "incoming") {
                 renderedMessages.push(
                     <div
                         style={{
@@ -1675,7 +1685,7 @@ export class ContentGame extends React.Component {
                                     this.handleRecipientAnnotation(msg, true)
                                 }
                             />{" "}
-                            True
+                            Truth
                             <input
                                 type="radio"
                                 value="false"
@@ -1687,12 +1697,13 @@ export class ContentGame extends React.Component {
                                     this.handleRecipientAnnotation(msg, false)
                                 }
                             />{" "}
-                            False
+                            Lie
                         </div>
                     </div>
                 );
                 messageCount++;
             }
+            
         }
 
         return (
