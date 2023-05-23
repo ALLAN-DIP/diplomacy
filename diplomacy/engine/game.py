@@ -227,7 +227,7 @@ class Game(Jsonable):
                  'message_history', 'state_history', 'result_history', 'status', 'timestamp_created', 'n_controls',
                  'deadline', 'registration_password', 'observer_level', 'controlled_powers', '_phase_wrapper_type',
                  'phase_abbr', '_unit_owner_cache', 'daide_port', 'fixed_state', 'log_history','logs', 'stances', 'stances_history',
-                 'annotated_messages', 'order_edits', 'order_edits_history']
+                 'annotated_messages', 'order_edits', 'order_edits_history', 'has_initial_orders']
     zobrist_tables = {}
     rule_cache = ()
     model = {
@@ -271,6 +271,7 @@ class Game(Jsonable):
             parsing.DictType(int, parsing.DictType(str, str)), {}),
         'order_edits': parsing.DefaultValueType(parsing.DictType(str, parsing.SequenceType(str)), {}),
         'order_edits_history': parsing.DefaultValueType(parsing.DictType(str, parsing.DictType(str, parsing.SequenceType(str))), {}),
+        'has_initial_orders': parsing.DefaultValueType(parsing.DictType(str, bool), {}),
     }
 
     def __init__(self, game_id=None, **kwargs):
@@ -312,6 +313,7 @@ class Game(Jsonable):
         self.stances_history = {}
         self.order_edits_history = {}
         self.order_edits = {}
+        self.has_initial_orders = {}
 
         # Caches
         self._unit_owner_cache = None  # {(unit, coast_required): owner}
@@ -967,6 +969,14 @@ class Game(Jsonable):
 
         self.logs.put(log.time_sent, log)
         return log.time_sent
+    
+    def send_initial_orders(self, power):
+        power = power.upper()
+        self.has_initial_orders[power] = True
+
+    def clear_initial_orders(self):
+        self.has_initial_orders = {}
+
     def add_recipient_annotation(self, annotation):
         time_sent = annotation['time_sent']
         annotation = annotation['annotation']
@@ -1620,6 +1630,7 @@ class Game(Jsonable):
         self.messages.clear()
         self.logs.clear()
         self.order_edits = {}
+        self.clear_initial_orders()
         self.order_history.put(previous_phase, previous_orders)
         self.message_history.put(previous_phase, previous_messages)
         self.state_history.put(previous_phase, previous_state)

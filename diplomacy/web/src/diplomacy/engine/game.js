@@ -72,6 +72,8 @@ export class Game {
         this.map_name = gameData.map_name;
         this.messages = new SortedDict(gameData instanceof Game ? null : gameData.messages, parseInt);
         this.logs = new SortedDict(gameData instanceof Game ? null : gameData.logs, parseInt);
+        this.hasInitialOrders = gameData.has_initial_orders;
+
 
         // {short phase name => state}
         this.state_history = new SortedDict(gameData instanceof Game ? gameData.state_history.toDict() : gameData.state_history, comparablePhase);
@@ -239,12 +241,22 @@ export class Game {
         }
     }
 
-    addOrderEdits(timeSent, orderEdits) {
-        // TODO
-    }
-
     addStance(powerName, stance) {
         this.stances[powerName] = stance;
+    }
+
+    getInitialOrders(power) {
+        if (this.hasInitialOrders.hasOwnProperty(power))
+            return this.hasInitialOrders[power];
+        return false;
+    }
+
+    clearInitialOrders() {
+        this.hasInitialOrders = {};
+    }
+
+    setInitialOrders(power) {
+        this.hasInitialOrders[power] = true;
     }
 
     addMessage(message) {

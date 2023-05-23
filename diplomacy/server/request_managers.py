@@ -760,7 +760,9 @@ def on_process_game(server, request, connection_handler):
         power.wait = False
     if level.game.status == strings.FORMING:
         level.game.set_status(strings.ACTIVE)
+    level.game.clear_initial_orders()
     server.force_game_processing(level.game)
+    server.save_game(level.game)
 
 
 @gen.coroutine
@@ -1110,6 +1112,7 @@ def on_set_orders(server, request, connection_handler):
     power.clear_orders()
     power.wait = previous_wait
     level.game.set_orders(level.power_name, request.orders)
+    level.game.send_initial_orders(level.power_name)
     # Notify other power tokens.
     Notifier(server, ignore_addresses=[request.address_in_game]).notify_power_orders_update(
         level.game, level.game.get_power(level.power_name), request.orders)
@@ -1120,7 +1123,7 @@ def on_set_orders(server, request, connection_handler):
     if level.game.does_not_wait():
         server.force_game_processing(level.game)
     server.save_game(level.game)
-
+    server.backup_now(force=True)
 
 def on_set_wait_flag(server, request, connection_handler):
     """ Manage request SetWaitFlag.

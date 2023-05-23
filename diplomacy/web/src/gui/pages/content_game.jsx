@@ -297,6 +297,7 @@ export class ContentGame extends React.Component {
             showAbbreviations: true,
             message: "",
             logData: "",
+            hasInitialOrders: this.props.data.getInitialOrders(this.props.data.role),
         };
 
         // Bind some class methods to this instance.
@@ -602,6 +603,7 @@ export class ContentGame extends React.Component {
                         orders: null,
                         messageHighlights: {},
                         orderBuildingPath: [],
+                        hasInitialOrders: false
                     }).then(() =>
                         this.getPage().info(
                             `Game update (${notification.name}) to ${networkGame.local.phase}.`
@@ -872,7 +874,11 @@ export class ContentGame extends React.Component {
         const page = this.getPage();
         this.props.data.client
             .process()
-            .then(() => page.success("Game processed."))
+            .then(() => {
+                page.success("Game processed.");
+                this.props.data.clearInitialOrders();
+                this.setState({ hasInitialOrders: false });
+        })
             .catch((err) => {
                 page.error(err.toString());
             });
@@ -1140,6 +1146,8 @@ export class ContentGame extends React.Component {
         this.getPage().success(`Built order: ${orderString}`);
         this.__store_orders(allOrders);
         this.setOrders();
+        engine.setInitialOrders(engine.role);
+        state.hasInitialOrders = true;        
         return this.setState(state);
     }
 
@@ -1727,6 +1735,7 @@ export class ContentGame extends React.Component {
                                     this.setMessageInputValue(val)
                                 }
                                 value={this.state.message}
+                                disabled={!this.state.hasInitialOrders}
                             />
                         )}
                         {engine.isPlayerGame() && (
