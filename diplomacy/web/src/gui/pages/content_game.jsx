@@ -1058,9 +1058,8 @@ export class ContentGame extends React.Component {
         state.orders = allOrders;
         this.getPage().success(`Built order: ${orderString}`);
         this.__store_orders(allOrders);
-        this.setOrders();
         engine.setInitialOrders(engine.role);
-        state.hasInitialOrders = true;        
+        state.hasInitialOrders = true;
         return this.setState(state);
     }
 
