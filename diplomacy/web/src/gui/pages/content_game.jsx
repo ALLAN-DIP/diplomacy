@@ -904,6 +904,8 @@ export class ContentGame extends React.Component {
             orders[powerName].hasOwnProperty(order.loc) &&
             orders[powerName][order.loc].order === order.order
         ) {
+            this.sendOrderLog(this.props.data.client, "remove", order.order);
+
             delete orders[powerName][order.loc];
             if (!UTILS.javascript.count(orders[powerName]))
                 orders[powerName] = null;
@@ -925,6 +927,7 @@ export class ContentGame extends React.Component {
                 this.getPage().error(`Unknown power ${currentPowerName}.`);
                 return;
             }
+            this.sendOrderLog(engine.client, "clear", null);
             allOrders[currentPowerName] = null;
             this.__store_orders(allOrders);
             this.setState({ orders: allOrders });
@@ -948,6 +951,8 @@ export class ContentGame extends React.Component {
     setOrders() {
         const serverOrders = this.props.data.getServerOrders();
         const orders = this.__get_orders(this.props.data);
+
+        this.sendOrderLog(this.props.data.client, "update", null);
 
         for (let entry of Object.entries(orders)) {
             const powerName = entry[0];
