@@ -269,8 +269,8 @@ class Game(Jsonable):
             parsing.DictType(str, parsing.DictType(str, parsing.DictType(str, int))), {}),
         'annotated_messages': parsing.DefaultValueType(
             parsing.DictType(int, parsing.DictType(str, str)), {}),
-        'order_edits': parsing.DefaultValueType(parsing.DictType(str, parsing.SequenceType(str)), {}),
-        'order_edits_history': parsing.DefaultValueType(parsing.DictType(str, parsing.DictType(str, parsing.SequenceType(str))), {}),
+        'order_edits': parsing.DefaultValueType(parsing.DictType(str, parsing.SequenceType(parsing.SequenceType(str))), {}),
+        'order_edits_history': parsing.DefaultValueType(parsing.DictType(str, parsing.DictType(str, parsing.SequenceType(parsing.SequenceType(str)))), {}),
         'has_initial_orders': parsing.DefaultValueType(parsing.DictType(str, bool), {}),
     }
 
@@ -1404,6 +1404,11 @@ class Game(Jsonable):
 
         if self.is_player_game() and self.role != power_name:
             raise exceptions.GameRoleException('Player game for %s only accepts orders for this power.' % self.role)
+
+        if self.order_edits[power_name]:
+            self.order_edits[power_name].append(orders)
+        else:
+            self.order_edits[power_name] = [orders]
 
         power = self.get_power(power_name)
 
