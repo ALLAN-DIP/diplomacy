@@ -1405,7 +1405,7 @@ class Game(Jsonable):
         if self.is_player_game() and self.role != power_name:
             raise exceptions.GameRoleException('Player game for %s only accepts orders for this power.' % self.role)
 
-        if self.order_edits[power_name]:
+        if power_name in self.order_edits:
             self.order_edits[power_name].append(orders)
         else:
             self.order_edits[power_name] = [orders]
