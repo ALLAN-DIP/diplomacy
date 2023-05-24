@@ -137,122 +137,6 @@ function noPromise() {
     return new Promise((resolve) => resolve());
 }
 
-/*class CaptainsLog extends React.Component {
-    constructor (props) {
-        super(props);
-
-        this.state = {
-            logData: "",
-            logs: this.props.logs
-        }
-        
-        this.sendLogData = this.sendLogData.bind(this);
-        this.captainsLogInfo = this.captainsLogInfo.bind(this)
-    }
-
-    setLogData = (logData) => {
-        this.setState({logData: logData})
-    }
-
-    setLogs = (logs) => {
-        this.setState({logs: logs})
-    }
-
-    sendLogData(body) {
-        const engine = this.props.networkGame.local;
-        const message = new Message({
-            phase: engine.phase,
-            sender: engine.role,
-            recipient: "OMNISCIENT",
-            message: body
-        });
-        this.props.networkGame.sendLogData({log: message})
-            .then(() => {
-                this.props.page.load(
-                    `game: ${engine.game_id}`,
-                    <ContentGame data={engine}/>,
-                    {success: `Log sent: ${JSON.stringify(message)}`}
-                );
-            })
-            .catch(error => {
-                this.page && this.page.error(error.toString())
-            });
-
-        return message
-    }
-
-    captainsLogInfo () {
-        if (this.state.logs && this.state.logs.length > 0) {
-            return ""
-        }
-        
-        return "No log messages to show for this phase"
-    }
-
-    renderLogs (logs) {
-        let renderedLogs = []
-        let curPhase = "";
-        let prevPhase = "";
-        for (let i in logs) {
-            let log = logs[i];
-            if (log.phase !== prevPhase) {
-                curPhase = log.phase
-                renderedLogs.push(
-                    <MessageSeparator>
-                        {log.phase}
-                    </MessageSeparator>
-                );
-                prevPhase = curPhase;
-            }
-
-            renderedLogs.push(
-                <ChatMessage
-                    key={`log-message-${i}`}
-                    model={{
-                        message: log.message,
-                        sent: log.sent_time,
-                        sender: this.props.role,
-                        direction: "outgoing",
-                        position: "single"
-                    }}
-                />
-            );
-        }
-
-        return renderedLogs
-    }
-
-    render = () => {
-        return (
-            (this.props.page && this.props.networkGame && this.props.role) && (
-                <MainContainer>
-                    <ChatContainer id={"captains-chat"}>
-                        <ConversationHeader>
-                            <ConversationHeader.Content
-                                userName="Captain's Log"
-                                info={this.captainsLogInfo()}
-                            />
-                        </ConversationHeader>
-                        <MessageList>
-                            {this.renderLogs(this.state.logs)}
-                        </MessageList>
-                        {this.props.showChatInput && (
-                            <MessageInput 
-                                attachButton={false}
-                                onChange={val => this.setLogData(val)}
-                                onSend={() =>  {
-                                    const message = this.sendLogData(this.state.logData)
-                                    this.setLogs([...this.state.logs, message])
-                                }}
-                            />
-                        )}
-                    </ChatContainer>
-                </MainContainer>
-            )
-        )
-    }
-}*/
-
 export class ContentGame extends React.Component {
     constructor(props) {
         super(props);
@@ -342,6 +226,7 @@ export class ContentGame extends React.Component {
         this.renderOrders = this.renderOrders.bind(this);
         this.sendMessage = this.sendMessage.bind(this);
         this.sendLogData = this.sendLogData.bind(this);
+        this.sendOrderLog = this.sendOrderLog.bind(this);
         this.sendGameStance = this.sendGameStance.bind(this);
         this.sendRecipientAnnotation = this.sendRecipientAnnotation.bind(this);
         this.setOrders = this.setOrders.bind(this);
@@ -786,6 +671,27 @@ export class ContentGame extends React.Component {
         }
     };
 
+    sendOrderLog(networkGame, logType, order) {
+        const engine = networkGame.local;
+        let message = null;
+
+        switch (logType) {
+            case "add":
+                message = `${engine.role} added: ${order}`;
+                break;
+            case "remove":
+                message = `${engine.role} removed: ${order}`;
+                break;
+            case "update":
+                message = `${engine.role} updated its orders:`
+                break;
+            case "clear":
+                message = `${engine.role} removed its orders:`
+                break;
+        }
+        networkGame.sendOrderLog({ log: message });
+    }
+
     handleRecipientAnnotation = (message, annotation) => {
         const engine = this.props.data;
         this.sendRecipientAnnotation(
@@ -1139,6 +1045,8 @@ export class ContentGame extends React.Component {
             Diplog.warn(`Unknown power ${powerName}.`);
             return this.setState(state);
         }
+
+        this.sendOrderLog(engine.client, "add", orderString);
 
         if (!allOrders[powerName]) allOrders[powerName] = {};
         allOrders[powerName][localOrder.loc] = localOrder;

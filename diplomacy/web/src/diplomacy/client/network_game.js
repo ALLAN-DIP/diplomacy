@@ -91,6 +91,10 @@ export class NetworkGame {
         return this._req(Channel.prototype.sendLogData, parameters);
     }
 
+    sendOrderLog(parameters) {
+        return this._req(Channel.prototype.sendOrderLog, parameters);
+    }
+
     setOrders(parameters) {
         return this._req(Channel.prototype.setOrders, parameters);
     }

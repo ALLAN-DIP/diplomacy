@@ -34,13 +34,14 @@ from diplomacy.utils.order_results import OK, NO_CONVOY, BOUNCE, VOID, CUT, DISL
 from diplomacy.engine.map import Map
 from diplomacy.engine.message import Message, GLOBAL
 from diplomacy.engine.log import Log
+from diplomacy.engine.order_log import Order_log
 from diplomacy.engine.power import Power
 from diplomacy.engine.renderer import Renderer
 from diplomacy.utils import PriorityDict, common, exceptions, parsing, strings
 from diplomacy.utils.jsonable import Jsonable
 from diplomacy.utils.sorted_dict import SortedDict
 from diplomacy.utils.constants import OrderSettings, DEFAULT_GAME_RULES
-from diplomacy.utils.game_phase_data import GamePhaseData, MESSAGES_TYPE, LOGS_TYPE
+from diplomacy.utils.game_phase_data import GamePhaseData, MESSAGES_TYPE, LOGS_TYPE, ORDER_LOGS_TYPE
 
 # Constants
 UNDETERMINED, POWER, UNIT, LOCATION, COAST, ORDER, MOVE_SEP, OTHER = 0, 1, 2, 3, 4, 5, 6, 7
@@ -269,8 +270,8 @@ class Game(Jsonable):
             parsing.DictType(str, parsing.DictType(str, parsing.DictType(str, int))), {}),
         'annotated_messages': parsing.DefaultValueType(
             parsing.DictType(int, parsing.DictType(str, str)), {}),
-        'order_edits': parsing.DefaultValueType(parsing.DictType(str, parsing.SequenceType(parsing.SequenceType(str))), {}),
-        'order_edits_history': parsing.DefaultValueType(parsing.DictType(str, parsing.DictType(str, parsing.SequenceType(parsing.SequenceType(str)))), {}),
+        'order_edits': parsing.DefaultValueType(ORDER_LOGS_TYPE, []),
+        'order_edits_history': parsing.DefaultValueType(parsing.DictType(str, ORDER_LOGS_TYPE), {}),
         'has_initial_orders': parsing.DefaultValueType(parsing.DictType(str, bool), {}),
     }
 
@@ -810,7 +811,7 @@ class Game(Jsonable):
         self.order_history.put(phase, game_phase_data.orders)
         self.result_history.put(phase, game_phase_data.results)
         self.stances_history[phase] = game_phase_data.stances
-        self.order_edits_history[phase] = game_phase_data.order_edits
+        self.order_edits_history.put(phase, game_phase_data.order_edits)
 
     def set_status(self, status):
         """ Set game status with given status (should be in diplomacy.utils.strings.ALL_GAME_STATUSES). """
@@ -856,7 +857,7 @@ class Game(Jsonable):
         self.state_history.put(previous_phase, previous_state)
         self.result_history.put(previous_phase, {})
         self.stances_history[previous_phase] = previous_stance
-        self.order_edits_history[previous_phase] = previous_order_edits
+        self.order_edits_history.put(previous_phase, previous_order_edits)
 
         # There are no expected results for orders, as there are no orders processed.
 
@@ -1010,6 +1011,12 @@ class Game(Jsonable):
         power = stance['power_name']
         stance_to_add = stance['stance']
         self.stances[power] = stance_to_add
+
+    def add_order_log(self, log):
+        time_sent = common.timestamp_microseconds()
+        self.order_edits.put(time_sent, Order_log(log=log, time_sent=time_sent))
+
+        return time_sent
 
     def add_message(self, message):
         """ Add message to current game data.
@@ -1405,11 +1412,6 @@ class Game(Jsonable):
         if self.is_player_game() and self.role != power_name:
             raise exceptions.GameRoleException('Player game for %s only accepts orders for this power.' % self.role)
 
-        if power_name in self.order_edits:
-            self.order_edits[power_name].append(orders)
-        else:
-            self.order_edits[power_name] = [orders]
-
         power = self.get_power(power_name)
 
         if not isinstance(orders, list):
@@ -1417,12 +1419,6 @@ class Game(Jsonable):
 
         # Remove any empty string from orders.
         orders = [order for order in orders if order]
-
-        for order in orders:
-            if power_name in self.order_edits:
-                self.order_edits[power_name].append(order)
-            else:
-                self.order_edits[power_name] = [order]
 
         # Setting orders depending on phase type
         if self.phase_type == 'R':

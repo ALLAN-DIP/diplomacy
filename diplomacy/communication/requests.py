@@ -717,6 +717,15 @@ class SendStance(_AbstractGameRequest):
         self.stance = {}
         super(SendStance, self).__init__(**kwargs)
 
+class SendOrderLog(_AbstractGameRequest):
+    __slots__ = ['log']
+    params = {
+        "log": str
+    }
+
+    def __init__(self, **kwargs):
+        self.log = None
+        super().__init__(**kwargs)
 
 class SendGameMessage(_AbstractGameRequest):
     """ Game message to send a user request.

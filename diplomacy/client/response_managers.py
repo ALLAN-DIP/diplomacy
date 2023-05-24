@@ -253,6 +253,11 @@ def on_send_game_message(context, response):
     message.time_sent = response.data
     Game.add_message(context.game, message)
 
+def on_send_order_log(context, response):
+    request = context.request
+    log = request.log
+    Game.add_order_log(context.game, log)
+
 def on_set_game_state(context, response):
     """ Manage response for request SetGameState.
 
@@ -363,6 +368,7 @@ MAPPING = {
     requests.SendStance: on_send_stance,
     requests.SendRecipientAnnotation: on_send_recipient_annotation,
     requests.SendGameMessage: on_send_game_message,
+    requests.SendOrderLog: on_send_order_log,
     requests.SetDummyPowers: default_manager,
     requests.SendLogData: on_send_log_data,
     requests.SetGameState: on_set_game_state,

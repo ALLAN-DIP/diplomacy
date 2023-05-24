@@ -829,6 +829,14 @@ def on_send_stance(server, request, connection_handler):
     server.save_game(level.game)
     server.backup_now(force=True)
 
+def on_send_order_log(server, request, connection_handler):
+    level = verify_request(server, request, connection_handler, observer_role=False, omniscient_role=False)
+    token, log = request.token, request.log
+    assert_game_not_finished(level.game)
+    level.game.add_order_log(log)
+    server.save_game(level.game)
+    server.backup_now(force=True)
+
 
 def on_send_game_message(server, request, connection_handler):
     """ Manage request SendGameMessage.
@@ -1318,6 +1326,7 @@ MAPPING = {
     requests.SaveGame: on_save_game,
     requests.SendStance: on_send_stance,
     requests.SendRecipientAnnotation: on_send_recipient_annotation,
+    requests.SendOrderLog: on_send_order_log,
     requests.SendGameMessage: on_send_game_message,
     requests.SetDummyPowers: on_set_dummy_powers,
     requests.SetGameState: on_set_game_state,

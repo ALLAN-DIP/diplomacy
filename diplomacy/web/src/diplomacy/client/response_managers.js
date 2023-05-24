@@ -39,6 +39,7 @@ export const RESPONSE_MANAGERS = {
     set_dummy_powers: defaultResponseManager,
     set_grade: defaultResponseManager,
     synchronize: defaultResponseManager,
+    send_order_log: defaultResponseManager,
     create_game: function (context, response) {
         return context.newGame(response.data);
     },
