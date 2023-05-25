@@ -40,7 +40,7 @@ class GamePhaseData(Jsonable):
         strings.MESSAGES: MESSAGES_TYPE,
         strings.LOGS: LOGS_TYPE,
         strings.STANCES: parsing.DictType(str, parsing.DictType(str, int)),
-        'order_logs': parsing.DictType(int, str)
+        strings.ORDER_LOGS: parsing.DictType(int, str)
     }
 
     def __init__(self, name, state, orders, results, messages, stances, logs, order_logs):
