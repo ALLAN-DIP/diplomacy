@@ -34,14 +34,13 @@ from diplomacy.utils.order_results import OK, NO_CONVOY, BOUNCE, VOID, CUT, DISL
 from diplomacy.engine.map import Map
 from diplomacy.engine.message import Message, GLOBAL
 from diplomacy.engine.log import Log
-from diplomacy.engine.order_log import Order_log
 from diplomacy.engine.power import Power
 from diplomacy.engine.renderer import Renderer
 from diplomacy.utils import PriorityDict, common, exceptions, parsing, strings
 from diplomacy.utils.jsonable import Jsonable
 from diplomacy.utils.sorted_dict import SortedDict
 from diplomacy.utils.constants import OrderSettings, DEFAULT_GAME_RULES
-from diplomacy.utils.game_phase_data import GamePhaseData, MESSAGES_TYPE, LOGS_TYPE, ORDER_LOGS_TYPE
+from diplomacy.utils.game_phase_data import GamePhaseData, MESSAGES_TYPE, LOGS_TYPE
 
 # Constants
 UNDETERMINED, POWER, UNIT, LOCATION, COAST, ORDER, MOVE_SEP, OTHER = 0, 1, 2, 3, 4, 5, 6, 7
@@ -269,8 +268,8 @@ class Game(Jsonable):
         strings.STANCES_HISTORY: parsing.DefaultValueType(
             parsing.DictType(str, parsing.DictType(str, parsing.DictType(str, int))), {}),
         'annotated_messages': parsing.DefaultValueType(parsing.DictType(int, str), {}),
-        'order_logs': parsing.DefaultValueType(ORDER_LOGS_TYPE, []),
-        'order_log_history': parsing.DefaultValueType(parsing.DictType(str, ORDER_LOGS_TYPE), {}),
+        'order_logs': parsing.DefaultValueType(parsing.DictType(int, str), {}),
+        'order_log_history': parsing.DefaultValueType(parsing.DictType(str, parsing.DictType(int, str)), {}),
         'has_initial_orders': parsing.DefaultValueType(parsing.DictType(str, bool), {}),
     }
 
@@ -998,7 +997,7 @@ class Game(Jsonable):
 
     def add_order_log(self, log):
         time_sent = common.timestamp_microseconds()
-        self.order_logs.put(time_sent, Order_log(log=log, time_sent=time_sent))
+        self.order_logs[time_sent] = log
 
         return time_sent
 

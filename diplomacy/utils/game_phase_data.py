@@ -17,7 +17,6 @@
 """ Utility class to save all data related to one game phase (phase name, state, messages and orders). """
 from diplomacy.engine.message import Message
 from diplomacy.engine.log import Log
-from diplomacy.engine.order_log import Order_log
 from diplomacy.utils import common, strings, parsing
 from diplomacy.utils.jsonable import Jsonable
 from diplomacy.utils.sorted_dict import SortedDict
@@ -26,8 +25,6 @@ MESSAGES_TYPE = parsing.IndexedSequenceType(
     parsing.DictType(int, parsing.JsonableClassType(Message), SortedDict.builder(int, Message)), 'time_sent')
 LOGS_TYPE = parsing.IndexedSequenceType(
     parsing.DictType(int, parsing.JsonableClassType(Log), SortedDict.builder(int, Log)), 'time_sent')
-ORDER_LOGS_TYPE = parsing.IndexedSequenceType(
-    parsing.DictType(int, parsing.JsonableClassType(Order_log), SortedDict.builder(int, Order_log)), 'time_sent')
 
 class GamePhaseData(Jsonable):
     """ Small class to represent data for a game phase:
@@ -42,8 +39,8 @@ class GamePhaseData(Jsonable):
         strings.RESULTS: parsing.DictType(str, parsing.SequenceType(parsing.StringableType(common.StringableCode))),
         strings.MESSAGES: MESSAGES_TYPE,
         strings.LOGS: LOGS_TYPE,
-        strings.STANCES: parsing.DefaultValueType(parsing.DictType(str, parsing.DictType(str, int)), {}),
-        'order_logs': ORDER_LOGS_TYPE
+        strings.STANCES: parsing.DictType(str, parsing.DictType(str, int)),
+        'order_logs': parsing.DictType(int, str)
     }
 
     def __init__(self, name, state, orders, results, messages, stances, logs, order_logs):
