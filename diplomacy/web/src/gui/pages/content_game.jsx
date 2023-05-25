@@ -184,6 +184,7 @@ export class ContentGame extends React.Component {
             hasInitialOrders: this.props.data.getInitialOrders(
                 this.props.data.role
             ),
+            annotatedMessages: this.props.data.getAnnotatedMessages(),
         };
 
         // Bind some class methods to this instance.
@@ -696,6 +697,9 @@ export class ContentGame extends React.Component {
 
     handleRecipientAnnotation = (message, annotation) => {
         const engine = this.props.data;
+        const newAnnotatedMessages = { ...this.state.annotatedMessages, [message.time_sent]: annotation };
+        this.setState({ annotatedMessages: newAnnotatedMessages });
+
         this.sendRecipientAnnotation(
             engine.client,
             message.time_sent,
@@ -1578,7 +1582,7 @@ export class ContentGame extends React.Component {
                 <ChatMessage
                     model={{
                         message: msg.message,
-                        sent: msg.sent_time,
+                        sent: msg.time_sent,
                         sender: sender,
                         direction: dir,
                         position: "single",
@@ -1605,10 +1609,10 @@ export class ContentGame extends React.Component {
                                 value="true"
                                 name={messageId}
                                 checked={
-                                    msg.recipient_annotation && msg.recipient_annotation === "True" ? true : false
+                                    this.state.annotatedMessages.hasOwnProperty(msg.time_sent) && this.state.annotatedMessages[msg.time_sent] === "True"
                                 }
-                                onClick={() => {
-                                    this.handleRecipientAnnotation(msg, true);}
+                                onClick={() => 
+                                    this.handleRecipientAnnotation(msg, "True")
                                 }
                             />{" "}
                             Truth&nbsp;&nbsp;
@@ -1617,10 +1621,10 @@ export class ContentGame extends React.Component {
                                 value="false"
                                 name={messageId}
                                 checked={
-                                    msg.recipient_annotation && msg.recipient_annotation === "False" ? true : false
+                                    this.state.annotatedMessages.hasOwnProperty(msg.time_sent) && this.state.annotatedMessages[msg.time_sent] === "False"
                                 }
                                 onClick={() =>
-                                    this.handleRecipientAnnotation(msg, false)
+                                    this.handleRecipientAnnotation(msg, "False")
                                 }
                             />{" "}
                             Lie

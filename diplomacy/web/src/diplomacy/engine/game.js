@@ -581,6 +581,11 @@ export class Game {
         }
         return powerLogs;
     }
+
+    getAnnotatedMessages() {
+        return this.annotatedMessages;
+    }
+
     getMessageChannels(role, all) {
         const messageChannels = {};
         role = role || this.role;
@@ -611,6 +616,7 @@ export class Game {
                 messageChannels[protagonist].push(message);
             }
         }
+        console.log("messageChannels:", messageChannels);
         return messageChannels;
     }
 
