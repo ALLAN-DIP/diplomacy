@@ -36,9 +36,12 @@ export function loadGameFromDisk() {
                 gameObject.game_id = `(local) ${savedData.id}`;
                 gameObject.map_name = savedData.map;
                 gameObject.rules = savedData.rules;
+                gameObject.has_initial_orders = savedData.has_initial_orders || {};
+                gameObject.annotated_messages = savedData.annotated_messages || {};
                 gameObject.state_history = {};
                 gameObject.message_history = {};
                 gameObject.order_history = {};
+                gameObject.stance_history = {};
                 gameObject.result_history = {};
                 gameObject.log_history = {};
 
@@ -50,6 +53,7 @@ export function loadGameFromDisk() {
                     const phaseResults = savedPhase.results || {};
                     const phaseMessages = {};
                     const phaseLogs = {};
+                    const phaseStances = savedPhase.stances || {};
                     if (savedPhase.messages) {
                         for (let message of savedPhase.messages) {
                             phaseMessages[message.time_sent] = message;
@@ -65,6 +69,7 @@ export function loadGameFromDisk() {
                     gameObject.state_history[gameState.name] = gameState;
                     gameObject.message_history[gameState.name] = phaseMessages;
                     gameObject.order_history[gameState.name] = phaseOrders;
+                    gameObject.stance_history[gameState.name] = phaseStances;
                     gameObject.result_history[gameState.name] = phaseResults;
                     gameObject.log_history[gameState.name] = phaseLogs;
                 }
@@ -73,6 +78,7 @@ export function loadGameFromDisk() {
                 const latestPhase = savedData.phases[savedData.phases.length - 1];
                 const latestGameState = latestPhase.state;
                 const latestPhaseOrders = latestPhase.orders || {};
+                const latestPhaseStances = latestPhase.stances || {};
                 const latestPhaseResults = latestPhase.results || {};
                 const latestPhaseMessages = {};
                 const latestPhaseLogs = {};
@@ -99,6 +105,7 @@ export function loadGameFromDisk() {
                 gameObject.deadline = 0;
                 gameObject.n_controls = 0;
                 gameObject.registration_password = '';
+                gameObject.stances = latestPhaseStances;
                 const game = new Game(gameObject);
 
                 // Set game current phase and state using latest phase found in JSON file.
@@ -107,7 +114,8 @@ export function loadGameFromDisk() {
                     state: latestGameState,
                     orders: latestPhaseOrders,
                     messages: latestPhaseMessages,
-                    logs: latestPhaseLogs
+                    logs: latestPhaseLogs,
+                    stances: latestPhaseStances,
                 });
                 onLoad(game);
             };

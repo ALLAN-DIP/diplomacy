@@ -49,6 +49,7 @@ export function comparablePhase(shortPhaseName) {
 
 export class Game {
     constructor(gameData) {
+        console.log(gameData);
         ////// Instead of using: `Object.assign(this, gameState)`,
         ////// we set each field separately to let IDE know all attributes expected for Game class.
         //// We first check gameState.
@@ -56,7 +57,7 @@ export class Game {
 
         const nonNullFields = [
             'game_id', 'map_name', 'messages', 'role', 'rules', 'status', 'timestamp_created', 'deadline',
-            'message_history', 'order_history', 'state_history', 'logs', 'log_history'
+            'message_history', 'order_history', 'state_history', 'logs', 'log_history',
         ];
         // These fields may be null.
         const nullFields = ['n_controls', 'registration_password'];
@@ -73,7 +74,8 @@ export class Game {
         this.messages = new SortedDict(gameData instanceof Game ? null : gameData.messages, parseInt);
         this.logs = new SortedDict(gameData instanceof Game ? null : gameData.logs, parseInt);
         this.annotatedMessages = gameData.annotated_messages || {};
-        this.hasInitialOrders = gameData.has_initial_orders;
+        this.hasInitialOrders = gameData.has_initial_orders ? gameData.has_initial_orders : {};
+        this.stances = gameData.stances ? gameData.stances : {};
 
         // {short phase name => state}
         this.state_history = new SortedDict(gameData instanceof Game ? gameData.state_history.toDict() : gameData.state_history, comparablePhase);
@@ -81,6 +83,7 @@ export class Game {
         this.order_history = new SortedDict(gameData instanceof Game ? gameData.order_history.toDict() : gameData.order_history, comparablePhase);
         // {short phase name => {unit => [results]}}
         this.result_history = new SortedDict(gameData instanceof Game ? gameData.result_history.toDict() : gameData.result_history, comparablePhase);
+        this.stance_history = gameData.stance_history;
         // {short phase name => {message.time_sent => message}}
         if (gameData instanceof Game) {
             this.message_history = new SortedDict(gameData.message_history.toDict(), comparablePhase);
