@@ -808,7 +808,6 @@ def on_send_recipient_annotation(server, request, connection_handler):
     assert_game_not_finished(level.game)
     time_sent = level.game.add_recipient_annotation(annotation)
     server.save_game(level.game)
-    server.backup_now(force=True)
     return responses.DataTimeStamp(data=time_sent, request_id=request.request_id)
 
 

@@ -72,8 +72,8 @@ export class Game {
         this.map_name = gameData.map_name;
         this.messages = new SortedDict(gameData instanceof Game ? null : gameData.messages, parseInt);
         this.logs = new SortedDict(gameData instanceof Game ? null : gameData.logs, parseInt);
+        this.annotatedMessages = gameData.annotated_messages || {};
         this.hasInitialOrders = gameData.has_initial_orders;
-
 
         // {short phase name => state}
         this.state_history = new SortedDict(gameData instanceof Game ? gameData.state_history.toDict() : gameData.state_history, comparablePhase);
@@ -231,14 +231,8 @@ export class Game {
         this.log_history.put(phaseData.name, new SortedDict(phaseData.logs, parseInt));
     }
 
-    addRecipientAnnotation(timeSent, annotation) {
-        for (const [key, value] of Object.entries(this.messages.values())) {
-            if (this.role === value.recipient && value.time_sent === timeSent) {
-                let message = this.messages.remove(key);
-                message.recipient_annotation = annotation;
-                this.addMessage(message);
-            }
-        }
+    addRecipientAnnotation(annotation) {
+        this.annotatedMessages[annotation.timeSent] = annotation.annotation;
     }
 
     addStance(powerName, stance) {
@@ -611,11 +605,10 @@ export class Game {
                 if (!messageChannels.hasOwnProperty(protagonist))
                     messageChannels[protagonist] = [];
 
-                /*if (message.time_sent in this.recipient_annotations) {
-                    message.recipient_annotation = this.recipient_annotations[message.time_sent].recipient_annotation;
-                }*/
+                if (this.annotatedMessages.hasOwnProperty(message.time_sent)) {
+                    message.recipient_annotation = this.annotatedMessages[message.time_sent];
+                }
                 messageChannels[protagonist].push(message);
-                //}
             }
         }
         return messageChannels;

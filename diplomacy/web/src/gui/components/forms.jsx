@@ -43,8 +43,6 @@ export class Forms {
 
     static createOnSubmitCallbackWithInit(component, callback, resetState, init) {
         return (event) => {
-            console.log('state:');
-            console.log(component.state);
             if (callback)
                 callback(Object.assign({}, component.state), init);
             if (resetState)

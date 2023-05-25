@@ -19,7 +19,7 @@ import Scrollchor from "react-scrollchor";
 import { SelectLocationForm } from "../forms/select_location_form";
 import { SelectViaForm } from "../forms/select_via_form";
 import { Order } from "../utils/order";
-import { Row } from "../components/layouts";
+import { Row, Col } from "../components/layouts";
 import { Tabs } from "../components/tabs";
 import {
     extendOrderBuilding,
@@ -181,7 +181,9 @@ export class ContentGame extends React.Component {
             showAbbreviations: true,
             message: "",
             logData: "",
-            hasInitialOrders: this.props.data.getInitialOrders(this.props.data.role),
+            hasInitialOrders: this.props.data.getInitialOrders(
+                this.props.data.role
+            ),
         };
 
         // Bind some class methods to this instance.
@@ -488,7 +490,7 @@ export class ContentGame extends React.Component {
                         orders: null,
                         messageHighlights: {},
                         orderBuildingPath: [],
-                        hasInitialOrders: false
+                        hasInitialOrders: false,
                     }).then(() =>
                         this.getPage().info(
                             `Game update (${notification.name}) to ${networkGame.local.phase}.`
@@ -667,7 +669,7 @@ export class ContentGame extends React.Component {
         } catch (e) {
             this.getPage().error(
                 "Will not update stance of a noncontrollable power."
-            )
+            );
         }
     };
 
@@ -683,10 +685,10 @@ export class ContentGame extends React.Component {
                 message = `${engine.role} removed: ${order}`;
                 break;
             case "update":
-                message = `${engine.role} updated its orders:`
+                message = `${engine.role} updated its orders:`;
                 break;
             case "clear":
-                message = `${engine.role} removed its orders:`
+                message = `${engine.role} removed its orders:`;
                 break;
         }
         networkGame.sendOrderLog({ log: message });
@@ -705,15 +707,18 @@ export class ContentGame extends React.Component {
         const page = this.getPage();
         const info = { time_sent: time_sent, annotation: annotation };
 
-        networkGame.sendRecipientAnnotation({ annotation: info }).then(() => {
-            page.load(
-                `game: ${networkGame.local.game_id}`,
-                <ContentGame data={networkGame.local} />,
-                { success: `Annotation sent: ${JSON.stringify(info)}` }
-            );
-        }).catch((error) => {
-            page.error(error.toString());
-        });
+        networkGame
+            .sendRecipientAnnotation({ annotation: info })
+            .then(() => {
+                page.load(
+                    `game: ${networkGame.local.game_id}`,
+                    <ContentGame data={networkGame.local} />,
+                    { success: `Annotation sent: ${JSON.stringify(info)}` }
+                );
+            })
+            .catch((error) => {
+                page.error(error.toString());
+            });
     }
 
     sendGameStance(networkGame, powerName, stance) {
@@ -784,7 +789,7 @@ export class ContentGame extends React.Component {
                 page.success("Game processed.");
                 this.props.data.clearInitialOrders();
                 this.setState({ hasInitialOrders: false });
-        })
+            })
             .catch((err) => {
                 page.error(err.toString());
             });
@@ -1564,6 +1569,7 @@ export class ContentGame extends React.Component {
                 );
                 prevPhase = curPhase;
             }
+            let messageId = msg.sender + "-" + msg.time_sent.toString();
 
             if (role === sender) dir = "outgoing";
             if (role === rec) dir = "incoming";
@@ -1593,25 +1599,25 @@ export class ContentGame extends React.Component {
                         }}
                     >
                         Do you think this is a lie?
-                        <div>
+                        <div id={messageId}>
                             <input
                                 type="radio"
                                 value="true"
-                                name={messageCount}
-                                defaultChecked={
-                                    msg.recipient_annotation == "True"
+                                name={messageId}
+                                checked={
+                                    msg.recipient_annotation && msg.recipient_annotation === "True" ? true : false
                                 }
-                                onClick={() =>
-                                    this.handleRecipientAnnotation(msg, true)
+                                onClick={() => {
+                                    this.handleRecipientAnnotation(msg, true);}
                                 }
                             />{" "}
-                            Truth
+                            Truth&nbsp;&nbsp;
                             <input
                                 type="radio"
                                 value="false"
-                                name={messageCount}
-                                defaultChecked={
-                                    msg.recipient_annotation == "False"
+                                name={messageId}
+                                checked={
+                                    msg.recipient_annotation && msg.recipient_annotation === "False" ? true : false
                                 }
                                 onClick={() =>
                                     this.handleRecipientAnnotation(msg, false)
@@ -1623,7 +1629,6 @@ export class ContentGame extends React.Component {
                 );
                 messageCount++;
             }
-            
         }
 
         return (
@@ -1639,16 +1644,15 @@ export class ContentGame extends React.Component {
                     </MainContainer>
                     <div style={{ display: "flex", flexDirection: "row" }}>
                         {engine.isPlayerGame() && (
-                            <MessageInput
+                            <textarea
                                 style={{ flex: 1 }}
-                                attachButton={false}
-                                sendButton={false}
                                 onChange={(val) =>
-                                    this.setMessageInputValue(val)
+                                    this.setMessageInputValue(val.target.value)
                                 }
                                 value={this.state.message}
                                 disabled={!this.state.hasInitialOrders}
-                            />
+                                placeholder="You must enter your orders each season before you can send messages."
+                             />
                         )}
                         {engine.isPlayerGame() && (
                             <div>
@@ -2197,7 +2201,9 @@ export class ContentGame extends React.Component {
                             <div className={"orders"}>
                                 {this.renderOrders(this.props.data, powerName)}
                             </div>
-                            <div className={"table-responsive"}>
+                            
+                        </div>
+                        <div className={"table-responsive"}>
                                 <Table
                                     className={"table table-striped table-sm"}
                                     caption={"Powers info"}
@@ -2210,7 +2216,6 @@ export class ContentGame extends React.Component {
                                     player={engine.role}
                                 />
                             </div>
-                        </div>
                     </div>
                 </Row>
             </Tab>

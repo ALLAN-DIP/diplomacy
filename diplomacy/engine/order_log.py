@@ -2,24 +2,6 @@ from diplomacy.utils import parsing, strings
 from diplomacy.utils.jsonable import Jsonable
 
 class Order_log(Jsonable):
-    """ Log class.
-
-        Properties:
-
-        - **sender**: message sender name: either SYSTEM or a power name.
-        - **recipient**: message recipient name: either GLOBAL, OBSERVER, OMNISCIENT or a power name.
-        - **time_sent**: message timestamp in microseconds.
-        - **phase**: short name of game phase when message is sent.
-        - **message**: message body.
-
-        **Note about timestamp management**:
-
-        We assume a message has an unique timestamp inside one game. To respect this rule, the server is the only one
-        responsible for generating message timestamps. This allow to generate timestamp or only 1 same machine (server)
-        instead of managing timestamps from many user machines, to prevent timestamp inconsistency when messages
-        are stored on server. Therefore, message timestamp is the time when server stores the message, not the time
-        when message was sent by any client.
-    """
     __slots__ = ['log', 'time_sent']
     model = {
         'log': str,                                # either SYSTEM or a power name.

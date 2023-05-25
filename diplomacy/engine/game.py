@@ -268,8 +268,7 @@ class Game(Jsonable):
         strings.STANCES: parsing.DefaultValueType(parsing.DictType(str, parsing.DictType(str, int)), {}),
         strings.STANCES_HISTORY: parsing.DefaultValueType(
             parsing.DictType(str, parsing.DictType(str, parsing.DictType(str, int))), {}),
-        'annotated_messages': parsing.DefaultValueType(
-            parsing.DictType(int, parsing.DictType(str, str)), {}),
+        'annotated_messages': parsing.DefaultValueType(parsing.DictType(int, str), {}),
         'order_edits': parsing.DefaultValueType(ORDER_LOGS_TYPE, []),
         'order_edits_history': parsing.DefaultValueType(parsing.DictType(str, ORDER_LOGS_TYPE), {}),
         'has_initial_orders': parsing.DefaultValueType(parsing.DictType(str, bool), {}),
@@ -315,6 +314,7 @@ class Game(Jsonable):
         self.order_edits_history = {}
         self.order_edits = {}
         self.has_initial_orders = {}
+        self.annotated_messages = {}
 
         # Caches
         self._unit_owner_cache = None  # {(unit, coast_required): owner}
@@ -979,26 +979,10 @@ class Game(Jsonable):
         self.has_initial_orders = {}
 
     def add_recipient_annotation(self, annotation):
+        print("add_recipient_annotation", annotation)
         time_sent = annotation['time_sent']
-        annotation = annotation['annotation']
-        # message = self.annotated_messages[time_sent]
-        # message['recipient_annotation'] = str(annotation)
-        messages_copy = self.messages.copy()
 
-        message_copy = messages_copy.remove(time_sent)
-        message_with_annotation = Message(
-            sender = message_copy.sender,
-            recipient= message_copy.recipient,
-            time_sent= message_copy.time_sent,
-            phase= message_copy.phase,
-            message= message_copy.message,
-            truth= message_copy.truth,
-            recipient_annotation= str(annotation)
-        )
-        messages_copy.put(time_sent, message_with_annotation)
-
-        # self.annotated_messages[time_sent] = message
-        self.messages = messages_copy
+        self.annotated_messages[time_sent] = str(annotation['annotation'])
 
         return time_sent
 

@@ -65,9 +65,8 @@ export const RESPONSE_MANAGERS = {
         context.removeChannel();
     },
     send_recipient_annotation: function (context, response) {
-        const timeSent = context.request.annotation['time_sent'];
-        const annotation = context.request.annotation['annotation'];
-        context.game.local.addRecipientAnnotation(timeSent, annotation);
+        const annotation = context.request.annotation;
+        context.game.local.addRecipientAnnotation(annotation);
     },
     send_stance: function (context, response) {
       const powerName = context.request.power_name;
