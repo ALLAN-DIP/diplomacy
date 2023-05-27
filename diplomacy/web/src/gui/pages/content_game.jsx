@@ -1252,12 +1252,7 @@ export class ContentGame extends React.Component {
             if (powerName !== role) tabNames.push(powerName);
         tabNames.sort();
         tabNames.push("GLOBAL");
-        const titles = tabNames.map((tabName) =>
-            tabName === "GLOBAL" ? tabName : tabName.substr(0, 3)
-        );
         const currentTabId = this.state.tabPastMessages || tabNames[0];
-        const curController = engine.powers[role].getController();
-        // const highlights = this.state.messageHighlights;
 
         const convList = tabNames.map((protagonist) => (
             <Conversation
@@ -1285,34 +1280,6 @@ export class ContentGame extends React.Component {
             </Conversation>
         ));
 
-        const powerLogs = engine.getLogsForPower(role, true);
-        let renderedLogs = [];
-        let curPhase = "";
-        let prevPhase = "";
-        powerLogs.forEach((log) => {
-            if (log.phase != prevPhase) {
-                curPhase = log.phase;
-                renderedLogs.push(
-                    <MessageSeparator>{curPhase}</MessageSeparator>
-                );
-
-                prevPhase = curPhase;
-            }
-
-            renderedLogs.push(
-                // eslint-disable-next-line react/jsx-key
-                <ChatMessage
-                    model={{
-                        message: log.message,
-                        sent: log.sent_time,
-                        sender: role,
-                        direction: "outgoing",
-                        position: "single",
-                    }}
-                ></ChatMessage>
-            );
-        });
-
         const renderedMessages = [];
         let protagonist = currentTabId;
 
@@ -1320,9 +1287,8 @@ export class ContentGame extends React.Component {
         let sender = "";
         let rec = "";
         let dir = "";
-        curPhase = "";
-        prevPhase = "";
-        let toggleSep = true;
+        let curPhase = "";
+        let prevPhase = "";
 
         for (let m in msgs) {
             let msg = msgs[m];
@@ -1355,79 +1321,20 @@ export class ContentGame extends React.Component {
         }
 
         return (
-            <Row>
-                <div className={"col-lg-6 col-md-12"} style={{ height: "500px" }}>
-                    <MainContainer responsive>
-                        <Sidebar
-                            style={{ maxWidth: "200px" }}
-                            position="left"
-                            scrollable={false}
-                        >
-                            <ConversationList>{convList}</ConversationList>
-                        </Sidebar>
-                        <ChatContainer>
-                            <MessageList>{renderedMessages}</MessageList>
-                        </ChatContainer>
-                    </MainContainer>
-                </div>
-                {localStorage.getItem("username") === "admin" && (
-                    <div className={"col"} style={{ height: "500px" }}>
-                        <ChatContainer>
-                            <ConversationHeader>
-                                <ConversationHeader.Content
-                                    userName={
-                                        role.toString() +
-                                        " (" +
-                                        curController +
-                                        ")" +
-                                        ": Captain's Log"
-                                    }
-                                    info={
-                                        powerLogs.length
-                                            ? ""
-                                            : "No log messages to show"
-                                    }
-                                />
-                            </ConversationHeader>
-                            <MessageList>{renderedLogs}</MessageList>
-                        </ChatContainer>
-                    </div>
-                )}
-            </Row>
-        );
-    }
-
-    renderCurrentLogs(engine, role) {
-        const powerLogs = engine.getLogsForPower(role, true);
-        const renderedLogs = powerLogs.map((log) => (
-            // eslint-disable-next-line react/jsx-key
-            <ChatMessage
-                model={{
-                    message: log.message,
-                    sent: log.sent_time,
-                    sender: role,
-                    direction: "outgoing",
-                    position: "single",
-                }}
-            />
-        ));
-
-        return (
-            <MainContainer>
-                <ChatContainer>
-                    <ConversationHeader>
-                        <ConversationHeader.Content
-                            userName="Captains log"
-                            info={
-                                powerLogs.length
-                                    ? ""
-                                    : "No log messages to show"
-                            }
-                        />
-                    </ConversationHeader>
-                    <MessageList>{renderedLogs}</MessageList>
-                </ChatContainer>
-            </MainContainer>
+            <div className={"col-lg-6 col-md-12"} style={{ height: "500px" }}>
+                <MainContainer responsive>
+                    <Sidebar
+                        style={{ maxWidth: "200px" }}
+                        position="left"
+                        scrollable={false}
+                    >
+                        <ConversationList>{convList}</ConversationList>
+                    </Sidebar>
+                    <ChatContainer>
+                        <MessageList>{renderedMessages}</MessageList>
+                    </ChatContainer>
+                </MainContainer>
+            </div>
         );
     }
 
@@ -1438,11 +1345,7 @@ export class ContentGame extends React.Component {
             if (powerName !== role) tabNames.push(powerName);
         tabNames.sort();
         tabNames.push("GLOBAL");
-        // const titles = tabNames.map(tabName => (tabName === 'GLOBAL' ? tabName : tabName.substr(0, 3)));
         const currentTabId = this.state.tabCurrentMessages || tabNames[0];
-        const curController = engine.powers[role].getController();
-        var messageCount = 0;
-        // const highlights = this.state.messageHighlights;
 
         const convList = tabNames.map((protagonist) => (
             <Conversation
@@ -1508,7 +1411,7 @@ export class ContentGame extends React.Component {
         let dir = "";
         curPhase = "";
         prevPhase = "";
-        let toggleSep = true;
+        let messageCount = 0;
 
         for (let m in msgs) {
             let msg = msgs[m];
@@ -1596,7 +1499,6 @@ export class ContentGame extends React.Component {
         }
 
         return (
-            <Row>
             <div className={"col-lg-6 col-md-12"} style={{ height: "500px" }}>
                 <MainContainer responsive>
                     <Sidebar position="left" scrollable={true}>
@@ -1652,27 +1554,6 @@ export class ContentGame extends React.Component {
                     )}
                 </div>
             </div>
-            {localStorage.getItem("username") === "admin" && (
-                    <div className={"col"} style={{ height: "500px" }}>
-                        <MainContainer responsive>
-                            <ChatContainer>
-                                <ConversationHeader>
-                                    <ConversationHeader.Content
-                                        userName={
-                                            role.toString() +
-                                            " (" +
-                                            curController +
-                                            ")" +
-                                            ": Captain's Log"
-                                        }
-                                    />
-                                </ConversationHeader>
-                                <MessageList>{renderedLogs}</MessageList>
-                            </ChatContainer>
-                        </MainContainer>
-                    </div>
-                )}
-            </Row>
         );
     }
 
@@ -1950,6 +1831,88 @@ export class ContentGame extends React.Component {
         );
     }
 
+    renderPowerInfo(engine) {
+        const powerNames = Object.keys(engine.powers);
+        powerNames.sort();
+
+        const orderedPowers = powerNames.map((pn) => engine.powers[pn]);
+        const stances =
+            engine.getPower(engine.role) === null
+                ? {}
+                : engine.getPower(engine.role).getStances();
+
+        return (
+            <div className={"col-lg-6 col-md-12"}>
+                <div className={"table-responsive"}>
+                    <Table
+                        className={"table table-striped table-sm"}
+                        caption={"Powers info"}
+                        columns={TABLE_POWER_VIEW}
+                        data={orderedPowers}
+                        wrapper={PowerView.wrap}
+                        countries={powerNames}
+                        onChangeStance={this.handleStance}
+                        stances={stances}
+                        player={engine.role}
+                    />
+                </div>
+            </div>
+        );
+    }
+
+    renderLogs(engine, role) {
+        const curController = engine.powers[role].getController();
+
+        const powerLogs = engine.getLogsForPower(role, true);
+        let renderedLogs = [];
+        let curPhase = "";
+        let prevPhase = "";
+        powerLogs.forEach((log) => {
+            if (log.phase != prevPhase) {
+                curPhase = log.phase;
+                renderedLogs.push(
+                    <MessageSeparator>{curPhase}</MessageSeparator>
+                );
+
+                prevPhase = curPhase;
+            }
+
+            renderedLogs.push(
+                // eslint-disable-next-line react/jsx-key
+                <ChatMessage
+                    model={{
+                        message: log.message,
+                        sent: log.sent_time,
+                        sender: role,
+                        direction: "outgoing",
+                        position: "single",
+                    }}
+                ></ChatMessage>
+            );
+        });
+
+        return (
+            <div className={"col-lg-6 col-md-12"} style={{ height: "500px" }}>
+                <MainContainer responsive>
+                    <ChatContainer>
+                        <ConversationHeader>
+                            <ConversationHeader.Content
+                                userName={
+                                    role.toString() +
+                                    " (" +
+                                    curController +
+                                    ")" +
+                                    "'s Log"
+                                }
+                            />
+                        </ConversationHeader>
+                        <MessageList>{renderedLogs}</MessageList>
+                    </ChatContainer>
+                </MainContainer>
+            </div>
+        );
+    }
+
     renderTabCurrentPhase(
         toDisplay,
         engine,
@@ -1971,7 +1934,7 @@ export class ContentGame extends React.Component {
         return (
             <Tab id={"tab-current-phase"} display={toDisplay}>
                 <Row>
-                    <div className={"col-lg-6 col-md-12"}>
+                    <div className={"col-xl"}>
                         {this.renderMapForCurrent(
                             engine,
                             powerName,
@@ -1979,7 +1942,7 @@ export class ContentGame extends React.Component {
                             orderPath
                         )}
                     </div>
-                    <div className={"col-lg-6 col-md-12"}>
+                    <div className={"col-xl"}>
                         {/* Orders. */}
                         <div
                             className={"panel-orders mb-4"}
@@ -2008,19 +1971,6 @@ export class ContentGame extends React.Component {
                                 {this.renderOrders(this.props.data, powerName)}
                             </div>
                         </div>
-                        <div className={"table-responsive"}>
-                            <Table
-                                className={"table table-striped table-sm"}
-                                caption={"Powers info"}
-                                columns={TABLE_POWER_VIEW}
-                                data={orderedPowers}
-                                wrapper={PowerView.wrap}
-                                countries={powerNames}
-                                onChangeStance={this.handleStance}
-                                stances={stances}
-                                player={engine.role}
-                            />
-                        </div>
                     </div>
                 </Row>
             </Tab>
@@ -2039,20 +1989,6 @@ export class ContentGame extends React.Component {
     ) {
         const { engine, pastPhases, phaseIndex } =
             this.__get_engine_to_display(initialEngine);
-    }
-
-    renderTabLogs(toDisplay, initialEngine, currentPowerName) {
-        const { engine, pastPhases, phaseIndex } =
-            this.__get_engine_to_display(initialEngine);
-        return (
-            <div>
-                {pastPhases[phaseIndex] === initialEngine.phase ? (
-                    this.renderCurrentLogs(initialEngine, currentPowerName)
-                ) : (
-                    <p>"HEY THERE!</p>
-                )}
-            </div>
-        );
     }
 
     renderTabChat(toDisplay, initialEngine, currentPowerName) {
@@ -2277,7 +2213,12 @@ export class ContentGame extends React.Component {
                     navigation={navigation}
                 />
                 {phasePanel}
-                {this.renderTabChat(true, engine, currentPowerName)}
+                <Row>
+                    {this.renderTabChat(true, engine, currentPowerName)}
+                    {this.renderPowerInfo(engine)}
+                </Row>
+                {localStorage.getItem("username") === "admin" &&
+                    this.renderLogs(engine, currentPowerName)}
             </main>
         );
     }
