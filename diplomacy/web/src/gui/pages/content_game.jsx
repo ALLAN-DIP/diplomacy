@@ -1245,8 +1245,45 @@ export class ContentGame extends React.Component {
         return render;
     }
 
+    filterMessages(engine, messageChannels) {
+        /* 
+            Hide messages that are not annotated.
+        */
+        if (engine.role === "omniscient_type") return messageChannels;
+
+        let filteredMessageChannels = {};
+        const controlledPower = this.getCurrentPowerName();
+
+        for (const [powerName, messages] of Object.entries(messageChannels)) {
+            let filteredMessages = [];
+            let showMessage = true;
+
+            for (let idx in messages) {
+                const message = messages[idx];
+                console.log(": ", message.sender, message.message);
+                if (message.sender === controlledPower || showMessage) {
+                    filteredMessages.push(message);
+                }
+                if (
+                    message.sender !== controlledPower &&
+                    !this.state.annotatedMessages.hasOwnProperty(
+                        message.time_sent
+                    )
+                ) {
+                    showMessage = false;
+                }
+            }
+            filteredMessageChannels[powerName] = filteredMessages;
+        }
+
+        return filteredMessageChannels;
+    }
+
     renderPastMessages(engine, role) {
-        const messageChannels = engine.getMessageChannels(role, true);
+        const messageChannels = this.filterMessages(
+            engine,
+            engine.getMessageChannels(role, true)
+        );
         const tabNames = [];
         for (let powerName of Object.keys(engine.powers))
             if (powerName !== role) tabNames.push(powerName);
@@ -1339,7 +1376,10 @@ export class ContentGame extends React.Component {
     }
 
     renderCurrentMessages(engine, role) {
-        const messageChannels = engine.getMessageChannels(role, true);
+        const messageChannels = this.filterMessages(
+            engine,
+            engine.getMessageChannels(role, true)
+        );
         const tabNames = [];
         for (let powerName of Object.keys(engine.powers))
             if (powerName !== role) tabNames.push(powerName);
@@ -1373,35 +1413,6 @@ export class ContentGame extends React.Component {
             </Conversation>
         ));
 
-        //const powerLogs = engine.getLogsForPowerAtPhase(role, true);
-        const powerLogs = engine.getLogsForPower(role, true);
-        let renderedLogs = [];
-        let curPhase = "";
-        let prevPhase = "";
-        powerLogs.forEach((log) => {
-            if (log.phase != prevPhase) {
-                curPhase = log.phase;
-                renderedLogs.push(
-                    <MessageSeparator>{curPhase}</MessageSeparator>
-                );
-
-                prevPhase = curPhase;
-            }
-
-            renderedLogs.push(
-                // eslint-disable-next-line react/jsx-key
-                <ChatMessage
-                    model={{
-                        message: log.message,
-                        sent: log.sent_time,
-                        sender: role,
-                        direction: "outgoing",
-                        position: "single",
-                    }}
-                ></ChatMessage>
-            );
-        });
-
         const renderedMessages = [];
         let protagonist = currentTabId;
 
@@ -1409,8 +1420,8 @@ export class ContentGame extends React.Component {
         let sender = "";
         let rec = "";
         let dir = "";
-        curPhase = "";
-        prevPhase = "";
+        let curPhase = "";
+        let prevPhase = "";
         let messageCount = 0;
 
         for (let m in msgs) {
@@ -1447,7 +1458,7 @@ export class ContentGame extends React.Component {
                 </ChatMessage>
             );
 
-            if (dir === "incoming") {
+            if (dir === "incoming" && engine.role !== "omniscient_type") {
                 renderedMessages.push(
                     <div
                         style={{
