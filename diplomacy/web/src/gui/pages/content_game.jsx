@@ -697,7 +697,10 @@ export class ContentGame extends React.Component {
 
     handleRecipientAnnotation = (message, annotation) => {
         const engine = this.props.data;
-        const newAnnotatedMessages = { ...this.state.annotatedMessages, [message.time_sent]: annotation };
+        const newAnnotatedMessages = {
+            ...this.state.annotatedMessages,
+            [message.time_sent]: annotation,
+        };
         this.setState({ annotatedMessages: newAnnotatedMessages });
 
         this.sendRecipientAnnotation(
@@ -1309,17 +1312,6 @@ export class ContentGame extends React.Component {
                 ></ChatMessage>
             );
         });
-        // const renderedLogs = powerLogs.map((log) =>
-        //     // eslint-disable-next-line react/jsx-key
-        //     <ChatMessage model={{
-        //         message: log.message,
-        //         sent: log.sent_time,
-        //         sender: role,
-        //         direction: "outgoing",
-        //         position: "single"
-        //     }}>
-        //     </ChatMessage>
-        // );
 
         const renderedMessages = [];
         let protagonist = currentTabId;
@@ -1364,7 +1356,7 @@ export class ContentGame extends React.Component {
 
         return (
             <Row>
-                <div className={"col-6"} style={{ height: "500px" }}>
+                <div className={"col-lg-6 col-md-12"} style={{ height: "500px" }}>
                     <MainContainer responsive>
                         <Sidebar
                             style={{ maxWidth: "200px" }}
@@ -1567,9 +1559,14 @@ export class ContentGame extends React.Component {
                                 value="true"
                                 name={messageId}
                                 checked={
-                                    this.state.annotatedMessages.hasOwnProperty(msg.time_sent) && this.state.annotatedMessages[msg.time_sent] === "True"
+                                    this.state.annotatedMessages.hasOwnProperty(
+                                        msg.time_sent
+                                    ) &&
+                                    this.state.annotatedMessages[
+                                        msg.time_sent
+                                    ] === "True"
                                 }
-                                onClick={() => 
+                                onClick={() =>
                                     this.handleRecipientAnnotation(msg, "True")
                                 }
                             />{" "}
@@ -1579,7 +1576,12 @@ export class ContentGame extends React.Component {
                                 value="false"
                                 name={messageId}
                                 checked={
-                                    this.state.annotatedMessages.hasOwnProperty(msg.time_sent) && this.state.annotatedMessages[msg.time_sent] === "False"
+                                    this.state.annotatedMessages.hasOwnProperty(
+                                        msg.time_sent
+                                    ) &&
+                                    this.state.annotatedMessages[
+                                        msg.time_sent
+                                    ] === "False"
                                 }
                                 onClick={() =>
                                     this.handleRecipientAnnotation(msg, "False")
@@ -1595,62 +1597,62 @@ export class ContentGame extends React.Component {
 
         return (
             <Row>
-                <div className={"col-6"} style={{ height: "500px" }}>
-                    <MainContainer responsive>
-                        <Sidebar position="left" scrollable={true}>
-                            <ConversationList>{convList}</ConversationList>
-                        </Sidebar>
-                        <ChatContainer>
-                            <MessageList>{renderedMessages}</MessageList>
-                        </ChatContainer>
-                    </MainContainer>
-                    <div style={{ display: "flex", flexDirection: "row" }}>
-                        {engine.isPlayerGame() && (
-                            <textarea
-                                style={{ flex: 1 }}
-                                onChange={(val) =>
-                                    this.setMessageInputValue(val.target.value)
-                                }
-                                value={this.state.message}
-                                disabled={!this.state.hasInitialOrders}
-                                placeholder="You must enter your orders each season before you can send messages."
-                             />
-                        )}
-                        {engine.isPlayerGame() && (
-                            <div>
-                                <Button
-                                    key={"t"}
-                                    pickEvent={true}
-                                    title={"Truth"}
-                                    onClick={() => {
-                                        this.sendMessage(
-                                            engine.client,
-                                            currentTabId,
-                                            this.state.message,
-                                            "Truth"
-                                        );
-                                        this.setMessageInputValue("");
-                                    }}
-                                ></Button>
-                                <Button
-                                    key={"f"}
-                                    pickEvent={true}
-                                    title={"Lie"}
-                                    onClick={() => {
-                                        this.sendMessage(
-                                            engine.client,
-                                            currentTabId,
-                                            this.state.message,
-                                            "Lie"
-                                        );
-                                        this.setMessageInputValue("");
-                                    }}
-                                ></Button>
-                            </div>
-                        )}
-                    </div>
+            <div className={"col-lg-6 col-md-12"} style={{ height: "500px" }}>
+                <MainContainer responsive>
+                    <Sidebar position="left" scrollable={true}>
+                        <ConversationList>{convList}</ConversationList>
+                    </Sidebar>
+                    <ChatContainer>
+                        <MessageList>{renderedMessages}</MessageList>
+                    </ChatContainer>
+                </MainContainer>
+                <div style={{ display: "flex", flexDirection: "row" }}>
+                    {engine.isPlayerGame() && (
+                        <textarea
+                            style={{ flex: 1 }}
+                            onChange={(val) =>
+                                this.setMessageInputValue(val.target.value)
+                            }
+                            value={this.state.message}
+                            disabled={!this.state.hasInitialOrders}
+                            placeholder="You must enter your orders each season before you can send messages."
+                        />
+                    )}
+                    {engine.isPlayerGame() && (
+                        <div>
+                            <Button
+                                key={"t"}
+                                pickEvent={true}
+                                title={"Truth"}
+                                onClick={() => {
+                                    this.sendMessage(
+                                        engine.client,
+                                        currentTabId,
+                                        this.state.message,
+                                        "Truth"
+                                    );
+                                    this.setMessageInputValue("");
+                                }}
+                            ></Button>
+                            <Button
+                                key={"f"}
+                                pickEvent={true}
+                                title={"Lie"}
+                                onClick={() => {
+                                    this.sendMessage(
+                                        engine.client,
+                                        currentTabId,
+                                        this.state.message,
+                                        "Lie"
+                                    );
+                                    this.setMessageInputValue("");
+                                }}
+                            ></Button>
+                        </div>
+                    )}
                 </div>
-                {localStorage.getItem("username") === "admin" && (
+            </div>
+            {localStorage.getItem("username") === "admin" && (
                     <div className={"col"} style={{ height: "500px" }}>
                         <MainContainer responsive>
                             <ChatContainer>
@@ -1666,21 +1668,6 @@ export class ContentGame extends React.Component {
                                     />
                                 </ConversationHeader>
                                 <MessageList>{renderedLogs}</MessageList>
-                                {engine.isPlayerGame() && (
-                                    <MessageInput
-                                        attachButton={false}
-                                        onChange={(val) =>
-                                            this.setlogDataInputValue(val)
-                                        }
-                                        onSend={() => {
-                                            const message = this.sendLogData(
-                                                engine.client,
-                                                this.state.logData
-                                            );
-                                            //this.setLogs([...this.state.logs, message])
-                                        }}
-                                    />
-                                )}
                             </ChatContainer>
                         </MainContainer>
                     </div>
@@ -1963,86 +1950,6 @@ export class ContentGame extends React.Component {
         );
     }
 
-    // renderLogs(engine, role) {
-    //     const powerLogs = engine.getLogsForPower(role, true);
-    //     const items = powerLogs.map((logs) =>
-    //         // eslint-disable-next-line react/jsx-key
-    //         <Row>
-    //             <div className="message-content col-md">
-    //                 {logs.message}
-    //             </div>
-    //         </Row>
-    //     );
-    //     return (items);
-    // }
-
-    // renderTabLogs(toDisplay, initialEngine, currentPowerName) {
-    //     const {engine, pastPhases, phaseIndex} = this.__get_engine_to_display(initialEngine);
-    //     if (pastPhases[phaseIndex] === initialEngine.phase)
-    //         Diplog.info("initial phase");
-    //     return (
-    //         <Row>
-    //             {this.renderLogs(engine, currentPowerName)}
-    //         </Row>
-    //     );
-    // }
-
-    renderTabMessages(toDisplay, initialEngine, currentPowerName) {
-        const { engine, pastPhases, phaseIndex } =
-            this.__get_engine_to_display(initialEngine);
-
-        return (
-            <Tab id={"tab-phase-history"} display={toDisplay}>
-                <Row>
-                    <div className={"col-xl"}>
-                        {this.state.historyCurrentOrders && (
-                            <div className={"history-current-orders"}>
-                                {this.state.historyCurrentOrders.join(", ")}
-                            </div>
-                        )}
-                        {this.renderMapForMessages(
-                            engine,
-                            this.state.historyShowOrders
-                        )}
-                    </div>
-                    <div className={"col-xl"}>
-                        {this.__form_phases(pastPhases, phaseIndex)}
-                        {pastPhases[phaseIndex] === initialEngine.phase
-                            ? this.renderCurrentMessages(
-                                  initialEngine,
-                                  currentPowerName
-                              )
-                            : this.renderPastMessages(engine, currentPowerName)}
-                    </div>
-                </Row>
-                {toDisplay && (
-                    <HotKey
-                        keys={["arrowleft"]}
-                        onKeysCoincide={this.onDecrementPastPhase}
-                    />
-                )}
-                {toDisplay && (
-                    <HotKey
-                        keys={["arrowright"]}
-                        onKeysCoincide={this.onIncrementPastPhase}
-                    />
-                )}
-                {toDisplay && (
-                    <HotKey
-                        keys={["home"]}
-                        onKeysCoincide={this.displayFirstPastPhase}
-                    />
-                )}
-                {toDisplay && (
-                    <HotKey
-                        keys={["end"]}
-                        onKeysCoincide={this.displayLastPastPhase}
-                    />
-                )}
-            </Tab>
-        );
-    }
-
     renderTabCurrentPhase(
         toDisplay,
         engine,
@@ -2064,7 +1971,7 @@ export class ContentGame extends React.Component {
         return (
             <Tab id={"tab-current-phase"} display={toDisplay}>
                 <Row>
-                    <div className={"col-6"}>
+                    <div className={"col-lg-6 col-md-12"}>
                         {this.renderMapForCurrent(
                             engine,
                             powerName,
@@ -2072,7 +1979,7 @@ export class ContentGame extends React.Component {
                             orderPath
                         )}
                     </div>
-                    <div className={"col-6"}>
+                    <div className={"col-lg-6 col-md-12"}>
                         {/* Orders. */}
                         <div
                             className={"panel-orders mb-4"}
@@ -2100,21 +2007,20 @@ export class ContentGame extends React.Component {
                             <div className={"orders"}>
                                 {this.renderOrders(this.props.data, powerName)}
                             </div>
-                            
                         </div>
                         <div className={"table-responsive"}>
-                                <Table
-                                    className={"table table-striped table-sm"}
-                                    caption={"Powers info"}
-                                    columns={TABLE_POWER_VIEW}
-                                    data={orderedPowers}
-                                    wrapper={PowerView.wrap}
-                                    countries={powerNames}
-                                    onChangeStance={this.handleStance}
-                                    stances={stances}
-                                    player={engine.role}
-                                />
-                            </div>
+                            <Table
+                                className={"table table-striped table-sm"}
+                                caption={"Powers info"}
+                                columns={TABLE_POWER_VIEW}
+                                data={orderedPowers}
+                                wrapper={PowerView.wrap}
+                                countries={powerNames}
+                                onChangeStance={this.handleStance}
+                                stances={stances}
+                                player={engine.role}
+                            />
+                        </div>
                     </div>
                 </Row>
             </Tab>
@@ -2153,16 +2059,9 @@ export class ContentGame extends React.Component {
         const { engine, pastPhases, phaseIndex } =
             this.__get_engine_to_display(initialEngine);
 
-        return (
-            <div>
-                {pastPhases[phaseIndex] === initialEngine.phase
-                    ? this.renderCurrentMessages(
-                          initialEngine,
-                          currentPowerName
-                      )
-                    : this.renderPastMessages(engine, currentPowerName)}
-            </div>
-        );
+        return pastPhases[phaseIndex] === initialEngine.phase
+            ? this.renderCurrentMessages(initialEngine, currentPowerName)
+            : this.renderPastMessages(engine, currentPowerName);
     }
 
     // ]
