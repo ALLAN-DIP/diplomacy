@@ -1399,53 +1399,11 @@ export class ContentGame extends React.Component {
                             </ConversationHeader>
                             <MessageList>{renderedLogs}</MessageList>
                         </ChatContainer>
-                        {/* <CaptainsLog
-                            page={this.getPage()}
-                            networkGame={engine.client}
-                            role={currentTabId}
-                            logs={powerLogs}
-                            showChatInput={engine.isPlayerGame() || (currentTabId == STRINGS.OMNISCIENT)}
-                /> */}
                     </div>
                 )}
             </Row>
         );
     }
-
-    // renderPastMessages_Deprecated(engine, role) {
-    //     const messageChannels = engine.getMessageChannels(role, true);
-    //     const tabNames = [];
-    //     for (let powerName of Object.keys(engine.powers)) if (powerName !== role)
-    //         tabNames.push(powerName);
-    //     tabNames.sort();
-    //     tabNames.push('GLOBAL');
-    //     const titles = tabNames.map(tabName => (tabName === 'GLOBAL' ? tabName : tabName.substr(0, 3)));
-    //     const currentTabId = this.state.tabPastMessages || tabNames[0];
-
-    //     return (
-    //         <div className={'panel-messages'} key={'panel-messages'}>
-    //             {/* Messages. */}
-    //             <Tabs menu={tabNames} titles={titles} onChange={this.onChangeTabPastMessages} active={currentTabId}>
-    //                 {tabNames.map(protagonist => (
-    //                     <Tab
-    //                         key={protagonist}
-    //                         className={'game-messages'}
-    //                         display={currentTabId === protagonist}
-    //                     >
-    //                         {(!messageChannels.hasOwnProperty(protagonist) || !messageChannels[protagonist].length ?
-    //                                 (<div className={'no-game-message'}>No
-    //                                     messages{engine.isPlayerGame() ? ` with ${protagonist}` : ''}.</div>) :
-    //                                 messageChannels[protagonist].map((message, index) => (
-    //                                     <MessageView key={index} phase={engine.phase} owner={role} message={message}
-    //                                                  read={true}/>
-    //                                 ))
-    //                         )}
-    //                     </Tab>
-    //                 ))}
-    //             </Tabs>
-    //         </div>
-    //     );
-    // }
 
     renderCurrentLogs(engine, role) {
         const powerLogs = engine.getLogsForPower(role, true);
@@ -1725,74 +1683,11 @@ export class ContentGame extends React.Component {
                                 )}
                             </ChatContainer>
                         </MainContainer>
-
-                        {/*<CaptainsLog
-                        page={this.getPage()}
-                        networkGame={engine.client}
-                        role={role}
-                        logs={powerLogs}
-                        showChatInput={engine.isPlayerGame() || engine.isOmniscientGame() }
-                    />*/}
                     </div>
                 )}
             </Row>
         );
     }
-    // renderCurrentMessages_Deprecated(engine, role) {
-    //     const messageChannels = engine.getMessageChannels(role, true);
-    //     const tabNames = [];
-    //     for (let powerName of Object.keys(engine.powers)) if (powerName !== role)
-    //         tabNames.push(powerName);
-    //     tabNames.sort();
-    //     tabNames.push('GLOBAL');
-    //     const titles = tabNames.map(tabName => (tabName === 'GLOBAL' ? tabName : tabName.substr(0, 3)));
-    //     const currentTabId = this.state.tabCurrentMessages || tabNames[0];
-    //     const highlights = this.state.messageHighlights;
-    //     const unreadMarked = new Set();
-
-    //     return (
-    //         <div className={'panel-messages'} key={'panel-messages'}>
-    //             {/* Messages. */}
-    //             <Tabs menu={tabNames} titles={titles} onChange={this.onChangeTabCurrentMessages} active={currentTabId}
-    //                   highlights={highlights}>
-    //                 {tabNames.map(protagonist => (
-    //                     <Tab key={protagonist} className={'game-messages'} display={currentTabId === protagonist}
-    //                          id={`panel-current-messages-${protagonist}`}>
-    //                         {(!messageChannels.hasOwnProperty(protagonist) || !messageChannels[protagonist].length ?
-    //                                 (<div className={'no-game-message'}>No
-    //                                     messages{engine.isPlayerGame() ? ` with ${protagonist}` : ''}.</div>) :
-    //                                 (messageChannels[protagonist].map((message, index) => {
-    //                                     let id = null;
-    //                                     if (!message.read && !unreadMarked.has(protagonist)) {
-    //                                         if (engine.isOmniscientGame() || message.sender !== role) {
-    //                                             unreadMarked.add(protagonist);
-    //                                             id = `${protagonist}-unread`;
-    //                                         }
-    //                                     }
-    //                                     return <MessageView key={index} phase={engine.phase} owner={role}
-    //                                                         message={message}
-    //                                                         read={message.phase !== engine.phase}
-    //                                                         id={id} onClick={this.onClickMessage}/>;
-    //                                 }))
-    //                         )}
-    //                     </Tab>
-    //                 ))}
-    //             </Tabs>
-    //             {/* Link to go to first unread received message. */}
-    //             {unreadMarked.has(currentTabId) && (
-    //                 <Scrollchor className={'link-unread-message'}
-    //                             to={`${currentTabId}-unread`}
-    //                             target={`panel-current-messages-${currentTabId}`}>
-    //                     Go to 1st unread message
-    //                 </Scrollchor>
-    //             )}
-    //             {/* Send form. */}
-    //             {engine.isPlayerGame() && (
-    //                 <MessageForm sender={role} recipient={currentTabId} onSubmit={form =>
-    //                     this.sendMessage(engine.client, currentTabId, form.message)}/>)}
-    //         </div>
-    //     );
-    // }
 
     renderMapForResults(gameEngine, showOrders) {
         const Map = getMapComponent(gameEngine.map_name);
@@ -2482,29 +2377,6 @@ export class ContentGame extends React.Component {
                     phaseSel={this.__form_phases(pastPhases, phaseIndex)}
                     navigation={navigation}
                 />
-                {/*<Tabs
-                    menu={tabNames}
-                    titles={tabTitles}
-                    onChange={this.onChangeMainTab}
-                    active={mainTab}
-                >
-                     Tab Phase history.
-                    {(hasTabPhaseHistory && mainTab === 'phase_history' && this.renderTabResults(mainTab === 'phase_history', engine)) || ''}
-                    {mainTab === 'messages' && this.renderTabMessages(mainTab === 'messages', engine, currentPowerName)}
-                     Tab Current phase.
-                    {(mainTab === 'current_phase' && hasTabCurrentPhase && this.renderTabCurrentPhase(
-                        mainTab === 'current_phase',
-                        engine,
-                        currentPowerName,
-                        orderBuildingType,
-                        this.state.orderBuildingPath,
-                        currentPowerName,
-                        currentTabOrderCreation
-                    )) || ''}
-                </Tabs>*/}
-                {/*{mainTab === 'messages' && this.renderTabLogs(mainTab === 'messages', engine, currentPowerName)}*/}
-                {/*{mainTab === 'messages' && this.renderTabChat(mainTab === 'messages', engine, currentPowerName)}*/}
-
                 {phasePanel}
                 {this.renderTabChat(true, engine, currentPowerName)}
             </main>
