@@ -59,7 +59,7 @@ export class PowerOrders extends React.Component {
                 <div className={'title'}>
                     <span className={'name'}>{this.props.name}</span>
                     <span className={this.props.wait ? 'wait' : 'no-wait'}>
-                        {(this.props.wait ? ' ' : ' not') + ' waiting'}
+                        {(this.props.wait ? ' not' : ' ') + ' ready'}
                     </span>
                 </div>
                 {display}

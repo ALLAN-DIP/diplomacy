@@ -111,7 +111,7 @@ const TABLE_POWER_VIEW = {
     name: ["Power", 0],
     controller: ["Controller", 1],
     order_is_set: ["With orders", 2],
-    wait: ["Waiting", 3],
+    wait: ["Ready", 3],
 };
 
 const PRETTY_ROLES = {

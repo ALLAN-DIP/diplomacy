@@ -92,7 +92,7 @@ export class PowerOrderCreationForm extends React.Component {
                 <form className={'form-inline power-actions-form'}>
                     {header}
                     {Forms.createButton(
-                        (this.props.power.wait ? 'no wait' : 'wait'),
+                        (this.props.power.wait ? 'ready' : 'unready'),
                         this.props.onSetWaitFlag,
                         (this.props.power.wait ? 'success' : 'danger')
                     )}

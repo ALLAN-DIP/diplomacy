@@ -49,7 +49,6 @@ export function comparablePhase(shortPhaseName) {
 
 export class Game {
     constructor(gameData) {
-        console.log(gameData);
         ////// Instead of using: `Object.assign(this, gameState)`,
         ////// we set each field separately to let IDE know all attributes expected for Game class.
         //// We first check gameState.
@@ -619,7 +618,6 @@ export class Game {
                 messageChannels[protagonist].push(message);
             }
         }
-        console.log("messageChannels:", messageChannels);
         return messageChannels;
     }
 

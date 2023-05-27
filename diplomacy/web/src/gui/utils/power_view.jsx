@@ -40,7 +40,7 @@ function getOrderFlag(power) {
 function getWaitFlag(power) {
     if (power.isEliminated())
         return <span className="dummy"><em>N/A</em></span>;
-    return <span className={power.wait ? 'wait' : 'no-wait'}>{power.wait ? 'yes' : 'no'}</span>;
+    return <span className={power.wait ? 'wait' : 'no-wait'}>{power.wait ? 'no' : 'yes'}</span>;
 }
 
 const GETTERS = {
