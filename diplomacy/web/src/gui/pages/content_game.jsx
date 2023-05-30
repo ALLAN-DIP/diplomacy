@@ -634,6 +634,7 @@ export class ContentGame extends React.Component {
             networkGame.addOnOmniscientUpdated(collector);
             networkGame.addOnPowerVoteUpdated(collector);
             networkGame.addOnPowerWaitFlag(collector);
+            networkGame.addOnCommStatusUpdate(collector);
             networkGame.addOnVoteCountUpdated(collector);
             networkGame.addOnVoteUpdated(collector);
             networkGame.callbacksBound = true;

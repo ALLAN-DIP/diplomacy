@@ -233,6 +233,10 @@ export class NetworkGame {
         this.addCallback('power_wait_flag', callback);
     }
 
+    addOnCommStatusUpdate(callback) {
+        this.addCallback('power_comm_status_update', callback)
+    }
+
     addOnVoteCountUpdated(callback) {
         this.addCallback('vote_count_updated', callback);
     }

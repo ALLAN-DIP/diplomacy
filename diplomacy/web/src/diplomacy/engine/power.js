@@ -130,6 +130,7 @@ export class Power {
         this.orders = [];
         this.order_is_set = 0;
         this.wait = !this.game.isRealTime();
+        this.comm_status = STRINGS.BUSY;
     }
 
     clearUnits() {
