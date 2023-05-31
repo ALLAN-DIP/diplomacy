@@ -14,7 +14,7 @@
 //  You should have received a copy of the GNU Affero General Public License along
 //  with this program.  If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
-import React from "react";
+import React, { useCallback } from "react";
 import Scrollchor from 'react-scrollchor';
 import {SelectLocationForm} from "../forms/select_location_form";
 import {SelectViaForm} from "../forms/select_via_form";
@@ -1318,9 +1318,28 @@ export class ContentGame extends React.Component {
         const curController = engine.powers[role].getController()
         // const highlights = this.state.messageHighlights;
 
+        const unreadCnt = (protagonist, currentTabId) => {
+            const hasUnreadMessages = (
+                this.state.messageHighlights.hasOwnProperty(protagonist)
+                && this.state.messageHighlights[protagonist] > 0
+            )
+
+            if (!hasUnreadMessages) {
+                return 0
+            }
+
+            if (currentTabId == protagonist && hasUnreadMessages) {
+                const modifiedMessageHighlights = this.state.messageHighlights
+                modifiedMessageHighlights[protagonist] = 0
+                this.setState({messageHighlights: modifiedMessageHighlights})
+                return 0
+            }
+
+            return this.state.messageHighlights[protagonist]
+        }
 
         const convList = tabNames.map((protagonist) =>
-            <Conversation info={protagonist!=='GLOBAL' ? engine.powers[protagonist].getController():""} className={protagonist===currentTabId ? 'cs-conversation--active':null} onClick = {()=>{this.onChangeTabCurrentMessages(protagonist)}} key={protagonist} name={protagonist}>
+            <Conversation unreadCnt={unreadCnt(protagonist, currentTabId)} info={protagonist!=='GLOBAL' ? engine.powers[protagonist].getController():""} className={protagonist===currentTabId ? 'cs-conversation--active':null} onClick = {()=>{this.onChangeTabCurrentMessages(protagonist)}} key={protagonist} name={protagonist}>
                 <Avatar src={POWER_ICONS[protagonist]} name={protagonist} size="sm" status={protagonist!=='GLOBAL' ? (engine.powers[protagonist].getCommStatus()===STRINGS.READY ? "available":"dnd"):"invisible"} />
             </Conversation>
         );
