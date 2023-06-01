@@ -68,6 +68,7 @@ export const REQUESTS = {
         process_game: {level: STRINGS.GAME, model: {}},
         query_schedule: {level: STRINGS.GAME, model: {}},
         send_game_message: {level: STRINGS.GAME, model: {message: null}},
+        send_daide_composer_message: {level: STRINGS.GAME, model: {message: null}},
         send_log_data: {level: STRINGS.GAME, model: {log: null}},
         set_dummy_powers: {level: STRINGS.GAME, model: {username: null, power_names: null}},
         set_game_state: {level: STRINGS.GAME, model: {state: null, orders: null, results: null, messages: null}},

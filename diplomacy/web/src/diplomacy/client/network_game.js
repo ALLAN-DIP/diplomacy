@@ -79,6 +79,10 @@ export class NetworkGame {
         return this._req(Channel.prototype.sendGameMessage, parameters);
     }
 
+    sendDaideComposerMessage(parameters) {
+        return this._req(Channel.prototype.sendDaideComposerMessage, parameters);
+    }
+
     sendLogData(parameters) {
         return this._req(Channel.prototype.sendLogData, parameters);
     }

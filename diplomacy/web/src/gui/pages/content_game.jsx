@@ -24,6 +24,7 @@ import {Tabs} from "../components/tabs";
 import {extendOrderBuilding, ORDER_BUILDER, POSSIBLE_ORDERS} from "../utils/order_building";
 import {PowerOrderCreationForm} from "../forms/power_order_creation_form";
 import {MessageForm} from "../forms/message_form";
+import {DaideComposerMessage} from "../components/DaideComposerMessage";
 import {UTILS} from "../../diplomacy/utils/utils";
 import {Message} from "../../diplomacy/engine/message";
 import {PowerOrders} from "../components/power_orders";
@@ -294,7 +295,8 @@ export class ContentGame extends React.Component {
             orderBuildingPath: [],
             showAbbreviations: true,
             message: "",
-            logData: ""
+            logData: "",
+            gloss: false
         };
 
         // Bind some class methods to this instance.
@@ -334,6 +336,7 @@ export class ContentGame extends React.Component {
         this.sendMessage = this.sendMessage.bind(this);
         this.sendLogData = this.sendLogData.bind(this);
         this.setOrders = this.setOrders.bind(this);
+        this.getDaide = this.getDaide.bind(this);
         this.setSelectedLocation = this.setSelectedLocation.bind(this);
         this.setSelectedVia = this.setSelectedVia.bind(this);
         this.setWaitFlag = this.setWaitFlag.bind(this);
@@ -669,6 +672,42 @@ export class ContentGame extends React.Component {
         return this.setState({logData: val});
     }
 
+    getDaide(networkGame, recipient, negotiation, body, daide, gloss) {
+        const engine = networkGame.local;
+        const message = new DaideComposerMessage({
+            phase: engine.phase,
+            sender: engine.role,
+            recipient: recipient,
+            message: body,
+            negotiation: negotiation,
+            daide: daide,
+            gloss: gloss
+        });
+        const page = this.getPage();
+        networkGame.sendDaideComposerMessage({message: message})
+            .then(() => {
+                // when we get the message response, handle dealing with the gloss state
+                /*
+                if (message.gloss) {
+                    // we just store the message in local state, it doesn't end up
+                    // in the sortedDict with all the other messages (see game.js addMessage)
+                    this.setState({
+                        gloss: true, glossMessage: JSON.parse(message.time_sent).message
+                    });
+                } else if (!message.gloss) {
+                    // or clear it if it isn't a gloss message
+                    this.setState({ gloss: null, glossMessage: null });
+                }*/
+
+                page.load(
+                    `game: ${engine.game_id}`,
+                    <ContentGame data={engine}/>,
+                    {success: `Message sent: ${JSON.stringify(message)}`}
+                );
+            })
+            .catch(error => page.error(error.toString()));
+
+    }
     sendMessage(networkGame, recipient, body) {
         const engine = networkGame.local;
         const message = new Message({
@@ -1306,6 +1345,37 @@ export class ContentGame extends React.Component {
         );
     }
 
+    renderDaideComposer(engine, role) {
+
+        const tabNames = [];
+        for (let powerName of Object.keys(engine.powers)) if (powerName !== role)
+            tabNames.push(powerName);
+        tabNames.sort();
+        tabNames.push('GLOBAL');
+        // const titles = tabNames.map(tabName => (tabName === 'GLOBAL' ? tabName : tabName.substr(0, 3)));
+        const currentTabId = this.state.tabCurrentMessages || tabNames[0];
+        const curController = engine.powers[role].getController()
+
+        return(
+            <div>
+                {engine.isPlayerGame() && (
+                    <MessageForm
+                        glossed={this.state.gloss}
+                        sender={role}
+                        recipient={currentTabId}
+                        powers={engine.powers}
+                        senderMoves = {engine.getOrderTypeToLocs(role)}
+                        recipientMoves = {engine.getOrderTypeToLocs(currentTabId)}
+                        engine = {engine}
+                        onSubmit={(form) => {
+                            this.getDaide(engine.client, currentTabId, form.negotiation, form.message, form.daide, form.gloss);
+                        }}
+                    />
+                )}
+            </div>
+        )
+    }
+
     renderCurrentMessages(engine, role) {
         const messageChannels = engine.getMessageChannels(role, true);
         const tabNames = [];
@@ -1842,6 +1912,7 @@ export class ContentGame extends React.Component {
                  ) : (
                      this.renderPastMessages(engine, currentPowerName)
                  )}
+                 {this.renderDaideComposer(initialEngine, currentPowerName)}
              </div>
          );
 
