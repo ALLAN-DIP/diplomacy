@@ -257,7 +257,7 @@ def get_message_daide(message_history, messages, sender, recipient, action):
     return None
 
 
-def pressgloss(message_obj: Message, message_history, messages, powers, return_message_obj_str: bool = True):
+def pressgloss(message_obj: DaideComposerMessage, message_history, messages, powers, return_message_obj_str: bool = True):
     """
     Description
     -----------
@@ -300,6 +300,9 @@ def pressgloss(message_obj: Message, message_history, messages, powers, return_m
     message_obj.message = to_tens(message_obj.daide, tones)
 
     LOGGER.info(message_obj.to_dict())
+    # strip out the the FRM () () ( and final ) from new_message_obj_str
+    temp = message_obj.daide[17:(len(message_obj.daide)-1)]
+    message_obj.daide = temp
 
     # If return_message_obj_str == True, then the entire Message object json
     # is returned as a string.
@@ -317,9 +320,7 @@ def to_daide(negotiation: dict, sender: str, recipient: str, message_history, me
     Description
     -----------
     Convert UI form data to DAIDE syntax e.g. "FRM (FRA) (ENG) (PRP (XDO ((ENG AMY LVP) HLD)))"
-
     The UI uses a discreet list of available orders.
-
     Uses Message.negotiation which is a json string of the Web UI form data and can
     have multiple messages (e.g. for ORR and AND):
         “negotiation":
@@ -338,7 +339,6 @@ def to_daide(negotiation: dict, sender: str, recipient: str, message_history, me
                 “tones" : [“Haughty"],
                 "conditional": ""
         }
-
     """
     # Initialize the daide string with FROM TO e.g. FRM (FRA) (ENG)
     daide = f'FRM ({LOOKUP_REF[sender.lower()]}) ({LOOKUP_REF[recipient.lower()]}) '

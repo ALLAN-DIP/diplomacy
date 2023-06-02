@@ -39,6 +39,7 @@ from diplomacy.utils import exceptions, strings, constants, export
 from diplomacy.utils.common import hash_password
 from diplomacy.utils.constants import OrderSettings
 from diplomacy.utils.game_phase_data import GamePhaseData
+from diplomacy.negotiation import negotiation
 
 LOGGER = logging.getLogger(__name__)
 
@@ -814,6 +815,11 @@ def on_send_daide_composer_message(server, request, connection_handler):
         if message.sender == message.recipient:
             raise exceptions.ResponseException('A power cannot send message to itself.')
 
+        new_message_obj_str = negotiation.pressgloss(message, level.game.message_history, level.game.messages, level.game.powers, return_message_obj_str=True)
+
+        print("HEY")
+
+
 def on_send_game_message(server, request, connection_handler):
     """ Manage request SendGameMessage.
 
@@ -849,8 +855,6 @@ def on_send_game_message(server, request, connection_handler):
             raise exceptions.ResponseException('Power name %s is not controlled by given username.' % power_name)
         if message.sender == message.recipient:
             raise exceptions.ResponseException('A power cannot send message to itself.')
-
-        new_message_obj_str = negotiation.pressgloss(message, level.game.message_history, level.game.messages, level.game.powers, return_message_obj_str=True)
 
     if request.re_sent:
         # Request is re-sent (e.g. after a synchronization). We may have already received this message.

@@ -23,3 +23,4 @@ DIPLOMACY_ROOT_DIR = os.path.dirname(os.path.realpath(__file__))
 PACKAGE_DIR = DIPLOMACY_ROOT_DIR
 TIME_ZONE = 'America/Montreal'
 PERMISSIVE_CLIENT_ORIGIN = True
+PRESSGLOSS_URL = 'http://129.114.99.77:5000'
