@@ -780,6 +780,40 @@ def on_save_game(server, request, connection_handler):
     game_json = export.to_saved_game_format(level.game)
     return responses.DataSavedGame(data=game_json, request_id=request.request_id)
 
+def on_send_daide_composer_message(server, request, connection_handler):
+    """ Manage request SendDaideComposerMessage
+
+    :param server:
+    :param request:
+    :param connection_handler:
+    :return:
+    """
+    level = verify_request(server, request, connection_handler, omniscient_role=False, observer_role=False)
+    token, message = request.token, request.message
+    assert_game_not_finished(level.game)
+    if level.game.no_press:
+        raise exceptions.ResponseException('Messages not allowed for this game.')
+    if request.game_role != message.sender:
+        raise exceptions.ResponseException('A power can only send its own messages.')
+
+    if not level.game.has_power(message.sender):
+        raise exceptions.MapPowerException(message.sender)
+    if not request.message.is_global():
+        if level.game.public_press:
+            raise exceptions.ResponseException('Only public messages allowed for this game.')
+        if not level.game.is_game_active:
+            raise exceptions.GameNotPlayingException()
+        if level.game.current_short_phase != message.phase:
+            raise exceptions.GamePhaseException(level.game.current_short_phase, message.phase)
+        if not level.game.has_power(message.recipient):
+            raise exceptions.MapPowerException(message.recipient)
+        username = server.users.get_name(token)
+        power_name = message.sender
+        if not level.game.is_controlled_by(power_name, username):
+            raise exceptions.ResponseException('Power name %s is not controlled by given username.' % power_name)
+        if message.sender == message.recipient:
+            raise exceptions.ResponseException('A power cannot send message to itself.')
+
 def on_send_game_message(server, request, connection_handler):
     """ Manage request SendGameMessage.
 
@@ -815,6 +849,8 @@ def on_send_game_message(server, request, connection_handler):
             raise exceptions.ResponseException('Power name %s is not controlled by given username.' % power_name)
         if message.sender == message.recipient:
             raise exceptions.ResponseException('A power cannot send message to itself.')
+
+        new_message_obj_str = negotiation.pressgloss(message, level.game.message_history, level.game.messages, level.game.powers, return_message_obj_str=True)
 
     if request.re_sent:
         # Request is re-sent (e.g. after a synchronization). We may have already received this message.
@@ -1287,7 +1323,8 @@ MAPPING = {
     requests.Synchronize: on_synchronize,
     requests.UnknownToken: on_unknown_token,
     requests.Vote: on_vote,
-    requests.SetCommStatus: on_set_comm_status
+    requests.SetCommStatus: on_set_comm_status,
+    requests.SendDaideComposerMessage: on_send_daide_composer_message
 }
 
 def handle_request(server, request, connection_handler):

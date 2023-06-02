@@ -232,6 +232,10 @@ HUMAN = 'human'
 NO_PRESS_BOT = 'no_press_bot'
 PRESS_BOT = 'press_bot'
 NONE = 'none'
+NEGOTIATION = 'negotiation'
+GLOSS = 'gloss'
+TONES = 'tones'
+DAIDE = 'daide'
 
 # Special name sets.
 ALL_GAME_STATUSES = (FORMING, ACTIVE, PAUSED, COMPLETED, CANCELED)
