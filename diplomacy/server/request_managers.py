@@ -816,8 +816,7 @@ def on_send_daide_composer_message(server, request, connection_handler):
             raise exceptions.ResponseException('A power cannot send message to itself.')
 
         new_message_obj_str = negotiation.pressgloss(message, level.game.message_history, level.game.messages, level.game.powers, return_message_obj_str=True)
-
-        print("HEY")
+        return responses.DataToken(data=new_message_obj_str, request_id=request.request_id)
 
 
 def on_send_game_message(server, request, connection_handler):

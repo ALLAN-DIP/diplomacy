@@ -657,7 +657,7 @@ export class MessageForm extends React.Component {
                         <Grid item xs={5}>
                             <Button
                                 type='submit'
-                                title="Generate Gloss"
+                                title="Generate"
                                 onClick={this.onGlossSubmit}
                                 pickEvent
                                 large

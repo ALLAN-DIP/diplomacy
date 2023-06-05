@@ -68,6 +68,10 @@ export const RESPONSE_MANAGERS = {
         message.time_sent = response.data;
         context.game.local.addMessage(message);
     },
+    send_daide_composer_message: function(context, response) {
+        const message = response.data;
+        return(message);
+    },
     send_log_data: function (context, response) {
         const message = context.request.log;
         message.time_sent = response.data;

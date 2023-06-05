@@ -296,7 +296,9 @@ export class ContentGame extends React.Component {
             showAbbreviations: true,
             message: "",
             logData: "",
-            gloss: false
+            gloss: false,
+            glossMessage: '',
+            daideMessage: ''
         };
 
         // Bind some class methods to this instance.
@@ -685,10 +687,16 @@ export class ContentGame extends React.Component {
         });
         const page = this.getPage();
         networkGame.sendDaideComposerMessage({message: message})
-            .then(() => {
+            .then((tempMessage) => {
                 // when we get the message response, handle dealing with the gloss state
-                /*
-                if (message.gloss) {
+                const daideCompMessage = JSON.parse(tempMessage)
+                const daideCompGloss = daideCompMessage.message
+                const daide = daideCompMessage.daide
+
+                this.setState({
+                    gloss: true, glossMessage: daideCompGloss, daideMessage: daide
+                });
+                /*if (message.gloss) {
                     // we just store the message in local state, it doesn't end up
                     // in the sortedDict with all the other messages (see game.js addMessage)
                     this.setState({
@@ -1913,6 +1921,13 @@ export class ContentGame extends React.Component {
                      this.renderPastMessages(engine, currentPowerName)
                  )}
                  {this.renderDaideComposer(initialEngine, currentPowerName)}
+                 {this.state.gloss && (
+                     <div>
+                         <h5>DAIDE Preview:</h5>
+                         <p>{this.state.daideMessage}</p>
+                         <p>{this.state.glossMessage}</p>
+                     </div>)
+                 }
              </div>
          );
 
