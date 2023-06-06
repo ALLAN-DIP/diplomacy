@@ -51,6 +51,10 @@ import {SvgPure} from "../maps/pure/SvgPure";
 import {MapData} from "../utils/map_data";
 import {Queue} from "../../diplomacy/utils/queue";
 import styles from '@chatscope/chat-ui-kit-styles/dist/default/styles.min.css';
+import {default as Tabs2} from '@mui/material/Tabs';
+import {default as Tab2} from '@mui/material/Tab';
+import Box from '@mui/material/Box';
+
 import {
     MainContainer,
     ChatContainer,
@@ -75,6 +79,7 @@ import RUS from '../assets/RUS.png';
 import TUR from '../assets/TUR.png';
 import GLOBAL from '../assets/GLOBAL.png';
 import {Forms} from "../components/forms";
+import Grid from "@mui/material/Grid";
 
 const POWER_ICONS = {
     AUSTRIA: AUS,
@@ -298,7 +303,8 @@ export class ContentGame extends React.Component {
             logData: "",
             gloss: false,
             glossMessage: '',
-            daideMessage: ''
+            daideMessage: '',
+            tabVal: 0
         };
 
         // Bind some class methods to this instance.
@@ -339,12 +345,15 @@ export class ContentGame extends React.Component {
         this.sendLogData = this.sendLogData.bind(this);
         this.setOrders = this.setOrders.bind(this);
         this.getDaide = this.getDaide.bind(this);
+        this.clearDaideComp = this.clearDaideComp.bind(this);
         this.setSelectedLocation = this.setSelectedLocation.bind(this);
         this.setSelectedVia = this.setSelectedVia.bind(this);
         this.setWaitFlag = this.setWaitFlag.bind(this);
         this.setCommStatus = this.setCommStatus.bind(this);
         this.vote = this.vote.bind(this);
         this.updateDeadlineTimer = this.updateDeadlineTimer.bind(this);
+        this.updateTabVal = this.updateTabVal.bind(this);
+        this.copyToChat = this.copyToChat.bind(this);
     }
 
     static prettyRole(role) {
@@ -674,6 +683,25 @@ export class ContentGame extends React.Component {
         return this.setState({logData: val});
     }
 
+    updateTabVal(event, value) {
+        return this.setState({tabVal: value});
+    }
+
+    clearDaideComp(networkGame, recipient, negotiation, body, daide, gloss) {
+        const engine = networkGame.local;
+
+        this.setState({
+            gloss: false, glossMessage: '', daideMessage: ''
+            });
+        const page = this.getPage();
+
+        page.load(
+            `game: ${engine.game_id}`,
+            <ContentGame data={engine}/>,
+            {success: `DAIDE Composer Message Cleared`}
+        );
+    }
+
     getDaide(networkGame, recipient, negotiation, body, daide, gloss) {
         const engine = networkGame.local;
         const message = new DaideComposerMessage({
@@ -686,6 +714,7 @@ export class ContentGame extends React.Component {
             gloss: gloss
         });
         const page = this.getPage();
+
         networkGame.sendDaideComposerMessage({message: message})
             .then((tempMessage) => {
                 // when we get the message response, handle dealing with the gloss state
@@ -716,6 +745,12 @@ export class ContentGame extends React.Component {
             .catch(error => page.error(error.toString()));
 
     }
+
+    copyToChat() {
+        if(this.state.gloss && this.state.daideMessage !== '') {
+            this.setMessageInputValue(this.state.daideMessage)
+        }
+    }
     sendMessage(networkGame, recipient, body) {
         const engine = networkGame.local;
         const message = new Message({
@@ -727,6 +762,7 @@ export class ContentGame extends React.Component {
         const page = this.getPage();
         networkGame.sendGameMessage({message: message})
             .then(() => {
+                this.setState({message: ""})
                 page.load(
                     `game: ${engine.game_id}`,
                     <ContentGame data={engine}/>,
@@ -1364,25 +1400,38 @@ export class ContentGame extends React.Component {
         const currentTabId = this.state.tabCurrentMessages || tabNames[0];
         const curController = engine.powers[role].getController()
 
-        return(
-            <div>
-                {engine.isPlayerGame() && (
-                    <MessageForm
-                        glossed={this.state.gloss}
-                        sender={role}
-                        recipient={currentTabId}
-                        powers={engine.powers}
-                        senderMoves = {engine.getOrderTypeToLocs(role)}
-                        recipientMoves = {engine.getOrderTypeToLocs(currentTabId)}
-                        engine = {engine}
-                        onSubmit={(form) => {
-                            this.getDaide(engine.client, currentTabId, form.negotiation, form.message, form.daide, form.gloss);
-                        }}
-                    />
-                )}
-            </div>
-        )
+        const recMoves = currentTabId==='GLOBAL' ? {} : engine.getOrderTypeToLocs(currentTabId)
+
+        let form = (<div><h4>Global recipient not supported</h4></div>)
+
+        if(currentTabId !== 'GLOBAL') {
+            form = (
+                <div>
+                    {engine.isPlayerGame() && (
+                        <MessageForm
+                            glossed={this.state.gloss}
+                            sender={role}
+                            recipient={currentTabId}
+                            powers={engine.powers}
+                            senderMoves={engine.getOrderTypeToLocs(role)}
+                            recipientMoves={engine.getOrderTypeToLocs(currentTabId)}
+                            engine={engine}
+                            onSubmit={(form) => {
+                                this.getDaide(engine.client, currentTabId, form.negotiation, form.message, form.daide, form.gloss);
+                            }}
+                            onClear={(form) => {
+                                this.clearDaideComp(engine.client, currentTabId, form.negotiation, form.message, form.daide, form.gloss);
+                            }}
+                            onCopyToChat={()=>this.copyToChat()}
+                        />)}
+
+                </div>
+            )
+        }
+
+        return(form)
     }
+
 
     renderCurrentMessages(engine, role) {
         const messageChannels = engine.getMessageChannels(role, true);
@@ -1395,6 +1444,7 @@ export class ContentGame extends React.Component {
         const currentTabId = this.state.tabCurrentMessages || tabNames[0];
         const curController = engine.powers[role].getController()
         // const highlights = this.state.messageHighlights;
+        const tVal = this.state.tabVal || 0;
 
         const unreadCnt = (protagonist, currentTabId) => {
             const hasUnreadMessages = (
@@ -1499,67 +1549,90 @@ export class ContentGame extends React.Component {
         }
 
         return (
-            <Row>
-                <div className={"col-6"} style={{height:"500px"}}>
-                    <MainContainer responsive>
-                        <Sidebar position="left" scrollable={true}>
-                            <ConversationList>
-                                {convList}
-                            </ConversationList>
-                        </Sidebar>
-                        <ChatContainer>
-                            <MessageList>
-                                {renderedMessages}
-                            </MessageList>
-                            {engine.isPlayerGame() && (
-                                <MessageInput
-                                    attachButton={false}
-                                    onChange={val => this.setMessageInputValue(val)}
-                                    onSend={() =>  {
-                                        this.sendMessage(
-                                            engine.client,
-                                            currentTabId,
-                                            this.state.message
-                                        )
-                                    }}
-                                />
+            <Box sx={{width:'100%', height:'550px'}}>
+                <Grid container spacing={2}>
+                    <Grid item xs={6} sx={{height:'100%'}}>
+                        <Box sx={{ width: '100%', height: '550px'}}>
+                            <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                                <Tabs2 value={0} aria-label="basic tabs example">
+                                    <Tab2 label="Messages" />
+                                </Tabs2>
+                            </Box>
+                            <MainContainer responsive>
+                                <Sidebar position="left" scrollable={true}>
+                                    <ConversationList>
+                                        {convList}
+                                    </ConversationList>
+                                </Sidebar>
+                                <ChatContainer>
+                                    <MessageList>
+                                        {renderedMessages}
+                                    </MessageList>
+                                    {engine.isPlayerGame() && (
+                                        <MessageInput
+                                            value={this.state.message}
+                                            attachButton={false}
+                                            onChange={val => this.setMessageInputValue(val)}
+                                            onSend={() =>  {
+                                                this.sendMessage(
+                                                    engine.client,
+                                                    currentTabId,
+                                                    this.state.message
+                                                )
+                                            }}
+                                        />
+                                    )}
+                                </ChatContainer>
+                            </MainContainer>
+                        </Box>
+                    </Grid>
+                    <Grid item xs={6} sx={{height:'100%'}}>
+                        <Box sx={{ width: '100%', height: '550px'}}>
+                            <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                                <Tabs2 value={this.state.tabVal} onChange={this.updateTabVal} aria-label="basic tabs example">
+                                    <Tab2 label="Captain's Log" />
+                                    <Tab2 label="DAIDE Composer" />
+                                </Tabs2>
+                            </Box>
+                            {this.state.tabVal === 0 && (
+                            <MainContainer responsive>
+                                <ChatContainer>
+                                    <ConversationHeader>
+                                        <ConversationHeader.Content
+                                            userName={role.toString() + " (" + curController + ")" + ": Captain's Log"}
+                                        />
+                                    </ConversationHeader>
+                                    <MessageList>
+                                        {renderedLogs}
+                                    </MessageList>
+                                    {engine.isPlayerGame() && (
+                                        <MessageInput
+                                            attachButton={false}
+                                            onChange={val => this.setlogDataInputValue(val)}
+                                            onSend={() =>  {
+                                                const message = this.sendLogData(engine.client, this.state.logData)
+                                                //this.setLogs([...this.state.logs, message])
+                                            }}
+                                        />
+                                    )}
+                                </ChatContainer>
+                            </MainContainer> )}
+                            {this.state.tabVal === 1 && (
+                                this.renderDaideComposer(engine, role)
                             )}
-                        </ChatContainer>
-                    </MainContainer>
-                </div>
-                <div className={"col"} style={{height:"500px"}}>
-                    <MainContainer responsive>
-                        <ChatContainer>
-                            <ConversationHeader>
-                                <ConversationHeader.Content
-                                    userName={role.toString() + " (" + curController + ")" + ": Captain's Log"}
-                                />
-                            </ConversationHeader>
-                            <MessageList>
-                                {renderedLogs}
-                            </MessageList>
-                            {engine.isPlayerGame() && (
-                                <MessageInput
-                                    attachButton={false}
-                                    onChange={val => this.setlogDataInputValue(val)}
-                                    onSend={() =>  {
-                                        const message = this.sendLogData(engine.client, this.state.logData)
-                                        //this.setLogs([...this.state.logs, message])
-                                    }}
-                                />
-                            )}
-                        </ChatContainer>
-                    </MainContainer>
+                            {this.state.gloss && (
+                                <div>
+                                    <h5>DAIDE Preview:</h5>
+                                    <p>{this.state.daideMessage}</p>
+                                    <p>{this.state.glossMessage}</p>
+                                </div>)
+                            }
+                        </Box>
+                    </Grid>
 
-                    {/*<CaptainsLog
-                        page={this.getPage()}
-                        networkGame={engine.client}
-                        role={role}
-                        logs={powerLogs}
-                        showChatInput={engine.isPlayerGame() || engine.isOmniscientGame() }
-                    />*/}
-                </div>
-            </Row>
+                </Grid>
+
+            </Box>
         );
     }
     // renderCurrentMessages_Deprecated(engine, role) {
@@ -1797,30 +1870,6 @@ export class ContentGame extends React.Component {
         );
     }
 
-    // renderLogs(engine, role) {
-    //     const powerLogs = engine.getLogsForPower(role, true);
-    //     const items = powerLogs.map((logs) =>
-    //         // eslint-disable-next-line react/jsx-key
-    //         <Row>
-    //             <div className="message-content col-md">
-    //                 {logs.message}
-    //             </div>
-    //         </Row>
-    //     );
-    //     return (items);
-    // }
-
-    // renderTabLogs(toDisplay, initialEngine, currentPowerName) {
-    //     const {engine, pastPhases, phaseIndex} = this.__get_engine_to_display(initialEngine);
-    //     if (pastPhases[phaseIndex] === initialEngine.phase)
-    //         Diplog.info("initial phase");
-    //     return (
-    //         <Row>
-    //             {this.renderLogs(engine, currentPowerName)}
-    //         </Row>
-    //     );
-    // }
-
 
     renderTabMessages(toDisplay, initialEngine, currentPowerName) {
         const {engine, pastPhases, phaseIndex} = this.__get_engine_to_display(initialEngine);
@@ -1920,14 +1969,6 @@ export class ContentGame extends React.Component {
                  ) : (
                      this.renderPastMessages(engine, currentPowerName)
                  )}
-                 {this.renderDaideComposer(initialEngine, currentPowerName)}
-                 {this.state.gloss && (
-                     <div>
-                         <h5>DAIDE Preview:</h5>
-                         <p>{this.state.daideMessage}</p>
-                         <p>{this.state.glossMessage}</p>
-                     </div>)
-                 }
              </div>
          );
 

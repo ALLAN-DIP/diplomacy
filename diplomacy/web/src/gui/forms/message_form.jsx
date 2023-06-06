@@ -52,6 +52,8 @@ export class MessageForm extends React.Component {
         this.renderEndLocation = this.renderEndLocation.bind(this);
         this.generateSupportMoves = this.generateSupportMoves.bind(this);
         this.generateConvoyMoves = this.generateConvoyMoves.bind(this);
+        this.onClear = this.onClear.bind(this);
+        this.copyToChat = this.copyToChat.bind(this);
     }
 
 
@@ -280,6 +282,72 @@ export class MessageForm extends React.Component {
         }
         // trigger the ToneToggle to reset
         this.setState({ submitted: true });
+
+        // cause this setstate to happen after the above so that the updates don't get batched
+        setTimeout(() => this.setState(this.initState()));
+    }
+
+    copyToChat(event) {
+        event.preventDefault();
+        if (this.props.onCopyToChat){
+            this.props.onCopyToChat();
+        }
+    }
+
+    onClear(event) {
+        event.preventDefault();
+        let actorHolder = [];
+        for (let country in this.state.selectedCountries){
+            if (!(country === "updatedCountry")){
+                if(this.state.selectedCountries[country]){
+                    actorHolder.push(country);
+                }
+            }
+        }
+        let targetHolder = [];
+        if(this.state.selectedAction === "propose_alliance"
+            || this.state.selectedAction === "oppose_alliance"
+            || this.state.selectedAction === "notify_alliance"){
+            for (let country in this.state.targets){
+                if (!(country === "updatedTarget")){
+                    if(this.state.targets[country]){
+                        targetHolder.push(country);
+                    }
+                }
+            }
+        }
+        let toneHolder = [];
+        for (let tone in this.state.selectedTones){
+            if (!(tone === "updatedTones")){
+                if(this.state.selectedTones[tone]){
+                    toneHolder.push(tone);
+                }
+            }
+        }
+        const message = {
+            action: this.state.selectedAction,
+            order: this.state.selectedOrder,
+            orderTarget: this.state.orderTarget,
+            startLocation: this.state.startLocation,
+            midLocation: this.state.midLocation,
+            endLocation: this.state.endLocation,
+            dmzLocation: this.state.dmzLocation,
+            actors: actorHolder,
+            targets: targetHolder,
+            tones: toneHolder,
+            response: this.state.response,
+            gloss: false,
+        };
+
+        if (this.props.onClear){
+            this.props.onClear({
+                negotiation: JSON.stringify(message),
+                message: '',
+                daide: '',
+                gloss: false
+            });
+        }
+        // trigger the ToneToggle to reset
 
         // cause this setstate to happen after the above so that the updates don't get batched
         setTimeout(() => this.setState(this.initState()));
@@ -635,7 +703,7 @@ export class MessageForm extends React.Component {
                             </Select>
                         </FormControl>
                     </Grid>
-                    <Box sx={{ height: '350px', width: '100%' }}>
+                    <Box sx={{width: '100%' }}>
                         {this.displayFormContents() && (
                             <Typography variant="h6" align="center" gutterBottom>
                                 Choose your message
@@ -646,15 +714,8 @@ export class MessageForm extends React.Component {
                         </Grid>
                     </Box>
 
-                    <Box sx={{ my: 3 }}>
-                        <Typography variant="h6" align="center" gutterBottom>
-                            Choose your negiotiation tone
-                        </Typography>
-                        <ToneToggle onToneChange={this.onToneChange} submitted={this.state.submitted} />
-                    </Box>
-
-                    <Grid item container direction="row" spacing={2} justifyContent="center" style={{marginTop: '16px'}}>
-                        <Grid item xs={5}>
+                    <Grid item container direction="row" spacing={1} justifyContent="center" style={{marginTop: '16px'}}>
+                        <Grid item xs={2}>
                             <Button
                                 type='submit'
                                 title="Generate"
@@ -663,12 +724,30 @@ export class MessageForm extends React.Component {
                                 large
                             />
                         </Grid>
-                        <Grid item xs={5}>
+                        {/*<Grid item xs={5}>
                             <Button
                                 type='submit'
                                 disabled={this.state.disableSubmit}
                                 title="Submit"
                                 onClick={this.onFinalSubmit}
+                                pickEvent
+                                large
+                            />
+                        </Grid>*/}
+                        <Grid item xs={2}>
+                            <Button
+                                type='submit'
+                                title="Reset"
+                                onClick={this.onClear}
+                                pickEvent
+                                large
+                            />
+                        </Grid>
+                        <Grid item xs={3}>
+                            <Button
+                                type='submit'
+                                title="Copy to chat"
+                                onClick={this.copyToChat}
                                 pickEvent
                                 large
                             />
