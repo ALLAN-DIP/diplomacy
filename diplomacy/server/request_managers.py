@@ -794,8 +794,8 @@ def on_send_daide_composer_message(server, request, connection_handler):
     assert_game_not_finished(level.game)
     if level.game.no_press:
         raise exceptions.ResponseException('Messages not allowed for this game.')
-    if request.game_role != message.sender:
-        raise exceptions.ResponseException('A power can only send its own messages.')
+    #if request.game_role != message.sender:
+    #    raise exceptions.ResponseException('A power can only send its own messages.')
 
     if not level.game.has_power(message.sender):
         raise exceptions.MapPowerException(message.sender)
@@ -808,12 +808,12 @@ def on_send_daide_composer_message(server, request, connection_handler):
             raise exceptions.GamePhaseException(level.game.current_short_phase, message.phase)
         if not level.game.has_power(message.recipient):
             raise exceptions.MapPowerException(message.recipient)
-        username = server.users.get_name(token)
-        power_name = message.sender
-        if not level.game.is_controlled_by(power_name, username):
-            raise exceptions.ResponseException('Power name %s is not controlled by given username.' % power_name)
-        if message.sender == message.recipient:
-            raise exceptions.ResponseException('A power cannot send message to itself.')
+        #username = server.users.get_name(token)
+        #power_name = message.sender
+        #if not level.game.is_controlled_by(power_name, username):
+        #    raise exceptions.ResponseException('Power name %s is not controlled by given username.' % power_name)
+        #if message.sender == message.recipient:
+        #    raise exceptions.ResponseException('A power cannot send message to itself.')
 
         new_message_obj_str = negotiation.pressgloss(message, level.game.message_history, level.game.messages, level.game.powers, return_message_obj_str=True)
         return responses.DataToken(data=new_message_obj_str, request_id=request.request_id)

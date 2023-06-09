@@ -146,10 +146,10 @@ async def play(game_id, power_name, hostname='localhost', port=8432):
 
 async def launch(game_id):
     """ Creates and plays a network game """
-    game_id = "b5"
+    game_id = "test10"
     #await create_game(game_id, hostname="localhost")
-    #await play(game_id, "ENGLAND", hostname="localhost")
-    await asyncio.gather(*[play(game_id, power_name, hostname="localhost") for power_name in POWERS])
+    await play(game_id, "FRANCE", hostname="localhost")
+    #await asyncio.gather(*[play(game_id, power_name, hostname="localhost") for power_name in POWERS])
 
 if __name__ == '__main__':
     asyncio.run(launch(game_id=str(randint(1, 1000))))

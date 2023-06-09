@@ -18,6 +18,7 @@
 import {STRINGS} from "../utils/strings";
 import {NOTIFICATIONS} from "../communication/notifications";
 import {Game} from "../engine/game";
+import {DaideComposerMessage} from "../../gui/components/DaideComposerMessage";
 
 /** Notification managers. **/
 export const NOTIFICATION_MANAGERS = {
@@ -48,7 +49,44 @@ export const NOTIFICATION_MANAGERS = {
         game.channel.game_id_to_instances[game.local.game_id].remove(game.local.role);
     },
     game_message_received: function (game, notification) {
-        game.local.addMessage(notification.message);
+
+        const msg = notification.message
+        const message = new DaideComposerMessage({
+            phase: game.local.phase,
+            sender: msg.sender,
+            recipient: msg.recipient,
+            message: '',
+            negotiation: "{}",
+            daide: msg.message,
+            gloss: true
+        });
+        game.sendDaideComposerMessage({message: message})
+            .then((transMessage) => {
+                console.log("TEST")
+                console.log(transMessage)
+                game.local.addMessage(notification.message);
+
+            });
+
+        //game.local.addMessage(notification.message);
+        /*
+        game.sendDaideComposerMessage({message: message})
+            .then((transMessage) => {
+                    console.log("TEST")
+                    console.log(transMessage);
+                    const parsedMessage = JSON.parse(transMessage);
+                    if(parsedMessage.message === "Ahem."){
+                        //Message is most likely not daide
+                        game.local.addMessage(notification.message);
+                    } else {
+                        //Message likely daide, append gloss
+                        const newMessage = notification.message + "\n\n" + parsedMessage.message;
+                        game.local.addMessage(newMessage);
+                    }
+                }
+            )
+            .catch(error => console.log(error.toString()));*/
+
     },
     log_received: function (game, notification) {
         game.local.addLog(notification.message);
