@@ -544,6 +544,15 @@ export class Game {
         }
         return powerLogs;
     }
+    addGlossToMessage(timeSent, gloss) {
+        console.log(gloss)
+        if(this.messages.contains(timeSent)){
+            const msg = this.messages.get(timeSent).message
+            this.messages.get(timeSent).message = msg + "\n\n" + gloss
+            console.log(msg + "\n\n" + gloss)
+        }
+    }
+
     getMessageChannels(role, all) {
         const messageChannels = {};
         role = role || this.role;

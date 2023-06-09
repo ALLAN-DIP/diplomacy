@@ -128,17 +128,17 @@ def build_daide(daide, negotiation, message_history, messages, sender, recipient
 
         if(order != "SUP" and order != "CVY"):
             daide = daide + \
-                f'(PRP (XDO ( ({actor} {unit} {start_location}) {order} {end_location})))'
+                f'(PRP (XDO (({actor} {unit} {start_location}) {order} {end_location})))'
         elif(order == "SUP"):
             if end_location:
                 daide = daide + \
-                    f'(PRP (XDO ( ({actor} {unit} {start_location}) {order} ({secondary_actor} {secondary_unit} {mid_location}) MTO {end_location})))'
+                    f'(PRP (XDO (({actor} {unit} {start_location}) {order} ({secondary_actor} {secondary_unit} {mid_location}) MTO {end_location})))'
             else:
                 daide = daide + \
-                    f'(PRP (XDO ( ({actor} {unit} {start_location}) {order} ({secondary_actor} {secondary_unit} {mid_location})))'
+                    f'(PRP (XDO (({actor} {unit} {start_location}) {order} ({secondary_actor} {secondary_unit} {mid_location})))'
         elif(order == "CVY"):
             daide = daide + \
-                f'(PRP (XDO ( ({actor} {unit} {start_location}) {order} ({secondary_actor} {secondary_unit} {mid_location}) MTO {end_location})))'
+                f'(PRP (XDO (({actor} {unit} {start_location}) {order} ({secondary_actor} {secondary_unit} {mid_location}) MTO {end_location})))'
 
     elif 'peace' in action:
         # Level 10 PCE
@@ -404,6 +404,7 @@ def to_tens(daide_text, tones):
     """
     LOGGER.info("Sending DAIDE to Pressgloss API")
     endpoint = f"{diplomacy.settings.PRESSGLOSS_URL}/daide2gloss"
+    tones=[]
     request_json = {"daidetext": daide_text, "tones": tones}
 
     try:

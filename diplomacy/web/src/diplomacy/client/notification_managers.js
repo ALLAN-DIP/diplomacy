@@ -18,7 +18,7 @@
 import {STRINGS} from "../utils/strings";
 import {NOTIFICATIONS} from "../communication/notifications";
 import {Game} from "../engine/game";
-import {DaideComposerMessage} from "../../gui/components/DaideComposerMessage";
+//import {DaideComposerMessage} from "../../gui/components/DaideComposerMessage";
 
 /** Notification managers. **/
 export const NOTIFICATION_MANAGERS = {
@@ -49,7 +49,7 @@ export const NOTIFICATION_MANAGERS = {
         game.channel.game_id_to_instances[game.local.game_id].remove(game.local.role);
     },
     game_message_received: function (game, notification) {
-
+        /*
         const msg = notification.message
         const message = new DaideComposerMessage({
             phase: game.local.phase,
@@ -67,8 +67,9 @@ export const NOTIFICATION_MANAGERS = {
                 game.local.addMessage(notification.message);
 
             });
+            */
 
-        //game.local.addMessage(notification.message);
+        game.local.addMessage(notification.message);
         /*
         game.sendDaideComposerMessage({message: message})
             .then((transMessage) => {

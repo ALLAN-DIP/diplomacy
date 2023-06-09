@@ -92,6 +92,16 @@ const POWER_ICONS = {
     GLOBAL: GLOBAL
 };
 
+const powerShortForm = {
+    "AUSTRIA": "AUS",
+    "FRANCE":  "FRA",
+    "GERMANY": "GER",
+    "ENGLAND": "ENG",
+    "ITALY":   "ITA",
+    "RUSSIA":  "RUS",
+    "TURKEY":  "TUR"
+};
+
 const HotKey = require('react-shortcut');
 
 /* Order management in game page.
@@ -588,6 +598,18 @@ export class ContentGame extends React.Component {
     }
 
     notifiedNewGameMessage(networkGame, notification) {
+        const msg = notification.message
+        const tempDaide = "FRM (" + powerShortForm[notification.message.sender]+ ")" + " (" + powerShortForm[notification.message.recipient] + ") (" + msg.message + ")"
+        const message = new DaideComposerMessage({
+            phase: networkGame.local.phase,
+            sender: msg.sender,
+            recipient: msg.recipient,
+            message: '',
+            negotiation: "{}",
+            daide: tempDaide,
+            gloss: true
+        });
+
         let protagonist = notification.message.sender;
         if (notification.message.recipient === 'GLOBAL')
             protagonist = notification.message.recipient;
@@ -597,7 +619,22 @@ export class ContentGame extends React.Component {
         else
             ++messageHighlights[protagonist];
         return this.setState({messageHighlights: messageHighlights})
-            .then(() => this.notifiedNetworkGame(networkGame, notification));
+            .then(()=> networkGame.sendDaideComposerMessage({message: message}))
+            .then((transMessage)=>{
+                console.log("TEST1")
+                console.log(transMessage)
+                const parsedMessage = JSON.parse(transMessage);
+                if(parsedMessage.message !== "Ahem."){
+                    //Message is most likely daide
+                    //Update message with gloss
+                    networkGame.local.addGlossToMessage(notification.message.time_sent, parsedMessage.message)
+                }
+
+            })
+            .then(() => {
+                console.log("TEST2")
+                this.notifiedNetworkGame(networkGame, notification)
+            });
     }
 
     bindCallbacks(networkGame) {
@@ -684,7 +721,7 @@ export class ContentGame extends React.Component {
     }
 
     updateTabVal(event, value) {
-        return this.setState({tabVal: value});
+        return this.setState({tabVal: value, gloss:false});
     }
 
     clearDaideComp(networkGame, recipient, negotiation, body, daide, gloss) {
@@ -759,8 +796,31 @@ export class ContentGame extends React.Component {
             recipient: recipient,
             message: body
         });
+
+        const tempDaide = "FRM (" + powerShortForm[message.sender]+ ")" + " (" + powerShortForm[message.recipient] + ") (" + message.message + ")"
+        const daideCompMessage = new DaideComposerMessage({
+            phase: networkGame.local.phase,
+            sender: message.sender,
+            recipient: message.recipient,
+            message: '',
+            negotiation: "{}",
+            daide: tempDaide,
+            gloss: true
+        });
         const page = this.getPage();
         networkGame.sendGameMessage({message: message})
+            .then(()=> networkGame.sendDaideComposerMessage({message: daideCompMessage}))
+            .then((transMessage)=>{
+                console.log("TEST3")
+                console.log(transMessage)
+                const parsedMessage = JSON.parse(transMessage);
+                if(parsedMessage.message !== "Ahem."){
+                    //Message is most likely daide
+                    //Update message with gloss
+                    networkGame.local.addGlossToMessage(message.time_sent, parsedMessage.message)
+                }
+
+            })
             .then(() => {
                 this.setState({message: ""})
                 page.load(
@@ -1549,7 +1609,7 @@ export class ContentGame extends React.Component {
         }
 
         return (
-            <Box sx={{width:'100%', height:'550px'}}>
+            <Box sx={{width:'100%', height:'550px', maxHeight:'550px', mb:'30px'}}>
                 <Grid container spacing={2}>
                     <Grid item xs={6} sx={{height:'100%'}}>
                         <Box sx={{ width: '100%', height: '550px'}}>
@@ -1594,39 +1654,41 @@ export class ContentGame extends React.Component {
                                     <Tab2 label="DAIDE Composer" />
                                 </Tabs2>
                             </Box>
-                            {this.state.tabVal === 0 && (
-                            <MainContainer responsive>
-                                <ChatContainer>
-                                    <ConversationHeader>
-                                        <ConversationHeader.Content
-                                            userName={role.toString() + " (" + curController + ")" + ": Captain's Log"}
-                                        />
-                                    </ConversationHeader>
-                                    <MessageList>
-                                        {renderedLogs}
-                                    </MessageList>
-                                    {engine.isPlayerGame() && (
-                                        <MessageInput
-                                            attachButton={false}
-                                            onChange={val => this.setlogDataInputValue(val)}
-                                            onSend={() =>  {
-                                                const message = this.sendLogData(engine.client, this.state.logData)
-                                                //this.setLogs([...this.state.logs, message])
-                                            }}
-                                        />
-                                    )}
-                                </ChatContainer>
-                            </MainContainer> )}
-                            {this.state.tabVal === 1 && (
-                                this.renderDaideComposer(engine, role)
-                            )}
-                            {this.state.gloss && (
-                                <div>
-                                    <h5>DAIDE Preview:</h5>
-                                    <p>{this.state.daideMessage}</p>
-                                    <p>{this.state.glossMessage}</p>
-                                </div>)
-                            }
+                            <Box sx={{height:'100%', overflow:'auto'}}>
+                                {this.state.tabVal === 0 && (
+                                <MainContainer responsive>
+                                    <ChatContainer>
+                                        <ConversationHeader>
+                                            <ConversationHeader.Content
+                                                userName={role.toString() + " (" + curController + ")" + ": Captain's Log"}
+                                            />
+                                        </ConversationHeader>
+                                        <MessageList>
+                                            {renderedLogs}
+                                        </MessageList>
+                                        {engine.isPlayerGame() && (
+                                            <MessageInput
+                                                attachButton={false}
+                                                onChange={val => this.setlogDataInputValue(val)}
+                                                onSend={() =>  {
+                                                    const message = this.sendLogData(engine.client, this.state.logData)
+                                                    //this.setLogs([...this.state.logs, message])
+                                                }}
+                                            />
+                                        )}
+                                    </ChatContainer>
+                                </MainContainer> )}
+                                {this.state.tabVal === 1 && (
+                                    this.renderDaideComposer(engine, role)
+                                )}
+                                {this.state.gloss && (
+                                    <div>
+                                        <h5>DAIDE Preview:</h5>
+                                        <p>{this.state.daideMessage}</p>
+                                        <p>{this.state.glossMessage}</p>
+                                    </div>)
+                                }
+                            </Box>
                         </Box>
                     </Grid>
 
@@ -2175,6 +2237,7 @@ export class ContentGame extends React.Component {
 
                 {phasePanel}
                 {this.renderTabChat(true, engine, currentPowerName)}
+                <br/>
 
             </main>
         );
