@@ -1291,29 +1291,36 @@ export class ContentGame extends React.Component {
         const currentTabId = this.state.tabPastMessages || tabNames[0];
 
         const convList = tabNames.map((protagonist) => (
-            <Conversation
-                info={
-                    protagonist !== "GLOBAL"
-                        ? engine.powers[protagonist].getController()
-                        : ""
-                }
-                className={
-                    protagonist === currentTabId
-                        ? "cs-conversation--active"
-                        : null
-                }
-                onClick={() => {
-                    this.onChangeTabPastMessages(protagonist);
-                }}
-                key={protagonist}
-                name={protagonist}
-            >
-                <Avatar
-                    src={POWER_ICONS[protagonist]}
+            <div style={{ minWidth: "200px" }}>
+                <Conversation
+                    info={
+                        protagonist !== "GLOBAL"
+                            ? engine.powers[protagonist].getController()
+                            : ""
+                    }
+                    className={
+                        protagonist === currentTabId
+                            ? "cs-conversation--active"
+                            : null
+                    }
+                    onClick={() => {
+                        this.onChangeTabPastMessages(protagonist);
+                    }}
+                    key={protagonist}
                     name={protagonist}
-                    size="sm"
-                />
-            </Conversation>
+                    unreadCnt={this.countUnreadMessages(
+                        engine,
+                        role,
+                        protagonist
+                    )}
+                >
+                    <Avatar
+                        src={POWER_ICONS[protagonist]}
+                        name={protagonist}
+                        size="sm"
+                    />
+                </Conversation>
+            </div>
         ));
 
         const renderedMessages = [];
@@ -1395,7 +1402,6 @@ export class ContentGame extends React.Component {
                 ) {
                     count++;
                 }
-
             }
         }
         return count;
@@ -1414,30 +1420,36 @@ export class ContentGame extends React.Component {
         const currentTabId = this.state.tabCurrentMessages || tabNames[0];
 
         const convList = tabNames.map((protagonist) => (
-            <Conversation
-                info={
-                    protagonist !== "GLOBAL"
-                        ? engine.powers[protagonist].getController()
-                        : ""
-                }
-                className={
-                    protagonist === currentTabId
-                        ? "cs-conversation--active"
-                        : null
-                }
-                onClick={() => {
-                    this.onChangeTabCurrentMessages(protagonist);
-                }}
-                key={protagonist}
-                name={protagonist}
-                unreadCnt={this.countUnreadMessages(engine, role, protagonist)}
-            >
-                <Avatar
-                    src={POWER_ICONS[protagonist]}
+            <div style={{ minWidth: "200px" }}>
+                <Conversation
+                    info={
+                        protagonist !== "GLOBAL"
+                            ? engine.powers[protagonist].getController()
+                            : ""
+                    }
+                    className={
+                        protagonist === currentTabId
+                            ? "cs-conversation--active"
+                            : null
+                    }
+                    onClick={() => {
+                        this.onChangeTabCurrentMessages(protagonist);
+                    }}
+                    key={protagonist}
                     name={protagonist}
-                    size="sm"
-                />
-            </Conversation>
+                    unreadCnt={this.countUnreadMessages(
+                        engine,
+                        role,
+                        protagonist
+                    )}
+                >
+                    <Avatar
+                        src={POWER_ICONS[protagonist]}
+                        name={protagonist}
+                        size="sm"
+                    />
+                </Conversation>
+            </div>
         ));
 
         const renderedMessages = [];
