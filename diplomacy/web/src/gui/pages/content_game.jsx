@@ -1260,7 +1260,6 @@ export class ContentGame extends React.Component {
 
             for (let idx in messages) {
                 const message = messages[idx];
-                console.log(": ", message.sender, message.message);
                 if (message.sender === controlledPower || showMessage) {
                     filteredMessages.push(message);
                 }
@@ -1375,6 +1374,33 @@ export class ContentGame extends React.Component {
         );
     }
 
+    countUnreadMessages(engine, role, protagnist) {
+        let messageChannels = engine.getMessageChannels(role, true);
+        if (engine.role === "omniscient_type") return 0;
+
+        const controlledPower = this.getCurrentPowerName();
+        let count = 0;
+
+        for (const [powerName, messages] of Object.entries(messageChannels)) {
+            for (let idx in messages) {
+                const message = messages[idx];
+
+                if (
+                    message.sender === protagnist &&
+                    message.recipient === controlledPower &&
+                    message.recipient_annotation === null &&
+                    !this.state.annotatedMessages.hasOwnProperty(
+                        message.time_sent
+                    )
+                ) {
+                    count++;
+                }
+
+            }
+        }
+        return count;
+    }
+
     renderCurrentMessages(engine, role) {
         const messageChannels = this.filterMessages(
             engine,
@@ -1404,6 +1430,7 @@ export class ContentGame extends React.Component {
                 }}
                 key={protagonist}
                 name={protagonist}
+                unreadCnt={this.countUnreadMessages(engine, role, protagonist)}
             >
                 <Avatar
                     src={POWER_ICONS[protagonist]}

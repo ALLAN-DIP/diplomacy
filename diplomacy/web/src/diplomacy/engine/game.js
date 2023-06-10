@@ -515,29 +515,6 @@ export class Game {
         }
         return orders;
     }
-    getLogsForPower(role, all) {
-        let logList = [];
-        role = role || this.role;
-        let powerLogs = [];
-        if (all) {
-            logList = this.log_history.values();
-            if (this.logs.size() && !this.log_history.contains(this.phase))
-                logList.push(this.logs);
-        } else {
-            if (this.logs.size())
-                logList = [this.logs];
-            else if (this.log_history.contains(this.phase))
-                logList = this.log_history.get(this.phase);
-        }
-        for (let logs of logList) {
-            for (let log of logs.values()) {
-                let sender = log.sender;
-                if (sender === role)
-                    powerLogs.push(log);
-            }
-        }
-        return powerLogs;
-    }
 
     getLogsForPowerByPhase(role, all) {
         let logList = [];
