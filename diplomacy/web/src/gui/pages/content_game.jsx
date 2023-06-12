@@ -364,6 +364,7 @@ export class ContentGame extends React.Component {
         this.updateDeadlineTimer = this.updateDeadlineTimer.bind(this);
         this.updateTabVal = this.updateTabVal.bind(this);
         this.copyToChat = this.copyToChat.bind(this);
+        this.handlePaste = this.handlePaste.bind(this);
     }
 
     static prettyRole(role) {
@@ -714,6 +715,13 @@ export class ContentGame extends React.Component {
 
     setMessageInputValue(val) {
         return this.setState({message: val});
+    }
+
+    handlePaste(event) {
+        event.preventDefault();
+        const txt = event.clipboardData.getData('text/plain');
+        console.log("Pasted text " + txt);
+        return this.setMessageInputValue(txt)
     }
 
     setlogDataInputValue(val) {
@@ -1640,6 +1648,7 @@ export class ContentGame extends React.Component {
                                                     this.state.message
                                                 )
                                             }}
+                                            onPaste={this.handlePaste}
                                         />
                                     )}
                                 </ChatContainer>
