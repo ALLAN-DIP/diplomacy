@@ -789,7 +789,7 @@ def on_send_daide_composer_message(server, request, connection_handler):
     :param connection_handler:
     :return:
     """
-    level = verify_request(server, request, connection_handler, omniscient_role=False, observer_role=False)
+    level = verify_request(server, request, connection_handler, omniscient_role=True, observer_role=True)
     token, message = request.token, request.message
     assert_game_not_finished(level.game)
     if level.game.no_press:

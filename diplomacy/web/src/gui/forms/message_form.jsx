@@ -686,10 +686,10 @@ export class MessageForm extends React.Component {
                                 <MenuItem value="propose_order">Propose Order</MenuItem>
                                 <MenuItem value="propose_alliance">Propose Alliance</MenuItem>
                                 <MenuItem value="propose_peace">Propose Peace</MenuItem>
-                                <MenuItem value="propose_draw">Propose Draw</MenuItem>
-                                <MenuItem value="propose_solo_win">Propose Solo Win</MenuItem>
+                                {/*<MenuItem value="propose_draw">Propose Draw</MenuItem>*/}
+                                {/*<MenuItem value="propose_solo_win">Propose Solo Win</MenuItem>*/}
                                 <MenuItem value="propose_dmz">Propose Demilitarized Zone</MenuItem>
-                                <MenuItem value="oppose_peace">Oppose Peace</MenuItem>
+                                {/*<MenuItem value="oppose_peace">Oppose Peace</MenuItem>
                                 <MenuItem value="oppose_order">Oppose Order</MenuItem>
                                 <MenuItem value="oppose_draw">Oppose Draw</MenuItem>
                                 <MenuItem value="oppose_dmz">Oppose Demilitarized Zone</MenuItem>
@@ -699,7 +699,7 @@ export class MessageForm extends React.Component {
                                 <MenuItem value="notify_dmz">Notify about Demilitarized Zone</MenuItem>
                                 <MenuItem value="notify_alliance">Notify about Alliance</MenuItem>
                                 <MenuItem value="cancel">Cancel Previous Proposal</MenuItem>
-                                <MenuItem value="response">Response</MenuItem>
+                                <MenuItem value="response">Response</MenuItem>*/}
                             </Select>
                         </FormControl>
                     </Grid>

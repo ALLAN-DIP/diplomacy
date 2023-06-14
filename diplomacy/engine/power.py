@@ -100,7 +100,7 @@ class Power(Jsonable):
         self.vote = ''
         self.order_is_set = 0
         self.wait = False
-        self.comm_status = strings.INACTIVE
+        self.comm_status = strings.BUSY
         self.player_type = strings.NONE
         self.tokens = set()
         super(Power, self).__init__(name=name, **kwargs)
@@ -373,7 +373,8 @@ class Power(Jsonable):
                 self.controller.put(common.timestamp_microseconds(), strings.DUMMY)
                 self.tokens.clear()
                 self.wait = True
-                self.comm_status = strings.INACTIVE
+                #self.comm_status = strings.INACTIVE
+                self.comm_status = strings.BUSY
                 self.vote = strings.NEUTRAL
 
         elif self.controller.last_value() == strings.DUMMY:

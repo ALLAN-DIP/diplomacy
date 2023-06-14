@@ -14,8 +14,8 @@
 //  You should have received a copy of the GNU Affero General Public License along
 //  with this program.  If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
-import React, { useCallback } from "react";
 import Scrollchor from 'react-scrollchor';
+import React, { useCallback } from "react";
 import {SelectLocationForm} from "../forms/select_location_form";
 import {SelectViaForm} from "../forms/select_via_form";
 import {Order} from "../utils/order";
@@ -719,7 +719,13 @@ export class ContentGame extends React.Component {
 
     handlePaste(event) {
         event.preventDefault();
-        const txt = event.clipboardData.getData('text/plain');
+        let txt = event.clipboardData.getData('text/plain');
+        txt = txt.replace(/&nbsp;/, "")
+
+        if(this.state.message) {
+            let curText = this.state.message.replace(/&nbsp;/, "")
+            txt = curText + txt;
+        }
         console.log("Pasted text " + txt);
         return this.setMessageInputValue(txt)
     }

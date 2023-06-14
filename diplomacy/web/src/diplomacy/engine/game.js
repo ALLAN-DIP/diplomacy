@@ -403,6 +403,7 @@ export class Game {
     setCommStatus(powerName, commStatus) {
         if (this.powers.hasOwnProperty(powerName)) {
             this.powers[powerName].comm_status = commStatus;
+            //this.powers[powerName].set_comm_status(commStatus);
         }
     }
 
