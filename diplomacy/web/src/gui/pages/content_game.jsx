@@ -1964,6 +1964,27 @@ export class ContentGame extends React.Component {
         );
     }
 
+    renderSuggestedOrders(orders) {
+        return (
+            <div className={"table-responsive"}>
+                <table className={this.props.className}>
+                    <tbody>
+                        {orders.map((order, index) => (
+                            <tr key={index}>
+                                <td>
+                                    <Button
+                                        title={order}
+                                        color={"primary"}
+                                    ></Button>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+        );
+    }
+
     renderTabCurrentPhase(
         toDisplay,
         engine,
@@ -2020,6 +2041,21 @@ export class ContentGame extends React.Component {
                             />
                             <div className={"orders"}>
                                 {this.renderOrders(this.props.data, powerName)}
+                            </div>
+                        </div>
+                        <div>
+                            <caption>Suggested Orders</caption>
+                            <div
+                                style={{
+                                    display: "flex",
+                                    flexDirection: "column",
+                                }}
+                            >
+                                {this.renderSuggestedOrders([
+                                    "Order1",
+                                    "Order2",
+                                    "Order3",
+                                ])}
                             </div>
                         </div>
                     </div>
