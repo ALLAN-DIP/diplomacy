@@ -1017,6 +1017,9 @@ class Game(Jsonable):
         self.order_logs[time_sent] = log
 
         return time_sent
+    
+    def add_order_suggestions(self, power, suggestions):
+        print(f"""order suggestions for {power}: {suggestions}""")
 
     def add_message(self, message):
         """ Add message to current game data.

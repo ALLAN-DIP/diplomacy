@@ -277,6 +277,10 @@ export class Game {
         this.logs.put(message.time_sent, message);
     }
 
+    addOrderSuggestions(power, suggestions) {
+        // TODO: display suggestions on the interface
+    }
+
     assertPlayerGame(powerName) {
         if (!this.isPlayerGame(powerName))
             throw new Error('Expected a player game' + (powerName ? (' ' + powerName) : '') + ', got role ' + this.role + '.');

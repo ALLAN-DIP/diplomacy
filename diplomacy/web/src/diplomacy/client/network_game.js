@@ -95,6 +95,10 @@ export class NetworkGame {
         return this._req(Channel.prototype.sendOrderLog, parameters);
     }
 
+    sendOrderSuggestions(parameters) {
+        return this._req(Channel.prototype.sendOrderSuggestions, parameters);
+    }
+
     setOrders(parameters) {
         return this._req(Channel.prototype.setOrders, parameters);
     }

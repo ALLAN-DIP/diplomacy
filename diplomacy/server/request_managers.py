@@ -828,6 +828,7 @@ def on_send_stance(server, request, connection_handler):
     server.save_game(level.game)
     server.backup_now(force=True)
 
+
 def on_send_order_log(server, request, connection_handler):
     level = verify_request(server, request, connection_handler, observer_role=False, omniscient_role=False)
     token, log = request.token, request.log
@@ -835,6 +836,14 @@ def on_send_order_log(server, request, connection_handler):
     level.game.add_order_log(log)
     server.save_game(level.game)
     server.backup_now(force=True)
+
+
+def on_send_order_suggestions(server, request, connection_handler):
+    level = verify_request(server, request, connection_handler, observer_role=False, omniscient_role=False)
+    token, power, suggestions = request.token, request.power, request.suggestions
+    assert_game_not_finished(level.game)
+    level.game.add_order_suggestions(power, suggestions)
+    print('Order suggestions received for %s' % power)
 
 
 def on_send_game_message(server, request, connection_handler):
@@ -1326,6 +1335,7 @@ MAPPING = {
     requests.SendStance: on_send_stance,
     requests.SendRecipientAnnotation: on_send_recipient_annotation,
     requests.SendOrderLog: on_send_order_log,
+    requests.SendOrderSuggestions: on_send_order_suggestions,
     requests.SendGameMessage: on_send_game_message,
     requests.SetDummyPowers: on_set_dummy_powers,
     requests.SetGameState: on_set_game_state,
