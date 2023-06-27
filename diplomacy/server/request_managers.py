@@ -840,10 +840,10 @@ def on_send_order_log(server, request, connection_handler):
 
 def on_send_order_suggestions(server, request, connection_handler):
     level = verify_request(server, request, connection_handler, observer_role=False, omniscient_role=False)
-    token, power, suggestions = request.token, request.power, request.suggestions
+    token, suggestions = request.token, request.suggestions
     assert_game_not_finished(level.game)
-    level.game.add_order_suggestions(power, suggestions)
-    print('Order suggestions received for %s' % power)
+    level.game.add_order_suggestions(suggestions)
+    print('Order suggestions received for')
 
 
 def on_send_game_message(server, request, connection_handler):

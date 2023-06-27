@@ -1018,8 +1018,8 @@ class Game(Jsonable):
 
         return time_sent
     
-    def add_order_suggestions(self, power, suggestions):
-        print(f"""order suggestions for {power}: {suggestions}""")
+    def add_order_suggestions(self, suggestions):
+        print(f"""order suggestions: {suggestions}""")
 
     def add_message(self, message):
         """ Add message to current game data.

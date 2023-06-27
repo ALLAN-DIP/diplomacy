@@ -728,15 +728,13 @@ class SendOrderLog(_AbstractGameRequest):
         super().__init__(**kwargs)
 
 class SendOrderSuggestions(_AbstractGameRequest):
-    __slots__ = ['power', 'suggestions']
+    __slots__ = ['suggestions']
     
     params = {
-        "power": str,
-        "suggestions": parsing.SequenceType(str)
+        "suggestions": parsing.OptionalValueType(dict)
     }
 
     def __init__(self, **kwargs):
-        self.power = None
         self.suggestions = None
         super().__init__(**kwargs)
 
