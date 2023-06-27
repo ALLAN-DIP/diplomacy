@@ -15,15 +15,15 @@
 //  with this program.  If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
 import $ from "jquery";
-import {STRINGS} from "../../diplomacy/utils/strings";
-import {Game} from "../../diplomacy/engine/game";
+import { STRINGS } from "../../diplomacy/utils/strings";
+import { Game } from "../../diplomacy/engine/game";
 
 export function loadGameFromDisk() {
     return new Promise((onLoad, onError) => {
-        const input = $(document.createElement('input'));
+        const input = $(document.createElement("input"));
         input.attr("type", "file");
-        input.trigger('click');
-        input.change(event => {
+        input.trigger("click");
+        input.change((event) => {
             const file = event.target.files[0];
             if (!file.name.match(/\.json$/i)) {
                 onError(`Invalid JSON filename ${file.name}`);
@@ -36,14 +36,25 @@ export function loadGameFromDisk() {
                 gameObject.game_id = `(local) ${savedData.id}`;
                 gameObject.map_name = savedData.map;
                 gameObject.rules = savedData.rules;
-                gameObject.has_initial_orders = savedData.has_initial_orders || {};
-                gameObject.annotated_messages = savedData.annotated_messages || {};
+                gameObject.has_initial_orders =
+                    savedData.has_initial_orders || {};
+                gameObject.annotated_messages =
+                    savedData.annotated_messages || {};
                 gameObject.state_history = {};
                 gameObject.message_history = {};
                 gameObject.order_history = {};
                 gameObject.stance_history = {};
                 gameObject.result_history = {};
                 gameObject.log_history = {};
+                gameObject.order_suggestions = savedData.order_suggestions || {
+                    "AUS": ["A VIE - BOH", "F TRI - ADR", "A BUD - VIE"],
+                    "ENG": [],
+                    "TUR": [],
+                    "ITA": [],
+                    "RUS": [],
+                    "FRA": [],
+                    "GER": [],
+                };
 
                 // Load all saved phases (expect the latest one) to history fields.
                 for (let i = 0; i < savedData.phases.length - 1; ++i) {
@@ -64,8 +75,7 @@ export function loadGameFromDisk() {
                             phaseLogs[log.time_sent] = log;
                         }
                     }
-                    if (!gameState.name)
-                        gameState.name = savedPhase.name;
+                    if (!gameState.name) gameState.name = savedPhase.name;
                     gameObject.state_history[gameState.name] = gameState;
                     gameObject.message_history[gameState.name] = phaseMessages;
                     gameObject.order_history[gameState.name] = phaseOrders;
@@ -75,7 +85,8 @@ export function loadGameFromDisk() {
                 }
 
                 // Load latest phase separately and use it later to define the current game phase.
-                const latestPhase = savedData.phases[savedData.phases.length - 1];
+                const latestPhase =
+                    savedData.phases[savedData.phases.length - 1];
                 const latestGameState = latestPhase.state;
                 const latestPhaseOrders = latestPhase.orders || {};
                 const latestPhaseStances = latestPhase.stances || {};
@@ -95,7 +106,8 @@ export function loadGameFromDisk() {
                 if (!latestGameState.name)
                     latestGameState.name = latestPhase.name;
                 // TODO: NB: What if latest phase in loaded JSON contains order results? Not sure if it is well handled.
-                gameObject.result_history[latestGameState.name] = latestPhaseResults;
+                gameObject.result_history[latestGameState.name] =
+                    latestPhaseResults;
 
                 gameObject.messages = [];
                 gameObject.logs = [];
@@ -104,7 +116,7 @@ export function loadGameFromDisk() {
                 gameObject.timestamp_created = 0;
                 gameObject.deadline = 0;
                 gameObject.n_controls = 0;
-                gameObject.registration_password = '';
+                gameObject.registration_password = "";
                 gameObject.stances = latestPhaseStances;
                 const game = new Game(gameObject);
 

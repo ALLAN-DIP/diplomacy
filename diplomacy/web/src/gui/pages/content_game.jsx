@@ -1964,13 +1964,13 @@ export class ContentGame extends React.Component {
         );
     }
 
-    renderSuggestedOrders(orders) {
+    renderOrderSuggestions(orders) {
         return (
             <div className={"table-responsive"}>
                 <table className={this.props.className}>
                     <tbody>
-                        {orders.map((order, index) => (
-                            <tr key={index}>
+                        {orders.map((order) => (
+                            <tr>
                                 <td>
                                     <Button
                                         title={order}
@@ -2002,6 +2002,9 @@ export class ContentGame extends React.Component {
             engine.getPower(engine.role) === null
                 ? {}
                 : engine.getPower(engine.role).getStances();
+
+        console.log(engine);
+        const orderSuggestions = engine.order_suggestions[powerName.substring(0, 3)]
 
         return (
             <Tab id={"tab-current-phase"} display={toDisplay}>
@@ -2051,11 +2054,7 @@ export class ContentGame extends React.Component {
                                     flexDirection: "column",
                                 }}
                             >
-                                {this.renderSuggestedOrders([
-                                    "Order1",
-                                    "Order2",
-                                    "Order3",
-                                ])}
+                                {this.renderOrderSuggestions(orderSuggestions)}
                             </div>
                         </div>
                     </div>

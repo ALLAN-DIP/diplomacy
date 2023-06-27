@@ -85,7 +85,7 @@ export const RESPONSE_MANAGERS = {
     },
     send_order_suggestions: function (context, response) {
         const suggestions = context.request.suggestions;
-        context.game.local.addOrderSuggestions(power, suggestions);
+        context.game.local.addOrderSuggestions(suggestions);
     },
     set_game_state: function (context, response) {
         context.game.local.setPhaseData({
