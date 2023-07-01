@@ -1522,7 +1522,7 @@ export class ContentGame extends React.Component {
                                 onClick={() =>
                                     this.handleRecipientAnnotation(msg, "True")
                                 }
-                            />{" "}
+                            />
                             Truth&nbsp;&nbsp;
                             <input
                                 type="radio"
@@ -1539,8 +1539,25 @@ export class ContentGame extends React.Component {
                                 onClick={() =>
                                     this.handleRecipientAnnotation(msg, "False")
                                 }
-                            />{" "}
-                            Lie
+                            />
+                            Lie&nbsp;&nbsp;
+                            <input
+                                type="radio"
+                                value="neutral"
+                                name={messageId}
+                                checked={
+                                    this.state.annotatedMessages.hasOwnProperty(
+                                        msg.time_sent
+                                    ) &&
+                                    this.state.annotatedMessages[
+                                        msg.time_sent
+                                    ] === "Neutral"
+                                }
+                                onClick={() =>
+                                    this.handleRecipientAnnotation(msg, "Neutral")
+                                }
+                            />
+                            Neutral
                         </div>
                     </div>
                 );
@@ -1597,6 +1614,20 @@ export class ContentGame extends React.Component {
                                         currentTabId,
                                         this.state.message,
                                         "Lie"
+                                    );
+                                    this.setMessageInputValue("");
+                                }}
+                            ></Button>
+                            <Button
+                                key={"n"}
+                                pickEvent={true}
+                                title={"Neutral"}
+                                onClick={() => {
+                                    this.sendMessage(
+                                        engine.client,
+                                        currentTabId,
+                                        this.state.message,
+                                        "Neutral"
                                     );
                                     this.setMessageInputValue("");
                                 }}
