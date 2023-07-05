@@ -42,6 +42,8 @@ export function loadGameFromDisk() {
                 gameObject.message_history = {};
                 gameObject.order_history = {};
                 gameObject.stance_history = {};
+                gameObject.is_bot_history = {};
+                gameObject.deceiving_history = {};
                 gameObject.result_history = {};
                 gameObject.log_history = {};
 
@@ -54,6 +56,8 @@ export function loadGameFromDisk() {
                     const phaseMessages = {};
                     const phaseLogs = {};
                     const phaseStances = savedPhase.stances || {};
+                    const phaseIsBot = savedPhase.is_bot || {};
+                    const phaseDeceiving = savedPhase.deceiving || {};
                     if (savedPhase.messages) {
                         for (let message of savedPhase.messages) {
                             phaseMessages[message.time_sent] = message;
@@ -70,6 +74,8 @@ export function loadGameFromDisk() {
                     gameObject.message_history[gameState.name] = phaseMessages;
                     gameObject.order_history[gameState.name] = phaseOrders;
                     gameObject.stance_history[gameState.name] = phaseStances;
+                    gameObject.is_bot_history[gameState.name] = phaseIsBot;
+                    gameObject.deceiving_history[gameState.name] = phaseDeceiving;
                     gameObject.result_history[gameState.name] = phaseResults;
                     gameObject.log_history[gameState.name] = phaseLogs;
                 }
@@ -79,6 +85,8 @@ export function loadGameFromDisk() {
                 const latestGameState = latestPhase.state;
                 const latestPhaseOrders = latestPhase.orders || {};
                 const latestPhaseStances = latestPhase.stances || {};
+                const latestPhaseIsBot = latestPhase.is_bot || {};
+                const latestPhaseDeceiving = latestPhase.deceiving || {};
                 const latestPhaseResults = latestPhase.results || {};
                 const latestPhaseMessages = {};
                 const latestPhaseLogs = {};
@@ -106,6 +114,8 @@ export function loadGameFromDisk() {
                 gameObject.n_controls = 0;
                 gameObject.registration_password = '';
                 gameObject.stances = latestPhaseStances;
+                gameObject.is_bot = latestPhaseIsBot;
+                gameObject.deceiving = latestPhaseDeceiving;
                 const game = new Game(gameObject);
 
                 // Set game current phase and state using latest phase found in JSON file.
@@ -116,6 +126,8 @@ export function loadGameFromDisk() {
                     messages: latestPhaseMessages,
                     logs: latestPhaseLogs,
                     stances: latestPhaseStances,
+                    isBot: latestPhaseIsBot,
+                    deceiving: latestPhaseDeceiving
                 });
                 onLoad(game);
             };

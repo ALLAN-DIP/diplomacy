@@ -231,6 +231,8 @@ export class ContentGame extends React.Component {
         this.sendLogData = this.sendLogData.bind(this);
         this.sendOrderLog = this.sendOrderLog.bind(this);
         this.sendGameStance = this.sendGameStance.bind(this);
+        this.sendIsBot = this.sendIsBot.bind(this);
+        this.sendDeceiving = this.sendDeceiving.bind(this);
         this.sendRecipientAnnotation = this.sendRecipientAnnotation.bind(this);
         this.setOrders = this.setOrders.bind(this);
         this.setSelectedLocation = this.setSelectedLocation.bind(this);
@@ -674,6 +676,30 @@ export class ContentGame extends React.Component {
         }
     };
 
+    handleIsBot = (country, isBot) => {
+        const engine = this.props.data;
+
+        try {
+            this.sendIsBot(engine.client, engine.role, country, isBot);
+        } catch (e) {
+            this.getPage().error(
+                "Will not update status of a noncontrollable power."
+            );
+        }
+    };
+
+    handleDeceiving = (country, deceiving) => {
+        const engine = this.props.data;
+
+        try {
+            this.sendDeceiving(engine.client, engine.role, country, deceiving);
+        } catch (e) {
+            this.getPage().error(
+                "Will not update status of a noncontrollable power."
+            );
+        }
+    };
+
     sendOrderLog(networkGame, logType, order) {
         const engine = networkGame.local;
         let message = null;
@@ -734,6 +760,24 @@ export class ContentGame extends React.Component {
             stance: stance,
         };
         networkGame.sendStance({ stance: info });
+    }
+
+    sendIsBot(networkGame, controlledPower, targetPower, isBot) {
+        const info = {
+            controlled_power: controlledPower,
+            target_power: targetPower,
+            is_bot: isBot
+        };
+        networkGame.sendIsBot({info: info});
+    }
+
+    sendDeceiving(networkGame, controlledPower, targetPower, isBot) {
+        const info = {
+            controlled_power: controlledPower,
+            target_power: targetPower,
+            is_bot: isBot
+        };
+        networkGame.sendDeceiving({info: info});
     }
 
     sendMessage(networkGame, recipient, body, deception) {
@@ -1936,6 +1980,8 @@ export class ContentGame extends React.Component {
                         onChangeStance={this.handleStance}
                         stances={stances}
                         player={engine.role}
+                        onChangeIsBot={this.handleIsBot}
+                        onChangeDeceiving={this.handleDeceiving}
                     />
                 </div>
             </div>

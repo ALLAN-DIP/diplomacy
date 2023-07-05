@@ -828,6 +828,20 @@ def on_send_stance(server, request, connection_handler):
     server.save_game(level.game)
     server.backup_now(force=True)
 
+def on_send_is_bot(server, request, connection_handler):
+    level = verify_request(server, request, connection_handler, observer_role=False, omniscient_role=False)
+    token, info = request.token, request.info
+    assert_game_not_finished(level.game)
+    level.game.add_is_bot(info)
+    server.save_game(level.game)
+
+def on_send_deceiving(server, request, connection_handler):
+    level = verify_request(server, request, connection_handler, observer_role=False, omniscient_role=False)
+    token, info = request.token, request.info
+    assert_game_not_finished(level.game)
+    level.game.add_deceiving(info)
+    server.save_game(level.game)
+
 def on_send_order_log(server, request, connection_handler):
     level = verify_request(server, request, connection_handler, observer_role=False, omniscient_role=False)
     token, log = request.token, request.log
@@ -936,7 +950,7 @@ def on_set_game_state(server, request, connection_handler):
     """
     level = verify_request(server, request, connection_handler, observer_role=False, power_role=False)
     level.game.set_phase_data(GamePhaseData(
-        request.phase, request.state, request.orders, request.results, request.messages, request.stances))
+        request.phase, request.state, request.orders, request.results, request.messages, request.stances, request.is_bot, requests.deceiving))
     server.stop_game_if_needed(level.game)
     Notifier(server, ignore_addresses=[request.address_in_game]).notify_game_phase_data(level.game)
     server.save_game(level.game)
@@ -1324,6 +1338,8 @@ MAPPING = {
     requests.QuerySchedule: on_query_schedule,
     requests.SaveGame: on_save_game,
     requests.SendStance: on_send_stance,
+    requests.SendIsBot: on_send_is_bot,
+    requests.SendDeceiving: on_send_deceiving,
     requests.SendRecipientAnnotation: on_send_recipient_annotation,
     requests.SendOrderLog: on_send_order_log,
     requests.SendGameMessage: on_send_game_message,

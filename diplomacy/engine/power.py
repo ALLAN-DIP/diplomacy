@@ -235,7 +235,6 @@ class Power(Jsonable):
                 game.update_hash(self.name, unit_type=unit[0], loc=unit[2:])
                 self.units.append(unit)
                 self.influence.append(unit[2:5])
-        # TODO: check if stance needs to be added
 
     def merge(self, other_power):
         """ Transfer all units, centers, and homes of the other_power to this power
