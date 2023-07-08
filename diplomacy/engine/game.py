@@ -604,7 +604,7 @@ class Game(Jsonable):
             Note that an empty orders set is considered as a defined order as long as it was
             explicitly set by the power controller.
         """
-        return all(power.is_eliminated() or not self.get_orderable_locations(power.name) or power.does_not_wait() for power in self.powers.values())
+        return all(power.is_eliminated() or (not self.get_orderable_locations(power.name) or power.does_not_wait()) for power in self.powers.values())
 
     def has_power(self, power_name):
         """ Return True if this game has given power name. """
