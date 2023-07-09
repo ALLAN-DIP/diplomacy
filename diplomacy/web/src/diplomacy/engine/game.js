@@ -166,6 +166,8 @@ export class Game {
         // {loc => order type}
         this.orderableLocToTypes = null;
         this.client = null; // Used as pointer to a NetworkGame.
+        console.log('is_bot: ', this.is_bot)
+        console.log('deceiving: ', this.deceiving)
     }
 
     get n_players() {

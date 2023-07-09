@@ -1055,6 +1055,7 @@ class Game(Jsonable):
             self.is_bot[controlled_power] = {}
 
         self.is_bot[controlled_power][target_power] = is_bot
+        print(f'is_bot: {self.is_bot}')
 
     def add_deceiving(self, info):
         controlled_power = info['controlled_power']
@@ -1065,6 +1066,7 @@ class Game(Jsonable):
             self.deceiving[controlled_power] = {}
 
         self.deceiving[controlled_power][target_power] = deceiving
+        print(f'deceiving: {self.deceiving}')
 
     def add_order_log(self, log):
         time_sent = common.timestamp_microseconds()
@@ -1708,8 +1710,6 @@ class Game(Jsonable):
         self.order_logs = {}
         self.clear_initial_orders()
         self.stances = {}
-        self.is_bot = {}
-        self.deceiving = {}
         self.order_history.put(previous_phase, previous_orders)
         self.message_history.put(previous_phase, previous_messages)
         self.state_history.put(previous_phase, previous_state)

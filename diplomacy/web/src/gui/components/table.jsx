@@ -48,6 +48,7 @@ export class Table extends React.Component {
     constructor(props) {
         super(props);
         if (!this.props.wrapper) this.props.wrapper = defaultWrapper;
+        console.log(this.props.deceiving);
     }
 
     getHeader(columns) {
@@ -76,9 +77,21 @@ export class Table extends React.Component {
                         {header.map((column, colIndex) => (
                             <th key={colIndex}>{column[2]}</th>
                         ))}
-                        <th><span title="What is your attitute toward this player?">Stance</span></th>
-                        <th><span title="Do you think this player is a bot?">Is bot</span></th>
-                        <th><span title="Do you think this player is deceiving you?">Deceiving</span></th>
+                        <th>
+                            <span title="What is your attitute toward this player?">
+                                Stance
+                            </span>
+                        </th>
+                        <th>
+                            <span title="Do you think this player is a bot?">
+                                Is bot
+                            </span>
+                        </th>
+                        <th>
+                            <span title="Do you think this player is deceiving you?">
+                                Deceiving
+                            </span>
+                        </th>
                     </tr>
                 </thead>
             );
@@ -139,17 +152,37 @@ export class Table extends React.Component {
 
                 {caption === "Powers info" && player !== countries[rowIndex] ? (
                     <td className={"align-middle"}>
-                        <input type="checkbox" onClick={(e) => {
-                            this.handleIsBot(countries[rowIndex], e.target.checked);
-                        }}></input>
+                        <input
+                            type="checkbox"
+                            defaultChecked={
+                                this.props.is_bot &&
+                                this.props.is_bot[countries[rowIndex]]
+                            }
+                            onClick={(e) => {
+                                this.handleIsBot(
+                                    countries[rowIndex],
+                                    e.target.checked
+                                );
+                            }}
+                        ></input>
                     </td>
                 ) : null}
 
                 {caption === "Powers info" && player !== countries[rowIndex] ? (
                     <td className={"align-middle"}>
-                        <input type="checkbox" onClick={(e) => {
-                            this.handleDeceiving(countries[rowIndex], e.target.checked);
-                        }}></input>
+                        <input
+                            type="checkbox"
+                            defaultChecked={
+                                this.props.deceiving &&
+                                this.props.deceiving[countries[rowIndex]]
+                            }
+                            onClick={(e) => {
+                                this.handleDeceiving(
+                                    countries[rowIndex],
+                                    e.target.checked
+                                );
+                            }}
+                        ></input>
                     </td>
                 ) : null}
             </tr>

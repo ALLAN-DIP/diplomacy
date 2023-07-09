@@ -771,11 +771,11 @@ export class ContentGame extends React.Component {
         networkGame.sendIsBot({info: info});
     }
 
-    sendDeceiving(networkGame, controlledPower, targetPower, isBot) {
+    sendDeceiving(networkGame, controlledPower, targetPower, deceiving) {
         const info = {
             controlled_power: controlledPower,
             target_power: targetPower,
-            is_bot: isBot
+            deceiving: deceiving
         };
         networkGame.sendDeceiving({info: info});
     }
@@ -1982,6 +1982,8 @@ export class ContentGame extends React.Component {
                         player={engine.role}
                         onChangeIsBot={this.handleIsBot}
                         onChangeDeceiving={this.handleDeceiving}
+                        is_bot={engine.is_bot[engine.role]}
+                        deceiving={engine.deceiving[engine.role]}
                     />
                 </div>
             </div>
