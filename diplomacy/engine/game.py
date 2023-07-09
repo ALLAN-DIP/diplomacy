@@ -227,7 +227,7 @@ class Game(Jsonable):
                  'message_history', 'state_history', 'result_history', 'status', 'timestamp_created', 'n_controls',
                  'deadline', 'registration_password', 'observer_level', 'controlled_powers', '_phase_wrapper_type',
                  'phase_abbr', '_unit_owner_cache', 'daide_port', 'fixed_state', 'log_history', 'logs', 'stances', 'stance_history',
-                 'annotated_messages', 'order_logs', 'order_log_history', 'has_initial_orders']
+                 'annotated_messages', 'order_logs', 'order_log_history', 'has_initial_orders', 'is_bot', 'deceiving', 'is_bot_history', 'deceiving_history']
     zobrist_tables = {}
     rule_cache = ()
     model = {
@@ -267,6 +267,12 @@ class Game(Jsonable):
         strings.STANCES: parsing.DefaultValueType(parsing.DictType(str, parsing.DictType(str, int)), {}),
         strings.STANCE_HISTORY: parsing.DefaultValueType(
             parsing.DictType(str, parsing.DictType(str, parsing.DictType(str, int))), {}),
+        'is_bot': parsing.DefaultValueType(parsing.DictType(str, parsing.DictType(str, bool)), {}),
+        'is_bot_history': parsing.DefaultValueType(
+            parsing.DictType(str, parsing.DictType(str, parsing.DictType(str, bool))), {}),
+        'deceiving': parsing.DefaultValueType(parsing.DictType(str, parsing.DictType(str, bool)), {}),
+        'deceiving_history' : parsing.DefaultValueType(
+            parsing.DictType(str, parsing.DictType(str, parsing.DictType(str, bool))), {}),
         strings.ANNOTATED_MESSAGES: parsing.DefaultValueType(parsing.DictType(int, str), {}),
         strings.ORDER_LOGS: parsing.DefaultValueType(parsing.DictType(int, str), {}),
         strings.ORDER_LOG_HISTORY: parsing.DefaultValueType(parsing.DictType(str, parsing.DictType(int, str)), {}),
@@ -310,6 +316,10 @@ class Game(Jsonable):
 
         self.stances = {}
         self.stance_history = {}
+        self.is_bot = {}
+        self.is_bot_history = {}
+        self.deceiving = {}
+        self.deceiving_history = {}
         self.order_log_history = {}
         self.order_logs = {}
         self.has_initial_orders = {}
@@ -422,6 +432,12 @@ class Game(Jsonable):
         self.order_log_history = SortedDict(self._phase_wrapper_type, dict,
                                             {self._phase_wrapper_type(key): value
                                                 for key, value in self.order_log_history.items()})
+        self.is_bot_history = SortedDict(self._phase_wrapper_type, dict,
+                                         {self._phase_wrapper_type(key): value
+                                          for key, value in self.is_bot_history.items()})
+        self.deceiving_history = SortedDict(self._phase_wrapper_type, dict,
+                                         {self._phase_wrapper_type(key): value
+                                          for key, value in self.deceiving_history.items()})
 
     def __str__(self):
         """ Returns a string representation of the game instance """
@@ -588,7 +604,8 @@ class Game(Jsonable):
             Note that an empty orders set is considered as a defined order as long as it was
             explicitly set by the power controller.
         """
-        return all(power.is_eliminated() or not self.get_orderable_locations(power.name) or power.does_not_wait() for power in self.powers.values())
+        all_orderable_locations = self.get_orderable_locations()
+        return all(power.is_eliminated() or (not all_orderable_locations[power.name] or power.does_not_wait()) for power in self.powers.values())
 
     def has_power(self, power_name):
         """ Return True if this game has given power name. """
@@ -777,6 +794,8 @@ class Game(Jsonable):
         logs = self.log_history.sub(from_phase, to_phase)
         results = self.result_history.sub(from_phase, to_phase)
         stances = self.stance_history.sub(from_phase, to_phase)
+        is_bot = self.is_bot_history.sub(from_phase, to_phase)
+        deceiving = self.deceiving_history.sub(from_phase, to_phase)
         order_logs = self.order_log_history.sub(from_phase, to_phase)
         if game_role:
             messages = [self.filter_messages(
@@ -791,7 +810,9 @@ class Game(Jsonable):
                               logs=logs[i],
                               results=results[i],
                               stances=stances[i],
-                              order_logs=order_logs[i])
+                              order_logs=order_logs[i],
+                              is_bot=is_bot[i],
+                              deceiving=deceiving[i])
                 for i in range(len(phases))]
 
     def get_phase_from_history(self, short_phase_name, game_role=None):
@@ -825,6 +846,8 @@ class Game(Jsonable):
         self.order_history.put(phase, game_phase_data.orders)
         self.result_history.put(phase, game_phase_data.results)
         self.stance_history[phase] = game_phase_data.stances
+        self.is_bot[phase] = game_phase_data.is_bot
+        self.deceiving[phase] = game_phase_data.deceiving
         self.order_log_history.put(phase, game_phase_data.order_logs)
 
     def set_status(self, status):
@@ -855,6 +878,8 @@ class Game(Jsonable):
         previous_logs = self.logs.copy()
         previous_state = self.get_state()
         previous_stance = self.stances.copy()
+        previous_is_bot = self.is_bot.copy()
+        previous_deceiving = self.deceiving.copy()
         previous_order_logs = self.order_logs.copy()
 
         # Finish the game.
@@ -866,12 +891,17 @@ class Game(Jsonable):
         self.messages.clear()
         self.logs.clear()
         self.order_logs = {}
+        self.stances = {}
+        self.is_bot = {}
+        self.deceiving = {}
         self.order_history.put(previous_phase, previous_orders)
         self.message_history.put(previous_phase, previous_messages)
         self.log_history.put(previous_phase, previous_logs)
         self.state_history.put(previous_phase, previous_state)
         self.result_history.put(previous_phase, {})
         self.stance_history[previous_phase] = previous_stance
+        self.is_bot_history[previous_phase] = previous_is_bot
+        self.deceiving_history[previous_phase] = previous_deceiving
         self.order_log_history.put(previous_phase, previous_order_logs)
 
         # There are no expected results for orders, as there are no orders processed.
@@ -883,7 +913,9 @@ class Game(Jsonable):
                                             logs=previous_logs,
                                             results={},
                                             stances=previous_stance,
-                                            order_logs=previous_order_logs)
+                                            order_logs=previous_order_logs,
+                                            is_bot=previous_is_bot,
+                                            deceiving=previous_deceiving)
         current_phase_data = GamePhaseData(name=self.current_short_phase,
                                            state=self.get_state(),
                                            orders={},
@@ -891,7 +923,9 @@ class Game(Jsonable):
                                            logs={},
                                            results={},
                                            stances={},
-                                           order_logs={})
+                                           order_logs={},
+                                           is_bot={},
+                                           deceiving={})
 
         return previous_phase_data, current_phase_data
 
@@ -1011,6 +1045,28 @@ class Game(Jsonable):
         power = stance['power_name']
         stance_to_add = stance['stance']
         self.stances[power] = stance_to_add
+
+    def add_is_bot(self, info):
+        controlled_power = info['controlled_power']
+        target_power = info['target_power']
+        is_bot = info['is_bot']
+        
+        if controlled_power not in self.is_bot:
+            self.is_bot[controlled_power] = {}
+
+        self.is_bot[controlled_power][target_power] = is_bot
+        print(f'is_bot: {self.is_bot}')
+
+    def add_deceiving(self, info):
+        controlled_power = info['controlled_power']
+        target_power = info['target_power']
+        deceiving = info['deceiving']
+        
+        if controlled_power not in self.deceiving:
+            self.deceiving[controlled_power] = {}
+
+        self.deceiving[controlled_power][target_power] = deceiving
+        print(f'deceiving: {self.deceiving}')
 
     def add_order_log(self, log):
         time_sent = common.timestamp_microseconds()
@@ -1632,6 +1688,8 @@ class Game(Jsonable):
         previous_logs = self.logs.copy()
         previous_stances = self.stances.copy()
         previous_order_logs = self.order_logs.copy()
+        previous_is_bot = self.is_bot.copy()
+        previous_deceiving = self.deceiving.copy()
 
         if self.error:
             if 'IGNORE_ERRORS' not in self.rules:
@@ -1651,12 +1709,15 @@ class Game(Jsonable):
         self.logs.clear()
         self.order_logs = {}
         self.clear_initial_orders()
+        self.stances = {}
         self.order_history.put(previous_phase, previous_orders)
         self.message_history.put(previous_phase, previous_messages)
         self.state_history.put(previous_phase, previous_state)
         self.log_history.put(previous_phase, previous_logs)
         # load the stances to history
         self.stance_history[previous_phase] = previous_stances
+        self.is_bot_history[previous_phase] = previous_is_bot
+        self.deceiving_history[previous_phase] = previous_deceiving
         self.order_log_history[previous_phase] = previous_order_logs
 
         # Set empty orders for unorderable powers.
@@ -1678,7 +1739,9 @@ class Game(Jsonable):
                              logs=previous_logs,
                              results=self.result_history[previous_phase],
                              stances=previous_stances,
-                             order_logs=previous_order_logs)
+                             order_logs=previous_order_logs,
+                             is_bot=previous_is_bot,
+                             deceiving=previous_deceiving)
 
     def build_caches(self):
         """ Rebuilds the various caches """
@@ -1772,7 +1835,9 @@ class Game(Jsonable):
                              logs=self.logs.copy(),
                              results={},
                              stances=self.stances.copy(),
-                             order_logs=self.order_logs.copy())
+                             order_logs=self.order_logs.copy(),
+                             is_bot=self.is_bot.copy(),
+                             deceiving=self.deceiving.copy())
 
     def set_phase_data(self, phase_data, clear_history=True):
         """ Set game from phase data.
@@ -1812,6 +1877,8 @@ class Game(Jsonable):
         self.messages = current_phase_data.messages.copy()
         self.logs = current_phase_data.logs.copy()
         self.stances = current_phase_data.stances.copy()
+        self.is_bot = current_phase_data.is_bot.copy()
+        self.deceiving = current_phase_data.deceiving.copy()
         self.order_logs = current_phase_data.order_logs.copy()
         # We ignore 'results' for current phase data.
 

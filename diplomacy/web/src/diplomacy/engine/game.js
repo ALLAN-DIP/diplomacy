@@ -75,6 +75,8 @@ export class Game {
         this.annotatedMessages = gameData.annotated_messages || {};
         this.hasInitialOrders = gameData.has_initial_orders ? gameData.has_initial_orders : {};
         this.stances = gameData.stances ? gameData.stances : {};
+        this.is_bot = gameData.is_bot ? gameData.is_bot : {};
+        this.deceiving = gameData.deceiving ? gameData.deceiving : {};
 
         // {short phase name => state}
         this.state_history = new SortedDict(gameData instanceof Game ? gameData.state_history.toDict() : gameData.state_history, comparablePhase);
@@ -83,6 +85,8 @@ export class Game {
         // {short phase name => {unit => [results]}}
         this.result_history = new SortedDict(gameData instanceof Game ? gameData.result_history.toDict() : gameData.result_history, comparablePhase);
         this.stance_history = gameData.stance_history;
+        this.is_bot_history = gameData.is_bot_history;
+        this.deceiving_history = gameData.deceiving_history;
         // {short phase name => {message.time_sent => message}}
         if (gameData instanceof Game) {
             this.message_history = new SortedDict(gameData.message_history.toDict(), comparablePhase);
@@ -117,6 +121,8 @@ export class Game {
         this.result = gameData.result || null;
         // represents stances from every power to every other power
         this.stances = gameData.stances;
+        this.is_bot = gameData.is_bot;
+        this.deceiving = gameData.deceiving;
 
         this.phase = gameData.phase_abbr || null; // phase abbreviation
 
@@ -160,6 +166,8 @@ export class Game {
         // {loc => order type}
         this.orderableLocToTypes = null;
         this.client = null; // Used as pointer to a NetworkGame.
+        console.log('is_bot: ', this.is_bot)
+        console.log('deceiving: ', this.deceiving)
     }
 
     get n_players() {
@@ -239,6 +247,14 @@ export class Game {
 
     addStance(powerName, stance) {
         this.stances[powerName] = stance;
+    }
+
+    addIsBot(controlledPower, targetPower, isBot) {
+        console.log('addIsBot', controlledPower, targetPower, isBot)
+    }
+
+    addDeceiving(controlledPower, targetPower, deceiving) {
+        console.log('addDeceiving', controlledPower, targetPower, deceiving)
     }
 
     getInitialOrders(power) {

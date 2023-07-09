@@ -180,6 +180,14 @@ export class Channel {
         return this._req('send_stance', undefined, undefined, parameters, game);
     }
 
+    sendIsBot(parameters, game) {
+        return this._req('send_is_bot', undefined, undefined, parameters, game);
+    }
+
+    sendDeceiving(parameters, game) {
+        return this._req('send_deceiving', undefined, undefined, parameters, game);
+    }
+
     sendGameMessage(parameters, game) {
         return this._req('send_game_message', undefined, undefined, parameters, game);
     }
