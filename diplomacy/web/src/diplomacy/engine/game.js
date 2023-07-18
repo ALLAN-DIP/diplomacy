@@ -278,8 +278,8 @@ export class Game {
         this.logs.put(message.time_sent, message);
     }
 
-    addOrderSuggestions(suggestions) {
-        // TODO: display suggestions on the interface
+    addOrderSuggestions(power, suggestions) {
+        console.log('added for ' + power + ': ' + suggestions);
     }
 
     assertPlayerGame(powerName) {

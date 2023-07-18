@@ -316,6 +316,15 @@ class Game(Jsonable):
         self.order_logs = {}
         self.has_initial_orders = {}
         self.annotated_messages = {}
+        self.order_suggestions = {
+            'AUS': [],
+            'ENG': [],
+            'TUR': [],
+            'ITA': [],
+            'RUS': [],
+            'FRA': [],
+            'GER': []
+        }
 
         # Caches
         self._unit_owner_cache = None  # {(unit, coast_required): owner}
@@ -424,15 +433,7 @@ class Game(Jsonable):
         self.order_log_history = SortedDict(self._phase_wrapper_type, dict,
                                             {self._phase_wrapper_type(key): value
                                                 for key, value in self.order_log_history.items()})
-        self.order_suggestions = {
-            'AUS': ['A VIE - BOH', 'F TRI - ADR', 'A BUD - VIE'],
-            'ENG': [],
-            'TUR': [],
-            'ITA': [],
-            'RUS': [],
-            'FRA': [],
-            'GER': []
-        }
+
 
     def __str__(self):
         """ Returns a string representation of the game instance """
@@ -1029,8 +1030,10 @@ class Game(Jsonable):
 
         return time_sent
 
-    def add_order_suggestions(self, suggestions):
-        print(f"""order suggestions: {suggestions}""")
+    def add_order_suggestions(self, power, suggestions):
+        existing_suggestions = self.order_suggestions.copy()
+        existing_suggestions[power] = suggestions
+        self.order_suggestions = existing_suggestions
 
     def add_message(self, message):
         """ Add message to current game data.

@@ -260,8 +260,9 @@ def on_send_order_log(context, response):
 
 def on_send_order_suggestions(context, response):
     request = context.request
+    power = request.power
     suggestions = request.suggestions
-    Game.add_order_suggestions(context.game, suggestions)
+    Game.add_order_suggestions(context.game, power, suggestions)
 
 def on_set_game_state(context, response):
     """ Manage response for request SetGameState.

@@ -47,7 +47,7 @@ export function loadGameFromDisk() {
                 gameObject.result_history = {};
                 gameObject.log_history = {};
                 gameObject.order_suggestions = savedData.order_suggestions || {
-                    "AUS": ["A VIE - BOH", "F TRI - ADR", "A BUD - VIE"],
+                    "AUS": [],
                     "ENG": [],
                     "TUR": [],
                     "ITA": [],

@@ -2003,7 +2003,6 @@ export class ContentGame extends React.Component {
                 ? {}
                 : engine.getPower(engine.role).getStances();
 
-        console.log(engine);
         const orderSuggestions = engine.order_suggestions[powerName.substring(0, 3)]
 
         return (

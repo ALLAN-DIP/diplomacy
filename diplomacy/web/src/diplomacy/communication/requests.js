@@ -72,7 +72,7 @@ export const REQUESTS = {
         send_game_message: {level: STRINGS.GAME, model: {message: null}},
         send_order_log: {level: STRINGS.GAME, model: {log: null}},
         send_log_data: {level: STRINGS.GAME, model: {log: null}},
-        send_order_suggestions: {level: STRINGS.GAME, model: {suggestions: null}},
+        send_order_suggestions: {level: STRINGS.GAME, model: {power: null, suggestions: null}},
         set_dummy_powers: {level: STRINGS.GAME, model: {username: null, power_names: null}},
         set_game_state: {level: STRINGS.GAME, model: {state: null, orders: null, results: null, messages: null}},
         set_game_status: {level: STRINGS.GAME, model: {status: null}},
