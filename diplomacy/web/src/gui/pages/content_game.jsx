@@ -2045,6 +2045,7 @@ export class ContentGame extends React.Component {
 
     renderOrderSuggestions(orders) {
         return (
+            orders ?
             <div className={"table-responsive"}>
                 <table className={this.props.className}>
                     <tbody>
@@ -2061,6 +2062,8 @@ export class ContentGame extends React.Component {
                     </tbody>
                 </table>
             </div>
+            :
+            <div></div>
         );
     }
 
