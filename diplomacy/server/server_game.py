@@ -94,7 +94,9 @@ class ServerGame(Game):
                                  messages=self.filter_messages(phase_data.messages, role),
                                  logs=self.filter_logs(phase_data.logs, role),
                                  stances=phase_data.stances,
-                                 order_logs=phase_data.order_logs)
+                                 order_logs=phase_data.order_logs,
+                                 is_bot=phase_data.is_bot,
+                                 deceiving=phase_data.deceiving)
         # Filter for power roles.
         related_power_names = self.get_related_power_names(role)
         # Filter messages.
@@ -116,7 +118,9 @@ class ServerGame(Game):
                              logs=logs,
                              results=phase_data.results,
                              stances=phase_data.stances,
-                             order_logs=phase_data.order_logs)
+                             order_logs=phase_data.order_logs,
+                             is_bot=phase_data.is_bot,
+                             deceiving=phase_data.deceiving)
 
     def game_can_start(self):
         """ Return True if server game can start.

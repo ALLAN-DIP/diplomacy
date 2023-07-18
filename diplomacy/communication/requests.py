@@ -717,6 +717,28 @@ class SendStance(_AbstractGameRequest):
         self.stance = {}
         super(SendStance, self).__init__(**kwargs)
 
+class SendIsBot(_AbstractGameRequest):
+    __slots__ = ['info']
+
+    params = {
+        'info': parsing.OptionalValueType(dict),
+    }
+
+    def __init__(self, **kwargs):
+        self.info = {}
+        super(SendIsBot, self).__init__(**kwargs)
+
+class SendDeceiving(_AbstractGameRequest):
+    __slots__ = ['info']
+
+    params = {
+        'info': parsing.OptionalValueType(dict),
+    }
+
+    def __init__(self, **kwargs):
+        self.info = {}
+        super(SendDeceiving, self).__init__(**kwargs)
+
 class SendOrderLog(_AbstractGameRequest):
     __slots__ = ['log']
     params = {
@@ -809,13 +831,15 @@ class SetGameState(_AbstractGameRequest):
         :type messages: dict
         :return: None
     """
-    __slots__ = ['state', 'orders', 'results', 'messages', 'stances']
+    __slots__ = ['state', 'orders', 'results', 'messages', 'stances', 'is_bot', 'deceiving']
     params = {
         strings.STATE: dict,
         strings.ORDERS: parsing.DictType(str, parsing.SequenceType(str)),
         strings.RESULTS: parsing.DictType(str, parsing.SequenceType(str)),
         strings.MESSAGES: parsing.DictType(int, parsing.JsonableClassType(Message), SortedDict.builder(int, Message)),
         strings.STANCES: parsing.DefaultValueType(parsing.DictType(str, parsing.DictType(str, int)), {}),
+        'is_bot': parsing.DefaultValueType(parsing.DictType(str, parsing.DictType(str, bool)), {}),
+        'deceiving': parsing.DefaultValueType(parsing.DictType(str, parsing.DictType(str, bool)), {})
     }
 
     def __init__(self, **kwargs):
@@ -823,6 +847,9 @@ class SetGameState(_AbstractGameRequest):
         self.orders = {}
         self.results = {}
         self.messages = {}  # type: SortedDict
+        self.stances = {}
+        self.is_bot = {}
+        self.deceiving = {}
         super(SetGameState, self).__init__(**kwargs)
 
 

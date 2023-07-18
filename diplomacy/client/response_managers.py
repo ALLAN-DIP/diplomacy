@@ -239,6 +239,16 @@ def on_send_stance(context, response):
     stance = request.stance
     Game.add_stance(context.game, stance)
 
+def on_send_is_bot(context, response):
+    request = context.request
+    info = request.info
+    Game.add_is_bot(context.game, info)
+
+def on_send_deceiving(context, response):
+    request = context.request
+    info = request.info
+    Game.add_deceiving(context.game, info)
+
 def on_send_game_message(context, response):
     """ Manage response for request SendGameMessage.
 
@@ -278,7 +288,9 @@ def on_set_game_state(context, response):
                                               orders=request.orders,
                                               messages=request.messages,
                                               results=request.results,
-                                              stances=request.stances))
+                                              stances=request.stances,
+                                              is_bot=request.is_bot,
+                                              deceiving=request.deceiving))
 
 def on_set_game_status(context, response):
     """ Manage response for request SetGameStatus.
@@ -373,6 +385,8 @@ MAPPING = {
     requests.SaveGame: default_manager,
     requests.SendStance: on_send_stance,
     requests.SendRecipientAnnotation: on_send_recipient_annotation,
+    requests.SendIsBot: on_send_is_bot,
+    requests.SendDeceiving: on_send_deceiving,
     requests.SendGameMessage: on_send_game_message,
     requests.SendOrderLog: on_send_order_log,
     requests.SetDummyPowers: default_manager,

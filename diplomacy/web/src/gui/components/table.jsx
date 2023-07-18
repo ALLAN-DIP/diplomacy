@@ -48,6 +48,7 @@ export class Table extends React.Component {
     constructor(props) {
         super(props);
         if (!this.props.wrapper) this.props.wrapper = defaultWrapper;
+        console.log(this.props.deceiving);
     }
 
     getHeader(columns) {
@@ -76,7 +77,21 @@ export class Table extends React.Component {
                         {header.map((column, colIndex) => (
                             <th key={colIndex}>{column[2]}</th>
                         ))}
-                        <th>Stance</th>
+                        <th>
+                            <span title="What is your attitute toward this player?">
+                                Stance
+                            </span>
+                        </th>
+                        <th>
+                            <span title="Do you think this player is a bot?">
+                                Is bot
+                            </span>
+                        </th>
+                        <th>
+                            <span title="Do you think this player is deceiving you?">
+                                Deceiving
+                            </span>
+                        </th>
                     </tr>
                 </thead>
             );
@@ -97,6 +112,14 @@ export class Table extends React.Component {
         this.props.onChangeStance(country, stance);
     };
 
+    handleIsBot = (country, checked) => {
+        this.props.onChangeIsBot(country, checked);
+    };
+
+    handleDeceiving = (country, checked) => {
+        this.props.onChangeDeceiving(country, checked);
+    };
+
     getBodyRow(
         header,
         row,
@@ -112,7 +135,7 @@ export class Table extends React.Component {
         return (
             <tr key={rowIndex}>
                 {header.map((headerColumn, colIndex) => (
-                    <td className={"align-middle"} key={colIndex} >
+                    <td className={"align-middle"} key={colIndex}>
                         {wrapped.get(headerColumn[1])}
                     </td>
                 ))}
@@ -124,6 +147,42 @@ export class Table extends React.Component {
                             onChangeStance={this.handleStance}
                             stance={stances[countries[rowIndex]]}
                         />
+                    </td>
+                ) : null}
+
+                {caption === "Powers info" && player !== countries[rowIndex] ? (
+                    <td className={"align-middle"}>
+                        <input
+                            type="checkbox"
+                            defaultChecked={
+                                this.props.is_bot &&
+                                this.props.is_bot[countries[rowIndex]]
+                            }
+                            onClick={(e) => {
+                                this.handleIsBot(
+                                    countries[rowIndex],
+                                    e.target.checked
+                                );
+                            }}
+                        ></input>
+                    </td>
+                ) : null}
+
+                {caption === "Powers info" && player !== countries[rowIndex] ? (
+                    <td className={"align-middle"}>
+                        <input
+                            type="checkbox"
+                            defaultChecked={
+                                this.props.deceiving &&
+                                this.props.deceiving[countries[rowIndex]]
+                            }
+                            onClick={(e) => {
+                                this.handleDeceiving(
+                                    countries[rowIndex],
+                                    e.target.checked
+                                );
+                            }}
+                        ></input>
                     </td>
                 ) : null}
             </tr>

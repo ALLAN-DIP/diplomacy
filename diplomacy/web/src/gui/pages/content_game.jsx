@@ -231,6 +231,8 @@ export class ContentGame extends React.Component {
         this.sendLogData = this.sendLogData.bind(this);
         this.sendOrderLog = this.sendOrderLog.bind(this);
         this.sendGameStance = this.sendGameStance.bind(this);
+        this.sendIsBot = this.sendIsBot.bind(this);
+        this.sendDeceiving = this.sendDeceiving.bind(this);
         this.sendRecipientAnnotation = this.sendRecipientAnnotation.bind(this);
         this.setOrders = this.setOrders.bind(this);
         this.setSelectedLocation = this.setSelectedLocation.bind(this);
@@ -674,6 +676,30 @@ export class ContentGame extends React.Component {
         }
     };
 
+    handleIsBot = (country, isBot) => {
+        const engine = this.props.data;
+
+        try {
+            this.sendIsBot(engine.client, engine.role, country, isBot);
+        } catch (e) {
+            this.getPage().error(
+                "Will not update status of a noncontrollable power."
+            );
+        }
+    };
+
+    handleDeceiving = (country, deceiving) => {
+        const engine = this.props.data;
+
+        try {
+            this.sendDeceiving(engine.client, engine.role, country, deceiving);
+        } catch (e) {
+            this.getPage().error(
+                "Will not update status of a noncontrollable power."
+            );
+        }
+    };
+
     sendOrderLog(networkGame, logType, order) {
         const engine = networkGame.local;
         let message = null;
@@ -734,6 +760,24 @@ export class ContentGame extends React.Component {
             stance: stance,
         };
         networkGame.sendStance({ stance: info });
+    }
+
+    sendIsBot(networkGame, controlledPower, targetPower, isBot) {
+        const info = {
+            controlled_power: controlledPower,
+            target_power: targetPower,
+            is_bot: isBot
+        };
+        networkGame.sendIsBot({info: info});
+    }
+
+    sendDeceiving(networkGame, controlledPower, targetPower, deceiving) {
+        const info = {
+            controlled_power: controlledPower,
+            target_power: targetPower,
+            deceiving: deceiving
+        };
+        networkGame.sendDeceiving({info: info});
     }
 
     sendMessage(networkGame, recipient, body, deception) {
@@ -1522,7 +1566,7 @@ export class ContentGame extends React.Component {
                                 onClick={() =>
                                     this.handleRecipientAnnotation(msg, "True")
                                 }
-                            />{" "}
+                            />
                             Truth&nbsp;&nbsp;
                             <input
                                 type="radio"
@@ -1539,8 +1583,25 @@ export class ContentGame extends React.Component {
                                 onClick={() =>
                                     this.handleRecipientAnnotation(msg, "False")
                                 }
-                            />{" "}
-                            Lie
+                            />
+                            Lie&nbsp;&nbsp;
+                            <input
+                                type="radio"
+                                value="neutral"
+                                name={messageId}
+                                checked={
+                                    this.state.annotatedMessages.hasOwnProperty(
+                                        msg.time_sent
+                                    ) &&
+                                    this.state.annotatedMessages[
+                                        msg.time_sent
+                                    ] === "Neutral"
+                                }
+                                onClick={() =>
+                                    this.handleRecipientAnnotation(msg, "Neutral")
+                                }
+                            />
+                            Neutral
                         </div>
                     </div>
                 );
@@ -1597,6 +1658,20 @@ export class ContentGame extends React.Component {
                                         currentTabId,
                                         this.state.message,
                                         "Lie"
+                                    );
+                                    this.setMessageInputValue("");
+                                }}
+                            ></Button>
+                            <Button
+                                key={"n"}
+                                pickEvent={true}
+                                title={"Neutral"}
+                                onClick={() => {
+                                    this.sendMessage(
+                                        engine.client,
+                                        currentTabId,
+                                        this.state.message,
+                                        "Neutral"
                                     );
                                     this.setMessageInputValue("");
                                 }}
@@ -1905,6 +1980,10 @@ export class ContentGame extends React.Component {
                         onChangeStance={this.handleStance}
                         stances={stances}
                         player={engine.role}
+                        onChangeIsBot={this.handleIsBot}
+                        onChangeDeceiving={this.handleDeceiving}
+                        is_bot={engine.is_bot[engine.role]}
+                        deceiving={engine.deceiving[engine.role]}
                     />
                 </div>
             </div>

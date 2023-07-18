@@ -83,6 +83,14 @@ export class NetworkGame {
         return this._req(Channel.prototype.sendStance, parameters);
     }
 
+    sendIsBot(parameters) {
+        return this._req(Channel.prototype.sendIsBot, parameters);
+    }
+
+    sendDeceiving(parameters) {
+        return this._req(Channel.prototype.sendDeceiving, parameters);
+    }
+
     sendGameMessage(parameters) {
         return this._req(Channel.prototype.sendGameMessage, parameters);
     }
