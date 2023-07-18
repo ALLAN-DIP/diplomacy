@@ -97,6 +97,11 @@ export const RESPONSE_MANAGERS = {
         message.time_sent = response.data;
         context.game.local.addLog(message);
     },
+    send_order_suggestions: function (context, response) {
+        const power = context.request.power
+        const suggestions = context.request.suggestions;
+        context.game.local.addOrderSuggestions(power, suggestions);
+    },
     set_game_state: function (context, response) {
         context.game.local.setPhaseData({
             name: context.request.state.name,

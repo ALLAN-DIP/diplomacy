@@ -226,8 +226,10 @@ class Game(Jsonable):
                  'convoy_paths_dest', 'zobrist_hash', 'renderer', 'game_id', 'map_name', 'role', 'rules',
                  'message_history', 'state_history', 'result_history', 'status', 'timestamp_created', 'n_controls',
                  'deadline', 'registration_password', 'observer_level', 'controlled_powers', '_phase_wrapper_type',
-                 'phase_abbr', '_unit_owner_cache', 'daide_port', 'fixed_state', 'log_history', 'logs', 'stances', 'stance_history',
-                 'annotated_messages', 'order_logs', 'order_log_history', 'has_initial_orders', 'is_bot', 'deceiving', 'is_bot_history', 'deceiving_history']
+                 'phase_abbr', '_unit_owner_cache', 'daide_port', 'fixed_state', 'log_history', 'logs', 'stances', 
+                 'stance_history', 'annotated_messages', 'order_logs', 'order_log_history', 'has_initial_orders', 
+                 'is_bot', 'deceiving', 'is_bot_history', 'deceiving_history', 'order_suggestions']
+
     zobrist_tables = {}
     rule_cache = ()
     model = {
@@ -277,6 +279,8 @@ class Game(Jsonable):
         strings.ORDER_LOGS: parsing.DefaultValueType(parsing.DictType(int, str), {}),
         strings.ORDER_LOG_HISTORY: parsing.DefaultValueType(parsing.DictType(str, parsing.DictType(int, str)), {}),
         strings.HAS_INITIAL_ORDERS: parsing.DefaultValueType(parsing.DictType(str, bool), {}),
+        strings.ORDER_SUGGESTIONS: parsing.DefaultValueType(
+            parsing.DictType(str, parsing.SequenceType(str)), {})
     }
 
     def __init__(self, game_id=None, **kwargs):
@@ -324,6 +328,15 @@ class Game(Jsonable):
         self.order_logs = {}
         self.has_initial_orders = {}
         self.annotated_messages = {}
+        self.order_suggestions = {
+            'AUS': [],
+            'ENG': [],
+            'TUR': [],
+            'ITA': [],
+            'RUS': [],
+            'FRA': [],
+            'GER': []
+        }
 
         # Caches
         self._unit_owner_cache = None  # {(unit, coast_required): owner}
@@ -438,6 +451,7 @@ class Game(Jsonable):
         self.deceiving_history = SortedDict(self._phase_wrapper_type, dict,
                                          {self._phase_wrapper_type(key): value
                                           for key, value in self.deceiving_history.items()})
+
 
     def __str__(self):
         """ Returns a string representation of the game instance """
@@ -1073,6 +1087,11 @@ class Game(Jsonable):
         self.order_logs[time_sent] = log
 
         return time_sent
+
+    def add_order_suggestions(self, power, suggestions):
+        existing_suggestions = self.order_suggestions.copy()
+        existing_suggestions[power] = suggestions
+        self.order_suggestions = existing_suggestions
 
     def add_message(self, message):
         """ Add message to current game data.

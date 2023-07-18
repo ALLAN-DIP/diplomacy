@@ -114,6 +114,7 @@ class NetworkGame(Game):
     send_recipient_annotation = _game_request_method(Channel._send_recipient_annotation)
     set_orders = _game_request_method(Channel._set_orders)
     send_log_data = _game_request_method(Channel._send_log_data)
+    send_order_suggestions = _game_request_method(Channel._send_order_suggestions)
 
     clear_centers = _game_request_method(Channel._clear_centers)
     clear_orders = _game_request_method(Channel._clear_orders)

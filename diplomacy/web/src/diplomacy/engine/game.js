@@ -56,7 +56,7 @@ export class Game {
 
         const nonNullFields = [
             'game_id', 'map_name', 'messages', 'role', 'rules', 'status', 'timestamp_created', 'deadline',
-            'message_history', 'order_history', 'state_history', 'logs', 'log_history',
+            'message_history', 'order_history', 'state_history', 'logs', 'log_history', 'order_suggestions'
         ];
         // These fields may be null.
         const nullFields = ['n_controls', 'registration_password'];
@@ -72,9 +72,10 @@ export class Game {
         this.map_name = gameData.map_name;
         this.messages = new SortedDict(gameData instanceof Game ? null : gameData.messages, parseInt);
         this.logs = new SortedDict(gameData instanceof Game ? null : gameData.logs, parseInt);
-        this.annotatedMessages = gameData.annotated_messages || {};
+        this.annotated_messages = gameData.annotated_messages || {};
         this.hasInitialOrders = gameData.has_initial_orders ? gameData.has_initial_orders : {};
         this.stances = gameData.stances ? gameData.stances : {};
+        this.order_suggestions = gameData.order_suggestions ? gameData.order_suggestions : {};
         this.is_bot = gameData.is_bot ? gameData.is_bot : {};
         this.deceiving = gameData.deceiving ? gameData.deceiving : {};
 
@@ -242,7 +243,7 @@ export class Game {
     }
 
     addRecipientAnnotation(annotation) {
-        this.annotatedMessages[annotation.timeSent] = annotation.annotation;
+        this.annotated_messages[annotation.timeSent] = annotation.annotation;
     }
 
     addStance(powerName, stance) {
@@ -291,6 +292,10 @@ export class Game {
         if (this.isPlayerGame() && !message.isGlobal() && this.role !== message.sender && this.role !== message.recipient)
             throw new Error('Given message is not related to current player ' + this.role);
         this.logs.put(message.time_sent, message);
+    }
+
+    addOrderSuggestions(power, suggestions) {
+        console.log('added for ' + power + ': ' + suggestions);
     }
 
     assertPlayerGame(powerName) {
@@ -578,7 +583,7 @@ export class Game {
     }
 
     getAnnotatedMessages() {
-        return this.annotatedMessages;
+        return this.annotated_messages;
     }
 
     getMessageChannels(role, all) {
@@ -605,8 +610,8 @@ export class Game {
                 if (!messageChannels.hasOwnProperty(protagonist))
                     messageChannels[protagonist] = [];
 
-                if (this.annotatedMessages.hasOwnProperty(message.time_sent)) {
-                    message.recipient_annotation = this.annotatedMessages[message.time_sent];
+                if (this.annotated_messages.hasOwnProperty(message.time_sent)) {
+                    message.recipient_annotation = this.annotated_messages[message.time_sent];
                 }
                 messageChannels[protagonist].push(message);
             }

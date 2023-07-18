@@ -851,6 +851,16 @@ def on_send_order_log(server, request, connection_handler):
     server.backup_now(force=True)
 
 
+def on_send_order_suggestions(server, request, connection_handler):
+    level = verify_request(server, request, connection_handler)
+    token, power, suggestions = request.token, request.power, request.suggestions
+    assert_game_not_finished(level.game)
+    level.game.add_order_suggestions(power, suggestions)
+    server.save_game(level.game)
+    server.backup_now(force=True)
+    
+
+
 def on_send_game_message(server, request, connection_handler):
     """ Manage request SendGameMessage.
 
@@ -1342,6 +1352,7 @@ MAPPING = {
     requests.SendDeceiving: on_send_deceiving,
     requests.SendRecipientAnnotation: on_send_recipient_annotation,
     requests.SendOrderLog: on_send_order_log,
+    requests.SendOrderSuggestions: on_send_order_suggestions,
     requests.SendGameMessage: on_send_game_message,
     requests.SetDummyPowers: on_set_dummy_powers,
     requests.SetGameState: on_set_game_state,

@@ -268,6 +268,12 @@ def on_send_order_log(context, response):
     log = request.log
     Game.add_order_log(context.game, log)
 
+def on_send_order_suggestions(context, response):
+    request = context.request
+    power = request.power
+    suggestions = request.suggestions
+    Game.add_order_suggestions(context.game, power, suggestions)
+
 def on_set_game_state(context, response):
     """ Manage response for request SetGameState.
 
@@ -385,6 +391,7 @@ MAPPING = {
     requests.SendOrderLog: on_send_order_log,
     requests.SetDummyPowers: default_manager,
     requests.SendLogData: on_send_log_data,
+    requests.SendOrderSuggestions: on_send_order_suggestions,
     requests.SetGameState: on_set_game_state,
     requests.SetGameStatus: on_set_game_status,
     requests.SetGrade: default_manager,
