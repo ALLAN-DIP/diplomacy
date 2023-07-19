@@ -113,7 +113,17 @@ const TABLE_POWER_VIEW = {
     controller: ["Controller", 1],
     order_is_set: ["With orders", 2],
     wait: ["Ready", 3],
+    stance: ["Stance", 4],
+    is_bot: ["Is bot", 5],
+    deceiving: ["Deceiving", 6],
 };
+
+const TABLE_POWER_VIEW_OMNISCIENT = {
+    name: ["Power", 0],
+    controller: ["Controller", 1],
+    order_is_set: ["With orders", 2],
+    wait: ["Ready", 3],
+}
 
 const PRETTY_ROLES = {
     [STRINGS.OMNISCIENT_TYPE]: "Omnicient",
@@ -1984,17 +1994,10 @@ export class ContentGame extends React.Component {
                     <Table
                         className={"table table-striped table-sm"}
                         caption={"Powers info"}
-                        columns={TABLE_POWER_VIEW}
+                        columns={TABLE_POWER_VIEW_OMNISCIENT}
                         data={orderedPowers}
                         wrapper={PowerView.wrap}
                         countries={powerNames}
-                        onChangeStance={this.handleStance}
-                        stances={stances}
-                        player={engine.role}
-                        onChangeIsBot={this.handleIsBot}
-                        onChangeDeceiving={this.handleDeceiving}
-                        is_bot={engine.is_bot[engine.role]}
-                        deceiving={engine.deceiving[engine.role]}
                     />
                 </div>
             </div>
