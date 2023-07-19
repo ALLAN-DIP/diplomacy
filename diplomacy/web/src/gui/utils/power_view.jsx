@@ -14,40 +14,76 @@
 //  You should have received a copy of the GNU Affero General Public License along
 //  with this program.  If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
-import {STRINGS} from "../../diplomacy/utils/strings";
+import { STRINGS } from "../../diplomacy/utils/strings";
 import React from "react";
 
 function getName(power) {
     if (power.isEliminated())
-        return <span className="dummy"><em><s>{power.name.toLowerCase()}</s> (eliminated)</em></span>;
+        return (
+            <span className="dummy">
+                <em>
+                    <s>{power.name.toLowerCase()}</s> (eliminated)
+                </em>
+            </span>
+        );
     return power.name;
 }
 
 function getController(power) {
     if (power.isEliminated())
-        return <span className="dummy"><em>N/A</em></span>;
-    const controller = power.getController().length > 10 ? power.getController().substring(0, 10) + '...' : power.getController();
-    return <span title={power.getController()} className={controller === STRINGS.DUMMY ? 'dummy' : 'controller'}>{controller}</span>;
+        return (
+            <span className="dummy">
+                <em>N/A</em>
+            </span>
+        );
+    const controller =
+        power.getController().length > 10
+            ? power.getController().substring(0, 10) + "..."
+            : power.getController();
+    return (
+        <span
+            title={power.getController()}
+            className={controller === STRINGS.DUMMY ? "dummy" : "controller"}
+        >
+            {controller}
+        </span>
+    );
 }
 
 function getOrderFlag(power) {
-    if (power.isEliminated() || power.game.orderableLocations[power.name].length === 0)
-        return <span className="dummy"><em>N/A</em></span>;
-    const value = ['no', 'empty', 'yes'][power.order_is_set];
+    if (
+        power.isEliminated() ||
+        !power.game.orderableLocations ||
+        power.game.orderableLocations[power.name].length === 0
+    )
+        return (
+            <span className="dummy">
+                <em>N/A</em>
+            </span>
+        );
+    const value = ["no", "empty", "yes"][power.order_is_set];
     return <span className={value}>{value}</span>;
 }
 
 function getWaitFlag(power) {
     if (power.isEliminated())
-        return <span className="dummy"><em>N/A</em></span>;
-    return <span className={power.wait ? 'wait' : 'no-wait'}>{power.wait ? 'no' : 'yes'}</span>;
+        return (
+            <span className="dummy">
+                <em>N/A</em>
+            </span>
+        );
+    return (
+        <span className={power.wait ? "wait" : "no-wait"}>
+            {power.wait ? "no" : "yes"}
+        </span>
+    );
 }
 
 const GETTERS = {
     name: getName,
     controller: getController,
     order_is_set: getOrderFlag,
-    wait: getWaitFlag
+    wait: getWaitFlag,
 };
 
 export class PowerView {
@@ -63,6 +99,5 @@ export class PowerView {
         if (key in GETTERS) {
             return GETTERS[key](this.power);
         }
-
     }
 }
