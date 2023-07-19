@@ -112,10 +112,7 @@ const TABLE_POWER_VIEW = {
     name: ["Power", 0],
     controller: ["Controller", 1],
     order_is_set: ["With orders", 2],
-    wait: ["Ready", 3],
-    stance: ["Stance", 4],
-    is_bot: ["Is bot", 5],
-    deceiving: ["Deceiving", 6],
+    wait: ["Ready", 3]
 };
 
 const TABLE_POWER_VIEW_OMNISCIENT = {

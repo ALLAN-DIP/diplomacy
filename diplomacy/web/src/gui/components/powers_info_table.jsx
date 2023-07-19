@@ -187,7 +187,7 @@ export class PowersInfoTable extends React.Component {
     }
 
     render() {
-        const header = this.getHeader(this.props.columns, this.props.caption);
+        const header = this.getHeader(this.props.columns);
         return (
             <div className={"table-responsive"}>
                 <table className={this.props.className}>
