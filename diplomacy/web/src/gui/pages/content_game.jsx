@@ -35,6 +35,7 @@ import { MessageView } from "../components/message_view";
 import { STRINGS } from "../../diplomacy/utils/strings";
 import { Diplog } from "../../diplomacy/utils/diplog";
 import { Table } from "../components/table";
+import { PowersInfoTable } from "../components/powers_info_table";
 import { PowerView } from "../utils/power_view";
 import { DipStorage } from "../utils/dipStorage";
 import Helmet from "react-helmet";
@@ -766,18 +767,18 @@ export class ContentGame extends React.Component {
         const info = {
             controlled_power: controlledPower,
             target_power: targetPower,
-            is_bot: isBot
+            is_bot: isBot,
         };
-        networkGame.sendIsBot({info: info});
+        networkGame.sendIsBot({ info: info });
     }
 
     sendDeceiving(networkGame, controlledPower, targetPower, deceiving) {
         const info = {
             controlled_power: controlledPower,
             target_power: targetPower,
-            deceiving: deceiving
+            deceiving: deceiving,
         };
-        networkGame.sendDeceiving({info: info});
+        networkGame.sendDeceiving({ info: info });
     }
 
     sendMessage(networkGame, recipient, body, deception) {
@@ -1598,7 +1599,10 @@ export class ContentGame extends React.Component {
                                     ] === "Neutral"
                                 }
                                 onClick={() =>
-                                    this.handleRecipientAnnotation(msg, "Neutral")
+                                    this.handleRecipientAnnotation(
+                                        msg,
+                                        "Neutral"
+                                    )
                                 }
                             />
                             Neutral
@@ -1967,10 +1971,30 @@ export class ContentGame extends React.Component {
                 ? {}
                 : engine.getPower(engine.role).getStances();
 
-        return (
+        return engine.role === "omniscient_type" ? (
             <div className={"col-lg-6 col-md-12"}>
                 <div className={"table-responsive"}>
                     <Table
+                        className={"table table-striped table-sm"}
+                        caption={"Powers info"}
+                        columns={TABLE_POWER_VIEW}
+                        data={orderedPowers}
+                        wrapper={PowerView.wrap}
+                        countries={powerNames}
+                        onChangeStance={this.handleStance}
+                        stances={stances}
+                        player={engine.role}
+                        onChangeIsBot={this.handleIsBot}
+                        onChangeDeceiving={this.handleDeceiving}
+                        is_bot={engine.is_bot[engine.role]}
+                        deceiving={engine.deceiving[engine.role]}
+                    />
+                </div>
+            </div>
+        ) : (
+            <div className={"col-lg-6 col-md-12"}>
+                <div className={"table-responsive"}>
+                    <PowersInfoTable
                         className={"table table-striped table-sm"}
                         caption={"Powers info"}
                         columns={TABLE_POWER_VIEW}
@@ -2044,8 +2068,7 @@ export class ContentGame extends React.Component {
     }
 
     renderOrderSuggestions(orders) {
-        return (
-            orders ?
+        return orders ? (
             <div className={"table-responsive"}>
                 <table className={this.props.className}>
                     <tbody>
@@ -2062,7 +2085,7 @@ export class ContentGame extends React.Component {
                     </tbody>
                 </table>
             </div>
-            :
+        ) : (
             <div></div>
         );
     }
@@ -2085,7 +2108,8 @@ export class ContentGame extends React.Component {
                 ? {}
                 : engine.getPower(engine.role).getStances();
 
-        const orderSuggestions = engine.order_suggestions[powerName.substring(0, 3)]
+        const orderSuggestions =
+            engine.order_suggestions[powerName.substring(0, 3)];
 
         return (
             <Tab id={"tab-current-phase"} display={toDisplay}>

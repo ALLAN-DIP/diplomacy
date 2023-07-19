@@ -35,7 +35,7 @@ function defaultWrapper(data) {
     return new DefaultWrapper(data);
 }
 
-export class Table extends React.Component {
+export class PowersInfoTable extends React.Component {
     // className
     // caption
     // columns : {name: [title, order]}
@@ -76,19 +76,49 @@ export class Table extends React.Component {
                     {header.map((column, colIndex) => (
                         <th key={colIndex}>{column[2]}</th>
                     ))}
+                    <th>
+                        <span title="What is your attitute toward this player?">
+                            Stance
+                        </span>
+                    </th>
+                    <th>
+                        <span title="Do you think this player is a bot?">
+                            Is bot
+                        </span>
+                    </th>
+                    <th>
+                        <span title="Do you think this player is deceiving you?">
+                            Deceiving
+                        </span>
+                    </th>
                 </tr>
             </thead>
         );
-        
     }
+
+    handleStance = (country, stance) => {
+        this.props.onChangeStance(country, stance);
+    };
+
+    handleIsBot = (country, checked) => {
+        this.props.onChangeIsBot(country, checked);
+    };
+
+    handleDeceiving = (country, checked) => {
+        this.props.onChangeDeceiving(country, checked);
+    };
 
     getBodyRow(
         header,
         row,
         rowIndex,
         wrapper,
+        countries,
+        stances,
+        player
     ) {
         const wrapped = wrapper(row);
+
         return (
             <tr key={rowIndex}>
                 {header.map((headerColumn, colIndex) => (
@@ -96,11 +126,57 @@ export class Table extends React.Component {
                         {wrapped.get(headerColumn[1])}
                     </td>
                 ))}
+
+                {player !== countries[rowIndex] ? (
+                    <td>
+                        <Slider
+                            country={countries[rowIndex]}
+                            onChangeStance={this.handleStance}
+                            stance={stances[countries[rowIndex]]}
+                        />
+                    </td>
+                ) : null}
+
+                {player !== countries[rowIndex] ? (
+                    <td className={"align-middle"}>
+                        <input
+                            type="checkbox"
+                            defaultChecked={
+                                this.props.is_bot &&
+                                this.props.is_bot[countries[rowIndex]]
+                            }
+                            onClick={(e) => {
+                                this.handleIsBot(
+                                    countries[rowIndex],
+                                    e.target.checked
+                                );
+                            }}
+                        ></input>
+                    </td>
+                ) : null}
+
+                {player !== countries[rowIndex] ? (
+                    <td className={"align-middle"}>
+                        <input
+                            type="checkbox"
+                            defaultChecked={
+                                this.props.deceiving &&
+                                this.props.deceiving[countries[rowIndex]]
+                            }
+                            onClick={(e) => {
+                                this.handleDeceiving(
+                                    countries[rowIndex],
+                                    e.target.checked
+                                );
+                            }}
+                        ></input>
+                    </td>
+                ) : null}
             </tr>
         );
     }
 
-    getBodyLines(header, data, wrapper) {
+    getBodyLines(header, data, wrapper, countries, stances, player) {
         return (
             <tbody>
                 {data.map((row, rowIndex) =>
@@ -108,7 +184,10 @@ export class Table extends React.Component {
                         header,
                         row,
                         rowIndex,
-                        wrapper
+                        wrapper,
+                        countries,
+                        stances,
+                        player
                     )
                 )}
             </tbody>
@@ -127,7 +206,10 @@ export class Table extends React.Component {
                     {this.getBodyLines(
                         header,
                         this.props.data,
-                        this.props.wrapper
+                        this.props.wrapper,
+                        this.props.countries,
+                        this.props.stances,
+                        this.props.player
                     )}
                 </table>
             </div>
@@ -135,10 +217,11 @@ export class Table extends React.Component {
     }
 }
 
-Table.propTypes = {
+PowersInfoTable.propTypes = {
     wrapper: PropTypes.func,
     columns: PropTypes.object,
     className: PropTypes.string,
     caption: PropTypes.string,
     data: PropTypes.array,
+    stances: PropTypes.object,
 };
