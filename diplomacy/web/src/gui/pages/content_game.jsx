@@ -2151,17 +2151,21 @@ export class ContentGame extends React.Component {
                                 {this.renderOrders(this.props.data, powerName)}
                             </div>
                         </div>
-                        <div>
-                            <caption>Suggested Orders</caption>
-                            <div
-                                style={{
-                                    display: "flex",
-                                    flexDirection: "column",
-                                }}
-                            >
-                                {this.renderOrderSuggestions(orderSuggestions)}
+                        {engine.role !== "omniscient_type" && (
+                            <div>
+                                <caption>Suggested Orders</caption>
+                                <div
+                                    style={{
+                                        display: "flex",
+                                        flexDirection: "column",
+                                    }}
+                                >
+                                    {this.renderOrderSuggestions(
+                                        orderSuggestions
+                                    )}
+                                </div>
                             </div>
-                        </div>
+                        )}
                     </div>
                 </Row>
             </Tab>

@@ -79,15 +79,9 @@ export class Table extends React.Component {
                 </tr>
             </thead>
         );
-        
     }
 
-    getBodyRow(
-        header,
-        row,
-        rowIndex,
-        wrapper,
-    ) {
+    getBodyRow(header, row, rowIndex, wrapper) {
         const wrapped = wrapper(row);
         return (
             <tr key={rowIndex}>
@@ -104,12 +98,7 @@ export class Table extends React.Component {
         return (
             <tbody>
                 {data.map((row, rowIndex) =>
-                    this.getBodyRow(
-                        header,
-                        row,
-                        rowIndex,
-                        wrapper
-                    )
+                    this.getBodyRow(header, row, rowIndex, wrapper)
                 )}
             </tbody>
         );

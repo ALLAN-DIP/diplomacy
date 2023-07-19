@@ -108,15 +108,7 @@ export class PowersInfoTable extends React.Component {
         this.props.onChangeDeceiving(country, checked);
     };
 
-    getBodyRow(
-        header,
-        row,
-        rowIndex,
-        wrapper,
-        countries,
-        stances,
-        player
-    ) {
+    getBodyRow(header, row, rowIndex, wrapper, countries, stances, player) {
         const wrapped = wrapper(row);
 
         return (
