@@ -1452,6 +1452,10 @@ export class ContentGame extends React.Component {
         return count;
     }
 
+    truncate(str) {
+        return str.length > 15 ? str.substring(0, 12) + "..." : str;
+    }
+
     renderCurrentMessages(engine, role) {
         const messageChannels = this.filterMessages(
             engine,
@@ -1469,7 +1473,7 @@ export class ContentGame extends React.Component {
                 <Conversation
                     info={
                         protagonist !== "GLOBAL"
-                            ? engine.powers[protagonist].getController()
+                            ? this.truncate(engine.powers[protagonist].getController())
                             : ""
                     }
                     className={
@@ -1477,6 +1481,9 @@ export class ContentGame extends React.Component {
                             ? "cs-conversation--active"
                             : null
                     }
+                    title={protagonist !== "GLOBAL"
+                    ? engine.powers[protagonist].getController()
+                    : ""}
                     onClick={() => {
                         this.onChangeTabCurrentMessages(protagonist);
                     }}
