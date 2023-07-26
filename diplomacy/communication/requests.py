@@ -84,6 +84,7 @@ import inspect
 import logging
 
 from diplomacy.engine.message import Message
+from diplomacy.engine.daide_composer_message import DaideComposerMessage
 from diplomacy.engine.log import Log
 from diplomacy.utils import common, exceptions, parsing, strings
 from diplomacy.utils.network_data import NetworkData
@@ -269,7 +270,7 @@ class CreateGame(_AbstractChannelRequest):
               game created and joined. Either a power game (if power name given) or an omniscient game.
     """
     __slots__ = ['game_id', 'power_name', 'state', 'map_name', 'rules', 'n_controls', 'deadline',
-                 'registration_password', 'daide_port']
+                 'registration_password', 'daide_port', 'player_type']
     params = {
         strings.GAME_ID: parsing.OptionalValueType(str),
         strings.N_CONTROLS: parsing.OptionalValueType(int),
@@ -279,7 +280,8 @@ class CreateGame(_AbstractChannelRequest):
         strings.STATE: parsing.OptionalValueType(dict),
         strings.MAP_NAME: parsing.DefaultValueType(str, 'standard'),
         strings.RULES: parsing.OptionalValueType(parsing.SequenceType(str, sequence_builder=set)),
-        strings.DAIDE_PORT: parsing.OptionalValueType(int)
+        strings.DAIDE_PORT: parsing.OptionalValueType(int),
+        strings.PLAYER_TYPE: parsing.OptionalValueType(str)
     }
 
     def __init__(self, **kwargs):
@@ -292,6 +294,7 @@ class CreateGame(_AbstractChannelRequest):
         self.map_name = ''
         self.rules = set()
         self.daide_port = None
+        self.player_type = ''
         super(CreateGame, self).__init__(**kwargs)
 
 class DeleteAccount(_AbstractChannelRequest):
@@ -383,9 +386,11 @@ class JoinGame(_AbstractChannelRequest):
             user wants to observe game without playing.
         :param registration_password: password to join game. If omitted while
             game requires a password, server will return an error.
+        :param player_type: one of either 'human', 'no_press_bot', 'press_bot'
         :type game_id: str
         :type power_name: str, optional
         :type registration_password: str, optional
+        :type player_type: str, optional
         :return:
 
             - Server: :class:`.DataGame`
@@ -403,17 +408,19 @@ class JoinGame(_AbstractChannelRequest):
                 If he does have up to game master privileges, then he can also send requests that
                 require game master privileges.
     """
-    __slots__ = ['game_id', 'power_name', 'registration_password']
+    __slots__ = ['game_id', 'power_name', 'registration_password', 'player_type']
     params = {
         strings.GAME_ID: str,
         strings.POWER_NAME: parsing.OptionalValueType(str),
-        strings.REGISTRATION_PASSWORD: parsing.OptionalValueType(str)
+        strings.REGISTRATION_PASSWORD: parsing.OptionalValueType(str),
+        strings.PLAYER_TYPE:  parsing.OptionalValueType(parsing.EnumerationType(strings.ALL_PLAYER_TYPES))
     }
 
     def __init__(self, **kwargs):
         self.game_id = None
         self.power_name = None
         self.registration_password = None
+        self.player_type = None
         super(JoinGame, self).__init__(**kwargs)
 
 class JoinPowers(_AbstractChannelRequest):
@@ -687,6 +694,22 @@ class SendGameMessage(_AbstractGameRequest):
         self.message = None  # type: Message
         super(SendGameMessage, self).__init__(**kwargs)
 
+class SendDaideComposerMessage(_AbstractGameRequest):
+    """ Message sent from the DAIDE Composer UI.
+    :param message: message to compose into DAIDE
+    :type message:DaideComposerMessage
+    :return
+        string: DAIDE Message
+    """
+    __slots__ = ['message']
+    params = {
+        strings.MESSAGE: parsing.JsonableClassType(DaideComposerMessage)
+    }
+
+    def __init__(self, **kwargs):
+        self.message = None  # type: Message
+        super(SendDaideComposerMessage, self).__init__(**kwargs)
+
 class SendLogData(_AbstractGameRequest):
     """Data to log intent, rationalize decision, note observations about universe
     """
@@ -749,6 +772,8 @@ class SetGameState(_AbstractGameRequest):
         self.messages = {}  # type: SortedDict
         super(SetGameState, self).__init__(**kwargs)
 
+
+
 class SetGameStatus(_AbstractGameRequest):
     """ Game request to force game status (only if new status differs from previous one).
         Require game master privileges.
@@ -796,6 +821,26 @@ class SetOrders(_AbstractGameRequest):
         self.orders = None
         self.wait = None
         super(SetOrders, self).__init__(**kwargs)
+
+class SetCommStatus(_AbstractGameRequest):
+    """ Game request to toggle a players communication status
+        :param power_name. If not given, request user must be a game player, and power if inferred from request game role
+        :param commStatus: one of ['busy', 'ready','inactive']
+        :type power_name str
+        :type commStatus str
+        return none
+    """
+    __slots__ = ['power_name', 'comm_status']
+    params = {
+        strings.POWER_NAME: parsing.OptionalValueType(str),  # required only for game master.
+        strings.COMM_STATUS: parsing.EnumerationType(strings.ALL_COMM_STATUSES),
+    }
+
+    def __init__(self, **kwargs):
+        self.power_name = None
+        self.comm_status = None
+
+        super(SetCommStatus, self).__init__(**kwargs)
 
 class SetWaitFlag(_AbstractGameRequest):
     """ Game request to set orders for a power.

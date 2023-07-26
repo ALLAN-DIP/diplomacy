@@ -34,6 +34,8 @@ export class Power {
         this.retreats = {};
         this.orders = [];
         this.influence = [];
+        this.comm_status = STRINGS.BUSY;
+        this.player_type = null;
     }
 
     isControlled() {
@@ -53,6 +55,10 @@ export class Power {
         return(res);
     }
 
+    getCommStatus() {
+        return(this.comm_status);
+    }
+
     isEliminated() {
         return !(this.units.length || this.centers.length || Object.keys(this.retreats).length);
     }
@@ -68,6 +74,8 @@ export class Power {
         this.units = powerState.units;
         this.retreats = powerState.retreats;
         this.influence = powerState.influence || [];
+        this.comm_status = powerState.comm_status;
+        this.player_type = powerState.player_type;
         // Get orders.
         this.orders = [];
         if (this.game.phase.charAt(this.game.phase.length - 1) === 'M') {
@@ -98,6 +106,8 @@ export class Power {
         power.retreats = Object.assign({}, this.retreats);
         power.influence = this.influence.slice();
         power.orders = this.orders.slice();
+        power.comm_status = this.comm_status;
+        power.player_type = this.player_type;
         return power;
     }
 
@@ -108,6 +118,10 @@ export class Power {
     setOrders(orders) {
         this.orders = orders.slice();
         this.order_is_set = this.orders.length ? 2 : 1;
+    }
+
+    set_comm_status(comm_status) {
+        this.comm_status = comm_status
     }
 
     setDummy() {
@@ -122,6 +136,7 @@ export class Power {
         this.orders = [];
         this.order_is_set = 0;
         this.wait = !this.game.isRealTime();
+        this.comm_status = STRINGS.BUSY;
     }
 
     clearUnits() {

@@ -68,6 +68,10 @@ export const RESPONSE_MANAGERS = {
         message.time_sent = response.data;
         context.game.local.addMessage(message);
     },
+    send_daide_composer_message: function(context, response) {
+        const message = response.data;
+        return(message);
+    },
     send_log_data: function (context, response) {
         const message = context.request.log;
         message.time_sent = response.data;
@@ -108,6 +112,13 @@ export const RESPONSE_MANAGERS = {
             context.game.local.setWait(context.request.game_role, wait);
         else
             context.game.local.setWait(context.request.power_name, wait);
+    },
+    set_comm_status: function (context, response) {
+        const commStatus = context.request.comm_status;
+        if (context.game.local.isPlayerGame(context.request.game_role))
+            context.game.local.setCommStatus(context.request.game_role, commStatus);
+        else
+            context.game.local.setCommStatus(context.request.power_name, commStatus);
     },
     vote: function (context, response) {
         context.game.local.getRelatedPower().vote = context.request.vote;

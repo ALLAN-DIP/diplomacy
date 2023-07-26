@@ -176,8 +176,16 @@ export class Channel {
         return this._req('send_game_message', undefined, undefined, parameters, game);
     }
 
+    sendDaideComposerMessage(parameters, game) {
+        return this._req('send_daide_composer_message', undefined, undefined, parameters, game);
+    }
+
     sendLogData(parameters, game) {
         return this._req('send_log_data', undefined, undefined, parameters, game);
+    }
+
+    setCommStatus(parameters, game) {
+        return this._req('set_comm_status', undefined, undefined, parameters, game)
     }
 
     setOrders(parameters, game) {
