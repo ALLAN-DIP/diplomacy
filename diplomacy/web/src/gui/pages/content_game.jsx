@@ -1649,7 +1649,7 @@ export class ContentGame extends React.Component {
                             }
                             value={this.state.message}
                             disabled={!this.state.hasInitialOrders}
-                            placeholder="You must enter your orders each season before you can send messages.
+                            placeholder="You must draft your orders each season before you can send messages.
                             New messages are hidden until you annotate previous ones."
                         />
                     )}

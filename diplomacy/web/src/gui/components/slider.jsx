@@ -13,7 +13,7 @@ export class Slider extends React.Component {
     }
 
     getInitialValue() {
-        return {value: 0};
+        return {value: 1};
     }
 
     country = this.props.country;

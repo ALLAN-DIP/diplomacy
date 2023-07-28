@@ -81,12 +81,12 @@ export class PowersInfoTable extends React.Component {
                     ))}
                     <th>
                         <span title="What is your attitute toward this player?">
-                            Stance
+                            Your stance toward other players
                         </span>
                     </th>
                     <th>
                         <span title="Do you think this player is a bot?">
-                            Is bot
+                            Which players do you think are bots?
                         </span>
                     </th>
                 </tr>
@@ -123,7 +123,7 @@ export class PowersInfoTable extends React.Component {
                             country={countries[rowIndex]}
                             onChangeStance={this.handleStance}
                             stance={stances[countries[rowIndex]]}
-                            dict={{0: 'Neutral', 1: 'Hostile', 2: 'Friendly'}}
+                            dict={{0: 'Hostile', 1: 'Neutral', 2: 'Friendly'}}
                         />
                     </td>
                 ) : null}
@@ -134,7 +134,7 @@ export class PowersInfoTable extends React.Component {
                             country={countries[rowIndex]}
                             onChangeStance={this.handleIsBot}
                             stance={isBot[countries[rowIndex]]}
-                            dict={{0: 'Not sure', 1: 'This player is a bot', 2: 'This player is a real human'}}
+                            dict={{0: 'This player is a bot', 1: 'Not sure', 2: 'This player is a real human'}}
                         />
                     </td>
                 ) : null}
