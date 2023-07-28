@@ -31,7 +31,7 @@ export class Slider extends React.Component {
                 <input type={"range"} value={this.state.value} min={"0"} max={"3"} step={"1"}
                        onChange={this.handleChange}/>
 
-                <p><span id={"stanceValue"}>{this.STANCE[this.state.value]}</span></p>
+                <p><span id={"stanceValue"}>{this.props.dict[this.state.value]}</span></p>
             </div>
 
         );
@@ -42,6 +42,7 @@ Slider.propTypes = {
     country: PropTypes.string,
     stance: PropTypes.number,
     onChangeStance: PropTypes.func,
+    dict: PropTypes.object,
 };
 
 /*

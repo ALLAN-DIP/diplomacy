@@ -123,6 +123,7 @@ export class PowersInfoTable extends React.Component {
                             country={countries[rowIndex]}
                             onChangeStance={this.handleStance}
                             stance={stances[countries[rowIndex]]}
+                            dict={{0: 'Stance not given', 1: 'Hostile', 2: 'Neutral', 3: 'Friendly'}}
                         />
                     </td>
                 ) : null}
