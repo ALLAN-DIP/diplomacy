@@ -18,6 +18,7 @@
 import {STRINGS} from "../utils/strings";
 import {NOTIFICATIONS} from "../communication/notifications";
 import {Game} from "../engine/game";
+//import {DaideComposerMessage} from "../../gui/components/DaideComposerMessage";
 
 /** Notification managers. **/
 export const NOTIFICATION_MANAGERS = {
@@ -51,7 +52,45 @@ export const NOTIFICATION_MANAGERS = {
         game.local.addRecipientAnnotation(notification);
     },
     game_message_received: function (game, notification) {
+        /*
+        const msg = notification.message
+        const message = new DaideComposerMessage({
+            phase: game.local.phase,
+            sender: msg.sender,
+            recipient: msg.recipient,
+            message: '',
+            negotiation: "{}",
+            daide: msg.message,
+            gloss: true
+        });
+        game.sendDaideComposerMessage({message: message})
+            .then((transMessage) => {
+                console.log("TEST")
+                console.log(transMessage)
+                game.local.addMessage(notification.message);
+
+            });
+            */
+
         game.local.addMessage(notification.message);
+        /*
+        game.sendDaideComposerMessage({message: message})
+            .then((transMessage) => {
+                    console.log("TEST")
+                    console.log(transMessage);
+                    const parsedMessage = JSON.parse(transMessage);
+                    if(parsedMessage.message === "Ahem."){
+                        //Message is most likely not daide
+                        game.local.addMessage(notification.message);
+                    } else {
+                        //Message likely daide, append gloss
+                        const newMessage = notification.message + "\n\n" + parsedMessage.message;
+                        game.local.addMessage(newMessage);
+                    }
+                }
+            )
+            .catch(error => console.log(error.toString()));*/
+
     },
     log_received: function (game, notification) {
         game.local.addLog(notification.message);
@@ -100,6 +139,10 @@ export const NOTIFICATION_MANAGERS = {
     },
     power_wait_flag: function (game, notification) {
         game.local.setWait(notification.power_name, notification.wait);
+    },
+    power_comm_status_update: function (game, notification) {
+        game.local.setCommStatus(notification.power_name, notification.comm_status);
+        //game.local.getPower(notification.power_name).comm_status = notification.comm_status;
     },
     vote_count_updated: function (game, notification) {
         // Nothing currently done.
