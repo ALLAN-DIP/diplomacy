@@ -48,7 +48,6 @@ export class PowersInfoTable extends React.Component {
     constructor(props) {
         super(props);
         if (!this.props.wrapper) this.props.wrapper = defaultWrapper;
-        console.log('powers info table: ', props.isBot, props.stances);
     }
 
     getHeader(columns) {

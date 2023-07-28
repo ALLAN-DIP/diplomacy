@@ -149,7 +149,6 @@ export class Game {
                 const is_bot = gameData.is_bot[power_name];
                 if (is_bot !== null && is_bot !== undefined) {
                     for (const [power, stance] of Object.entries(is_bot)) {
-                        console.log('game is_bot: ', power, stance)
                         this.powers[power_name].setIsBot(power, stance);
                     }
                 }

@@ -112,7 +112,7 @@ const TABLE_POWER_VIEW = {
     name: ["Power", 0],
     controller: ["Controller", 1],
     order_is_set: ["With orders", 2],
-    wait: ["Ready", 3]
+    wait: ["Ready", 3],
 };
 
 const TABLE_POWER_VIEW_OMNISCIENT = {
@@ -120,7 +120,7 @@ const TABLE_POWER_VIEW_OMNISCIENT = {
     controller: ["Controller", 1],
     order_is_set: ["With orders", 2],
     wait: ["Ready", 3],
-}
+};
 
 const PRETTY_ROLES = {
     [STRINGS.OMNISCIENT_TYPE]: "Omnicient",
@@ -256,10 +256,13 @@ export class ContentGame extends React.Component {
     }
 
     static gameTitle(game) {
-        let title = `${game.game_id} | ${game.phase} | ${
-            game.status
-        } | ${ContentGame.prettyRole(game.role)} | ${game.map_name}`;
-        if (game.daide_port) title += ` | DAIDE ${game.daide_port}`;
+        let title = `${game.game_id} | ${game.phase} | `;
+        const players =
+            game.status === "active"
+                ? game.status
+                : `${game.countControlledPowers()} / 7 |`;
+        title += players;
+        //if (game.daide_port) title += ` | DAIDE ${game.daide_port}`;
         const remainingTime = game.deadline_timer;
         const remainingHour = Math.floor(remainingTime / 3600);
         const remainingMinute = Math.floor(
@@ -690,7 +693,6 @@ export class ContentGame extends React.Component {
 
         try {
             power.setIsBot(country, parseInt(isBot));
-            console.log('handleisBot', power.getIsBot());
             this.sendIsBot(engine.client, engine.role, power.getIsBot());
         } catch (e) {
             this.getPage().error(
@@ -778,7 +780,6 @@ export class ContentGame extends React.Component {
             power_name: powerName,
             is_bot: isBot,
         };
-        console.log('info: ', info)
         networkGame.sendIsBot({ is_bot: info });
     }
 
@@ -1483,7 +1484,9 @@ export class ContentGame extends React.Component {
                 <Conversation
                     info={
                         protagonist !== "GLOBAL"
-                            ? this.truncate(engine.powers[protagonist].getController())
+                            ? this.truncate(
+                                  engine.powers[protagonist].getController()
+                              )
                             : ""
                     }
                     className={
@@ -1491,9 +1494,11 @@ export class ContentGame extends React.Component {
                             ? "cs-conversation--active"
                             : null
                     }
-                    title={protagonist !== "GLOBAL"
-                    ? engine.powers[protagonist].getController()
-                    : ""}
+                    title={
+                        protagonist !== "GLOBAL"
+                            ? engine.powers[protagonist].getController()
+                            : ""
+                    }
                     onClick={() => {
                         this.onChangeTabCurrentMessages(protagonist);
                     }}
@@ -1982,14 +1987,16 @@ export class ContentGame extends React.Component {
         const powerNames = Object.keys(engine.powers);
 
         function isNotSelf(power) {
-            return engine.role !== power
+            return engine.role !== power;
         }
 
-        const filteredPowerNames = powerNames.filter(isNotSelf)
-        const filteredPowers = filteredPowerNames.map((pn) => engine.powers[pn]);
+        const filteredPowerNames = powerNames.filter(isNotSelf);
+        const filteredPowers = filteredPowerNames.map(
+            (pn) => engine.powers[pn]
+        );
 
         powerNames.sort();
-        filteredPowerNames.sort()
+        filteredPowerNames.sort();
 
         const orderedPowers = powerNames.map((pn) => engine.powers[pn]);
         const stances =
@@ -1997,12 +2004,10 @@ export class ContentGame extends React.Component {
                 ? {}
                 : engine.getPower(engine.role).getStances();
 
-        const isBot = 
+        const isBot =
             engine.getPower(engine.role) === null
                 ? {}
                 : engine.getPower(engine.role).getIsBot();
-
-        console.log('stances vs isbot: ', stances, isBot)
 
         return engine.role === "omniscient_type" ? (
             <div className={"col-lg-6 col-md-12"}>

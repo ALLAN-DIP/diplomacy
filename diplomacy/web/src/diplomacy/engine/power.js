@@ -67,17 +67,14 @@ export class Power {
     }
 
     setIsBot(power, isBot) {
-        console.log('setIsBot: ', power, isBot);
         this.isBot[power] = isBot;
     }
 
     getStances() {
-        console.log('getStances: ', this.stances)
         return this.stances;
     }
 
     getIsBot() {
-        console.log('getIsBot: ', this.isBot);
         return this.isBot;
     }
 

@@ -62,7 +62,6 @@ export class ContentGames extends React.Component {
             .then((data) => {
                 this.getPage().success('Found ' + data.length + ' data.');
                 this.getPage().addGamesFound(data);
-                console.log(data);
                 this.getPage().loadGames();
             })
             .catch((error) => {
