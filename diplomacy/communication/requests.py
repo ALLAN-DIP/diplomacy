@@ -718,14 +718,14 @@ class SendStance(_AbstractGameRequest):
         super(SendStance, self).__init__(**kwargs)
 
 class SendIsBot(_AbstractGameRequest):
-    __slots__ = ['info']
+    __slots__ = ['is_bot']
 
     params = {
-        'info': parsing.OptionalValueType(dict),
+        'is_bot': parsing.OptionalValueType(dict),
     }
 
     def __init__(self, **kwargs):
-        self.info = {}
+        self.is_bot = {}
         super(SendIsBot, self).__init__(**kwargs)
 
 class SendDeceiving(_AbstractGameRequest):
@@ -838,7 +838,7 @@ class SetGameState(_AbstractGameRequest):
         strings.RESULTS: parsing.DictType(str, parsing.SequenceType(str)),
         strings.MESSAGES: parsing.DictType(int, parsing.JsonableClassType(Message), SortedDict.builder(int, Message)),
         strings.STANCES: parsing.DefaultValueType(parsing.DictType(str, parsing.DictType(str, int)), {}),
-        'is_bot': parsing.DefaultValueType(parsing.DictType(str, parsing.DictType(str, bool)), {}),
+        'is_bot': parsing.DefaultValueType(parsing.DictType(str, parsing.DictType(str, int)), {}),
         'deceiving': parsing.DefaultValueType(parsing.DictType(str, parsing.DictType(str, bool)), {})
     }
 

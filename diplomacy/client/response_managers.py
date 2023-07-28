@@ -241,8 +241,9 @@ def on_send_stance(context, response):
 
 def on_send_is_bot(context, response):
     request = context.request
-    info = request.info
-    Game.add_is_bot(context.game, info)
+    power_name = request.power_name
+    is_bot = request.is_bot
+    Game.add_is_bot(context.game, is_bot)
 
 def on_send_deceiving(context, response):
     request = context.request

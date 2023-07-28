@@ -74,11 +74,9 @@ export const RESPONSE_MANAGERS = {
       context.game.local.addStance(powerName, stance);
     },
     send_is_bot: function (context, response) {
-        const controlledPower = context.request.controlled_power;
-        const targetPower = context.request.target_power;
+        const powerName = context.request.power_name;
         const isBot = context.request.is_bot;
-
-        context.game.local.addIsBot(controlledPower, targetPower, isBot);
+        context.game.local.addIsBot(powerName, isBot);
     },
     send_deceiving: function (context, response) {
         const controlledPower = context.request.controlled_power;

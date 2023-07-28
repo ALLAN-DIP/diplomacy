@@ -41,14 +41,20 @@ export class InlineGameView {
         if (!form.registration_password)
             form.registration_password = null;
         form.game_id = this.game.game_id;
+        console.log('form:', form)
         this.page.channel.joinGame(form)
             .then((networkGame) => {
+                console.log('network game')
                 this.game = networkGame.local;
+                console.log('networkGame local: ', networkGame.local);
                 this.page.addToMyGames(this.game);
+                console.log('added to my games ');
                 return networkGame.getAllPossibleOrders();
             })
             .then(allPossibleOrders => {
+                console.log('all possible orders');
                 this.game.setPossibleOrders(allPossibleOrders);
+                console.log('loading');
                 this.page.load(
                     `game: ${this.game.game_id}`,
                     <ContentGame data={this.game}/>,

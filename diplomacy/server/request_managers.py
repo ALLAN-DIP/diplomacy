@@ -830,10 +830,11 @@ def on_send_stance(server, request, connection_handler):
 
 def on_send_is_bot(server, request, connection_handler):
     level = verify_request(server, request, connection_handler, observer_role=False, omniscient_role=False)
-    token, info = request.token, request.info
+    token, is_bot = request.token, request.is_bot
     assert_game_not_finished(level.game)
-    level.game.add_is_bot(info)
+    level.game.add_is_bot(is_bot)
     server.save_game(level.game)
+    server.backup_now(force=True)
 
 def on_send_deceiving(server, request, connection_handler):
     level = verify_request(server, request, connection_handler, observer_role=False, omniscient_role=False)

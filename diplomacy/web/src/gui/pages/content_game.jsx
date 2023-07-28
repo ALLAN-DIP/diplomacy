@@ -686,12 +686,15 @@ export class ContentGame extends React.Component {
 
     handleIsBot = (country, isBot) => {
         const engine = this.props.data;
+        const power = engine.getPower(engine.role);
 
         try {
-            this.sendIsBot(engine.client, engine.role, country, isBot);
+            power.setIsBot(country, parseInt(isBot));
+            console.log('handleisBot', power.getIsBot());
+            this.sendIsBot(engine.client, engine.role, power.getIsBot());
         } catch (e) {
             this.getPage().error(
-                "Will not update status of a noncontrollable power."
+                "Will not update stance of a noncontrollable power."
             );
         }
     };
@@ -770,13 +773,13 @@ export class ContentGame extends React.Component {
         networkGame.sendStance({ stance: info });
     }
 
-    sendIsBot(networkGame, controlledPower, targetPower, isBot) {
+    sendIsBot(networkGame, powerName, isBot) {
         const info = {
-            controlled_power: controlledPower,
-            target_power: targetPower,
+            power_name: powerName,
             is_bot: isBot,
         };
-        networkGame.sendIsBot({ info: info });
+        console.log('info: ', info)
+        networkGame.sendIsBot({ is_bot: info });
     }
 
     sendDeceiving(networkGame, controlledPower, targetPower, deceiving) {
@@ -1985,6 +1988,13 @@ export class ContentGame extends React.Component {
                 ? {}
                 : engine.getPower(engine.role).getStances();
 
+        const isBot = 
+            engine.getPower(engine.role) === null
+                ? {}
+                : engine.getPower(engine.role).getIsBot();
+
+        console.log('stances vs isbot: ', stances, isBot)
+
         return engine.role === "omniscient_type" ? (
             <div className={"col-lg-6 col-md-12"}>
                 <div className={"table-responsive"}>
@@ -2013,7 +2023,7 @@ export class ContentGame extends React.Component {
                         player={engine.role}
                         onChangeIsBot={this.handleIsBot}
                         onChangeDeceiving={this.handleDeceiving}
-                        is_bot={engine.is_bot[engine.role]}
+                        isBot={isBot}
                         deceiving={engine.deceiving[engine.role]}
                     />
                 </div>

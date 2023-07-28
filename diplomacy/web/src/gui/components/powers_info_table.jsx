@@ -48,7 +48,7 @@ export class PowersInfoTable extends React.Component {
     constructor(props) {
         super(props);
         if (!this.props.wrapper) this.props.wrapper = defaultWrapper;
-        console.log(this.props.deceiving);
+        console.log('powers info table: ', props.isBot, props.stances);
     }
 
     getHeader(columns) {
@@ -98,15 +98,15 @@ export class PowersInfoTable extends React.Component {
         this.props.onChangeStance(country, stance);
     };
 
-    handleIsBot = (country, checked) => {
-        this.props.onChangeIsBot(country, checked);
+    handleIsBot = (country, isBot) => {
+        this.props.onChangeIsBot(country, isBot);
     };
 
     handleDeceiving = (country, checked) => {
         this.props.onChangeDeceiving(country, checked);
     };
 
-    getBodyRow(header, row, rowIndex, wrapper, countries, stances, player) {
+    getBodyRow(header, row, rowIndex, wrapper, countries, stances, isBot, player) {
         const wrapped = wrapper(row);
 
         return (
@@ -123,26 +123,19 @@ export class PowersInfoTable extends React.Component {
                             country={countries[rowIndex]}
                             onChangeStance={this.handleStance}
                             stance={stances[countries[rowIndex]]}
-                            dict={{0: 'Stance not given', 1: 'Hostile', 2: 'Neutral', 3: 'Friendly'}}
+                            dict={{0: 'Neutral', 1: 'Hostile', 2: 'Friendly'}}
                         />
                     </td>
                 ) : null}
 
                 {player !== countries[rowIndex] ? (
                     <td className={"align-middle"}>
-                        <input
-                            type="checkbox"
-                            defaultChecked={
-                                this.props.is_bot &&
-                                this.props.is_bot[countries[rowIndex]]
-                            }
-                            onClick={(e) => {
-                                this.handleIsBot(
-                                    countries[rowIndex],
-                                    e.target.checked
-                                );
-                            }}
-                        ></input>
+                        <Slider
+                            country={countries[rowIndex]}
+                            onChangeStance={this.handleIsBot}
+                            stance={isBot[countries[rowIndex]]}
+                            dict={{0: 'Not sure', 1: 'This player is a bot', 2: 'This player is a real human'}}
+                        />
                     </td>
                 ) : null}
 
@@ -167,7 +160,7 @@ export class PowersInfoTable extends React.Component {
         );
     }
 
-    getBodyLines(header, data, wrapper, countries, stances, player) {
+    getBodyLines(header, data, wrapper, countries, stances, isBot, player) {
         return (
             <tbody>
                 {data.map((row, rowIndex) =>
@@ -178,6 +171,7 @@ export class PowersInfoTable extends React.Component {
                         wrapper,
                         countries,
                         stances,
+                        isBot,
                         player
                     )
                 )}
@@ -200,6 +194,7 @@ export class PowersInfoTable extends React.Component {
                         this.props.wrapper,
                         this.props.countries,
                         this.props.stances,
+                        this.props.isBot,
                         this.props.player
                     )}
                 </table>
@@ -215,4 +210,5 @@ PowersInfoTable.propTypes = {
     caption: PropTypes.string,
     data: PropTypes.array,
     stances: PropTypes.object,
+    isBot: PropTypes.object,
 };

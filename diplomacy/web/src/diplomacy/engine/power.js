@@ -38,6 +38,7 @@ export class Power {
         this.influence = [];
         // represents a stance towards every other power
         this.stances = {};
+        this.isBot = {};
     }
 
     isControlled() {
@@ -61,12 +62,23 @@ export class Power {
         return !(this.units.length || this.centers.length || Object.keys(this.retreats).length);
     }
 
-    setStances(country, stance) {
-        this.stances[country] = stance;
+    setStances(power, stance) {
+        this.stances[power] = stance;
+    }
+
+    setIsBot(power, isBot) {
+        console.log('setIsBot: ', power, isBot);
+        this.isBot[power] = isBot;
     }
 
     getStances() {
+        console.log('getStances: ', this.stances)
         return this.stances;
+    }
+
+    getIsBot() {
+        console.log('getIsBot: ', this.isBot);
+        return this.isBot;
     }
 
     setState(powerState) {
@@ -112,6 +124,7 @@ export class Power {
         power.influence = this.influence.slice();
         power.orders = this.orders.slice();
         power.stances = this.stances;
+        power.isBot = this.isBot;
         return power;
     }
 

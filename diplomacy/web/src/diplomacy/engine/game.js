@@ -146,6 +146,13 @@ export class Game {
                         this.powers[power_name].setStances(power, stance);
                     }
                 }
+                const is_bot = gameData.is_bot[power_name];
+                if (is_bot !== null && is_bot !== undefined) {
+                    for (const [power, stance] of Object.entries(is_bot)) {
+                        console.log('game is_bot: ', power, stance)
+                        this.powers[power_name].setIsBot(power, stance);
+                    }
+                }
             }
         } else if (this.state_history.size()) {
             const lastState = this.state_history.lastValue();
@@ -167,8 +174,6 @@ export class Game {
         // {loc => order type}
         this.orderableLocToTypes = null;
         this.client = null; // Used as pointer to a NetworkGame.
-        console.log('is_bot: ', this.is_bot)
-        console.log('deceiving: ', this.deceiving)
     }
 
     get n_players() {
@@ -250,8 +255,8 @@ export class Game {
         this.stances[powerName] = stance;
     }
 
-    addIsBot(controlledPower, targetPower, isBot) {
-        console.log('addIsBot', controlledPower, targetPower, isBot)
+    addIsBot(powerName, isBot) {
+        this.is_bot[powerName] = isBot;
     }
 
     addDeceiving(controlledPower, targetPower, deceiving) {
@@ -446,6 +451,15 @@ export class Game {
                     const country = this.powers[power];
                     const stances = state.stances[power];
                     country.setStances(stances);
+                }
+            }
+        }
+        if (state.is_bot) {
+            for (let power of Object.keys(state.is_bot)) {
+                if (this.powers.hasOwnProperty(power)) {
+                    const country = this.powers[power];
+                    const is_bot = state.is_bot[power];
+                    country.setIsBot(is_bot);
                 }
             }
         }

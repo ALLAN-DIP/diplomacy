@@ -41,7 +41,7 @@ class GamePhaseData(Jsonable):
         strings.LOGS: LOGS_TYPE,
         strings.STANCES: parsing.DictType(str, parsing.DictType(str, int)),
         strings.ORDER_LOGS: parsing.DictType(int, str),
-        'is_bot': parsing.DictType(str, parsing.DictType(str, bool)),
+        'is_bot': parsing.DictType(str, parsing.DictType(str, int)),
         'deceiving': parsing.DictType(str, parsing.DictType(str, bool)),
     }
 
