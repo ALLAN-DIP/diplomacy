@@ -57,7 +57,10 @@ export class PowersInfoTable extends React.Component {
             const name = entry[0];
             const title = entry[1][0];
             const order = entry[1][1];
-            header.push([order, name, title]);
+            if (name === 'name') {
+                header.push([order, name, title]);
+            }
+            
         }
         header.sort((a, b) => {
             let t = a[0] - b[0];
