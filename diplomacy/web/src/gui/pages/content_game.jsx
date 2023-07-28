@@ -85,6 +85,7 @@ import TUR from "../assets/TUR.png";
 import GLOBAL from "../assets/GLOBAL.png";
 import {Forms} from "../components/forms";
 import Grid from "@mui/material/Grid";
+import { DaideComposerMessage } from "../components/DaideComposerMessage";
 
 const POWER_ICONS = {
     AUSTRIA: AUS,
@@ -932,7 +933,7 @@ export class ContentGame extends React.Component {
                 page.load(
                     `game: ${networkGame.local.game_id}`,
                     <ContentGame data={networkGame.local} />,
-                    { success: `Annotation sent: ${JSON.stringify(info)}` }
+                    { success: `Message sent: ${JSON.stringify(message)}` }
                 );
             })
             .catch((error) => {
@@ -1797,6 +1798,35 @@ export class ContentGame extends React.Component {
             </div>
         ));
 
+        const powerLogs = engine.getLogsForPower(role, true);
+        let renderedLogs = []
+        let curPhase = ""
+        let prevPhase = ""
+        powerLogs.forEach((log) => {
+            if (log.phase != prevPhase) {
+                curPhase = log.phase
+                renderedLogs.push(
+                    <MessageSeparator>
+                        {curPhase}
+                    </MessageSeparator>
+                )
+
+                prevPhase = curPhase
+            }
+
+            renderedLogs.push(
+                // eslint-disable-next-line react/jsx-key
+                <ChatMessage model={{
+                    message: log.message,
+                    sent: log.sent_time,
+                    sender: role,
+                    direction: "outgoing",
+                    position: "single"
+                }}>
+                </ChatMessage>
+            )
+        })
+
         const renderedMessages = [];
         let protagonist = currentTabId;
 
@@ -1804,8 +1834,8 @@ export class ContentGame extends React.Component {
         let sender = "";
         let rec = "";
         let dir = "";
-        let curPhase = "";
-        let prevPhase = "";
+        curPhase = "";
+        prevPhase = "";
         let messageCount = 0;
 
         for (let m in msgs) {
