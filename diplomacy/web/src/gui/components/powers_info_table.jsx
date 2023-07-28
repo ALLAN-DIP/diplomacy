@@ -89,11 +89,6 @@ export class PowersInfoTable extends React.Component {
                             Is bot
                         </span>
                     </th>
-                    <th>
-                        <span title="Do you think this player is deceiving you?">
-                            Deceiving
-                        </span>
-                    </th>
                 </tr>
             </thead>
         );
@@ -150,7 +145,7 @@ export class PowersInfoTable extends React.Component {
                     </td>
                 ) : null}
 
-                {player !== countries[rowIndex] ? (
+                {/* {player !== countries[rowIndex] ? (
                     <td className={"align-middle"}>
                         <input
                             type="checkbox"
@@ -166,7 +161,7 @@ export class PowersInfoTable extends React.Component {
                             }}
                         ></input>
                     </td>
-                ) : null}
+                ) : null} */}
             </tr>
         );
     }
