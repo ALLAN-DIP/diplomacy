@@ -1980,7 +1980,16 @@ export class ContentGame extends React.Component {
 
     renderPowerInfo(engine) {
         const powerNames = Object.keys(engine.powers);
+
+        function isNotSelf(power) {
+            return engine.role !== power
+        }
+
+        const filteredPowerNames = powerNames.filter(isNotSelf)
+        const filteredPowers = filteredPowerNames.map((pn) => engine.powers[pn]);
+
         powerNames.sort();
+        filteredPowerNames.sort()
 
         const orderedPowers = powerNames.map((pn) => engine.powers[pn]);
         const stances =
@@ -2015,9 +2024,9 @@ export class ContentGame extends React.Component {
                         className={"table table-striped table-sm"}
                         caption={"Powers info"}
                         columns={TABLE_POWER_VIEW}
-                        data={orderedPowers}
+                        data={filteredPowers}
                         wrapper={PowerView.wrap}
-                        countries={powerNames}
+                        countries={filteredPowerNames}
                         onChangeStance={this.handleStance}
                         stances={stances}
                         player={engine.role}
@@ -2168,7 +2177,7 @@ export class ContentGame extends React.Component {
                                 {this.renderOrders(this.props.data, powerName)}
                             </div>
                         </div>
-                        {engine.role !== "omniscient_type" && (
+                        {/* engine.role !== "omniscient_type" && (
                             <div>
                                 <caption>Suggested Orders</caption>
                                 <div
@@ -2182,7 +2191,7 @@ export class ContentGame extends React.Component {
                                     )}
                                 </div>
                             </div>
-                        )}
+                        ) */}
                     </div>
                 </Row>
             </Tab>
