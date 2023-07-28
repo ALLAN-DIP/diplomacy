@@ -16,7 +16,7 @@ export class Slider extends React.Component {
         return {value: 0};
     }
 
-    STANCE = {0: 'Stance not given', 1: 'Very hostile', 2: 'Hostile', 3: 'Neutral', 4: 'Friendly', 5: 'Very friendly'};
+    STANCE = {0: 'Stance not given', 1: 'Hostile', 2: 'Neutral', 3: 'Friendly'};
 
     country = this.props.country;
 
@@ -28,7 +28,7 @@ export class Slider extends React.Component {
     render() {
         return (
             <div className={"slidecontainer"}>
-                <input type={"range"} value={this.state.value} min={"0"} max={"5"} step={"1"}
+                <input type={"range"} value={this.state.value} min={"0"} max={"3"} step={"1"}
                        onChange={this.handleChange}/>
 
                 <p><span id={"stanceValue"}>{this.STANCE[this.state.value]}</span></p>
@@ -42,7 +42,6 @@ Slider.propTypes = {
     country: PropTypes.string,
     stance: PropTypes.number,
     onChangeStance: PropTypes.func,
-
 };
 
 /*
