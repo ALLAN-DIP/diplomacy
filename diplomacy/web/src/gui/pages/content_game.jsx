@@ -1944,77 +1944,6 @@ export class ContentGame extends React.Component {
         }
 
         return (
-            <div>
-            <div className={"col-lg-6 col-md-12"} style={{ height: "500px" }}>
-                <MainContainer responsive>
-                    <Sidebar position="left" scrollable={true}>
-                        <ConversationList>{convList}</ConversationList>
-                    </Sidebar>
-                    <ChatContainer>
-                        <MessageList>{renderedMessages}</MessageList>
-                    </ChatContainer>
-                </MainContainer>
-                <div style={{ display: "flex", flexDirection: "row" }}>
-                    {engine.isPlayerGame() && (
-                        <textarea
-                            style={{ flex: 1 }}
-                            onChange={(val) =>
-                                this.setMessageInputValue(val.target.value)
-                            }
-                            value={this.state.message}
-                            disabled={!this.state.hasInitialOrders}
-                            placeholder="You must draft your orders each season before you can send messages.
-                            New messages are hidden until you annotate previous ones."
-                        />
-                    )}
-                    {engine.isPlayerGame() && (
-                        <div>
-                            <Button
-                                key={"t"}
-                                pickEvent={true}
-                                title={"Truth"}
-                                onClick={() => {
-                                    this.sendMessage(
-                                        engine.client,
-                                        currentTabId,
-                                        this.state.message,
-                                        "Truth"
-                                    );
-                                    this.setMessageInputValue("");
-                                }}
-                            ></Button>
-                            <Button
-                                key={"f"}
-                                pickEvent={true}
-                                title={"Lie"}
-                                onClick={() => {
-                                    this.sendMessage(
-                                        engine.client,
-                                        currentTabId,
-                                        this.state.message,
-                                        "Lie"
-                                    );
-                                    this.setMessageInputValue("");
-                                }}
-                            ></Button>
-                            <Button
-                                key={"n"}
-                                pickEvent={true}
-                                title={"Neutral"}
-                                onClick={() => {
-                                    this.sendMessage(
-                                        engine.client,
-                                        currentTabId,
-                                        this.state.message,
-                                        "Neutral"
-                                    );
-                                    this.setMessageInputValue("");
-                                }}
-                            ></Button>
-                        </div>
-                    )}
-                </div>
-            </div>
             <Box sx={{width:'100%', height:'550px', maxHeight:'550px', mb:'30px'}}>
                 <Grid container spacing={2}>
                     <Grid item xs={6} sx={{height:'100%'}}>
@@ -2024,45 +1953,89 @@ export class ContentGame extends React.Component {
                                     <Tab2 label="Messages" />
                                 </Tabs2>
                             </Box>
-                            <MainContainer responsive>
-                                <Sidebar position="left" scrollable={true}>
-                                    <ConversationList>
-                                        {convList}
-                                    </ConversationList>
-                                </Sidebar>
-                                <ChatContainer>
-                                    <MessageList>
-                                        {renderedMessages}
-                                    </MessageList>
-                                    {engine.isPlayerGame() && (
-                                        <MessageInput
+                            <div>
+                                <MainContainer responsive>
+                                    <Sidebar position="left" scrollable={true}>
+                                        <ConversationList>{convList}</ConversationList>
+                                    </Sidebar>
+                                    <ChatContainer>
+                                        <MessageList>{renderedMessages}</MessageList>
+                                    </ChatContainer>
+                                </MainContainer>
+                                {engine.isPlayerGame() && (
+                                    <div style={{ display: "flex", flexDirection: "row" }}>
+                                        <textarea
+                                            style={{ flex: 1 }}
+                                            onChange={(val) =>
+                                                this.setMessageInputValue(val.target.value)
+                                            }
                                             value={this.state.message}
-                                            attachButton={false}
-                                            onChange={val => this.setMessageInputValue(val)}
-                                            onSend={() =>  {
-                                                this.sendMessage(
-                                                    engine.client,
-                                                    currentTabId,
-                                                    this.state.message
-                                                )
-                                            }}
-                                            onPaste={this.handlePaste}
+                                            disabled={!this.state.hasInitialOrders}
+                                            placeholder="You must draft your orders each season before you can send messages.
+                                            New messages are hidden until you annotate previous ones."
                                         />
-                                    )}
-                                </ChatContainer>
-                            </MainContainer>
+                                        <div>
+                                            <Button
+                                                key={"t"}
+                                                pickEvent={true}
+                                                title={"Truth"}
+                                                onClick={() => {
+                                                    this.sendMessage(
+                                                        engine.client,
+                                                        currentTabId,
+                                                        this.state.message,
+                                                        "Truth"
+                                                    );
+                                                    this.setMessageInputValue("");
+                                                }}
+                                            ></Button>
+                                            <Button
+                                                key={"f"}
+                                                pickEvent={true}
+                                                title={"Lie"}
+                                                onClick={() => {
+                                                    this.sendMessage(
+                                                        engine.client,
+                                                        currentTabId,
+                                                        this.state.message,
+                                                        "Lie"
+                                                    );
+                                                    this.setMessageInputValue("");
+                                                }}
+                                            ></Button>
+                                            <Button
+                                                key={"n"}
+                                                pickEvent={true}
+                                                title={"Neutral"}
+                                                onClick={() => {
+                                                    this.sendMessage(
+                                                        engine.client,
+                                                        currentTabId,
+                                                        this.state.message,
+                                                        "Neutral"
+                                                    );
+                                                    this.setMessageInputValue("");
+                                                }}
+                                            ></Button>
+                                        </div>
+                                </div>)}
+                            </div>
                         </Box>
                     </Grid>
                     <Grid item xs={6} sx={{height:'100%'}}>
                         <Box sx={{ width: '100%', height: '550px'}}>
                             <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                                 <Tabs2 value={this.state.tabVal} onChange={this.updateTabVal} aria-label="basic tabs example">
+                                    <Tab2 label="Judgements" />
                                     <Tab2 label="Captain's Log" />
                                     <Tab2 label="DAIDE Composer" />
                                 </Tabs2>
                             </Box>
                             <Box sx={{height:'100%', overflow:'auto'}}>
                                 {this.state.tabVal === 0 && (
+                                    this.renderPowerInfo(engine)
+                                )}
+                                {this.state.tabVal === 1 && (
                                 <MainContainer responsive>
                                     <ChatContainer>
                                         <ConversationHeader>
@@ -2085,7 +2058,7 @@ export class ContentGame extends React.Component {
                                         )}
                                     </ChatContainer>
                                 </MainContainer> )}
-                                {this.state.tabVal === 1 && (
+                                {this.state.tabVal === 2 && (
                                     this.renderDaideComposer(engine, role)
                                 )}
                                 {this.state.gloss && (
@@ -2102,7 +2075,6 @@ export class ContentGame extends React.Component {
                 </Grid>
 
             </Box>
-            </div>
         );
     }
 
@@ -2407,7 +2379,6 @@ export class ContentGame extends React.Component {
                 : engine.getPower(engine.role).getIsBot();
 
         return engine.role === "omniscient_type" ? (
-            <div className={"col-lg-6 col-md-12"}>
                 <div className={"table-responsive"}>
                     <Table
                         className={"table table-striped table-sm"}
@@ -2418,9 +2389,7 @@ export class ContentGame extends React.Component {
                         countries={powerNames}
                     />
                 </div>
-            </div>
         ) : (
-            <div className={"col-lg-6 col-md-12"}>
                 <div className={"table-responsive"}>
                     <PowersInfoTable
                         className={"table table-striped table-sm"}
@@ -2438,7 +2407,6 @@ export class ContentGame extends React.Component {
                         deceiving={engine.deceiving[engine.role]}
                     />
                 </div>
-            </div>
         );
     }
 
@@ -2525,20 +2493,25 @@ export class ContentGame extends React.Component {
     }
 
 
-
     renderTabCurrentPhase(toDisplay, engine, powerName, orderType, orderPath, currentPowerName, currentTabOrderCreation, renderCommStatusForm) {
         const powerNames = Object.keys(engine.powers);
         powerNames.sort();
         const orderedPowers = powerNames.map(pn => engine.powers[pn]);
+        const stances =
+            engine.getPower(engine.role) === null
+                ? {}
+                : engine.getPower(engine.role).getStances();
 
+        const orderSuggestions =
+            engine.order_suggestions[powerName.substring(0, 3)];
 
         return (
             <Tab id={'tab-current-phase'} display={toDisplay}>
                 <Row >
-                    <div className={'col-6'} >
+                    <div className={"col-xl"}>
                         {this.renderMapForCurrent(engine, powerName, orderType, orderPath)}
                     </div>
-                    <div className={'col'} >
+                    <div className={"col-xl"}>
                         {renderCommStatusForm}
                         {/* Orders. */}
                         <div className={'panel-orders mb-4'} style={{maxHeight:'500px', overflowY:"scroll"}}>
@@ -2604,102 +2577,6 @@ export class ContentGame extends React.Component {
         ) : (
             <div></div>
         );
-    }
-
-    renderTabCurrentPhase(
-        toDisplay,
-        engine,
-        powerName,
-        orderType,
-        orderPath,
-        currentPowerName,
-        currentTabOrderCreation
-    ) {
-        const powerNames = Object.keys(engine.powers);
-        powerNames.sort();
-
-        const orderedPowers = powerNames.map((pn) => engine.powers[pn]);
-        const stances =
-            engine.getPower(engine.role) === null
-                ? {}
-                : engine.getPower(engine.role).getStances();
-
-        const orderSuggestions =
-            engine.order_suggestions[powerName.substring(0, 3)];
-
-        return (
-            <Tab id={"tab-current-phase"} display={toDisplay}>
-                <Row>
-                    <div className={"col-xl"}>
-                        {this.renderMapForCurrent(
-                            engine,
-                            powerName,
-                            orderType,
-                            orderPath
-                        )}
-                    </div>
-                    <div className={"col-xl"}>
-                        {/* Orders. */}
-                        <div
-                            className={"panel-orders mb-4"}
-                            style={{ maxHeight: "500px", overflowY: "scroll" }}
-                        >
-                            {currentTabOrderCreation ? (
-                                <div className="mb-4">
-                                    {currentTabOrderCreation}
-                                </div>
-                            ) : (
-                                ""
-                            )}
-                            <PowerOrdersActionBar
-                                onReset={this.reloadServerOrders}
-                                onDeleteAll={this.onRemoveAllCurrentPowerOrders}
-                                onUpdate={this.setOrders}
-                                onProcess={
-                                    !this.props.data.isPlayerGame() &&
-                                    this.props.data.observer_level ===
-                                        STRINGS.MASTER_TYPE
-                                        ? this.onProcessGame
-                                        : null
-                                }
-                            />
-                            <div className={"orders"}>
-                                {this.renderOrders(this.props.data, powerName)}
-                            </div>
-                        </div>
-                        {/* engine.role !== "omniscient_type" && (
-                            <div>
-                                <caption>Suggested Orders</caption>
-                                <div
-                                    style={{
-                                        display: "flex",
-                                        flexDirection: "column",
-                                    }}
-                                >
-                                    {this.renderOrderSuggestions(
-                                        orderSuggestions
-                                    )}
-                                </div>
-                            </div>
-                        ) */}
-                    </div>
-                </Row>
-            </Tab>
-        );
-    }
-
-    renderMainPanel(
-        toDisplay,
-        initialEngine,
-        currentPowerName,
-        hasTabPhaseHistory,
-        hasTabCurrentPhase,
-        orderBuildingType,
-        orderBuildingPath,
-        currentTabOrderCreation
-    ) {
-        const { engine, pastPhases, phaseIndex } =
-            this.__get_engine_to_display(initialEngine);
     }
 
     renderTabChat(toDisplay, initialEngine, currentPowerName) {
@@ -2943,7 +2820,6 @@ export class ContentGame extends React.Component {
                 {phasePanel}
                 <Row>
                     {this.renderTabChat(true, engine, currentPowerName)}
-                    {this.renderPowerInfo(engine)}
                 </Row>
                 {localStorage.getItem("username") === "admin" &&
                     this.renderLogs(engine, currentPowerName)}

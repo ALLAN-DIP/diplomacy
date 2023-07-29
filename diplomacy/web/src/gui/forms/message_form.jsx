@@ -39,7 +39,6 @@ export class MessageForm extends React.Component {
     constructor(props) {
         super(props);
         this.state = this.initState();
-        this.handleChange = this.handleChange.bind(this);
         this.onValueChange = this.onValueChange.bind(this);
         this.checkboxOnChange = this.checkboxOnChange.bind(this);
         this.onFinalSubmit = this.onFinalSubmit.bind(this);
@@ -93,8 +92,6 @@ export class MessageForm extends React.Component {
     ];
     initState() {
         return {
-            message: this.props.defaultMessage,
-            truth: false,
             submitted: false,
             selectedAction: 'propose_order',
             selectedOrder: 'M',
@@ -111,12 +108,6 @@ export class MessageForm extends React.Component {
             gloss: true,
             disableSubmit: true,
         };
-    }
-    
-    
-    handleChange = (event) => {
-        this.setState({message: event.target.value});
-        this.props.handleMessage(event.target.value);
     }
 
     onValueChange(event) {
@@ -682,34 +673,7 @@ export class MessageForm extends React.Component {
         const truthTitle = `Send Truth`;
         const lieTitle = `Send Lie`;
 
-        return (<div>
-            <div className='message-form'>
-                <div className={'form-group'}>
-                    {Forms.createLabel('message', '', 'sr-only')}
-                    <textarea id={'message'} className={'form-control'}
-                              value={this.state.message} onChange={this.handleChange}/>
-                </div>
-                <div className={'send-buttons'}>
-                    <div className={"truth-button"}>
-                        <Button key={'t'} title={truthTitle + ` to ${this.props.recipient}`} onClick={() => {
-                            this.props.onSendMessage(this.props.engine, this.props.recipient, this.state.message, true);
-                            this.setState({message: ''});
-                            this.props.handleMessage('');
-                        }} pickEvent={true}/>
-                    </div>
-
-                    <div className={"deception-button"}>
-                        <Button key={'l'} title={lieTitle + ` to ${this.props.recipient}`} onClick={() => {
-                            this.props.onSendMessage(this.props.engine, this.props.recipient, this.state.message, false)
-                            this.setState({message: ''});
-                            this.props.handleMessage('');
-                        }} pickEvent={true}/>
-                    </div>
-
-                </div>
-
-            </div>
-
+        return (
             <form>
                 <Grid container alignItems="center" justifyContent="center" direction="column">
                     <Grid item>
@@ -793,7 +757,7 @@ export class MessageForm extends React.Component {
                         </Grid>
                     </Grid>
                 </Grid>
-            </form></div>
+            </form>
         );
     }
 }
@@ -807,6 +771,5 @@ MessageForm.propTypes = {
     engine: PropTypes.object,
     onChange: PropTypes.func,
     onSubmit: PropTypes.func,
-    defaultMessage: PropTypes.string,
     glossed: PropTypes.bool,
 };
