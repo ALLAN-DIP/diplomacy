@@ -1757,8 +1757,7 @@ export class ContentGame extends React.Component {
         }
 
         const convList = tabNames.map((protagonist) => (
-            <div style={{ minWidth: "200px" }}>
-                <Conversation
+                <Conversation style={{ minWidth: "200px" }}
                     info={
                         protagonist !== "GLOBAL"
                             ? this.truncate(
@@ -1795,7 +1794,6 @@ export class ContentGame extends React.Component {
                         status={protagonist!=='GLOBAL' ? (engine.powers[protagonist].getCommStatus()===STRINGS.READY ? "available":"dnd"):"invisible"}
                     />
                 </Conversation>
-            </div>
         ));
 
         const powerLogs = engine.getLogsForPower(role, true);
