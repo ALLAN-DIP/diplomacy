@@ -80,12 +80,12 @@ export class PowersInfoTable extends React.Component {
                     ))}
                     <th>
                         <span title="What is your attitute toward this player?">
-                            Your stance toward other players
+                            Your stance toward this player
                         </span>
                     </th>
                     <th>
                         <span title="Do you think this player is a bot?">
-                            Which players do you think are bots?
+                            Do you think this player is a bot?
                         </span>
                     </th>
                 </tr>
