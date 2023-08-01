@@ -1,37 +1,55 @@
 import React from "react";
 import PropTypes from "prop-types";
+import "./slider.css";
 
 export class Slider extends React.Component {
     constructor(props) {
         super(props);
         if (props.stance > 0) {
-            this.state = {value: props.stance}
-        } else{
+            this.state = { value: props.stance, clicked: true };
+        } else {
             this.state = this.getInitialValue();
+            this.state.clicked = false;
         }
-        this.handleChange = this.handleChange.bind(this);
+        this.clickSlider = this.clickSlider.bind(this);
     }
 
+    clickSlider = (event) => {
+        this.setState({ clicked: true });
+        this.setState({ value: event.target.value });
+        this.props.onChangeStance(this.country, event.target.value);
+        console.log(event.target.value);
+    };
+
     getInitialValue() {
-        return {value: 1};
+        return { value: 1 };
     }
 
     country = this.props.country;
 
-    handleChange = (event) => {
-        this.setState({value: event.target.value});
-        this.props.onChangeStance(this.country, event.target.value);
-    }
-
     render() {
         return (
             <div className={"slidecontainer"}>
-                <input type={"range"} value={this.state.value} min={"0"} max={"2"} step={"1"}
-                       onChange={this.handleChange}/>
+                <input
+                    type={"range"}
+                    value={this.state.value}
+                    min={"0"}
+                    max={"2"}
+                    step={"1"}
+                    onClick={this.clickSlider}
+                />
 
-                <p><span id={"stanceValue"}>{this.props.dict[this.state.value]}</span></p>
+                <p>
+                    <span
+                        id={"stanceValue"}
+                        className={
+                            this.state.clicked ? null : "unclickedSlider"
+                        }
+                    >
+                        {this.props.dict[this.state.value]}
+                    </span>
+                </p>
             </div>
-
         );
     }
 }
@@ -42,8 +60,3 @@ Slider.propTypes = {
     onChangeStance: PropTypes.func,
     dict: PropTypes.object,
 };
-
-/*
-Slider.defaultProps = {
-
-};*/
