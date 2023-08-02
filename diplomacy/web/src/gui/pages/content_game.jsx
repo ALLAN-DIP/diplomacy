@@ -256,7 +256,7 @@ export class ContentGame extends React.Component {
     }
 
     static gameTitle(game) {
-        let title = `${game.game_id} | ${game.phase} | `;
+        let title = `${game.game_id} | `;
         const players =
             game.status === "active"
                 ? game.status
@@ -1653,8 +1653,10 @@ export class ContentGame extends React.Component {
                                 this.setMessageInputValue(val.target.value)
                             }
                             value={this.state.message}
-                            disabled={!this.state.hasInitialOrders}
-                            placeholder="You must draft your orders each season before you can send messages.
+                            disabled={
+                                !this.state.hasInitialOrders
+                            }
+                            placeholder="You must draft your orders before you can send messages.
                             New messages are hidden until you annotate previous ones."
                         />
                     )}
@@ -2038,7 +2040,8 @@ export class ContentGame extends React.Component {
                         onChangeIsBot={this.handleIsBot}
                         onChangeDeceiving={this.handleDeceiving}
                         isBot={isBot}
-                        deceiving={engine.deceiving[engine.role]}
+                        isBotSlider={this.state.isBotSliders}
+                        stanceSlider={this.state.stanceSliders}
                     />
                 </div>
             </div>
