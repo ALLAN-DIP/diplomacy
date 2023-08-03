@@ -5,7 +5,7 @@ import "./slider.css";
 export class Slider extends React.Component {
     constructor(props) {
         super(props);
-        if (props.stance > -1) {
+        if (props.stance > 0) {
             this.state = { value: props.stance, clicked: true };
         } else {
             this.state = this.getInitialValue();
@@ -21,7 +21,7 @@ export class Slider extends React.Component {
     };
 
     getInitialValue() {
-        return { value: 1 };
+        return { value: 3 };
     }
 
     country = this.props.country;
@@ -32,8 +32,8 @@ export class Slider extends React.Component {
                 <input
                     type={"range"}
                     defaultValue={this.state.value}
-                    min={"0"}
-                    max={"2"}
+                    min={"1"}
+                    max={"5"}
                     step={"1"}
                     onClick={this.clickSlider}
                 />

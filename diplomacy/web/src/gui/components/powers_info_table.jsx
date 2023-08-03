@@ -122,7 +122,7 @@ export class PowersInfoTable extends React.Component {
                             country={countries[rowIndex]}
                             onChangeStance={this.handleStance}
                             stance={stances[countries[rowIndex]]}
-                            dict={{0: 'Hostile', 1: 'Neutral', 2: 'Friendly'}}
+                            dict={{1: 'Very hostile', 2: 'Slightly hostile', 3: 'Neutral', 4: 'Slightly friendly', 5: 'Very friendly'}}
                         />
                     </td>
                 ) : null}
@@ -133,7 +133,7 @@ export class PowersInfoTable extends React.Component {
                             country={countries[rowIndex]}
                             onChangeStance={this.handleIsBot}
                             stance={isBot[countries[rowIndex]]}
-                            dict={{0: 'This player is a bot', 1: 'Not sure', 2: 'This player is a real human'}}
+                            dict={{1: 'This player is a human', 2: 'This player is probably a human', 3: 'Not sure', 4: 'This player is probably a bot', 5: 'This player is a bot'}}
                         />
                     </td>
                 ) : null}
