@@ -193,6 +193,8 @@ export class ContentGame extends React.Component {
                 this.props.data.role
             ),
             annotatedMessages: this.props.data.getAnnotatedMessages(),
+            stanceSliders: this.props.data.stances[this.props.data.role] || {},
+            isBotSliders: this.props.data.is_bot[this.props.data.role] || {},
         };
 
         // Bind some class methods to this instance.
@@ -505,6 +507,8 @@ export class ContentGame extends React.Component {
                         messageHighlights: {},
                         orderBuildingPath: [],
                         hasInitialOrders: false,
+                        stanceSliders: {},
+                        isBotSliders: {},
                     }).then(() =>
                         this.getPage().info(
                             `Game update (${notification.name}) to ${networkGame.local.phase}.`
@@ -678,6 +682,9 @@ export class ContentGame extends React.Component {
         const power = engine.getPower(engine.role);
 
         try {
+            let stanceCopy = Object.assign({}, this.state.stanceSliders);
+            stanceCopy[country] = parseInt(stance);
+            this.setState({ stanceSliders: stanceCopy });
             power.setStances(country, parseInt(stance));
             this.sendGameStance(engine.client, engine.role, power.getStances());
         } catch (e) {
@@ -692,6 +699,9 @@ export class ContentGame extends React.Component {
         const power = engine.getPower(engine.role);
 
         try {
+            let stanceCopy = Object.assign({}, this.state.isBotSliders);
+            stanceCopy[country] = parseInt(isBot);
+            this.setState({ isBotSliders: stanceCopy });
             power.setIsBot(country, parseInt(isBot));
             this.sendIsBot(engine.client, engine.role, power.getIsBot());
         } catch (e) {
@@ -851,7 +861,7 @@ export class ContentGame extends React.Component {
             .then(() => {
                 page.success("Game processed.");
                 this.props.data.clearInitialOrders();
-                this.setState({ hasInitialOrders: false });
+                this.setState({ hasInitialOrders: false});
             })
             .catch((err) => {
                 page.error(err.toString());

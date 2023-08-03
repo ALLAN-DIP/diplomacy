@@ -6,16 +6,14 @@ export class Slider extends React.Component {
     constructor(props) {
         super(props);
         if (props.stance > 0) {
-            this.state = { value: props.stance, clicked: true };
+            this.state = { value: props.stance };
         } else {
             this.state = this.getInitialValue();
-            this.state.clicked = false;
         }
         this.clickSlider = this.clickSlider.bind(this);
     }
 
     clickSlider = (event) => {
-        this.setState({ clicked: true });
         this.setState({ value: event.target.value });
         this.props.onChangeStance(this.country, event.target.value);
     };
@@ -42,7 +40,7 @@ export class Slider extends React.Component {
                     <span
                         id={"stanceValue"}
                         className={
-                            this.state.clicked ? null : "unclickedSlider"
+                            this.props.clicked ? null : "unclickedSlider"
                         }
                     >
                         {this.props.dict[this.state.value]}

@@ -56,10 +56,9 @@ export class PowersInfoTable extends React.Component {
             const name = entry[0];
             const title = entry[1][0];
             const order = entry[1][1];
-            if (name === 'name') {
+            if (name === "name") {
                 header.push([order, name, title]);
             }
-            
         }
         header.sort((a, b) => {
             let t = a[0] - b[0];
@@ -105,7 +104,16 @@ export class PowersInfoTable extends React.Component {
         this.props.onChangeDeceiving(country, checked);
     };
 
-    getBodyRow(header, row, rowIndex, wrapper, countries, stances, isBot, player) {
+    getBodyRow(
+        header,
+        row,
+        rowIndex,
+        wrapper,
+        countries,
+        stances,
+        isBot,
+        player
+    ) {
         const wrapped = wrapper(row);
 
         return (
@@ -122,7 +130,16 @@ export class PowersInfoTable extends React.Component {
                             country={countries[rowIndex]}
                             onChangeStance={this.handleStance}
                             stance={stances[countries[rowIndex]]}
-                            dict={{1: 'Very hostile', 2: 'Slightly hostile', 3: 'Neutral', 4: 'Slightly friendly', 5: 'Very friendly'}}
+                            dict={{
+                                1: "Very hostile",
+                                2: "Slightly hostile",
+                                3: "Neutral",
+                                4: "Slightly friendly",
+                                5: "Very friendly",
+                            }}
+                            clicked={
+                                this.props.stanceSlider[countries[rowIndex]]
+                            }
                         />
                     </td>
                 ) : null}
@@ -133,7 +150,16 @@ export class PowersInfoTable extends React.Component {
                             country={countries[rowIndex]}
                             onChangeStance={this.handleIsBot}
                             stance={isBot[countries[rowIndex]]}
-                            dict={{1: 'This player is a human', 2: 'This player is probably a human', 3: 'Not sure', 4: 'This player is probably a bot', 5: 'This player is a bot'}}
+                            dict={{
+                                1: "This player is a human",
+                                2: "This player is probably a human",
+                                3: "Not sure",
+                                4: "This player is probably a bot",
+                                5: "This player is a bot",
+                            }}
+                            clicked={
+                                this.props.isBotSlider[countries[rowIndex]]
+                            }
                         />
                     </td>
                 ) : null}
