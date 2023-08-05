@@ -2047,7 +2047,7 @@ export class ContentGame extends React.Component {
         ) : (
             <div className={"col-lg-6 col-md-12"}>
                 <div>
-                    You must click all before sending messages. Unclicked ones
+                    You must click all sliders before sending messages. Unclicked ones
                     are highlighted in red bold text. ({sliderClicked}/12)
                 </div>
                 <div className={"table-responsive"}>
