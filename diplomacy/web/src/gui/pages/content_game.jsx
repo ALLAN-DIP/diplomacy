@@ -861,7 +861,7 @@ export class ContentGame extends React.Component {
             .then(() => {
                 page.success("Game processed.");
                 this.props.data.clearInitialOrders();
-                this.setState({ hasInitialOrders: false});
+                this.setState({ hasInitialOrders: false });
             })
             .catch((err) => {
                 page.error(err.toString());
@@ -1646,6 +1646,10 @@ export class ContentGame extends React.Component {
             }
         }
 
+        const sliderClicked =
+            Object.keys(this.state.stanceSliders).length +
+            Object.keys(this.state.isBotSliders).length;
+
         return (
             <div className={"col-lg-6 col-md-12"} style={{ height: "500px" }}>
                 <MainContainer responsive>
@@ -1665,7 +1669,8 @@ export class ContentGame extends React.Component {
                             }
                             value={this.state.message}
                             disabled={
-                                !this.state.hasInitialOrders
+                                !this.state.hasInitialOrders ||
+                                sliderClicked < 12
                             }
                             placeholder="You must draft your orders before you can send messages.
                             New messages are hidden until you annotate previous ones."
@@ -2022,6 +2027,10 @@ export class ContentGame extends React.Component {
                 ? {}
                 : engine.getPower(engine.role).getIsBot();
 
+        const sliderClicked =
+            Object.keys(this.state.stanceSliders).length +
+            Object.keys(this.state.isBotSliders).length;
+
         return engine.role === "omniscient_type" ? (
             <div className={"col-lg-6 col-md-12"}>
                 <div className={"table-responsive"}>
@@ -2037,6 +2046,10 @@ export class ContentGame extends React.Component {
             </div>
         ) : (
             <div className={"col-lg-6 col-md-12"}>
+                <div>
+                    You must click all before sending messages. Unclicked ones
+                    are highlighted in red bold text. ({sliderClicked}/12)
+                </div>
                 <div className={"table-responsive"}>
                     <PowersInfoTable
                         className={"table table-striped table-sm"}
