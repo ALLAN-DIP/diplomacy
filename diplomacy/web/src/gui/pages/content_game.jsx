@@ -1672,8 +1672,7 @@ export class ContentGame extends React.Component {
                                 !this.state.hasInitialOrders ||
                                 sliderClicked < 12
                             }
-                            placeholder="You must draft your orders before you can send messages.
-                            New messages are hidden until you annotate previous ones."
+                            placeholder="New messages are hidden until you annotate previous ones."
                         />
                     )}
                     {engine.isPlayerGame() && (
@@ -2047,8 +2046,8 @@ export class ContentGame extends React.Component {
         ) : (
             <div className={"col-lg-6 col-md-12"}>
                 <div>
-                    You must click all sliders before sending messages. Unclicked ones
-                    are highlighted in red bold text. ({sliderClicked}/12)
+                ({sliderClicked}/12)You must click all sliders before sending messages. 
+                Unclicked ones are <strong style={{color: "red"}}>red and bold</strong>.
                 </div>
                 <div className={"table-responsive"}>
                     <PowersInfoTable
