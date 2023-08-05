@@ -1493,11 +1493,12 @@ export class ContentGame extends React.Component {
             <div style={{ minWidth: "200px" }}>
                 <Conversation
                     info={
-                        protagonist !== "GLOBAL"
+                        /* protagonist !== "GLOBAL"
                             ? this.truncate(
                                   engine.powers[protagonist].getController()
                               )
-                            : ""
+                            :  */
+                        ""
                     }
                     className={
                         protagonist === currentTabId
