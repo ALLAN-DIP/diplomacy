@@ -1461,7 +1461,7 @@ export class ContentGame extends React.Component {
                 if (
                     message.sender === protagnist &&
                     message.recipient === controlledPower &&
-                    message.recipient_annotation === null &&
+                    !message.recipient_annotation &&
                     !this.state.annotatedMessages.hasOwnProperty(
                         message.time_sent
                     )
