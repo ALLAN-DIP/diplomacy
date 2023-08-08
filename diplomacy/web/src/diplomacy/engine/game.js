@@ -479,6 +479,13 @@ export class Game {
         }
     }
 
+    setCommStatus(powerName, commStatus) {
+        if (this.powers.hasOwnProperty(powerName)) {
+            this.powers[powerName].comm_status = commStatus;
+            //this.powers[powerName].set_comm_status(commStatus);
+        }
+    }
+
     updateDummyPowers(dummyPowers) {
         for (let dummyPowerName of dummyPowers) if (this.powers.hasOwnProperty(dummyPowerName))
             this.powers[dummyPowerName].setDummy();
@@ -597,6 +604,15 @@ export class Game {
 
     getAnnotatedMessages() {
         return this.annotated_messages;
+    }
+
+    addGlossToMessage(timeSent, gloss) {
+        console.log(gloss)
+        if (this.messages.contains(timeSent)) {
+            const msg = this.messages.get(timeSent).message
+            this.messages.get(timeSent).message = msg + "\n\n" + gloss
+            console.log(msg + "\n\n" + gloss)
+        }
     }
 
     getMessageChannels(role, all) {
