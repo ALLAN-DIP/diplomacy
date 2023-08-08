@@ -1505,11 +1505,6 @@ export class ContentGame extends React.Component {
                             ? "cs-conversation--active"
                             : null
                     }
-                    title={
-                        protagonist !== "GLOBAL"
-                            ? engine.powers[protagonist].getController()
-                            : ""
-                    }
                     onClick={() => {
                         this.onChangeTabCurrentMessages(protagonist);
                     }}
