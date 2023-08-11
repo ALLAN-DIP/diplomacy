@@ -1461,7 +1461,7 @@ export class ContentGame extends React.Component {
                 if (
                     message.sender === protagnist &&
                     message.recipient === controlledPower &&
-                    message.recipient_annotation === null &&
+                    !message.recipient_annotation &&
                     !this.state.annotatedMessages.hasOwnProperty(
                         message.time_sent
                     )
@@ -1504,11 +1504,6 @@ export class ContentGame extends React.Component {
                         protagonist === currentTabId
                             ? "cs-conversation--active"
                             : null
-                    }
-                    title={
-                        protagonist !== "GLOBAL"
-                            ? engine.powers[protagonist].getController()
-                            : ""
                     }
                     onClick={() => {
                         this.onChangeTabCurrentMessages(protagonist);
@@ -1672,8 +1667,7 @@ export class ContentGame extends React.Component {
                                 !this.state.hasInitialOrders ||
                                 sliderClicked < 12
                             }
-                            placeholder="You must draft your orders before you can send messages.
-                            New messages are hidden until you annotate previous ones."
+                            placeholder="New messages are hidden until you annotate previous ones."
                         />
                     )}
                     {engine.isPlayerGame() && (
@@ -2047,8 +2041,8 @@ export class ContentGame extends React.Component {
         ) : (
             <div className={"col-lg-6 col-md-12"}>
                 <div>
-                    You must click all sliders before sending messages. Unclicked ones
-                    are highlighted in red bold text. ({sliderClicked}/12)
+                ({sliderClicked}/12)You must click all sliders before sending messages. 
+                Unclicked ones are <strong style={{color: "red"}}>red and bold</strong>.
                 </div>
                 <div className={"table-responsive"}>
                     <PowersInfoTable
