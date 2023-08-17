@@ -1359,11 +1359,6 @@ export class ContentGame extends React.Component {
         const convList = tabNames.map((protagonist) => (
             <div style={{ minWidth: "200px" }}>
                 <Conversation
-                    info={
-                        protagonist !== "GLOBAL"
-                            ? engine.powers[protagonist].getController()
-                            : ""
-                    }
                     className={
                         protagonist === currentTabId
                             ? "cs-conversation--active"
