@@ -2020,6 +2020,13 @@ export class ContentGame extends React.Component {
             Object.keys(this.state.stanceSliders).length +
             Object.keys(this.state.isBotSliders).length;
 
+        let totalSliders = 0;
+        for (let power of Object.values(engine.powers)) {
+            if (engine.role !== power.name && !power.isEliminated()) {
+                totalSliders += 2;
+            }
+        }
+
         return engine.role === "omniscient_type" ? (
             <div className={"col-lg-6 col-md-12"}>
                 <div className={"table-responsive"}>
@@ -2036,7 +2043,7 @@ export class ContentGame extends React.Component {
         ) : (
             <div className={"col-lg-6 col-md-12"}>
                 <div>
-                ({sliderClicked}/12)You must click all sliders before sending messages. 
+                ({sliderClicked}/{totalSliders})You must click all sliders before sending messages. 
                 Unclicked ones are <strong style={{color: "red"}}>red and bold</strong>.
                 </div>
                 <div className={"table-responsive"}>

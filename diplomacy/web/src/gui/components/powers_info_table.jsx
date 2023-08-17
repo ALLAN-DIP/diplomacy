@@ -124,7 +124,7 @@ export class PowersInfoTable extends React.Component {
                     </td>
                 ))}
 
-                {player !== countries[rowIndex] ? (
+                {player !== countries[rowIndex] && !row.isEliminated() ? (
                     <td>
                         <Slider
                             country={countries[rowIndex]}
@@ -144,7 +144,7 @@ export class PowersInfoTable extends React.Component {
                     </td>
                 ) : null}
 
-                {player !== countries[rowIndex] ? (
+                {player !== countries[rowIndex] && !row.isEliminated() ? (
                     <td className={"align-middle"}>
                         <Slider
                             country={countries[rowIndex]}
