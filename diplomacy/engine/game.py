@@ -1719,8 +1719,8 @@ class Game(Jsonable):
         self.logs.clear()
         self.order_logs = {}
         self.clear_initial_orders()
-        self.stances = {}
-        self.is_bot = {}
+        #self.stances = {}
+        #self.is_bot = {}
         self.order_history.put(previous_phase, previous_orders)
         self.message_history.put(previous_phase, previous_messages)
         self.state_history.put(previous_phase, previous_state)
