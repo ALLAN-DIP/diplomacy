@@ -1311,44 +1311,8 @@ export class ContentGame extends React.Component {
         return render;
     }
 
-    filterMessages(engine, messageChannels) {
-        /* 
-            Hide messages that are not annotated.
-        */
-        if (engine.role === "omniscient_type") return messageChannels;
-
-        let filteredMessageChannels = {};
-        const controlledPower = this.getCurrentPowerName();
-
-        for (const [powerName, messages] of Object.entries(messageChannels)) {
-            let filteredMessages = [];
-            let showMessage = true;
-
-            for (let idx in messages) {
-                const message = messages[idx];
-                if (message.sender === controlledPower || showMessage) {
-                    filteredMessages.push(message);
-                }
-                if (
-                    message.sender !== controlledPower &&
-                    !this.state.annotatedMessages.hasOwnProperty(
-                        message.time_sent
-                    )
-                ) {
-                    showMessage = false;
-                }
-            }
-            filteredMessageChannels[powerName] = filteredMessages;
-        }
-
-        return filteredMessageChannels;
-    }
-
     renderPastMessages(engine, role) {
-        const messageChannels = this.filterMessages(
-            engine,
-            engine.getMessageChannels(role, true)
-        );
+        const messageChannels = engine.getMessageChannels(role, true);
         const tabNames = [];
         for (let powerName of Object.keys(engine.powers))
             if (powerName !== role) tabNames.push(powerName);
@@ -1449,7 +1413,7 @@ export class ContentGame extends React.Component {
         const controlledPower = this.getCurrentPowerName();
         let count = 0;
 
-        for (const [powerName, messages] of Object.entries(messageChannels)) {
+        for (const [_, messages] of Object.entries(messageChannels)) {
             for (let idx in messages) {
                 const message = messages[idx];
 
@@ -1473,10 +1437,7 @@ export class ContentGame extends React.Component {
     }
 
     renderCurrentMessages(engine, role) {
-        const messageChannels = this.filterMessages(
-            engine,
-            engine.getMessageChannels(role, true)
-        );
+        const messageChannels = engine.getMessageChannels(role, true);
         const tabNames = [];
         for (let powerName of Object.keys(engine.powers))
             if (powerName !== role) tabNames.push(powerName);
@@ -1573,62 +1534,63 @@ export class ContentGame extends React.Component {
                             justifyContent: "space-between",
                         }}
                     >
-                        Do you think this is a lie?
+                        Is the above message deceptive?
                         <div id={messageId}>
+                            <Col>
                             <input
                                 type="radio"
-                                value="true"
+                                value="might"
                                 name={messageId}
-                                checked={
+                                defaultChecked={
                                     this.state.annotatedMessages.hasOwnProperty(
                                         msg.time_sent
                                     ) &&
                                     this.state.annotatedMessages[
                                         msg.time_sent
-                                    ] === "True"
+                                    ] === "Might"
                                 }
                                 onClick={() =>
-                                    this.handleRecipientAnnotation(msg, "True")
+                                    {this.handleRecipientAnnotation(msg, "Might")}
                                 }
                             />
-                            Truth&nbsp;&nbsp;
+                            Maybe&nbsp;
                             <input
                                 type="radio"
-                                value="false"
+                                value="deceptive"
                                 name={messageId}
-                                checked={
+                                defaultChecked={
                                     this.state.annotatedMessages.hasOwnProperty(
                                         msg.time_sent
                                     ) &&
                                     this.state.annotatedMessages[
                                         msg.time_sent
-                                    ] === "False"
+                                    ] === "Deceptive"
                                 }
                                 onClick={() =>
-                                    this.handleRecipientAnnotation(msg, "False")
+                                    this.handleRecipientAnnotation(msg, "Deceptive")
                                 }
                             />
-                            Lie&nbsp;&nbsp;
+                            Yes&nbsp;
                             <input
                                 type="radio"
-                                value="neutral"
+                                value="none"
                                 name={messageId}
-                                checked={
-                                    this.state.annotatedMessages.hasOwnProperty(
+                                defaultChecked={
+                                    (this.state.annotatedMessages.hasOwnProperty(
                                         msg.time_sent
                                     ) &&
                                     this.state.annotatedMessages[
                                         msg.time_sent
-                                    ] === "Neutral"
-                                }
-                                onClick={() =>
-                                    this.handleRecipientAnnotation(
-                                        msg,
-                                        "Neutral"
+                                    ] === "None") || !this.state.annotatedMessages.hasOwnProperty(
+                                        msg.time_sent
                                     )
                                 }
+                                onClick={() =>
+                                    this.handleRecipientAnnotation(msg, "None")
+                                }
                             />
-                            Neutral
+                            No
+                            </Col>
                         </div>
                     </div>
                 );
