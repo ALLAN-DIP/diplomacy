@@ -1445,6 +1445,26 @@ export class ContentGame extends React.Component {
         tabNames.push("GLOBAL");
         const currentTabId = this.state.tabCurrentMessages || tabNames[0];
 
+        const unreadCnt = (protagonist, currentTabId) => {
+            const hasUnreadMessages = (
+                this.state.messageHighlights.hasOwnProperty(protagonist)
+                && this.state.messageHighlights[protagonist] > 0
+            )
+
+            if (!hasUnreadMessages) {
+                return 0
+            }
+
+            if (currentTabId == protagonist && hasUnreadMessages) {
+                const modifiedMessageHighlights = this.state.messageHighlights
+                modifiedMessageHighlights[protagonist] = 0
+                this.setState({messageHighlights: modifiedMessageHighlights})
+                return 0
+            }
+
+            return this.state.messageHighlights[protagonist]
+        }
+
         const convList = tabNames.map((protagonist) => (
             <div style={{ minWidth: "200px" }}>
                 <Conversation
@@ -1466,11 +1486,7 @@ export class ContentGame extends React.Component {
                     }}
                     key={protagonist}
                     name={protagonist}
-                    unreadCnt={this.countUnreadMessages(
-                        engine,
-                        role,
-                        protagonist
-                    )}
+                    unreadCnt={unreadCnt(protagonist, currentTabId)}
                 >
                     <Avatar
                         src={POWER_ICONS[protagonist]}
