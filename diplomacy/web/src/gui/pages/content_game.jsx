@@ -1446,24 +1446,23 @@ export class ContentGame extends React.Component {
         const currentTabId = this.state.tabCurrentMessages || tabNames[0];
 
         const unreadCnt = (protagonist, currentTabId) => {
-            const hasUnreadMessages = (
-                this.state.messageHighlights.hasOwnProperty(protagonist)
-                && this.state.messageHighlights[protagonist] > 0
-            )
+            const hasUnreadMessages =
+                this.state.messageHighlights.hasOwnProperty(protagonist) &&
+                this.state.messageHighlights[protagonist] > 0;
 
             if (!hasUnreadMessages) {
-                return 0
+                return 0;
             }
 
             if (currentTabId == protagonist && hasUnreadMessages) {
-                const modifiedMessageHighlights = this.state.messageHighlights
-                modifiedMessageHighlights[protagonist] = 0
-                this.setState({messageHighlights: modifiedMessageHighlights})
-                return 0
+                const modifiedMessageHighlights = this.state.messageHighlights;
+                modifiedMessageHighlights[protagonist] = 0;
+                this.setState({ messageHighlights: modifiedMessageHighlights });
+                return 0;
             }
 
-            return this.state.messageHighlights[protagonist]
-        }
+            return this.state.messageHighlights[protagonist];
+        };
 
         const convList = tabNames.map((protagonist) => (
             <div style={{ minWidth: "200px" }}>
@@ -1553,59 +1552,69 @@ export class ContentGame extends React.Component {
                         Is the above message deceptive?
                         <div id={messageId}>
                             <Col>
-                            <input
-                                type="radio"
-                                value="might"
-                                name={messageId}
-                                defaultChecked={
-                                    this.state.annotatedMessages.hasOwnProperty(
-                                        msg.time_sent
-                                    ) &&
-                                    this.state.annotatedMessages[
-                                        msg.time_sent
-                                    ] === "Might"
-                                }
-                                onClick={() =>
-                                    {this.handleRecipientAnnotation(msg, "Might")}
-                                }
-                            />
-                            Maybe&nbsp;
-                            <input
-                                type="radio"
-                                value="deceptive"
-                                name={messageId}
-                                defaultChecked={
-                                    this.state.annotatedMessages.hasOwnProperty(
-                                        msg.time_sent
-                                    ) &&
-                                    this.state.annotatedMessages[
-                                        msg.time_sent
-                                    ] === "Deceptive"
-                                }
-                                onClick={() =>
-                                    this.handleRecipientAnnotation(msg, "Deceptive")
-                                }
-                            />
-                            Yes&nbsp;
-                            <input
-                                type="radio"
-                                value="none"
-                                name={messageId}
-                                defaultChecked={
-                                    (this.state.annotatedMessages.hasOwnProperty(
-                                        msg.time_sent
-                                    ) &&
-                                    this.state.annotatedMessages[
-                                        msg.time_sent
-                                    ] === "None") || !this.state.annotatedMessages.hasOwnProperty(
-                                        msg.time_sent
-                                    )
-                                }
-                                onClick={() =>
-                                    this.handleRecipientAnnotation(msg, "None")
-                                }
-                            />
-                            No
+                                <input
+                                    type="radio"
+                                    value="might"
+                                    name={messageId}
+                                    defaultChecked={
+                                        this.state.annotatedMessages.hasOwnProperty(
+                                            msg.time_sent
+                                        ) &&
+                                        this.state.annotatedMessages[
+                                            msg.time_sent
+                                        ] === "Might"
+                                    }
+                                    onClick={() => {
+                                        this.handleRecipientAnnotation(
+                                            msg,
+                                            "Might"
+                                        );
+                                    }}
+                                />
+                                Maybe&nbsp;
+                                <input
+                                    type="radio"
+                                    value="deceptive"
+                                    name={messageId}
+                                    defaultChecked={
+                                        this.state.annotatedMessages.hasOwnProperty(
+                                            msg.time_sent
+                                        ) &&
+                                        this.state.annotatedMessages[
+                                            msg.time_sent
+                                        ] === "Deceptive"
+                                    }
+                                    onClick={() =>
+                                        this.handleRecipientAnnotation(
+                                            msg,
+                                            "Deceptive"
+                                        )
+                                    }
+                                />
+                                Yes&nbsp;
+                                <input
+                                    type="radio"
+                                    value="none"
+                                    name={messageId}
+                                    defaultChecked={
+                                        (this.state.annotatedMessages.hasOwnProperty(
+                                            msg.time_sent
+                                        ) &&
+                                            this.state.annotatedMessages[
+                                                msg.time_sent
+                                            ] === "None") ||
+                                        !this.state.annotatedMessages.hasOwnProperty(
+                                            msg.time_sent
+                                        )
+                                    }
+                                    onClick={() =>
+                                        this.handleRecipientAnnotation(
+                                            msg,
+                                            "None"
+                                        )
+                                    }
+                                />
+                                No
                             </Col>
                         </div>
                     </div>
@@ -2021,8 +2030,9 @@ export class ContentGame extends React.Component {
         ) : (
             <div className={"col-lg-6 col-md-12"}>
                 <div>
-                ({sliderClicked}/{totalSliders})You must click all sliders before sending messages. 
-                Unclicked ones are <strong style={{color: "red"}}>red and bold</strong>.
+                    ({sliderClicked}/{totalSliders})You must click all sliders
+                    before sending messages. Unclicked ones are{" "}
+                    <strong style={{ color: "red" }}>red and bold</strong>.
                 </div>
                 <div className={"table-responsive"}>
                     <PowersInfoTable
