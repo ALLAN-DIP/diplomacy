@@ -2033,23 +2033,6 @@ export class ContentGame extends React.Component {
                     ({sliderClicked}/{totalSliders})You must click all sliders
                     before sending messages. Unclicked ones are{" "}
                     <strong style={{ color: "red" }}>red and bold</strong>.
-                    <Button
-                        pickEvent={true}
-                        title={"No change for all"}
-                        onClick={() => {
-                            let stanceSliders = {};
-                            let isBotSliders = {};
-                            for (let powerName of filteredPowerNames) {
-                                stanceSliders[powerName] = 3;
-                                isBotSliders[powerName] = 3;                                
-                            }
-                            this.setState({
-                                stanceSliders: stanceSliders,
-                                isBotSliders: isBotSliders,
-                            });
-
-                        }}
-                    ></Button>
                 </div>
                 <div className={"table-responsive"}>
                     <PowersInfoTable
