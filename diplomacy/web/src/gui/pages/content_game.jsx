@@ -1549,7 +1549,7 @@ export class ContentGame extends React.Component {
                             <Col>
                                 <input
                                     type="radio"
-                                    value="might"
+                                    value="yes"
                                     name={messageId}
                                     defaultChecked={
                                         this.state.annotatedMessages.hasOwnProperty(
@@ -1557,19 +1557,19 @@ export class ContentGame extends React.Component {
                                         ) &&
                                         this.state.annotatedMessages[
                                             msg.time_sent
-                                        ] === "Might"
+                                        ] === "yes"
                                     }
                                     onClick={() => {
                                         this.handleRecipientAnnotation(
                                             msg,
-                                            "Might"
+                                            "yes"
                                         );
                                     }}
                                 />
-                                Maybe&nbsp;
+                                yes&nbsp;
                                 <input
                                     type="radio"
-                                    value="deceptive"
+                                    value="maybe"
                                     name={messageId}
                                     defaultChecked={
                                         this.state.annotatedMessages.hasOwnProperty(
@@ -1577,16 +1577,16 @@ export class ContentGame extends React.Component {
                                         ) &&
                                         this.state.annotatedMessages[
                                             msg.time_sent
-                                        ] === "Deceptive"
+                                        ] === "maybe"
                                     }
                                     onClick={() =>
                                         this.handleRecipientAnnotation(
                                             msg,
-                                            "Deceptive"
+                                            "maybe"
                                         )
                                     }
                                 />
-                                Yes&nbsp;
+                                maybe&nbsp;
                                 <input
                                     type="radio"
                                     value="none"
@@ -1609,7 +1609,7 @@ export class ContentGame extends React.Component {
                                         )
                                     }
                                 />
-                                No
+                                no
                             </Col>
                         </div>
                     </div>
