@@ -131,7 +131,7 @@ export class PowersInfoTable extends React.Component {
                             pickEvent={true}
                             title={"No change"}
                             onClick={() => {
-                                
+                                this.handleStance(countries[rowIndex], stances[countries[rowIndex]] ? stances[countries[rowIndex]] : 3);
                             }}
                         ></Button>&nbsp;
                         <Slider
