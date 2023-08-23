@@ -515,16 +515,6 @@ export class ContentGame extends React.Component {
                         messageHighlights: {},
                         orderBuildingPath: [],
                         hasInitialOrders: false,
-                        stanceSliders: {},
-                        isBot: {
-                            AUSTRIA: false,
-                            ENGLAND: false,
-                            FRANCE: false,
-                            GERMANY: false,
-                            ITALY: false,
-                            RUSSIA: false,
-                            TURKEY: false,
-                        },
                     }).then(() =>
                         this.getPage().info(
                             `Game update (${notification.name}) to ${networkGame.local.phase}.`
@@ -864,6 +854,7 @@ export class ContentGame extends React.Component {
             .process()
             .then(() => {
                 page.success("Game processed.");
+                console.log(this.props.data);
                 this.props.data.clearInitialOrders();
                 this.setState({ hasInitialOrders: false });
             })
