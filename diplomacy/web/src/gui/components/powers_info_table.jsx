@@ -131,16 +131,7 @@ export class PowersInfoTable extends React.Component {
                             pickEvent={true}
                             title={"No change"}
                             onClick={() => {
-                                let stanceSliders = {};
-                                let isBotSliders = {};
-                                for (let powerName of countries) {
-                                    stanceSliders[powerName] = 3;
-                                    isBotSliders[powerName] = 3;
-                                }
-                                this.setState({
-                                    stanceSliders: stanceSliders,
-                                    isBotSliders: isBotSliders,
-                                });
+                                
                             }}
                         ></Button>&nbsp;
                         <Slider
@@ -177,24 +168,6 @@ export class PowersInfoTable extends React.Component {
                         ></input>
                     </td>
                 ) : null}
-
-                {/* {player !== countries[rowIndex] ? (
-                    <td className={"align-middle"}>
-                        <input
-                            type="checkbox"
-                            defaultChecked={
-                                this.props.deceiving &&
-                                this.props.deceiving[countries[rowIndex]]
-                            }
-                            onClick={(e) => {
-                                this.handleDeceiving(
-                                    countries[rowIndex],
-                                    e.target.checked
-                                );
-                            }}
-                        ></input>
-                    </td>
-                ) : null} */}
             </tr>
         );
     }

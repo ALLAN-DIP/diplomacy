@@ -727,18 +727,6 @@ export class ContentGame extends React.Component {
         }
     };
 
-    handleDeceiving = (country, deceiving) => {
-        const engine = this.props.data;
-
-        try {
-            this.sendDeceiving(engine.client, engine.role, country, deceiving);
-        } catch (e) {
-            this.getPage().error(
-                "Will not update status of a noncontrollable power."
-            );
-        }
-    };
-
     sendOrderLog(networkGame, logType, order) {
         const engine = networkGame.local;
         let message = null;
@@ -1639,9 +1627,16 @@ export class ContentGame extends React.Component {
             }
         }
 
-        const sliderClicked =
-            Object.keys(this.state.stanceSliders).length +
-            Object.keys(this.state.isBot).length;
+        let sliderClicked = 0;
+
+        for (let power of Object.keys(this.state.stanceSliders)) {
+            if (
+                engine.role !== power &&
+                !engine.getPower(power).isEliminated()
+            ) {
+                sliderClicked++;
+            }
+        }
 
         return (
             <div className={"col-lg-6 col-md-12"} style={{ height: "500px" }}>
@@ -1663,7 +1658,7 @@ export class ContentGame extends React.Component {
                             value={this.state.message}
                             disabled={
                                 !this.state.hasInitialOrders ||
-                                sliderClicked < 12
+                                sliderClicked < 6
                             }
                             placeholder="New messages are hidden until you annotate previous ones."
                         />
@@ -2009,19 +2004,22 @@ export class ContentGame extends React.Component {
         filteredPowerNames.sort();
 
         const orderedPowers = powerNames.map((pn) => engine.powers[pn]);
-        const stances =
-            engine.getPower(engine.role) === null
-                ? {}
-                : engine.getPower(engine.role).getStances();
 
-        const sliderClicked =
-            Object.keys(this.state.stanceSliders).length +
-            Object.keys(this.state.isBot).length;
+        let sliderClicked = 0;
+
+        for (let power of Object.keys(this.state.stanceSliders)) {
+            if (
+                engine.role !== power &&
+                !engine.getPower(power).isEliminated()
+            ) {
+                sliderClicked++;
+            }
+        }
 
         let totalSliders = 0;
         for (let power of Object.values(engine.powers)) {
             if (engine.role !== power.name && !power.isEliminated()) {
-                totalSliders += 2;
+                totalSliders++;
             }
         }
 
