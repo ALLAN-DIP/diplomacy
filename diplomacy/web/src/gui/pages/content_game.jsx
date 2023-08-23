@@ -194,7 +194,15 @@ export class ContentGame extends React.Component {
             ),
             annotatedMessages: this.props.data.getAnnotatedMessages(),
             stanceSliders: this.props.data.stances[this.props.data.role] || {},
-            isBotSliders: this.props.data.is_bot[this.props.data.role] || {},
+            isBot: this.props.data.is_bot[this.props.data.role] || {
+                AUSTRIA: false,
+                ENGLAND: false,
+                FRANCE: false,
+                GERMANY: false,
+                ITALY: false,
+                RUSSIA: false,
+                TURKEY: false,
+            },
         };
 
         // Bind some class methods to this instance.
@@ -508,7 +516,15 @@ export class ContentGame extends React.Component {
                         orderBuildingPath: [],
                         hasInitialOrders: false,
                         stanceSliders: {},
-                        isBotSliders: {},
+                        isBot: {
+                            AUSTRIA: false,
+                            ENGLAND: false,
+                            FRANCE: false,
+                            GERMANY: false,
+                            ITALY: false,
+                            RUSSIA: false,
+                            TURKEY: false,
+                        },
                     }).then(() =>
                         this.getPage().info(
                             `Game update (${notification.name}) to ${networkGame.local.phase}.`
@@ -699,10 +715,10 @@ export class ContentGame extends React.Component {
         const power = engine.getPower(engine.role);
 
         try {
-            let stanceCopy = Object.assign({}, this.state.isBotSliders);
-            stanceCopy[country] = parseInt(isBot);
-            this.setState({ isBotSliders: stanceCopy });
-            power.setIsBot(country, parseInt(isBot));
+            let stanceCopy = Object.assign({}, this.state.isBot);
+            stanceCopy[country] = isBot;
+            this.setState({ isBot: stanceCopy });
+            power.setIsBot(country, isBot);
             this.sendIsBot(engine.client, engine.role, power.getIsBot());
         } catch (e) {
             this.getPage().error(
@@ -1625,7 +1641,7 @@ export class ContentGame extends React.Component {
 
         const sliderClicked =
             Object.keys(this.state.stanceSliders).length +
-            Object.keys(this.state.isBotSliders).length;
+            Object.keys(this.state.isBot).length;
 
         return (
             <div className={"col-lg-6 col-md-12"} style={{ height: "500px" }}>
@@ -1998,14 +2014,9 @@ export class ContentGame extends React.Component {
                 ? {}
                 : engine.getPower(engine.role).getStances();
 
-        const isBot =
-            engine.getPower(engine.role) === null
-                ? {}
-                : engine.getPower(engine.role).getIsBot();
-
         const sliderClicked =
             Object.keys(this.state.stanceSliders).length +
-            Object.keys(this.state.isBotSliders).length;
+            Object.keys(this.state.isBot).length;
 
         let totalSliders = 0;
         for (let power of Object.values(engine.powers)) {
@@ -2043,13 +2054,11 @@ export class ContentGame extends React.Component {
                         wrapper={PowerView.wrap}
                         countries={filteredPowerNames}
                         onChangeStance={this.handleStance}
-                        stances={stances}
+                        stances={this.state.stanceSliders}
                         player={engine.role}
                         onChangeIsBot={this.handleIsBot}
                         onChangeDeceiving={this.handleDeceiving}
-                        isBot={isBot}
-                        isBotSlider={this.state.isBotSliders}
-                        stanceSlider={this.state.stanceSliders}
+                        isBot={this.state.isBot}
                     />
                 </div>
             </div>

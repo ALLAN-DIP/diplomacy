@@ -226,8 +226,8 @@ class Game(Jsonable):
                  'convoy_paths_dest', 'zobrist_hash', 'renderer', 'game_id', 'map_name', 'role', 'rules',
                  'message_history', 'state_history', 'result_history', 'status', 'timestamp_created', 'n_controls',
                  'deadline', 'registration_password', 'observer_level', 'controlled_powers', '_phase_wrapper_type',
-                 'phase_abbr', '_unit_owner_cache', 'daide_port', 'fixed_state', 'log_history', 'logs', 'stances', 
-                 'stance_history', 'annotated_messages', 'order_logs', 'order_log_history', 'has_initial_orders', 
+                 'phase_abbr', '_unit_owner_cache', 'daide_port', 'fixed_state', 'log_history', 'logs', 'stances',
+                 'stance_history', 'annotated_messages', 'order_logs', 'order_log_history', 'has_initial_orders',
                  'is_bot', 'deceiving', 'is_bot_history', 'deceiving_history', 'order_suggestions']
 
     zobrist_tables = {}
@@ -268,10 +268,10 @@ class Game(Jsonable):
         strings.ZOBRIST_HASH: parsing.DefaultValueType(int, 0),
         strings.STANCES: parsing.DefaultValueType(parsing.DictType(str, parsing.DictType(str, int)), {}),
         strings.STANCE_HISTORY: parsing.DefaultValueType(parsing.DictType(str, parsing.DictType(str, parsing.DictType(str, int))), {}),
-        'is_bot': parsing.DefaultValueType(parsing.DictType(str, parsing.DictType(str, int)), {}),
-        'is_bot_history': parsing.DefaultValueType(parsing.DictType(str, parsing.DictType(str, parsing.DictType(str, int))), {}),
+        'is_bot': parsing.DefaultValueType(parsing.DictType(str, parsing.DictType(str, bool)), {}),
+        'is_bot_history': parsing.DefaultValueType(parsing.DictType(str, parsing.DictType(str, parsing.DictType(str, bool))), {}),
         'deceiving': parsing.DefaultValueType(parsing.DictType(str, parsing.DictType(str, bool)), {}),
-        'deceiving_history' : parsing.DefaultValueType(
+        'deceiving_history': parsing.DefaultValueType(
             parsing.DictType(str, parsing.DictType(str, parsing.DictType(str, bool))), {}),
         strings.ANNOTATED_MESSAGES: parsing.DefaultValueType(parsing.DictType(int, str), {}),
         strings.ORDER_LOGS: parsing.DefaultValueType(parsing.DictType(int, str), {}),
@@ -318,7 +318,15 @@ class Game(Jsonable):
 
         self.stances = {}
         self.stance_history = {}
-        self.is_bot = {}
+        self.is_bot = {
+            'AUSTRIA': {'AUSTRIA': False, 'ENGLAND': False, 'FRANCE': False, 'GERMANY': False, 'ITALY': False, 'RUSSIA': False, 'TURKEY': False},
+            'ENGLAND': {'AUSTRIA': False, 'ENGLAND': False, 'FRANCE': False, 'GERMANY': False, 'ITALY': False, 'RUSSIA': False, 'TURKEY': False},
+            'FRANCE': {'AUSTRIA': False, 'ENGLAND': False, 'FRANCE': False, 'GERMANY': False, 'ITALY': False, 'RUSSIA': False, 'TURKEY': False},
+            'GERMANY': {'AUSTRIA': False, 'ENGLAND': False, 'FRANCE': False, 'GERMANY': False, 'ITALY': False, 'RUSSIA': False, 'TURKEY': False},
+            'ITALY': {'AUSTRIA': False, 'ENGLAND': False, 'FRANCE': False, 'GERMANY': False, 'ITALY': False, 'RUSSIA': False, 'TURKEY': False},
+            'RUSSIA': {'AUSTRIA': False, 'ENGLAND': False, 'FRANCE': False, 'GERMANY': False, 'ITALY': False, 'RUSSIA': False, 'TURKEY': False},
+            'TURKEY': {'AUSTRIA': False, 'ENGLAND': False, 'FRANCE': False, 'GERMANY': False, 'ITALY': False, 'RUSSIA': False, 'TURKEY': False}
+        }
         self.is_bot_history = {}
         self.deceiving = {}
         self.deceiving_history = {}
@@ -447,9 +455,8 @@ class Game(Jsonable):
                                          {self._phase_wrapper_type(key): value
                                           for key, value in self.is_bot_history.items()})
         self.deceiving_history = SortedDict(self._phase_wrapper_type, dict,
-                                         {self._phase_wrapper_type(key): value
-                                          for key, value in self.deceiving_history.items()})
-
+                                            {self._phase_wrapper_type(key): value
+                                             for key, value in self.deceiving_history.items()})
 
     def __str__(self):
         """ Returns a string representation of the game instance """
@@ -1067,7 +1074,7 @@ class Game(Jsonable):
         controlled_power = info['controlled_power']
         target_power = info['target_power']
         deceiving = info['deceiving']
-        
+
         if controlled_power not in self.deceiving:
             self.deceiving[controlled_power] = {}
 

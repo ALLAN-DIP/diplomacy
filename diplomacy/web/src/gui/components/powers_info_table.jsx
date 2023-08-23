@@ -19,6 +19,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { Slider } from "./slider";
+import { Button } from "./button";
 
 class DefaultWrapper {
     constructor(data) {
@@ -126,6 +127,22 @@ export class PowersInfoTable extends React.Component {
 
                 {player !== countries[rowIndex] && !row.isEliminated() ? (
                     <td>
+                        <Button
+                            pickEvent={true}
+                            title={"No change"}
+                            onClick={() => {
+                                let stanceSliders = {};
+                                let isBotSliders = {};
+                                for (let powerName of countries) {
+                                    stanceSliders[powerName] = 3;
+                                    isBotSliders[powerName] = 3;
+                                }
+                                this.setState({
+                                    stanceSliders: stanceSliders,
+                                    isBotSliders: isBotSliders,
+                                });
+                            }}
+                        ></Button>&nbsp;
                         <Slider
                             country={countries[rowIndex]}
                             onChangeStance={this.handleStance}
@@ -138,7 +155,7 @@ export class PowersInfoTable extends React.Component {
                                 5: "Very friendly",
                             }}
                             clicked={
-                                this.props.stanceSlider[countries[rowIndex]]
+                                this.props.stances[countries[rowIndex]]
                             }
                         />
                     </td>
@@ -146,21 +163,18 @@ export class PowersInfoTable extends React.Component {
 
                 {player !== countries[rowIndex] && !row.isEliminated() ? (
                     <td className={"align-middle"}>
-                        <Slider
-                            country={countries[rowIndex]}
-                            onChangeStance={this.handleIsBot}
-                            stance={isBot[countries[rowIndex]]}
-                            dict={{
-                                1: "This player is a human",
-                                2: "This player is probably a human",
-                                3: "Not sure",
-                                4: "This player is probably a bot",
-                                5: "This player is a bot",
-                            }}
-                            clicked={
-                                this.props.isBotSlider[countries[rowIndex]]
+                        <input
+                            type="checkbox"
+                            defaultChecked={
+                                isBot[countries[rowIndex]] === true
                             }
-                        />
+                            onClick={(e) => {
+                                this.handleIsBot(
+                                    countries[rowIndex],
+                                    e.target.checked
+                                );
+                            }}
+                        ></input>
                     </td>
                 ) : null}
 

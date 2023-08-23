@@ -26,11 +26,13 @@ MESSAGES_TYPE = parsing.IndexedSequenceType(
 LOGS_TYPE = parsing.IndexedSequenceType(
     parsing.DictType(int, parsing.JsonableClassType(Log), SortedDict.builder(int, Log)), 'time_sent')
 
+
 class GamePhaseData(Jsonable):
     """ Small class to represent data for a game phase:
         phase name, state, orders, orders results and messages for this phase.
     """
-    __slots__ = ['name', 'state', 'orders', 'results', 'messages','logs', 'stances', 'order_logs', 'is_bot', 'deceiving']
+    __slots__ = ['name', 'state', 'orders', 'results', 'messages',
+                 'logs', 'stances', 'order_logs', 'is_bot', 'deceiving']
 
     model = {
         strings.NAME: str,
@@ -41,7 +43,7 @@ class GamePhaseData(Jsonable):
         strings.LOGS: LOGS_TYPE,
         strings.STANCES: parsing.DictType(str, parsing.DictType(str, int)),
         strings.ORDER_LOGS: parsing.DictType(int, str),
-        'is_bot': parsing.DictType(str, parsing.DictType(str, int)),
+        'is_bot': parsing.DictType(str, parsing.DictType(str, bool)),
         'deceiving': parsing.DictType(str, parsing.DictType(str, bool)),
     }
 
@@ -54,7 +56,15 @@ class GamePhaseData(Jsonable):
         self.messages = {}
         self.logs = {}
         self.order_logs = {}
-        self.is_bot = {}
+        self.is_bot = {
+            'AUSTRIA': {'AUSTRIA': False, 'ENGLAND': False, 'FRANCE': False, 'GERMANY': False, 'ITALY': False, 'RUSSIA': False, 'TURKEY': False},
+            'ENGLAND': {'AUSTRIA': False, 'ENGLAND': False, 'FRANCE': False, 'GERMANY': False, 'ITALY': False, 'RUSSIA': False, 'TURKEY': False},
+            'FRANCE': {'AUSTRIA': False, 'ENGLAND': False, 'FRANCE': False, 'GERMANY': False, 'ITALY': False, 'RUSSIA': False, 'TURKEY': False},
+            'GERMANY': {'AUSTRIA': False, 'ENGLAND': False, 'FRANCE': False, 'GERMANY': False, 'ITALY': False, 'RUSSIA': False, 'TURKEY': False},
+            'ITALY': {'AUSTRIA': False, 'ENGLAND': False, 'FRANCE': False, 'GERMANY': False, 'ITALY': False, 'RUSSIA': False, 'TURKEY': False},
+            'RUSSIA': {'AUSTRIA': False, 'ENGLAND': False, 'FRANCE': False, 'GERMANY': False, 'ITALY': False, 'RUSSIA': False, 'TURKEY': False},
+            'TURKEY': {'AUSTRIA': False, 'ENGLAND': False, 'FRANCE': False, 'GERMANY': False, 'ITALY': False, 'RUSSIA': False, 'TURKEY': False}
+        }
         self.deceiving = {}
         super(GamePhaseData, self).__init__(name=name, state=state, orders=orders, results=results, messages=messages, logs=logs,
                                             stances=stances, order_logs=order_logs, is_bot=is_bot, deceiving=deceiving)
