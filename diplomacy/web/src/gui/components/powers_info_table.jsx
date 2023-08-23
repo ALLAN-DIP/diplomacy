@@ -126,7 +126,7 @@ export class PowersInfoTable extends React.Component {
                 ))}
 
                 {player !== countries[rowIndex] && !row.isEliminated() ? (
-                    <td>
+                    <td style={{display: 'flex', flexDirection:'row'}}>
                         <Button
                             pickEvent={true}
                             title={"No change"}
