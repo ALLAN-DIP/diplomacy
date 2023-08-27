@@ -193,7 +193,7 @@ export class ContentGame extends React.Component {
                 this.props.data.role
             ),
             annotatedMessages: this.props.data.getAnnotatedMessages(),
-            stances: this.props.data.stances[this.props.data.role] || {},
+            stances: /* this.props.data.stances[this.props.data.role] || */ {},
             isBot: this.props.data.is_bot[this.props.data.role] || {
                 AUSTRIA: false,
                 ENGLAND: false,
@@ -515,6 +515,7 @@ export class ContentGame extends React.Component {
                         messageHighlights: {},
                         orderBuildingPath: [],
                         hasInitialOrders: false,
+                        stances: {},
                     }).then(() =>
                         this.getPage().info(
                             `Game update (${notification.name}) to ${networkGame.local.phase}.`
@@ -2014,6 +2015,9 @@ export class ContentGame extends React.Component {
             }
         }
 
+        console.log("engine: ", engine);
+        console.log("updatedstance: ", this.state.stances);
+
         return engine.role === "omniscient_type" ? (
             <div className={"col-lg-6 col-md-12"}>
                 <div className={"table-responsive"}>
@@ -2043,11 +2047,12 @@ export class ContentGame extends React.Component {
                         wrapper={PowerView.wrap}
                         countries={filteredPowerNames}
                         onChangeStance={this.handleStance}
-                        stances={this.state.stances}
+                        stances={engine.getPower(engine.role).getStances()}
                         player={engine.role}
                         onChangeIsBot={this.handleIsBot}
                         onChangeDeceiving={this.handleDeceiving}
                         isBot={this.state.isBot}
+                        stanceUpdated = {this.state.stances}
                     />
                 </div>
             </div>

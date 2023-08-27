@@ -146,7 +146,7 @@ export class PowersInfoTable extends React.Component {
                                 5: "Very friendly",
                             }}
                             clicked={
-                                this.props.stances[countries[rowIndex]]
+                                this.props.stanceUpdated[countries[rowIndex]]
                             }
                         />
                     </td>
