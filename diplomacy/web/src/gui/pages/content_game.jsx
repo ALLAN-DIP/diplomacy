@@ -193,7 +193,7 @@ export class ContentGame extends React.Component {
                 this.props.data.role
             ),
             annotatedMessages: this.props.data.getAnnotatedMessages(),
-            stanceSliders: this.props.data.stances[this.props.data.role] || {},
+            stances: this.props.data.stances[this.props.data.role] || {},
             isBot: this.props.data.is_bot[this.props.data.role] || {
                 AUSTRIA: false,
                 ENGLAND: false,
@@ -688,9 +688,9 @@ export class ContentGame extends React.Component {
         const power = engine.getPower(engine.role);
 
         try {
-            let stanceCopy = Object.assign({}, this.state.stanceSliders);
+            let stanceCopy = Object.assign({}, this.state.stances);
             stanceCopy[country] = parseInt(stance);
-            this.setState({ stanceSliders: stanceCopy });
+            this.setState({ stances: stanceCopy });
             power.setStances(country, parseInt(stance));
             this.sendGameStance(engine.client, engine.role, power.getStances());
         } catch (e) {
@@ -1620,7 +1620,7 @@ export class ContentGame extends React.Component {
 
         let sliderClicked = 0;
 
-        for (let power of Object.keys(this.state.stanceSliders)) {
+        for (let power of Object.keys(this.state.stances)) {
             if (
                 engine.role !== power &&
                 !engine.getPower(power).isEliminated()
@@ -1998,7 +1998,7 @@ export class ContentGame extends React.Component {
 
         let sliderClicked = 0;
 
-        for (let power of Object.keys(this.state.stanceSliders)) {
+        for (let power of Object.keys(this.state.stances)) {
             if (
                 engine.role !== power &&
                 !engine.getPower(power).isEliminated()
@@ -2043,7 +2043,7 @@ export class ContentGame extends React.Component {
                         wrapper={PowerView.wrap}
                         countries={filteredPowerNames}
                         onChangeStance={this.handleStance}
-                        stances={this.state.stanceSliders}
+                        stances={this.state.stances}
                         player={engine.role}
                         onChangeIsBot={this.handleIsBot}
                         onChangeDeceiving={this.handleDeceiving}
