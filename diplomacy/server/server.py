@@ -532,7 +532,7 @@ class Server:
             'xsrf_cookies': True,
             'websocket_ping_interval': self.ping_seconds,
             'websocket_ping_timeout': 2 * self.ping_seconds,
-            'websocket_max_message_size': 64 * 1024 * 1024
+            'websocket_max_message_size': 1000 * 1024 * 1024,
         }
         self.backend = _ServerBackend()
         self.backend.application = tornado.web.Application(handlers, **settings)
