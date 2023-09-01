@@ -141,7 +141,9 @@ class ConnectionHandler(WebSocketHandler):
 
             except WebSocketClosedError:
                 with open('websocket_closed_error.txt', 'a') as f:
-                    f.write('ERROR' + '\n')
                     f.write('message: ' + message + '\n')
                     f.write('response: ' + response.json() + '\n')
+                    f.write('\n')
                 f.close()
+
+                LOGGER.error("WebSocketClosedError when on_message")
