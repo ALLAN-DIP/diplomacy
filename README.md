@@ -100,12 +100,24 @@ npm install . --only=dev
 ```
 use node version <= 16 or
 ```
-export NODE_OPTIONS=--openssl-legacy-provider
-```
-To avoid 
+export NODE_OPTIONS=--openssl-legacy-provider for linux and macos
+
+set PORT=<PORT> && react-scripts --openssl-legacy-provider start # for npm start in package.json on windows
 
 ```
-error:0308010C:digital envelope routines::unsupported
+To avoid `error:0308010C:digital envelope routines::unsupported`
+<br>
+In windows, you also need to change
+<br>
+`../../../diplomacy/maps/svg/${this.props.params.map.svgName()}.svg` in
+<br>
+`diploamcy/web/src/gui/wizard/gameCreation/panelChooseMap.js` to
+<br>
+`../../../../../../diplomacy/maps/svg/${this.props.params.map.svgName()}.svg`
+<br>
+```
+
+```
 
 # In a terminal window or tab - Launch React server
 pm2 start "npm start" # for background activity
