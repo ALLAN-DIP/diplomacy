@@ -927,9 +927,6 @@ class Server:
             :param game_id: game id to pass to the DAIDE server
             :param port: the port to use. If None, an available random port will be used
         """
-        """ if port in self.daide_servers:
-            raise RuntimeError('Port already in used by a DAIDE server') """
-        
         while port in self.daide_servers:
             port = randint(self.daide_min_port, self.daide_max_port)
 
