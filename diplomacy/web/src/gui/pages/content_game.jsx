@@ -1652,7 +1652,6 @@ export class ContentGame extends React.Component {
                                 !this.state.hasInitialOrders ||
                                 sliderClicked < 6
                             }
-                            placeholder="New messages are hidden until you annotate previous ones."
                         />
                     )}
                     {engine.isPlayerGame() && (
