@@ -826,7 +826,6 @@ def on_send_stance(server, request, connection_handler):
     assert_game_not_finished(level.game)
     level.game.add_stance(stance)
     server.save_game(level.game)
-    server.backup_now(force=True)
 
 def on_send_is_bot(server, request, connection_handler):
     level = verify_request(server, request, connection_handler, observer_role=False, omniscient_role=False)
@@ -834,7 +833,6 @@ def on_send_is_bot(server, request, connection_handler):
     assert_game_not_finished(level.game)
     level.game.add_is_bot(is_bot)
     server.save_game(level.game)
-    server.backup_now(force=True)
 
 def on_send_deceiving(server, request, connection_handler):
     level = verify_request(server, request, connection_handler, observer_role=False, omniscient_role=False)
@@ -849,7 +847,6 @@ def on_send_order_log(server, request, connection_handler):
     assert_game_not_finished(level.game)
     level.game.add_order_log(log)
     server.save_game(level.game)
-    server.backup_now(force=True)
 
 
 def on_send_order_suggestions(server, request, connection_handler):
@@ -857,9 +854,7 @@ def on_send_order_suggestions(server, request, connection_handler):
     token, power, suggestions = request.token, request.power, request.suggestions
     assert_game_not_finished(level.game)
     level.game.add_order_suggestions(power, suggestions)
-    server.save_game(level.game)
-    server.backup_now(force=True)
-    
+    server.save_game(level.game)    
 
 
 def on_send_game_message(server, request, connection_handler):
@@ -1155,7 +1150,6 @@ def on_set_orders(server, request, connection_handler):
     if level.game.does_not_wait():
         server.force_game_processing(level.game)
     server.save_game(level.game)
-    server.backup_now(force=True)
 
 def on_set_wait_flag(server, request, connection_handler):
     """ Manage request SetWaitFlag.

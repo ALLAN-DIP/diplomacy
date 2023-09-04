@@ -530,8 +530,8 @@ class Server:
         settings = {
             'cookie_secret': common.generate_token(),
             'xsrf_cookies': True,
-            'websocket_ping_interval': 10,
-            'websocket_ping_timeout': 50,
+            'websocket_ping_interval': self.ping_seconds,
+            'websocket_ping_timeout': 2 * self.ping_seconds,
             'websocket_max_message_size': 1000 * 1024 * 1024,
         }
         self.backend = _ServerBackend()
