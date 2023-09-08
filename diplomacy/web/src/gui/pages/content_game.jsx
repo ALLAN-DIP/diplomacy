@@ -1537,7 +1537,7 @@ export class ContentGame extends React.Component {
                 </ChatMessage>
             );
 
-            if (dir === "incoming" && engine.role !== "omniscient_type") {
+            if (dir === "incoming") {
                 renderedMessages.push(
                     <div
                         style={{
@@ -1566,6 +1566,7 @@ export class ContentGame extends React.Component {
                                             "yes"
                                         );
                                     }}
+                                    disabled={engine.role == "omniscient_type"}
                                 />
                                 yes&nbsp;
                                 <input
@@ -1586,6 +1587,7 @@ export class ContentGame extends React.Component {
                                             "maybe"
                                         )
                                     }
+                                    disabled={engine.role == "omniscient_type"}
                                 />
                                 maybe&nbsp;
                                 <input
@@ -1609,6 +1611,7 @@ export class ContentGame extends React.Component {
                                             "None"
                                         )
                                     }
+                                    disabled={engine.role == "omniscient_type"}
                                 />
                                 no
                             </Col>
@@ -1627,6 +1630,13 @@ export class ContentGame extends React.Component {
                 !engine.getPower(power).isEliminated()
             ) {
                 sliderClicked++;
+            }
+        }
+
+        let totalSliders = 0;
+        for (let power of Object.values(engine.powers)) {
+            if (engine.role !== power.name && !power.isEliminated()) {
+                totalSliders++;
             }
         }
 
@@ -1650,7 +1660,7 @@ export class ContentGame extends React.Component {
                             value={this.state.message}
                             disabled={
                                 !this.state.hasInitialOrders ||
-                                sliderClicked < 6
+                                sliderClicked < totalSliders
                             }
                         />
                     )}
@@ -2051,7 +2061,7 @@ export class ContentGame extends React.Component {
                         onChangeIsBot={this.handleIsBot}
                         onChangeDeceiving={this.handleDeceiving}
                         isBot={this.state.isBot}
-                        stanceUpdated = {this.state.stances}
+                        stanceUpdated={this.state.stances}
                     />
                 </div>
             </div>
