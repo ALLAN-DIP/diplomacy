@@ -1307,8 +1307,44 @@ export class ContentGame extends React.Component {
         return render;
     }
 
+    filterMessages(engine, messageChannels) {
+        /* 
+            Hide messages that are not annotated.
+        */
+        if (engine.role === "omniscient_type") return messageChannels;
+
+        let filteredMessageChannels = {};
+        const controlledPower = this.getCurrentPowerName();
+
+        for (const [powerName, messages] of Object.entries(messageChannels)) {
+            let filteredMessages = [];
+            let showMessage = true;
+
+            for (let idx in messages) {
+                const message = messages[idx];
+                if (message.sender === controlledPower || showMessage) {
+                    filteredMessages.push(message);
+                }
+                if (
+                    message.sender !== controlledPower &&
+                    !this.state.annotatedMessages.hasOwnProperty(
+                        message.time_sent
+                    )
+                ) {
+                    showMessage = false;
+                }
+            }
+            filteredMessageChannels[powerName] = filteredMessages;
+        }
+
+        return filteredMessageChannels;
+    }
+
     renderPastMessages(engine, role) {
-        const messageChannels = engine.getMessageChannels(role, true);
+        const messageChannels = this.filterMessages(
+            engine,
+            engine.getMessageChannels(role, true)
+        );
         const tabNames = [];
         for (let powerName of Object.keys(engine.powers))
             if (powerName !== role) tabNames.push(powerName);
@@ -1433,7 +1469,10 @@ export class ContentGame extends React.Component {
     }
 
     renderCurrentMessages(engine, role) {
-        const messageChannels = engine.getMessageChannels(role, true);
+        const messageChannels = this.filterMessages(
+            engine,
+            engine.getMessageChannels(role, true)
+        );
         const tabNames = [];
         for (let powerName of Object.keys(engine.powers))
             if (powerName !== role) tabNames.push(powerName);
@@ -1481,7 +1520,11 @@ export class ContentGame extends React.Component {
                     }}
                     key={protagonist}
                     name={protagonist}
-                    unreadCnt={unreadCnt(protagonist, currentTabId)}
+                    unreadCnt={this.countUnreadMessages(
+                        engine,
+                        role,
+                        protagonist
+                    )}
                 >
                     <Avatar
                         src={POWER_ICONS[protagonist]}
@@ -1579,10 +1622,7 @@ export class ContentGame extends React.Component {
                                         ) &&
                                             this.state.annotatedMessages[
                                                 msg.time_sent
-                                            ] === "None") ||
-                                        !this.state.annotatedMessages.hasOwnProperty(
-                                            msg.time_sent
-                                        )
+                                            ] === "None")
                                     }
                                     onClick={() =>
                                         this.handleRecipientAnnotation(
