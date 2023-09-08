@@ -986,6 +986,7 @@ export class ContentGame extends React.Component {
             this.__store_orders(orders);
             this.setState({ orders: orders });
         }
+        this.setOrders();
     }
 
     /**
@@ -1006,6 +1007,7 @@ export class ContentGame extends React.Component {
             this.__store_orders(allOrders);
             this.setState({ orders: allOrders });
         }
+        this.setOrders();
     }
 
     /**
@@ -1016,6 +1018,7 @@ export class ContentGame extends React.Component {
         const orders = this.__get_orders(this.props.data);
         orders[powerName] = {};
         this.__store_orders(orders);
+        this.setOrders();
         return this.setState({ orders: orders });
     }
 
@@ -1026,7 +1029,7 @@ export class ContentGame extends React.Component {
         const serverOrders = this.props.data.getServerOrders();
         const orders = this.__get_orders(this.props.data);
 
-        this.sendOrderLog(this.props.data.client, "update", null);
+        //this.sendOrderLog(this.props.data.client, "update", null);
 
         for (let entry of Object.entries(orders)) {
             const powerName = entry[0];
@@ -1134,6 +1137,7 @@ export class ContentGame extends React.Component {
         this.__store_orders(allOrders);
         engine.setInitialOrders(engine.role);
         state.hasInitialOrders = true;
+        this.setOrders();
         return this.setState(state);
     }
 
