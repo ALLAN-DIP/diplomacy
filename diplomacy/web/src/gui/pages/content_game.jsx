@@ -15,23 +15,19 @@
 //  with this program.  If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
 import React from "react";
-import Scrollchor from "react-scrollchor";
 import { SelectLocationForm } from "../forms/select_location_form";
 import { SelectViaForm } from "../forms/select_via_form";
 import { Order } from "../utils/order";
 import { Row, Col } from "../components/layouts";
-import { Tabs } from "../components/tabs";
 import {
     extendOrderBuilding,
     ORDER_BUILDER,
     POSSIBLE_ORDERS,
 } from "../utils/order_building";
 import { PowerOrderCreationForm } from "../forms/power_order_creation_form";
-import { MessageForm } from "../forms/message_form";
 import { UTILS } from "../../diplomacy/utils/utils";
 import { Message } from "../../diplomacy/engine/message";
 import { PowerOrders } from "../components/power_orders";
-import { MessageView } from "../components/message_view";
 import { STRINGS } from "../../diplomacy/utils/strings";
 import { Diplog } from "../../diplomacy/utils/diplog";
 import { Table } from "../components/table";
@@ -58,17 +54,14 @@ import styles from "@chatscope/chat-ui-kit-styles/dist/default/styles.min.css";
 import {
     MainContainer,
     ChatContainer,
-    ExpansionPanel,
     MessageList,
     MessageSeparator,
-    MessageInput,
     Sidebar,
     ConversationList,
     Conversation,
     ConversationHeader,
     Avatar,
     Message as ChatMessage,
-    InputToolbox,
 } from "@chatscope/chat-ui-kit-react";
 import AUS from "../assets/AUS.png";
 import ENG from "../assets/ENG.png";
@@ -735,6 +728,8 @@ export class ContentGame extends React.Component {
             case "clear":
                 message = `${engine.role} removed its orders:`;
                 break;
+            default:
+                return;
         }
         networkGame.sendOrderLog({ log: message });
     }
@@ -1494,25 +1489,6 @@ export class ContentGame extends React.Component {
         tabNames.push("GLOBAL");
         const currentTabId = this.state.tabCurrentMessages || tabNames[0];
 
-        const unreadCnt = (protagonist, currentTabId) => {
-            const hasUnreadMessages =
-                this.state.messageHighlights.hasOwnProperty(protagonist) &&
-                this.state.messageHighlights[protagonist] > 0;
-
-            if (!hasUnreadMessages) {
-                return 0;
-            }
-
-            if (currentTabId == protagonist && hasUnreadMessages) {
-                const modifiedMessageHighlights = this.state.messageHighlights;
-                modifiedMessageHighlights[protagonist] = 0;
-                this.setState({ messageHighlights: modifiedMessageHighlights });
-                return 0;
-            }
-
-            return this.state.messageHighlights[protagonist];
-        };
-
         const convList = tabNames.map((protagonist) => (
             <div style={{ minWidth: "200px" }}>
                 <Conversation
@@ -1558,7 +1534,6 @@ export class ContentGame extends React.Component {
         let dir = "";
         let curPhase = "";
         let prevPhase = "";
-        let messageCount = 0;
 
         for (let m in msgs) {
             let msg = msgs[m];
@@ -1659,7 +1634,6 @@ export class ContentGame extends React.Component {
                         </div>
                     </div>
                 );
-                messageCount++;
             }
         }
 
@@ -2120,7 +2094,7 @@ export class ContentGame extends React.Component {
         let curPhase = "";
         let prevPhase = "";
         powerLogs.forEach((log) => {
-            if (log.phase != prevPhase) {
+            if (log.phase !== prevPhase) {
                 curPhase = log.phase;
                 renderedLogs.push(
                     <MessageSeparator>{curPhase}</MessageSeparator>
@@ -2199,15 +2173,6 @@ export class ContentGame extends React.Component {
     ) {
         const powerNames = Object.keys(engine.powers);
         powerNames.sort();
-
-        const orderedPowers = powerNames.map((pn) => engine.powers[pn]);
-        const stances =
-            engine.getPower(engine.role) === null
-                ? {}
-                : engine.getPower(engine.role).getStances();
-
-        const orderSuggestions =
-            engine.order_suggestions[powerName.substring(0, 3)];
 
         return (
             <Tab id={"tab-current-phase"} display={toDisplay}>
@@ -2358,10 +2323,6 @@ export class ContentGame extends React.Component {
                 </main>
             );
         }
-        const mainTab =
-            this.state.tabMain && tabNames.includes(this.state.tabMain)
-                ? this.state.tabMain
-                : tabNames[tabNames.length - 1];
 
         const currentPowerName =
             this.state.power ||
