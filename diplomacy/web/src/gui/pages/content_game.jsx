@@ -32,6 +32,7 @@ import { STRINGS } from "../../diplomacy/utils/strings";
 import { Diplog } from "../../diplomacy/utils/diplog";
 import { Table } from "../components/table";
 import { PowersInfoTable } from "../components/powers_info_table";
+import { AdminPowersInfoTable } from "../components/admin_powers_info_table";
 import { PowerView } from "../utils/power_view";
 import { DipStorage } from "../utils/dipStorage";
 import Helmet from "react-helmet";
@@ -850,7 +851,6 @@ export class ContentGame extends React.Component {
             .process()
             .then(() => {
                 page.success("Game processed.");
-                console.log(this.props.data);
                 this.props.data.clearInitialOrders();
                 this.setState({ hasInitialOrders: false });
             })
@@ -2040,21 +2040,28 @@ export class ContentGame extends React.Component {
             }
         }
 
-        console.log("engine: ", engine);
-        console.log("updatedstance: ", this.state.stances);
+        const currentPowerName =
+            this.state.power ||
+            (engine.getControllablePowers().length &&
+                engine.getControllablePowers()[0]);
+        console.log("currentPowerName", currentPowerName);
 
         return engine.role === "omniscient_type" ||
             engine.role === "observer_type" ||
             engine.role === "master_type" ? (
             <div className={"col-lg-6 col-md-12"}>
                 <div className={"table-responsive"}>
-                    <Table
+                    <AdminPowersInfoTable
                         className={"table table-striped table-sm"}
                         caption={"Powers info"}
-                        columns={TABLE_POWER_VIEW_OMNISCIENT}
-                        data={orderedPowers}
+                        columns={TABLE_POWER_VIEW}
+                        data={filteredPowers}
                         wrapper={PowerView.wrap}
-                        countries={powerNames}
+                        countries={filteredPowerNames}
+                        stances={engine.getPower(currentPowerName).getStances()}
+                        player={currentPowerName}
+                        isBot={engine.getPower(currentPowerName).getIsBot()}
+                        stanceUpdated={this.state.stances}
                     />
                 </div>
             </div>
