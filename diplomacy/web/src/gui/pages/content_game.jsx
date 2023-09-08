@@ -1617,12 +1617,12 @@ export class ContentGame extends React.Component {
                                     value="none"
                                     name={messageId}
                                     defaultChecked={
-                                        (this.state.annotatedMessages.hasOwnProperty(
+                                        this.state.annotatedMessages.hasOwnProperty(
                                             msg.time_sent
                                         ) &&
-                                            this.state.annotatedMessages[
-                                                msg.time_sent
-                                            ] === "None")
+                                        this.state.annotatedMessages[
+                                            msg.time_sent
+                                        ] === "None"
                                     }
                                     onClick={() =>
                                         this.handleRecipientAnnotation(
@@ -1681,6 +1681,7 @@ export class ContentGame extends React.Component {
                                 !this.state.hasInitialOrders ||
                                 sliderClicked < totalSliders
                             }
+                            placeholder="You need to set orders and update your stance before you can send messages."
                         />
                     )}
                     {engine.isPlayerGame() && (
