@@ -1315,7 +1315,7 @@ export class ContentGame extends React.Component {
         /* 
             Hide messages that are not annotated.
         */
-        if (engine.role === "omniscient_type") return messageChannels;
+        if (engine.role === "omniscient_type" || engine.role === "observer_type" || engine.role === "master_type") return messageChannels;
 
         let filteredMessageChannels = {};
         const controlledPower = this.getCurrentPowerName();
@@ -1444,7 +1444,7 @@ export class ContentGame extends React.Component {
 
     countUnreadMessages(engine, role, protagnist) {
         let messageChannels = engine.getMessageChannels(role, true);
-        if (engine.role === "omniscient_type") return 0;
+        if (engine.role === "omniscient_type" || engine.role === "observer_type" || engine.role === "master_type") return 0;
 
         const controlledPower = this.getCurrentPowerName();
         let count = 0;
@@ -1613,7 +1613,7 @@ export class ContentGame extends React.Component {
                                             "yes"
                                         );
                                     }}
-                                    disabled={engine.role == "omniscient_type"}
+                                    disabled={engine.role === "omniscient_type" || engine.role === "observer_type" || engine.role === "master_type"}
                                 />
                                 yes&nbsp;
                                 <input
@@ -1634,7 +1634,7 @@ export class ContentGame extends React.Component {
                                             "None"
                                         )
                                     }
-                                    disabled={engine.role == "omniscient_type"}
+                                    disabled={engine.role === "omniscient_type" || engine.role === "observer_type" || engine.role === "master_type"}
                                 />
                                 no
                             </Col>
@@ -2051,7 +2051,7 @@ export class ContentGame extends React.Component {
         console.log("engine: ", engine);
         console.log("updatedstance: ", this.state.stances);
 
-        return engine.role === "omniscient_type" ? (
+        return (engine.role === "omniscient_type" || engine.role === "observer_type" || engine.role === "master_type") ? (
             <div className={"col-lg-6 col-md-12"}>
                 <div className={"table-responsive"}>
                     <Table
