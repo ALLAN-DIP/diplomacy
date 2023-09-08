@@ -1571,27 +1571,6 @@ export class ContentGame extends React.Component {
                                 yes&nbsp;
                                 <input
                                     type="radio"
-                                    value="maybe"
-                                    name={messageId}
-                                    defaultChecked={
-                                        this.state.annotatedMessages.hasOwnProperty(
-                                            msg.time_sent
-                                        ) &&
-                                        this.state.annotatedMessages[
-                                            msg.time_sent
-                                        ] === "maybe"
-                                    }
-                                    onClick={() =>
-                                        this.handleRecipientAnnotation(
-                                            msg,
-                                            "maybe"
-                                        )
-                                    }
-                                    disabled={engine.role == "omniscient_type"}
-                                />
-                                maybe&nbsp;
-                                <input
-                                    type="radio"
                                     value="none"
                                     name={messageId}
                                     defaultChecked={
