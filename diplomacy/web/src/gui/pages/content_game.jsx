@@ -1478,6 +1478,11 @@ export class ContentGame extends React.Component {
     }
 
     renderCurrentMessages(engine, role) {
+        const controllablePowers = engine.getControllablePowers();
+        const currentPowerName =
+            this.state.power ||
+            (controllablePowers.length ? controllablePowers[0] : null);
+
         const messageChannels = this.filterMessages(
             engine,
             engine.getMessageChannels(role, true)
@@ -1675,9 +1680,14 @@ export class ContentGame extends React.Component {
                             value={this.state.message}
                             disabled={
                                 !this.state.hasInitialOrders ||
-                                sliderClicked < totalSliders
+                                sliderClicked < totalSliders ||
+                                Object.keys(
+                                    this.__get_orders(engine)[currentPowerName]
+                                ).length <
+                                    engine.orderableLocations[currentPowerName]
+                                        .length
                             }
-                            placeholder="You need to set orders and update your stance before you can send messages."
+                            placeholder="You need to set orders for all units and update your stance before you can send messages."
                         />
                     )}
                     {engine.isPlayerGame() && (
@@ -2044,7 +2054,6 @@ export class ContentGame extends React.Component {
             this.state.power ||
             (engine.getControllablePowers().length &&
                 engine.getControllablePowers()[0]);
-        console.log("currentPowerName", currentPowerName);
 
         return engine.role === "omniscient_type" ||
             engine.role === "observer_type" ||
@@ -2068,7 +2077,7 @@ export class ContentGame extends React.Component {
         ) : (
             <div className={"col-lg-6 col-md-12"}>
                 <div>
-                    ({sliderClicked}/{totalSliders})You must click all sliders
+                    [{sliderClicked}/{totalSliders}]You must click all sliders
                     before sending messages. Unclicked ones are{" "}
                     <strong style={{ color: "red" }}>red and bold</strong>.
                 </div>
@@ -2180,6 +2189,7 @@ export class ContentGame extends React.Component {
     ) {
         const powerNames = Object.keys(engine.powers);
         powerNames.sort();
+        const controllablePowers = engine.getControllablePowers();
 
         return (
             <Tab id={"tab-current-phase"} display={toDisplay}>
@@ -2205,6 +2215,18 @@ export class ContentGame extends React.Component {
                             ) : (
                                 ""
                             )}
+                            <div>
+                                [
+                                {
+                                    Object.keys(
+                                        this.__get_orders(engine)[
+                                            currentPowerName
+                                        ]
+                                    ).length
+                                }
+                                /{engine.orderableLocations[currentPowerName]
+                                        .length}] moves have been set.
+                            </div>
                             <PowerOrdersActionBar
                                 onReset={this.reloadServerOrders}
                                 onDeleteAll={this.onRemoveAllCurrentPowerOrders}
