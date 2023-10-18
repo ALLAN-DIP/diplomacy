@@ -2215,18 +2215,27 @@ export class ContentGame extends React.Component {
                             ) : (
                                 ""
                             )}
-                            <div>
-                                [
-                                {
-                                    Object.keys(
-                                        this.__get_orders(engine)[
-                                            currentPowerName
-                                        ]
-                                    ).length
-                                }
-                                /{engine.orderableLocations[currentPowerName]
-                                        .length}] moves have been set.
-                            </div>
+                            {engine.role !== "omniscient_type" &&
+                                engine.role !== "observer_type" &&
+                                engine.role !== "master_type" && (
+                                    <div>
+                                        [
+                                        {
+                                            Object.keys(
+                                                this.__get_orders(engine)[
+                                                    currentPowerName
+                                                ]
+                                            ).length
+                                        }
+                                        /
+                                        {
+                                            engine.orderableLocations[
+                                                currentPowerName
+                                            ].length
+                                        }
+                                        ] moves have been set.
+                                    </div>
+                                )}
                             <PowerOrdersActionBar
                                 onReset={this.reloadServerOrders}
                                 onDeleteAll={this.onRemoveAllCurrentPowerOrders}
