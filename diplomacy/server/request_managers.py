@@ -867,7 +867,7 @@ def on_send_game_message(server, request, connection_handler):
         :type server: diplomacy.Server
         :type request: diplomacy.communication.requests.SendGameMessage
     """
-    level = verify_request(server, request, connection_handler, omniscient_role=False, observer_role=False)
+    level = verify_request(server, request, connection_handler, omniscient_role=True, observer_role=False)
     token, message = request.token, request.message
     assert_game_not_finished(level.game)
     if level.game.no_press:
@@ -875,7 +875,7 @@ def on_send_game_message(server, request, connection_handler):
     if request.game_role != message.sender:
         raise exceptions.ResponseException('A power can only send its own messages.')
 
-    if not level.game.has_power(message.sender):
+    if not level.game.has_power(message.sender) and message.sender != 'omniscient_type':
         raise exceptions.MapPowerException(message.sender)
     if not request.message.is_global():
         if level.game.public_press:
