@@ -1322,26 +1322,30 @@ export class ContentGame extends React.Component {
         const controlledPower = this.getCurrentPowerName();
 
         for (const [powerName, messages] of Object.entries(messageChannels)) {
-            let filteredMessages = [];
-            let showMessage = true;
 
-            for (let idx in messages) {
-                const message = messages[idx];
-                if (message.sender === controlledPower || showMessage) {
-                    filteredMessages.push(message);
+            if (powerName === "GLOBAL") {
+                filteredMessageChannels[powerName] = messages;
+            } else {
+                let filteredMessages = [];
+                let showMessage = true;
+    
+                for (let idx in messages) {
+                    const message = messages[idx];
+                    if (message.sender === controlledPower || showMessage) {
+                        filteredMessages.push(message);
+                    }
+                    if (
+                        message.sender !== controlledPower &&
+                        !this.state.annotatedMessages.hasOwnProperty(
+                            message.time_sent
+                        )
+                    ) {
+                        showMessage = false;
+                    }
                 }
-                if (
-                    message.sender !== controlledPower &&
-                    !this.state.annotatedMessages.hasOwnProperty(
-                        message.time_sent
-                    )
-                ) {
-                    showMessage = false;
-                }
+                filteredMessageChannels[powerName] = filteredMessages;
             }
-            filteredMessageChannels[powerName] = filteredMessages;
         }
-
         return filteredMessageChannels;
     }
 
