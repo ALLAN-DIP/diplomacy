@@ -34,8 +34,8 @@ export class Unit extends React.Component {
                  x={loc_x}
                  y={loc_y}
                  id={`${this.props.isDislodged ? 'dislodged_' : ''}unit_${loc}`}
-                 width={SymbolSizes[symbol].width}
-                 height={SymbolSizes[symbol].height}
+                 width={SymbolSizes[symbol].width * 1.3}
+                 height={SymbolSizes[symbol].height * 1.3}
                  className={`unit${this.props.powerName.toLowerCase()}`}/>
         );
     }
