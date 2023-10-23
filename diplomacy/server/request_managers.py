@@ -842,7 +842,7 @@ def on_send_deceiving(server, request, connection_handler):
     server.save_game(level.game)
 
 def on_send_order_log(server, request, connection_handler):
-    level = verify_request(server, request, connection_handler, observer_role=False, omniscient_role=False)
+    level = verify_request(server, request, connection_handler, observer_role=False, omniscient_role=True)
     token, log = request.token, request.log
     assert_game_not_finished(level.game)
     level.game.add_order_log(log)

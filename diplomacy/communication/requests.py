@@ -747,7 +747,7 @@ class SendOrderLog(_AbstractGameRequest):
 
     def __init__(self, **kwargs):
         self.log = None
-        super().__init__(**kwargs)
+        super(SendOrderLog, self).__init__(**kwargs)
 
 class SendOrderSuggestions(_AbstractGameRequest):
     __slots__ = ['suggestions', 'power']
