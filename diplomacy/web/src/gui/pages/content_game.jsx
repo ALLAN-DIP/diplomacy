@@ -82,6 +82,7 @@ const POWER_ICONS = {
     RUSSIA: RUS,
     TURKEY: TUR,
     GLOBAL: GLOBAL,
+    omniscient_type: GLOBAL,
 };
 
 const HotKey = require("react-shortcut");
@@ -1321,26 +1322,30 @@ export class ContentGame extends React.Component {
         const controlledPower = this.getCurrentPowerName();
 
         for (const [powerName, messages] of Object.entries(messageChannels)) {
-            let filteredMessages = [];
-            let showMessage = true;
 
-            for (let idx in messages) {
-                const message = messages[idx];
-                if (message.sender === controlledPower || showMessage) {
-                    filteredMessages.push(message);
+            if (powerName === "GLOBAL") {
+                filteredMessageChannels[powerName] = messages;
+            } else {
+                let filteredMessages = [];
+                let showMessage = true;
+    
+                for (let idx in messages) {
+                    const message = messages[idx];
+                    if (message.sender === controlledPower || showMessage) {
+                        filteredMessages.push(message);
+                    }
+                    if (
+                        message.sender !== controlledPower &&
+                        !this.state.annotatedMessages.hasOwnProperty(
+                            message.time_sent
+                        )
+                    ) {
+                        showMessage = false;
+                    }
                 }
-                if (
-                    message.sender !== controlledPower &&
-                    !this.state.annotatedMessages.hasOwnProperty(
-                        message.time_sent
-                    )
-                ) {
-                    showMessage = false;
-                }
+                filteredMessageChannels[powerName] = filteredMessages;
             }
-            filteredMessageChannels[powerName] = filteredMessages;
         }
-
         return filteredMessageChannels;
     }
 
@@ -1673,23 +1678,25 @@ export class ContentGame extends React.Component {
                 <div style={{ display: "flex", flexDirection: "row" }}>
                     {engine.isPlayerGame() && (
                         <textarea
-                            style={{ flex: 1 }}
-                            onChange={(val) =>
-                                this.setMessageInputValue(val.target.value)
-                            }
-                            value={this.state.message}
-                            disabled={
-                                !this.state.hasInitialOrders ||
-                                sliderClicked < totalSliders ||
-                                Object.keys(
-                                    this.__get_orders(engine)[currentPowerName]
-                                ).length <
-                                    engine.orderableLocations[currentPowerName]
-                                        .length
-                            }
-                            placeholder="You need to set orders for all units and update your stance before you can send messages."
-                        />
+                        style={{ flex: 1 }}
+                        onChange={(val) =>
+                            this.setMessageInputValue(val.target.value)
+                        }
+                        value={this.state.message}
+                        disabled={
+                            !this.state.hasInitialOrders ||
+                            sliderClicked < totalSliders ||
+                            Object.keys(
+                                this.__get_orders(engine)[currentPowerName]
+                            ).length <
+                                engine.orderableLocations[currentPowerName]
+                                    .length
+                        }
+                        placeholder="You need to set orders for all units and update your stance before you can send messages."
+                    />
                     )}
+                    
+
                     {engine.isPlayerGame() && (
                         <div>
                             <Button
@@ -1727,7 +1734,7 @@ export class ContentGame extends React.Component {
                                 onClick={() => {
                                     this.sendMessage(
                                         engine.client,
-                                        currentTabId,
+                                        "GLOBAL",
                                         this.state.message,
                                         "Neutral"
                                     );
@@ -1735,6 +1742,31 @@ export class ContentGame extends React.Component {
                                 }}
                             ></Button>
                         </div>
+                    )}
+                    {!engine.isPlayerGame() && (
+                        <textarea
+                        style={{ flex: 1 }}
+                        onChange={(val) =>
+                            this.setMessageInputValue(val.target.value)
+                        }
+                        value={this.state.message}
+                    />
+                    )}
+                    {!engine.isPlayerGame() && (
+                        <Button
+                            key={"n"}
+                            pickEvent={true}
+                            title={"Send"}
+                            onClick={() => {
+                                this.sendMessage(
+                                    engine.client,
+                                    currentTabId,
+                                    this.state.message,
+                                    "Neutral"
+                                );
+                                this.setMessageInputValue("");
+                            }}
+                        ></Button>
                     )}
                 </div>
             </div>
@@ -2134,7 +2166,7 @@ export class ContentGame extends React.Component {
         });
 
         return (
-            <div className={"col-lg-6 col-md-12"} style={{ height: "500px" }}>
+            <div className={"col-lg-6 col-md-12"} style={{ height: "500px", marginTop: "100px" }}>
                 <MainContainer responsive>
                     <ChatContainer>
                         <ConversationHeader>
