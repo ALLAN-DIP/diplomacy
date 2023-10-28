@@ -2229,7 +2229,11 @@ export class ContentGame extends React.Component {
     ) {
         const powerNames = Object.keys(engine.powers);
         powerNames.sort();
-        const controllablePowers = engine.getControllablePowers();
+        const serverOrders = this.__get_orders(engine);
+        const powerOrders = serverOrders[currentPowerName] || [];
+        let numOrderText = `[${powerOrders.length}/${
+            engine.orderableLocations[currentPowerName].length
+        }] moves have been set.`;
 
         return (
             <Tab id={"tab-current-phase"} display={toDisplay}>
@@ -2255,27 +2259,11 @@ export class ContentGame extends React.Component {
                             ) : (
                                 ""
                             )}
-                            {/* {(engine.role !== "omniscient_type" &&
+                            {(engine.role !== "omniscient_type" &&
                                 engine.role !== "observer_type" &&
                                 engine.role !== "master_type") && (
-                                    <div>
-                                        [
-                                        {
-                                            Object.keys(
-                                                this.__get_orders(engine)[
-                                                    currentPowerName
-                                                ]
-                                            ).length
-                                        }
-                                        /
-                                        {
-                                            engine.orderableLocations[
-                                                currentPowerName
-                                            ].length
-                                        }
-                                        ] moves have been set.
-                                    </div>
-                                )} */}
+                                        numOrderText
+                                )}
                             <PowerOrdersActionBar
                                 onReset={this.reloadServerOrders}
                                 onDeleteAll={this.onRemoveAllCurrentPowerOrders}
