@@ -130,3 +130,5 @@ data
 
 # Tensorboard
 events.out.*
+
+nohup.out
