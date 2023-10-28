@@ -1322,13 +1322,12 @@ export class ContentGame extends React.Component {
         const controlledPower = this.getCurrentPowerName();
 
         for (const [powerName, messages] of Object.entries(messageChannels)) {
-
             if (powerName === "GLOBAL") {
                 filteredMessageChannels[powerName] = messages;
             } else {
                 let filteredMessages = [];
                 let showMessage = true;
-    
+
                 for (let idx in messages) {
                     const message = messages[idx];
                     if (message.sender === controlledPower || showMessage) {
@@ -1665,6 +1664,9 @@ export class ContentGame extends React.Component {
             }
         }
 
+        const phaseType = engine.getPhaseType();
+        console.log(phaseType);
+
         return (
             <div className={"col-lg-6 col-md-12"} style={{ height: "500px" }}>
                 <MainContainer responsive>
@@ -1678,24 +1680,27 @@ export class ContentGame extends React.Component {
                 <div style={{ display: "flex", flexDirection: "row" }}>
                     {engine.isPlayerGame() && (
                         <textarea
-                        style={{ flex: 1 }}
-                        onChange={(val) =>
-                            this.setMessageInputValue(val.target.value)
-                        }
-                        value={this.state.message}
-                        disabled={
-                            !this.state.hasInitialOrders ||
-                            sliderClicked < totalSliders ||
-                            Object.keys(
-                                this.__get_orders(engine)[currentPowerName]
-                            ).length <
-                                engine.orderableLocations[currentPowerName]
-                                    .length
-                        }
-                        placeholder="You need to set orders for all units and update your stance before you can send messages."
-                    />
+                            style={{ flex: 1 }}
+                            onChange={(val) =>
+                                this.setMessageInputValue(val.target.value)
+                            }
+                            value={this.state.message}
+                            disabled={
+                                phaseType === "M" &&
+                                (!this.state.hasInitialOrders ||
+                                    sliderClicked < totalSliders ||
+                                    Object.keys(
+                                        this.__get_orders(engine)[
+                                            currentPowerName
+                                        ]
+                                    ).length <
+                                        engine.orderableLocations[
+                                            currentPowerName
+                                        ].length)
+                            }
+                            placeholder="You need to set orders for all units and update your stance before you can send messages."
+                        />
                     )}
-                    
 
                     {engine.isPlayerGame() && (
                         <div>
@@ -1734,7 +1739,7 @@ export class ContentGame extends React.Component {
                                 onClick={() => {
                                     this.sendMessage(
                                         engine.client,
-                                        "GLOBAL",
+                                        currentTabId,
                                         this.state.message,
                                         "Neutral"
                                     );
@@ -1745,12 +1750,12 @@ export class ContentGame extends React.Component {
                     )}
                     {!engine.isPlayerGame() && (
                         <textarea
-                        style={{ flex: 1 }}
-                        onChange={(val) =>
-                            this.setMessageInputValue(val.target.value)
-                        }
-                        value={this.state.message}
-                    />
+                            style={{ flex: 1 }}
+                            onChange={(val) =>
+                                this.setMessageInputValue(val.target.value)
+                            }
+                            value={this.state.message}
+                        />
                     )}
                     {!engine.isPlayerGame() && (
                         <Button
@@ -1760,7 +1765,7 @@ export class ContentGame extends React.Component {
                             onClick={() => {
                                 this.sendMessage(
                                     engine.client,
-                                    currentTabId,
+                                    "GLOBAL",
                                     this.state.message,
                                     "Neutral"
                                 );
@@ -2166,7 +2171,10 @@ export class ContentGame extends React.Component {
         });
 
         return (
-            <div className={"col-lg-6 col-md-12"} style={{ height: "500px", marginTop: "100px" }}>
+            <div
+                className={"col-lg-6 col-md-12"}
+                style={{ height: "500px", marginTop: "100px" }}
+            >
                 <MainContainer responsive>
                     <ChatContainer>
                         <ConversationHeader>
