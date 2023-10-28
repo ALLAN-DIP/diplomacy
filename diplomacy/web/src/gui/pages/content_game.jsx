@@ -2215,9 +2215,9 @@ export class ContentGame extends React.Component {
                             ) : (
                                 ""
                             )}
-                            {engine.role !== "omniscient_type" &&
+                            {/* {(engine.role !== "omniscient_type" &&
                                 engine.role !== "observer_type" &&
-                                engine.role !== "master_type" && (
+                                engine.role !== "master_type") && (
                                     <div>
                                         [
                                         {
@@ -2235,7 +2235,7 @@ export class ContentGame extends React.Component {
                                         }
                                         ] moves have been set.
                                     </div>
-                                )}
+                                )} */}
                             <PowerOrdersActionBar
                                 onReset={this.reloadServerOrders}
                                 onDeleteAll={this.onRemoveAllCurrentPowerOrders}
