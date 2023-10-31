@@ -1665,7 +1665,6 @@ export class ContentGame extends React.Component {
         }
 
         const phaseType = engine.getPhaseType();
-        console.log(phaseType);
 
         return (
             <div className={"col-lg-6 col-md-12"} style={{ height: "500px" }}>
@@ -2231,7 +2230,8 @@ export class ContentGame extends React.Component {
         powerNames.sort();
         const serverOrders = this.__get_orders(engine);
         const powerOrders = serverOrders[currentPowerName] || [];
-        let numOrderText = `[${powerOrders.length}/${
+        console.log(powerOrders);
+        let numOrderText = `[${Object.keys(powerOrders).length}/${
             engine.orderableLocations[currentPowerName].length
         }] moves have been set.`;
 
