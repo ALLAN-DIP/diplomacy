@@ -1022,6 +1022,7 @@ export class ContentGame extends React.Component {
      * Send local orders to server.
      */
     setOrders() {
+        console.log("setOrders");
         const serverOrders = this.props.data.getServerOrders();
         const orders = this.__get_orders(this.props.data);
 
@@ -1130,6 +1131,7 @@ export class ContentGame extends React.Component {
         allOrders[powerName][localOrder.loc] = localOrder;
         state.orders = allOrders;
         this.getPage().success(`Built order: ${orderString}`);
+        console.log("allOrders", allOrders);
         this.__store_orders(allOrders);
         engine.setInitialOrders(engine.role);
         state.hasInitialOrders = true;
@@ -2230,7 +2232,6 @@ export class ContentGame extends React.Component {
         powerNames.sort();
         const serverOrders = this.__get_orders(engine);
         const powerOrders = serverOrders[currentPowerName] || [];
-        console.log(powerOrders);
         let numOrderText = `[${Object.keys(powerOrders).length}/${
             engine.orderableLocations[currentPowerName].length
         }] moves have been set.`;

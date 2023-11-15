@@ -1750,6 +1750,9 @@ class Game(Jsonable):
         #            self.set_orders(power_name, [])
         #            self.set_wait(power_name, False)
 
+        for power_name, power in self.powers.items():
+            self.set_wait(power_name, True)
+
         return GamePhaseData(name=str(previous_phase),
                              state=previous_state,
                              orders=previous_orders,
