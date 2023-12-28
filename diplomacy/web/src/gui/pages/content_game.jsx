@@ -2257,11 +2257,6 @@ export class ContentGame extends React.Component {
                             ) : (
                                 ""
                             )}
-                            {(engine.role !== "omniscient_type" &&
-                                engine.role !== "observer_type" &&
-                                engine.role !== "master_type") && (
-                                        numOrderText
-                                )}
                             <PowerOrdersActionBar
                                 onReset={this.reloadServerOrders}
                                 onDeleteAll={this.onRemoveAllCurrentPowerOrders}
@@ -2327,9 +2322,19 @@ export class ContentGame extends React.Component {
     // [ React.Component overridden methods.
 
     render() {
+        const engine = this.props.data;
+        const controllablePowers = engine.getControllablePowers();
+        const currentPowerName =
+        this.state.power ||
+        (controllablePowers.length && controllablePowers[0]);
+        const serverOrders = this.__get_orders(engine);
+        const powerOrders = serverOrders[currentPowerName] || [];
+        let numOrderText = `[${Object.keys(powerOrders).length}/${
+            engine.orderableLocations[currentPowerName].length
+        }] moves have been set.`;
+
         this.props.data.displayed = true;
         const page = this.context;
-        const engine = this.props.data;
         const title = ContentGame.gameTitle(engine);
         const navigation = [
             [
@@ -2349,7 +2354,6 @@ export class ContentGame extends React.Component {
             [`${UTILS.html.UNICODE_SMALL_LEFT_ARROW} Logout`, page.logout],
         ];
         const phaseType = engine.getPhaseType();
-        const controllablePowers = engine.getControllablePowers();
         if (this.props.data.client) this.bindCallbacks(this.props.data.client);
 
         if (engine.phase === "FORMING")
@@ -2388,9 +2392,6 @@ export class ContentGame extends React.Component {
             );
         }
 
-        const currentPowerName =
-            this.state.power ||
-            (controllablePowers.length && controllablePowers[0]);
         let currentPower = null;
         let orderTypeToLocs = null;
         let allowedPowerOrderTypes = null;
@@ -2494,6 +2495,9 @@ export class ContentGame extends React.Component {
                                 {buildCount < -1 && "s"} to disband)
                             </strong>
                         )))}
+                {phaseType === "M" &&
+                    <div>{numOrderText}</div>
+                }
             </div>
         );
 
