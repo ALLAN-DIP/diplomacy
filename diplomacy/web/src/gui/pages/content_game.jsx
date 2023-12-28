@@ -853,7 +853,7 @@ export class ContentGame extends React.Component {
             .then(() => {
                 page.success("Game processed.");
                 this.props.data.clearInitialOrders();
-                this.setState({ hasInitialOrders: false });
+                return this.setState({ hasInitialOrders: false });
             })
             .catch((err) => {
                 page.error(err.toString());
@@ -1022,11 +1022,8 @@ export class ContentGame extends React.Component {
      * Send local orders to server.
      */
     setOrders() {
-        console.log("setOrders");
         const serverOrders = this.props.data.getServerOrders();
         const orders = this.__get_orders(this.props.data);
-
-        //this.sendOrderLog(this.props.data.client, "update", null);
 
         for (let entry of Object.entries(orders)) {
             const powerName = entry[0];
@@ -1111,7 +1108,7 @@ export class ContentGame extends React.Component {
     }
 
     onOrderBuilt(powerName, orderString) {
-        const state = Object.assign({}, this.state);
+        let state = Object.assign({}, this.state);
         state.orderBuildingPath = [];
         if (!orderString) {
             Diplog.warn("No order built.");
@@ -1119,7 +1116,7 @@ export class ContentGame extends React.Component {
         }
         const engine = this.props.data;
         const localOrder = new Order(orderString, true);
-        const allOrders = this.__get_orders(engine);
+        let allOrders = this.__get_orders(engine);
         if (!allOrders.hasOwnProperty(powerName)) {
             Diplog.warn(`Unknown power ${powerName}.`);
             return this.setState(state);
@@ -1129,14 +1126,14 @@ export class ContentGame extends React.Component {
 
         if (!allOrders[powerName]) allOrders[powerName] = {};
         allOrders[powerName][localOrder.loc] = localOrder;
-        state.orders = allOrders;
+        state.orders = allOrders;        
         this.getPage().success(`Built order: ${orderString}`);
-        console.log("allOrders", allOrders);
-        this.__store_orders(allOrders);
         engine.setInitialOrders(engine.role);
         state.hasInitialOrders = true;
-        this.setOrders();
-        return this.setState(state);
+        this.setState(state).then(() => {
+            this.__store_orders(allOrders);
+            this.setOrders();
+        });
     }
 
     onChangeOrderType(form) {
