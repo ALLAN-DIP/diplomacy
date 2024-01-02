@@ -1118,7 +1118,6 @@ class Game(Jsonable):
                     orders={},
                     messages={},
                     results={},
-                    messages={},
                     logs={},
                     order_logs={},
                     stances={},
