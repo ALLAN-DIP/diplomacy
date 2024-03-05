@@ -33,6 +33,7 @@ import { Diplog } from "../../diplomacy/utils/diplog";
 import { Table } from "../components/table";
 import { PowersInfoTable } from "../components/powers_info_table";
 import { AdminPowersInfoTable } from "../components/admin_powers_info_table";
+import { PlayerPowersInfoTable } from "../components/PlayerPowersInfoTable";
 import { PowerView } from "../utils/power_view";
 import { DipStorage } from "../utils/dipStorage";
 import Helmet from "react-helmet";
@@ -2089,25 +2090,6 @@ export class ContentGame extends React.Component {
             (engine.getControllablePowers().length &&
                 engine.getControllablePowers()[0]);
 
-        return (
-            <div className={"col-lg-6 col-md-12"}>
-                <div className={"table-responsive"}>
-                    <AdminPowersInfoTable
-                        className={"table table-striped table-sm"}
-                        caption={"Powers info"}
-                        columns={TABLE_POWER_VIEW}
-                        data={filteredPowers}
-                        wrapper={PowerView.wrap}
-                        countries={filteredPowerNames}
-                        stances={engine.getPower(currentPowerName).getStances()}
-                        player={currentPowerName}
-                        isBot={engine.getPower(currentPowerName).getIsBot()}
-                        stanceUpdated={this.state.stances}
-                    />
-                </div>
-            </div>
-        );
-
         return engine.role === "omniscient_type" ||
             engine.role === "observer_type" ||
             engine.role === "master_type" ? (
@@ -2120,22 +2102,22 @@ export class ContentGame extends React.Component {
                         data={filteredPowers}
                         wrapper={PowerView.wrap}
                         countries={filteredPowerNames}
-                        stances={engine.getPower(currentPowerName).getStances()}
+                        //stances={engine.getPower(currentPowerName).getStances()}
                         player={currentPowerName}
-                        isBot={engine.getPower(currentPowerName).getIsBot()}
-                        stanceUpdated={this.state.stances}
+                        //isBot={engine.getPower(currentPowerName).getIsBot()}
+                        //stanceUpdated={this.state.stances}
                     />
                 </div>
             </div>
         ) : (
             <div className={"col-lg-6 col-md-12"}>
-                <div>
+                {/* <div>
                     [{sliderClicked}/{totalSliders}]You must click all sliders
                     before sending messages. Unclicked ones are{" "}
                     <strong style={{ color: "red" }}>red and bold</strong>.
-                </div>
+                </div> */}
                 <div className={"table-responsive"}>
-                    <PowersInfoTable
+                    <PlayerPowersInfoTable
                         className={"table table-striped table-sm"}
                         caption={"Powers info"}
                         columns={TABLE_POWER_VIEW}
@@ -2143,12 +2125,11 @@ export class ContentGame extends React.Component {
                         wrapper={PowerView.wrap}
                         countries={filteredPowerNames}
                         onChangeStance={this.handleStance}
-                        stances={engine.getPower(engine.role).getStances()}
+                        //stances={engine.getPower(engine.role).getStances()}
                         player={engine.role}
-                        onChangeIsBot={this.handleIsBot}
-                        onChangeDeceiving={this.handleDeceiving}
-                        isBot={this.state.isBot}
-                        stanceUpdated={this.state.stances}
+                        //onChangeIsBot={this.handleIsBot}
+                        //isBot={this.state.isBot}
+                        //stanceUpdated={this.state.stances}
                     />
                 </div>
             </div>
