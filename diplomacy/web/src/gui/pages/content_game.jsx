@@ -2099,29 +2099,71 @@ export class ContentGame extends React.Component {
         ];
 
         return (
-            <ChatContainer style={{
-                height: '500px',
-                border: '1px solid black',
-                boxSizing: 'border-box',
-              }}>
-            <MessageList>
-                {msgs.map((m, i) =>
-                    m.type === "separator" ? (
-                        <MessageSeparator key={i} {...m.props} />
-                    ) : (
-                        <ChatMessage
-                            model={{
-                                message: m.message,
-                                sent: m.sent_time,
-                                sender: m.sender,
-                                direction: "incoming",
-                                position: "single",
-                            }}
-                            avatarPosition={"tl"}
-                        ></ChatMessage>
-                    )
-                )}
-            </MessageList>
+            <ChatContainer
+                style={{
+                    height: "500px",
+                    border: "1px solid black",
+                    boxSizing: "border-box",
+                }}
+            >
+                <ConversationHeader>
+                    <ConversationHeader.Content
+                        userName="Helper"
+                    />
+                </ConversationHeader>
+                <MessageList>
+                    {msgs.map((m, i) =>
+                        m.type === "separator" ? (
+                            <MessageSeparator key={i} {...m.props} />
+                        ) : (
+                            <div
+                                style={{
+                                    display: "flex",
+                                    alignItems: "flex-end",
+                                }}
+                            >
+                                <ChatMessage
+                                    style={{ flexGrow: 1 }}
+                                    model={{
+                                        message: m.message,
+                                        sent: m.sent_time,
+                                        sender: m.sender,
+                                        direction: "incoming",
+                                        position: "single",
+                                    }}
+                                    avatarPosition={"tl"}
+                                ></ChatMessage>
+                                <div
+                                    style={{
+                                        flexGrow: 0,
+                                        flexShrink: 0,
+                                        display: "flex",
+                                        alignItems: "flex-end",
+                                    }}
+                                >
+                                    <Button
+                                        key={"a"}
+                                        pickEvent={true}
+                                        title={"accept"}
+                                        color={"success"}
+                                        onClick={() => {
+                                            //
+                                        }}
+                                    ></Button>
+                                    <Button
+                                        key={"r"}
+                                        pickEvent={true}
+                                        title={"reject"}
+                                        color={"danger"}
+                                        onClick={() => {
+                                            //
+                                        }}
+                                    ></Button>
+                                </div>
+                            </div>
+                        )
+                    )}
+                </MessageList>
             </ChatContainer>
         );
     }
