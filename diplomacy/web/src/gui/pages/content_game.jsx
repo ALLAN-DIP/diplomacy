@@ -1357,7 +1357,7 @@ export class ContentGame extends React.Component {
         for (let powerName of Object.keys(engine.powers))
             if (powerName !== role) tabNames.push(powerName);
         tabNames.sort();
-        tabNames.push("Centaur");
+        //tabNames.push("Centaur");
         const currentTabId = this.state.tabPastMessages || tabNames[0];
 
         const convList = tabNames.map((protagonist) => (
@@ -1495,7 +1495,7 @@ export class ContentGame extends React.Component {
         for (let powerName of Object.keys(engine.powers))
             if (powerName !== role) tabNames.push(powerName);
         tabNames.sort();
-        tabNames.push("Centaur");
+        //tabNames.push("Centaur");
         const currentTabId = this.state.tabCurrentMessages || tabNames[0];
 
         const convList = tabNames.map((protagonist) => (
@@ -1667,7 +1667,7 @@ export class ContentGame extends React.Component {
         const phaseType = engine.getPhaseType();
 
         return (
-            <div className={"col-lg-6 col-md-12"} style={{ height: "500px" }}>
+            <div className={"col-lg-12 col-md-12"} style={{ height: "500px" }}>
                 <MainContainer responsive>
                     <Sidebar position="left" scrollable={true}>
                         <ConversationList>{convList}</ConversationList>
@@ -2047,6 +2047,82 @@ export class ContentGame extends React.Component {
                     />
                 )}
             </Tab>
+        );
+    }
+
+    renderCentaur(engine) {
+        const msgs = [
+            {
+                sender: "Centaur",
+                message:
+                    "Start of S1901 suggestions:\nA BUD - TRI\nA VIE - BUD\nF TRI - ADR",
+                recipient: "AUSTRIA",
+                phase: "S1901M",
+                time_sent: "114514",
+                type: "bot", // abbr. for "beginning of turn"
+            },
+            {
+                sender: "Centaur",
+                message: "After England said 'hi', we should do: A BUD - GAL",
+                recipient: "AUSTRIA",
+                phase: "S1901M",
+                time_sent: "114515",
+                type: "coi", // abbr. for change of intent to a message
+            },
+            {
+                sender: "Centaur",
+                message:
+                    "Start of F1901 suggestions:\nA BUD - TRI\nA VIE - BUD\nF TRI - ADR",
+                recipient: "AUSTRIA",
+                phase: "S1901M",
+                time_sent: "114514",
+                type: "bot", // abbr. for "beginning of turn"
+            },
+            {
+                sender: "Centaur",
+                message:
+                    "Start of S1902 suggestions:\nA BUD - TRI\nA VIE - BUD\nF TRI - ADR",
+                recipient: "AUSTRIA",
+                phase: "S1901M",
+                time_sent: "114514",
+                type: "bot", // abbr. for "beginning of turn"
+            },
+            {
+                sender: "Centaur",
+                message:
+                    "Start of turn suggestions:\nA BUD - TRI\nA VIE - BUD\nF TRI - ADR",
+                recipient: "AUSTRIA",
+                phase: "S1901M",
+                time_sent: "114514",
+                type: "bot", // abbr. for "beginning of turn"
+            },
+        ];
+
+        return (
+            <ChatContainer style={{
+                height: '500px',
+                border: '1px solid black',
+                boxSizing: 'border-box',
+              }}>
+            <MessageList>
+                {msgs.map((m, i) =>
+                    m.type === "separator" ? (
+                        <MessageSeparator key={i} {...m.props} />
+                    ) : (
+                        <ChatMessage
+                            model={{
+                                message: m.message,
+                                sent: m.sent_time,
+                                sender: m.sender,
+                                direction: "incoming",
+                                position: "single",
+                            }}
+                            avatarPosition={"tl"}
+                        ></ChatMessage>
+                    )
+                )}
+            </MessageList>
+            </ChatContainer>
         );
     }
 
@@ -2532,10 +2608,16 @@ export class ContentGame extends React.Component {
                     navigation={navigation}
                 />
                 {phasePanel}
-                <Row>
-                    {this.renderTabChat(true, engine, currentPowerName)}
-                    {this.renderPowerInfo(engine)}
-                </Row>
+                <div style={{ display: "flex" }}>
+                    <div class="left" style={{ width: "50%" }}>
+                        {this.renderTabChat(true, engine, currentPowerName)}
+                    </div>
+                    <div class="right" style={{ width: "50%" }}>
+                        {this.renderCentaur(engine)}
+                        {this.renderPowerInfo(engine)}
+                    </div>
+                </div>
+
                 {localStorage.getItem("username") === "admin" &&
                     this.renderLogs(engine, currentPowerName)}
             </main>
