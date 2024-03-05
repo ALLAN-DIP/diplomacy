@@ -1126,7 +1126,7 @@ export class ContentGame extends React.Component {
 
         if (!allOrders[powerName]) allOrders[powerName] = {};
         allOrders[powerName][localOrder.loc] = localOrder;
-        state.orders = allOrders;        
+        state.orders = allOrders;
         this.getPage().success(`Built order: ${orderString}`);
         engine.setInitialOrders(engine.role);
         state.hasInitialOrders = true;
@@ -1686,7 +1686,6 @@ export class ContentGame extends React.Component {
                             disabled={
                                 phaseType === "M" &&
                                 (!this.state.hasInitialOrders ||
-                                    sliderClicked < totalSliders ||
                                     Object.keys(
                                         this.__get_orders(engine)[
                                             currentPowerName
@@ -1696,7 +1695,7 @@ export class ContentGame extends React.Component {
                                             currentPowerName
                                         ].length)
                             }
-                            placeholder="You need to set orders for all units and update your stance before you can send messages."
+                            placeholder="You need to set orders for all units before you can send messages."
                         />
                     )}
 
@@ -2090,6 +2089,25 @@ export class ContentGame extends React.Component {
             (engine.getControllablePowers().length &&
                 engine.getControllablePowers()[0]);
 
+        return (
+            <div className={"col-lg-6 col-md-12"}>
+                <div className={"table-responsive"}>
+                    <AdminPowersInfoTable
+                        className={"table table-striped table-sm"}
+                        caption={"Powers info"}
+                        columns={TABLE_POWER_VIEW}
+                        data={filteredPowers}
+                        wrapper={PowerView.wrap}
+                        countries={filteredPowerNames}
+                        stances={engine.getPower(currentPowerName).getStances()}
+                        player={currentPowerName}
+                        isBot={engine.getPower(currentPowerName).getIsBot()}
+                        stanceUpdated={this.state.stances}
+                    />
+                </div>
+            </div>
+        );
+
         return engine.role === "omniscient_type" ||
             engine.role === "observer_type" ||
             engine.role === "master_type" ? (
@@ -2325,8 +2343,8 @@ export class ContentGame extends React.Component {
         const engine = this.props.data;
         const controllablePowers = engine.getControllablePowers();
         const currentPowerName =
-        this.state.power ||
-        (controllablePowers.length && controllablePowers[0]);
+            this.state.power ||
+            (controllablePowers.length && controllablePowers[0]);
         const serverOrders = this.__get_orders(engine);
         const powerOrders = serverOrders[currentPowerName] || [];
         let numOrderText = `[${Object.keys(powerOrders).length}/${
@@ -2495,9 +2513,7 @@ export class ContentGame extends React.Component {
                                 {buildCount < -1 && "s"} to disband)
                             </strong>
                         )))}
-                {phaseType === "M" &&
-                    <div>{numOrderText}</div>
-                }
+                {phaseType === "M" && <div>{numOrderText}</div>}
             </div>
         );
 
