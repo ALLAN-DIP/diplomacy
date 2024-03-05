@@ -82,7 +82,7 @@ const POWER_ICONS = {
     ITALY: ITA,
     RUSSIA: RUS,
     TURKEY: TUR,
-    GLOBAL: GLOBAL,
+    Centaur: GLOBAL,
     omniscient_type: GLOBAL,
 };
 
@@ -1357,7 +1357,7 @@ export class ContentGame extends React.Component {
         for (let powerName of Object.keys(engine.powers))
             if (powerName !== role) tabNames.push(powerName);
         tabNames.sort();
-        //tabNames.push("GLOBAL");
+        tabNames.push("Centaur");
         const currentTabId = this.state.tabPastMessages || tabNames[0];
 
         const convList = tabNames.map((protagonist) => (
@@ -1495,7 +1495,7 @@ export class ContentGame extends React.Component {
         for (let powerName of Object.keys(engine.powers))
             if (powerName !== role) tabNames.push(powerName);
         tabNames.sort();
-        //tabNames.push("GLOBAL");
+        tabNames.push("Centaur");
         const currentTabId = this.state.tabCurrentMessages || tabNames[0];
 
         const convList = tabNames.map((protagonist) => (
