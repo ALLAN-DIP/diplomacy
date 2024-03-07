@@ -2072,25 +2072,25 @@ export class ContentGame extends React.Component {
             {
                 sender: "Centaur",
                 message:
+                    "You should tell Russia to move South.",
+                recipient: "AUSTRIA",
+                phase: "S1901M",
+                time_sent: "114514",
+                type: "bot", // abbr. for "beginning of turn"
+            },
+            {
+                sender: "Centaur",
+                message:
+                    "You should agree with Turkey's alliance offer.",
+                recipient: "AUSTRIA",
+                phase: "S1901M",
+                time_sent: "114514",
+                type: "bot", // abbr. for "beginning of turn"
+            },
+            {
+                sender: "Centaur",
+                message:
                     "Start of F1901 suggestions:\nA BUD - TRI\nA VIE - BUD\nF TRI - ADR",
-                recipient: "AUSTRIA",
-                phase: "S1901M",
-                time_sent: "114514",
-                type: "bot", // abbr. for "beginning of turn"
-            },
-            {
-                sender: "Centaur",
-                message:
-                    "Start of S1902 suggestions:\nA BUD - TRI\nA VIE - BUD\nF TRI - ADR",
-                recipient: "AUSTRIA",
-                phase: "S1901M",
-                time_sent: "114514",
-                type: "bot", // abbr. for "beginning of turn"
-            },
-            {
-                sender: "Centaur",
-                message:
-                    "Start of turn suggestions:\nA BUD - TRI\nA VIE - BUD\nF TRI - ADR",
                 recipient: "AUSTRIA",
                 phase: "S1901M",
                 time_sent: "114514",
