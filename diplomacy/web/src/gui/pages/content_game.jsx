@@ -2051,52 +2051,36 @@ export class ContentGame extends React.Component {
     }
 
     renderCentaur(engine) {
-        const msgs = [
-            {
-                sender: "Centaur",
-                message:
-                    "Start of S1901 suggestions:\nA BUD - TRI\nA VIE - BUD\nF TRI - ADR",
-                recipient: "AUSTRIA",
-                phase: "S1901M",
-                time_sent: "114514",
-                type: "bot", // abbr. for "beginning of turn"
-            },
-            {
-                sender: "Centaur",
-                message: "After England said 'hi', we should do: A BUD - GAL",
-                recipient: "AUSTRIA",
-                phase: "S1901M",
-                time_sent: "114515",
-                type: "coi", // abbr. for change of intent to a message
-            },
-            {
-                sender: "Centaur",
-                message:
-                    "You should tell Russia to move South.",
-                recipient: "AUSTRIA",
-                phase: "S1901M",
-                time_sent: "114514",
-                type: "bot", // abbr. for "beginning of turn"
-            },
-            {
-                sender: "Centaur",
-                message:
-                    "You should agree with Turkey's alliance offer.",
-                recipient: "AUSTRIA",
-                phase: "S1901M",
-                time_sent: "114514",
-                type: "bot", // abbr. for "beginning of turn"
-            },
-            {
-                sender: "Centaur",
-                message:
-                    "Start of F1901 suggestions:\nA BUD - TRI\nA VIE - BUD\nF TRI - ADR",
-                recipient: "AUSTRIA",
-                phase: "S1901M",
-                time_sent: "114514",
-                type: "bot", // abbr. for "beginning of turn"
-            },
-        ];
+        const currentPowerName =
+            this.state.power ||
+            (engine.getControllablePowers().length &&
+                engine.getControllablePowers()[0]);
+
+        const messageChannels = engine.getMessageChannels(currentPowerName, true);
+        const globalMessages = messageChannels["GLOBAL"] || [];
+
+        const suggestedMoveRegex = /^([A-Z]+).*\:\W(.*)+/;
+        const suggestedMsgRegex = /^([A-Z]+) .*to ([A-Z]+)\: (.*)/;
+
+        const suggestionsForCurrentPower = globalMessages.filter((msg) => {
+            // if match suggestedMoveRegex and the first group is the currentPowerName
+            if (
+                suggestedMoveRegex.test(msg.message) &&
+                suggestedMoveRegex.exec(msg.message)[1] === currentPowerName
+            ) {
+                return true;
+            }
+            // if match suggestedMsgRegex and the first group is the currentPowerName
+            if (
+                suggestedMsgRegex.test(msg.message) &&
+                suggestedMsgRegex.exec(msg.message)[1] === currentPowerName
+            ) {
+                return true;
+            }
+
+            return false;
+        }) || [];
+
 
         return (
             <ChatContainer
@@ -2107,12 +2091,10 @@ export class ContentGame extends React.Component {
                 }}
             >
                 <ConversationHeader>
-                    <ConversationHeader.Content
-                        userName="Helper"
-                    />
+                    <ConversationHeader.Content userName="Helper" />
                 </ConversationHeader>
                 <MessageList>
-                    {msgs.map((m, i) =>
+                    {suggestionsForCurrentPower.map((m, i) =>
                         m.type === "separator" ? (
                             <MessageSeparator key={i} {...m.props} />
                         ) : (
@@ -2655,7 +2637,7 @@ export class ContentGame extends React.Component {
                         {this.renderTabChat(true, engine, currentPowerName)}
                     </div>
                     <div class="right" style={{ width: "50%" }}>
-                        {this.renderCentaur(engine)}
+                        {this.renderCentaur(engine, currentPowerName)}
                         {this.renderPowerInfo(engine)}
                     </div>
                 </div>
