@@ -2056,31 +2056,38 @@ export class ContentGame extends React.Component {
             (engine.getControllablePowers().length &&
                 engine.getControllablePowers()[0]);
 
-        const messageChannels = engine.getMessageChannels(currentPowerName, true);
+        const messageChannels = engine.getMessageChannels(
+            currentPowerName,
+            true
+        );
         const globalMessages = messageChannels["GLOBAL"] || [];
 
         const suggestedMoveRegex = /^([A-Z]+).*\:\W(.*)+/;
         const suggestedMsgRegex = /^([A-Z]+) .*to ([A-Z]+)\: (.*)/;
 
-        const suggestionsForCurrentPower = globalMessages.filter((msg) => {
-            // if match suggestedMoveRegex and the first group is the currentPowerName
-            if (
-                suggestedMoveRegex.test(msg.message) &&
-                suggestedMoveRegex.exec(msg.message)[1] === currentPowerName
-            ) {
-                return true;
-            }
-            // if match suggestedMsgRegex and the first group is the currentPowerName
-            if (
-                suggestedMsgRegex.test(msg.message) &&
-                suggestedMsgRegex.exec(msg.message)[1] === currentPowerName
-            ) {
-                return true;
-            }
+        const suggestionsForCurrentPower =
+            globalMessages.filter((msg) => {
+                // if match suggestedMoveRegex and the first group is the currentPowerName
+                if (
+                    suggestedMoveRegex.test(msg.message) &&
+                    suggestedMoveRegex.exec(msg.message)[1] ===
+                        currentPowerName &&
+                    msg.phase === engine.phase
+                ) {
+                    return true;
+                }
+                // if match suggestedMsgRegex and the first group is the currentPowerName
+                if (
+                    suggestedMsgRegex.test(msg.message) &&
+                    suggestedMsgRegex.exec(msg.message)[1] ===
+                        currentPowerName &&
+                    msg.phase === engine.phase
+                ) {
+                    return true;
+                }
 
-            return false;
-        }) || [];
-
+                return false;
+            }) || [];
 
         return (
             <ChatContainer
@@ -2091,13 +2098,13 @@ export class ContentGame extends React.Component {
                 }}
             >
                 <ConversationHeader>
-                    <ConversationHeader.Content userName="Helper" />
+                    <ConversationHeader.Content userName="Advice" />
                 </ConversationHeader>
+
                 <MessageList>
+                    <MessageSeparator>{engine.phase}</MessageSeparator>
                     {suggestionsForCurrentPower.map((m, i) =>
-                        m.type === "separator" ? (
-                            <MessageSeparator key={i} {...m.props} />
-                        ) : (
+                        (
                             <div
                                 style={{
                                     display: "flex",
@@ -2129,8 +2136,16 @@ export class ContentGame extends React.Component {
                                         title={"accept"}
                                         color={"success"}
                                         onClick={() => {
-                                            //
+                                            this.handleRecipientAnnotation(
+                                                m,
+                                                "accept"
+                                            );
                                         }}
+                                        disabled={this.state.annotatedMessages.hasOwnProperty(
+                                            m.time_sent
+                                        ) || engine.role === "omniscient_type" ||
+                                        engine.role === "observer_type" ||
+                                        engine.role === "master_type"}
                                     ></Button>
                                     <Button
                                         key={"r"}
@@ -2138,8 +2153,16 @@ export class ContentGame extends React.Component {
                                         title={"reject"}
                                         color={"danger"}
                                         onClick={() => {
-                                            //
+                                            this.handleRecipientAnnotation(
+                                                m,
+                                                "reject"
+                                            );
                                         }}
+                                        disabled={this.state.annotatedMessages.hasOwnProperty(
+                                            m.time_sent
+                                        ) || engine.role === "omniscient_type" ||
+                                        engine.role === "observer_type" ||
+                                        engine.role === "master_type"}
                                     ></Button>
                                 </div>
                             </div>
@@ -2638,7 +2661,7 @@ export class ContentGame extends React.Component {
                     </div>
                     <div class="right" style={{ width: "50%" }}>
                         {this.renderCentaur(engine, currentPowerName)}
-                        {this.renderPowerInfo(engine)}
+                        {/* {this.renderPowerInfo(engine)} */}
                     </div>
                 </div>
 
