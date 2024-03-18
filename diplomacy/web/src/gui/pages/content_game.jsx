@@ -1749,31 +1749,6 @@ export class ContentGame extends React.Component {
                             ></Button>
                         </div>
                     )}
-                    {!engine.isPlayerGame() && (
-                        <textarea
-                            style={{ flex: 1 }}
-                            onChange={(val) =>
-                                this.setMessageInputValue(val.target.value)
-                            }
-                            value={this.state.message}
-                        />
-                    )}
-                    {!engine.isPlayerGame() && (
-                        <Button
-                            key={"n"}
-                            pickEvent={true}
-                            title={"Send"}
-                            onClick={() => {
-                                this.sendMessage(
-                                    engine.client,
-                                    "GLOBAL",
-                                    this.state.message,
-                                    "Neutral"
-                                );
-                                this.setMessageInputValue("");
-                            }}
-                        ></Button>
-                    )}
                 </div>
             </div>
         );
