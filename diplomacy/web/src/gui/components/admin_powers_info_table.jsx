@@ -57,12 +57,6 @@ export class AdminPowersInfoTable extends React.Component {
                     {header.map((column, colIndex) => (
                         <th key={colIndex}>{column[2]}</th>
                     ))}
-                    <th>
-                        <span>Stance</span>
-                    </th>
-                    <th>
-                        <span>Bot?</span>
-                    </th>
                 </tr>
             </thead>
         );
@@ -87,18 +81,6 @@ export class AdminPowersInfoTable extends React.Component {
                         {wrapped.get(headerColumn[1])}
                     </td>
                 ))}
-
-                <td style={{ display: "flex", flexDirection: "row" }}>
-                    <div>{stanceDict[stances[countries[rowIndex]]]}</div>
-                </td>
-
-                <td className={"align-middle"}>
-                    {isBot[countries[rowIndex]] ? (
-                        <div>Yes</div>
-                    ) : (
-                        <div>No</div>
-                    )}
-                </td>
             </tr>
         );
     }

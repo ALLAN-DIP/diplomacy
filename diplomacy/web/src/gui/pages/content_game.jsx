@@ -2270,8 +2270,7 @@ export class ContentGame extends React.Component {
 
         return (
             <div
-                className={"col-lg-6 col-md-12"}
-                style={{ height: "500px", marginTop: "100px" }}
+                style={{ height: "500px" }}
             >
                 <MainContainer responsive>
                     <ChatContainer>
@@ -2636,15 +2635,16 @@ export class ContentGame extends React.Component {
                 <div style={{ display: "flex" }}>
                     <div class="left" style={{ width: "50%" }}>
                         {this.renderTabChat(true, engine, currentPowerName)}
+                        {localStorage.getItem("username") === "admin" &&
+                    this.renderLogs(engine, currentPowerName)}
                     </div>
                     <div class="right" style={{ width: "50%" }}>
                         {this.renderCentaur(engine, currentPowerName)}
-                        {/* {this.renderPowerInfo(engine)} */}
+                        {!engine.isPlayerGame() && this.renderPowerInfo(engine)}
                     </div>
                 </div>
 
-                {localStorage.getItem("username") === "admin" &&
-                    this.renderLogs(engine, currentPowerName)}
+                
             </main>
         );
     }
