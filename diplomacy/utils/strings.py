@@ -233,6 +233,7 @@ ORDER_LOG_HISTORY = 'order_log_history'
 HAS_INITIAL_ORDERS = 'has_initial_orders'
 ANNOTATED_MESSAGES = 'annotated_messages'
 ORDER_SUGGESTIONS = 'order_suggestions'
+TYPE = 'type'
 
 # Special name sets.
 ALL_GAME_STATUSES = (FORMING, ACTIVE, PAUSED, COMPLETED, CANCELED)
