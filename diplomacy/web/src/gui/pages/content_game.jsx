@@ -1706,6 +1706,7 @@ export class ContentGame extends React.Component {
                                 key={"t"}
                                 pickEvent={true}
                                 title={"Truth"}
+                                color={"success"}
                                 onClick={() => {
                                     this.sendMessage(
                                         engine.client,
@@ -1720,6 +1721,7 @@ export class ContentGame extends React.Component {
                                 key={"f"}
                                 pickEvent={true}
                                 title={"Lie"}
+                                color={"danger"}
                                 onClick={() => {
                                     this.sendMessage(
                                         engine.client,
@@ -1734,6 +1736,7 @@ export class ContentGame extends React.Component {
                                 key={"n"}
                                 pickEvent={true}
                                 title={"Neutral"}
+                                color={"primary"}
                                 onClick={() => {
                                     this.sendMessage(
                                         engine.client,
