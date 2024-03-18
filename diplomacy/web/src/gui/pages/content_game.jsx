@@ -2183,10 +2183,6 @@ export class ContentGame extends React.Component {
                                 suggestedMovesArray[index] = move.trim();
                             });
 
-                            const updated_suggested_moves =
-                                "Suggestions: \n" +
-                                suggestedMovesArray.join("\n");
-
                             const suggestedMoveComponents =
                                 suggestedMovesArray.map((move, index) => {
                                     return (
