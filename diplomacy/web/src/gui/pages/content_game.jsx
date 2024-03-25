@@ -2043,7 +2043,7 @@ export class ContentGame extends React.Component {
         const globalMessages = messageChannels["GLOBAL"] || [];
 
         const suggestedMoveRegex = /^([A-Z]+).*\:\W(.*)+/;
-        const suggestedMsgRegex = /^([A-Z]+) .*to ([A-Z]+)\: (.*)/;
+        const suggestedMsgRegex = /^([A-Z]+) .*to ([A-Z]+)\: (.*)/s;
 
         const suggestionsForCurrentPower =
             globalMessages.filter((msg) => {
