@@ -2120,15 +2120,11 @@ export class ContentGame extends React.Component {
                                         <Button
                                             key={"a"}
                                             pickEvent={true}
-                                            title={"send"}
+                                            title={"add to textbox"}
                                             color={"success"}
                                             onClick={() => {
-                                                this.sendMessage(
-                                                    engine.client,
-                                                    suggestedMessageRecipient,
-                                                    suggestedMessage,
-                                                    "suggested"
-                                                );
+                                                this.setMessageInputValue(suggestedMessage);
+                                                this.onChangeTabCurrentMessages(suggestedMessageRecipient);
 
                                                 this.handleRecipientAnnotation(
                                                     m,
