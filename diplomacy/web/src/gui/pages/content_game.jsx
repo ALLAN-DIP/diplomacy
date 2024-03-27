@@ -1689,14 +1689,15 @@ export class ContentGame extends React.Component {
                                 (!this.state.hasInitialOrders ||
                                     (this.__get_orders(engine)[
                                         currentPowerName
-                                    ] && Object.keys(
-                                        this.__get_orders(engine)[
-                                            currentPowerName
-                                        ]
-                                    ).length <
-                                        engine.orderableLocations[
-                                            currentPowerName
-                                        ].length))
+                                    ] &&
+                                        Object.keys(
+                                            this.__get_orders(engine)[
+                                                currentPowerName
+                                            ]
+                                        ).length <
+                                            engine.orderableLocations[
+                                                currentPowerName
+                                            ].length))
                             }
                             placeholder="You need to set orders for all units before sending messages."
                         />
@@ -2042,6 +2043,8 @@ export class ContentGame extends React.Component {
             true
         );
         const globalMessages = messageChannels["GLOBAL"] || [];
+        let globalSuggestedMoves = [];
+        let globalSuggestedMessages = [];
 
         const suggestedMoveRegex = /^([A-Z]+).*\:\W(.*)+/;
         const suggestedMsgRegex = /^([A-Z]+) .*to ([A-Z]+)\: (.*)/s;
@@ -2053,12 +2056,9 @@ export class ContentGame extends React.Component {
                     suggestedMoveRegex.test(msg.message) &&
                     suggestedMoveRegex.exec(msg.message)[1] ===
                         currentPowerName &&
-                    msg.phase === engine.phase &&
-                    suggestionCount == 0
+                    msg.phase === engine.phase
                 ) {
                     return true;
-                } else {
-                    suggestionCount++;
                 }
                 // if match suggestedMsgRegex and the first group is the currentPowerName
                 if (
@@ -2072,6 +2072,20 @@ export class ContentGame extends React.Component {
 
                 return false;
             }) || [];
+
+        for (let m of suggestionsForCurrentPower) {
+            if (m.type === "suggested_message") {
+                globalSuggestedMessages.push(m);
+            }
+            if (m.type === "suggested_move") {
+                globalSuggestedMoves.push(m);
+            }
+        }
+
+        // only keep the first suggested move
+        const suggestionsForCurrentPowerFiltered = globalSuggestedMoves.length
+            ? [globalSuggestedMoves[0]]
+            : globalSuggestedMessages;
 
         return (
             <ChatContainer
@@ -2087,188 +2101,19 @@ export class ContentGame extends React.Component {
 
                 <MessageList>
                     <MessageSeparator>{engine.phase}</MessageSeparator>
-                    {suggestionsForCurrentPower.map((m, i) => {
-                        if (m.type == "suggested_message") {
-                            const suggestedMessageRecipient =
-                                suggestedMsgRegex.exec(m.message)[2];
-                            const suggestedMessage = suggestedMsgRegex.exec(
-                                m.message
-                            )[3];
+                    {suggestionsForCurrentPowerFiltered.map((m, i) => {
+                        const suggestedMoves = suggestedMoveRegex.exec(
+                            m.message
+                        )[2];
+                        const suggestedMovesArray = suggestedMoves.split(",");
+                        // trim the suggested moves
+                        suggestedMovesArray.forEach((move, index) => {
+                            suggestedMovesArray[index] = move.trim();
+                        });
 
-                            return (
-                                <div
-                                    style={{
-                                        display: "flex",
-                                        alignItems: "flex-end",
-                                    }}
-                                >
-                                    <ChatMessage
-                                        style={{ flexGrow: 1 }}
-                                        model={{
-                                            message: m.message,
-                                            sent: m.sent_time,
-                                            sender: m.sender,
-                                            direction: "incoming",
-                                            position: "single",
-                                        }}
-                                        avatarPosition={"tl"}
-                                    ></ChatMessage>
-                                    <div
-                                        style={{
-                                            flexGrow: 0,
-                                            flexShrink: 0,
-                                            display: "flex",
-                                            alignItems: "flex-end",
-                                        }}
-                                    >
-                                        <Button
-                                            key={"a"}
-                                            pickEvent={true}
-                                            title={"add to textbox"}
-                                            color={"success"}
-                                            onClick={() => {
-                                                this.setMessageInputValue(suggestedMessage);
-                                                this.onChangeTabCurrentMessages(suggestedMessageRecipient);
-
-                                                this.handleRecipientAnnotation(
-                                                    m,
-                                                    "accept"
-                                                );
-                                            }}
-                                            disabled={
-                                                this.state.annotatedMessages.hasOwnProperty(
-                                                    m.time_sent
-                                                ) ||
-                                                engine.role ===
-                                                    "omniscient_type" ||
-                                                engine.role ===
-                                                    "observer_type" ||
-                                                engine.role === "master_type"
-                                            }
-                                        ></Button>
-                                        <Button
-                                            key={"r"}
-                                            pickEvent={true}
-                                            title={"reject"}
-                                            color={"danger"}
-                                            onClick={() => {
-                                                this.handleRecipientAnnotation(
-                                                    m,
-                                                    "reject"
-                                                );
-                                            }}
-                                            disabled={
-                                                this.state.annotatedMessages.hasOwnProperty(
-                                                    m.time_sent
-                                                ) ||
-                                                engine.role ===
-                                                    "omniscient_type" ||
-                                                engine.role ===
-                                                    "observer_type" ||
-                                                engine.role === "master_type"
-                                            }
-                                        ></Button>
-                                    </div>
-                                </div>
-                            );
-                        }
-                        if (m.type === "suggested_move") {
-                            const suggestedMoves = suggestedMoveRegex.exec(
-                                m.message
-                            )[2];
-                            const suggestedMovesArray =
-                                suggestedMoves.split(",");
-                            // trim the suggested moves
-                            suggestedMovesArray.forEach((move, index) => {
-                                suggestedMovesArray[index] = move.trim();
-                            });
-
-                            const suggestedMoveComponents =
-                                suggestedMovesArray.map((move, index) => {
-                                    return (
-                                        <div
-                                            style={{
-                                                display: "flex",
-                                                alignItems: "flex-end",
-                                            }}
-                                        >
-                                            <ChatMessage
-                                                style={{ flexGrow: 1 }}
-                                                model={{
-                                                    message: move,
-                                                    sent: m.sent_time,
-                                                    sender: m.sender,
-                                                    direction: "incoming",
-                                                    position: "single",
-                                                }}
-                                                avatarPosition={"tl"}
-                                            ></ChatMessage>
-                                            <div
-                                                style={{
-                                                    flexGrow: 0,
-                                                    flexShrink: 0,
-                                                    display: "flex",
-                                                    alignItems: "flex-end",
-                                                }}
-                                            >
-                                                <Button
-                                                    key={"a"}
-                                                    pickEvent={true}
-                                                    title={"accept"}
-                                                    color={"success"}
-                                                    onClick={() => {
-                                                        this.onOrderBuilt(
-                                                            currentPowerName,
-                                                            move
-                                                        );
-
-                                                        this.handleRecipientAnnotation(
-                                                            m,
-                                                            `accept ${move}`
-                                                        );
-                                                    }}
-                                                    disabled={
-                                                        this.state.annotatedMessages.hasOwnProperty(
-                                                            m.time_sent
-                                                        ) ||
-                                                        engine.role ===
-                                                            "omniscient_type" ||
-                                                        engine.role ===
-                                                            "observer_type" ||
-                                                        engine.role ===
-                                                            "master_type"
-                                                    }
-                                                ></Button>
-                                                <Button
-                                                    key={"r"}
-                                                    pickEvent={true}
-                                                    title={"reject"}
-                                                    color={"danger"}
-                                                    onClick={() => {
-                                                        this.handleRecipientAnnotation(
-                                                            m,
-                                                            "reject"
-                                                        );
-                                                    }}
-                                                    disabled={
-                                                        this.state.annotatedMessages.hasOwnProperty(
-                                                            m.time_sent
-                                                        ) ||
-                                                        engine.role ===
-                                                            "omniscient_type" ||
-                                                        engine.role ===
-                                                            "observer_type" ||
-                                                        engine.role ===
-                                                            "master_type"
-                                                    }
-                                                ></Button>
-                                            </div>
-                                        </div>
-                                    );
-                                });
-
-                            return (
-                                <div>
+                        const suggestedMoveComponents = suggestedMovesArray.map(
+                            (move, index) => {
+                                return (
                                     <div
                                         style={{
                                             display: "flex",
@@ -2278,7 +2123,7 @@ export class ContentGame extends React.Component {
                                         <ChatMessage
                                             style={{ flexGrow: 1 }}
                                             model={{
-                                                message: "Suggestions:",
+                                                message: move,
                                                 sent: m.sent_time,
                                                 sender: m.sender,
                                                 direction: "incoming",
@@ -2297,19 +2142,17 @@ export class ContentGame extends React.Component {
                                             <Button
                                                 key={"a"}
                                                 pickEvent={true}
-                                                title={"accept all"}
+                                                title={"accept"}
                                                 color={"success"}
                                                 onClick={() => {
-                                                    for (let move of suggestedMovesArray) {
-                                                        this.onOrderBuilt(
-                                                            currentPowerName,
-                                                            move
-                                                        );
-                                                    }
+                                                    this.onOrderBuilt(
+                                                        currentPowerName,
+                                                        move
+                                                    );
 
                                                     this.handleRecipientAnnotation(
                                                         m,
-                                                        "accept all"
+                                                        `accept ${move}`
                                                     );
                                                 }}
                                                 disabled={
@@ -2349,10 +2192,177 @@ export class ContentGame extends React.Component {
                                             ></Button>
                                         </div>
                                     </div>
-                                    {suggestedMoveComponents}
+                                );
+                            }
+                        );
+
+                        return (
+                            <div>
+                                <div
+                                    style={{
+                                        display: "flex",
+                                        alignItems: "flex-end",
+                                    }}
+                                >
+                                    <ChatMessage
+                                        style={{ flexGrow: 1 }}
+                                        model={{
+                                            message: "Suggestions:",
+                                            sent: m.sent_time,
+                                            sender: m.sender,
+                                            direction: "incoming",
+                                            position: "single",
+                                        }}
+                                        avatarPosition={"tl"}
+                                    ></ChatMessage>
+                                    <div
+                                        style={{
+                                            flexGrow: 0,
+                                            flexShrink: 0,
+                                            display: "flex",
+                                            alignItems: "flex-end",
+                                        }}
+                                    >
+                                        <Button
+                                            key={"a"}
+                                            pickEvent={true}
+                                            title={"accept all"}
+                                            color={"success"}
+                                            onClick={() => {
+                                                for (let move of suggestedMovesArray) {
+                                                    this.onOrderBuilt(
+                                                        currentPowerName,
+                                                        move
+                                                    );
+                                                }
+
+                                                this.handleRecipientAnnotation(
+                                                    m,
+                                                    "accept all"
+                                                );
+                                            }}
+                                            disabled={
+                                                this.state.annotatedMessages.hasOwnProperty(
+                                                    m.time_sent
+                                                ) ||
+                                                engine.role ===
+                                                    "omniscient_type" ||
+                                                engine.role ===
+                                                    "observer_type" ||
+                                                engine.role === "master_type"
+                                            }
+                                        ></Button>
+                                        <Button
+                                            key={"r"}
+                                            pickEvent={true}
+                                            title={"reject"}
+                                            color={"danger"}
+                                            onClick={() => {
+                                                this.handleRecipientAnnotation(
+                                                    m,
+                                                    "reject"
+                                                );
+                                            }}
+                                            disabled={
+                                                this.state.annotatedMessages.hasOwnProperty(
+                                                    m.time_sent
+                                                ) ||
+                                                engine.role ===
+                                                    "omniscient_type" ||
+                                                engine.role ===
+                                                    "observer_type" ||
+                                                engine.role === "master_type"
+                                            }
+                                        ></Button>
+                                    </div>
                                 </div>
-                            );
-                        }
+                                {suggestedMoveComponents}
+                            </div>
+                        );
+                    })}
+                    {globalSuggestedMessages.map((m, i) => {
+                        const suggestedMessageRecipient =
+                            suggestedMsgRegex.exec(m.message)[2];
+                        const suggestedMessage = suggestedMsgRegex.exec(
+                            m.message
+                        )[3];
+
+                        return (
+                            <div
+                                style={{
+                                    display: "flex",
+                                    alignItems: "flex-end",
+                                }}
+                            >
+                                <ChatMessage
+                                    style={{ flexGrow: 1 }}
+                                    model={{
+                                        message: m.message,
+                                        sent: m.sent_time,
+                                        sender: m.sender,
+                                        direction: "incoming",
+                                        position: "single",
+                                    }}
+                                    avatarPosition={"tl"}
+                                ></ChatMessage>
+                                <div
+                                    style={{
+                                        flexGrow: 0,
+                                        flexShrink: 0,
+                                        display: "flex",
+                                        alignItems: "flex-end",
+                                    }}
+                                >
+                                    <Button
+                                        key={"a"}
+                                        pickEvent={true}
+                                        title={"add to textbox"}
+                                        color={"success"}
+                                        onClick={() => {
+                                            this.setMessageInputValue(
+                                                suggestedMessage
+                                            );
+                                            this.onChangeTabCurrentMessages(
+                                                suggestedMessageRecipient
+                                            );
+
+                                            this.handleRecipientAnnotation(
+                                                m,
+                                                "accept"
+                                            );
+                                        }}
+                                        disabled={
+                                            this.state.annotatedMessages.hasOwnProperty(
+                                                m.time_sent
+                                            ) ||
+                                            engine.role === "omniscient_type" ||
+                                            engine.role === "observer_type" ||
+                                            engine.role === "master_type"
+                                        }
+                                    ></Button>
+                                    <Button
+                                        key={"r"}
+                                        pickEvent={true}
+                                        title={"reject"}
+                                        color={"danger"}
+                                        onClick={() => {
+                                            this.handleRecipientAnnotation(
+                                                m,
+                                                "reject"
+                                            );
+                                        }}
+                                        disabled={
+                                            this.state.annotatedMessages.hasOwnProperty(
+                                                m.time_sent
+                                            ) ||
+                                            engine.role === "omniscient_type" ||
+                                            engine.role === "observer_type" ||
+                                            engine.role === "master_type"
+                                        }
+                                    ></Button>
+                                </div>
+                            </div>
+                        );
                     })}
                 </MessageList>
             </ChatContainer>
