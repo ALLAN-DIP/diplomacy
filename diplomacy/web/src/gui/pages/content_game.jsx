@@ -2031,6 +2031,7 @@ export class ContentGame extends React.Component {
     }
 
     renderCentaur(engine) {
+        let suggestionCount = 0;
         const currentPowerName =
             this.state.power ||
             (engine.getControllablePowers().length &&
@@ -2052,9 +2053,12 @@ export class ContentGame extends React.Component {
                     suggestedMoveRegex.test(msg.message) &&
                     suggestedMoveRegex.exec(msg.message)[1] ===
                         currentPowerName &&
-                    msg.phase === engine.phase
+                    msg.phase === engine.phase &&
+                    suggestionCount == 0
                 ) {
                     return true;
+                } else {
+                    suggestionCount++;
                 }
                 // if match suggestedMsgRegex and the first group is the currentPowerName
                 if (
