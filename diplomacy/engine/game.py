@@ -872,6 +872,8 @@ class Game(Jsonable):
         self.is_bot[phase] = game_phase_data.is_bot
         self.deceiving[phase] = game_phase_data.deceiving
         self.order_log_history.put(phase, game_phase_data.order_logs)
+        self.is_bot_history.put(phase, game_phase_data.is_bot)
+        self.deceiving_history.put(phase, game_phase_data.deceiving)
 
     def set_status(self, status):
         """ Set game status with given status (should be in diplomacy.utils.strings.ALL_GAME_STATUSES). """
