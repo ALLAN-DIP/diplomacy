@@ -1190,6 +1190,7 @@ class Game(Jsonable):
                             "TURKEY": False,
                         },
                     },
+                    deceiving={},
                 )
             ]
 
