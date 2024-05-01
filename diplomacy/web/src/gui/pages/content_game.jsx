@@ -2031,8 +2031,15 @@ export class ContentGame extends React.Component {
         );
     }
 
-    renderCentaur(engine) {
+    renderCentaur(engine, role) {
         let suggestionCount = 0;
+
+        const tabNames = [];
+        for (let powerName of Object.keys(engine.powers))
+            if (powerName !== role) tabNames.push(powerName);
+        tabNames.sort();
+        let protagnist = this.state.tabCurrentMessages || tabNames[0];
+
         const currentPowerName =
             this.state.power ||
             (engine.getControllablePowers().length &&
@@ -2049,8 +2056,17 @@ export class ContentGame extends React.Component {
         const suggestedMoveRegex = /^([A-Z]+).*\:\W(.*)+/;
         const suggestedMsgRegex = /^([A-Z]+) .*to ([A-Z]+)\: (.*)/s;
 
-        const suggestionsForCurrentPower =
-            globalMessages.filter((msg) => {
+        for (let m of globalMessages) {
+            if (m.type === "suggested_message") {
+                globalSuggestedMessages.push(m);
+            }
+            if (m.type === "suggested_move") {
+                globalSuggestedMoves.push(m);
+            }
+        }
+
+        const moveSuggestionForCurrentPower =
+            globalSuggestedMoves.filter((msg) => {
                 // if match suggestedMoveRegex and the first group is the currentPowerName
                 if (
                     suggestedMoveRegex.test(msg.message) &&
@@ -2060,11 +2076,18 @@ export class ContentGame extends React.Component {
                 ) {
                     return true;
                 }
+
+                return false;
+            }) || [];
+
+        const suggestedMessagesForCurrentPower =
+            globalSuggestedMessages.filter((msg) => {
                 // if match suggestedMsgRegex and the first group is the currentPowerName
                 if (
                     suggestedMsgRegex.test(msg.message) &&
                     suggestedMsgRegex.exec(msg.message)[1] ===
                         currentPowerName &&
+                    suggestedMsgRegex.exec(msg.message)[2] === protagnist &&
                     msg.phase === engine.phase
                 ) {
                     return true;
@@ -2073,19 +2096,10 @@ export class ContentGame extends React.Component {
                 return false;
             }) || [];
 
-        for (let m of suggestionsForCurrentPower) {
-            if (m.type === "suggested_message") {
-                globalSuggestedMessages.push(m);
-            }
-            if (m.type === "suggested_move") {
-                globalSuggestedMoves.push(m);
-            }
-        }
-
         // only keep the first suggested move
-        const suggestionsForCurrentPowerFiltered = globalSuggestedMoves.length
-            ? [globalSuggestedMoves[0]]
-            : globalSuggestedMessages;
+        const suggestionsForCurrentPowerFiltered = moveSuggestionForCurrentPower.length
+            ? [moveSuggestionForCurrentPower[0]]
+            : null;
 
         return (
             <ChatContainer
@@ -2101,7 +2115,7 @@ export class ContentGame extends React.Component {
 
                 <MessageList>
                     <MessageSeparator>{engine.phase}</MessageSeparator>
-                    {suggestionsForCurrentPowerFiltered.map((m, i) => {
+                    {suggestionsForCurrentPowerFiltered && suggestionsForCurrentPowerFiltered.map((m, i) => {
                         const suggestedMoves = suggestedMoveRegex.exec(
                             m.message
                         )[2];
@@ -2280,7 +2294,7 @@ export class ContentGame extends React.Component {
                             </div>
                         );
                     })}
-                    {globalSuggestedMessages.map((m, i) => {
+                    {suggestedMessagesForCurrentPower.map((m, i) => {
                         const suggestedMessageRecipient =
                             suggestedMsgRegex.exec(m.message)[2];
                         const suggestedMessage = suggestedMsgRegex.exec(
