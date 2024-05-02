@@ -10,6 +10,8 @@ This project contains an open-source DATC-compliant Diplomacy game engine, a cli
 
 The complete documentation is available at [diplomacy.readthedocs.io](https://diplomacy.readthedocs.io/).
 
+Update: the documentation isn't updated for the latest changes. See [here](https://fengs-organization-3.gitbook.io/diplomacy-documentation/) for (not all) example usage.
+
 ## Getting Started
 
 ### Installation
@@ -96,15 +98,16 @@ pip install -r requirements_dev.txt
 cd diplomacy/web
 npm install .
 npm install . --only=dev
-
 ```
+
+
 use node version <= 16 or
 ```
 export NODE_OPTIONS=--openssl-legacy-provider for linux and macos
 
 set PORT=<PORT> && react-scripts --openssl-legacy-provider start # for npm start in package.json on windows
-
 ```
+
 To avoid `error:0308010C:digital envelope routines::unsupported`
 <br>
 In windows, you also need to change
@@ -115,10 +118,8 @@ In windows, you also need to change
 <br>
 `../../../../../../diplomacy/maps/svg/${this.props.params.map.svgName()}.svg`
 <br>
-```
 
 ```
-
 # In a terminal window or tab - Launch React server
 pm2 start "npm start" # for background activity
 npm start
@@ -128,8 +129,8 @@ nohup python3 -m diplomacy.server.run & # for background activity
 python -m diplomacy.server.run
 ```
 
-Use ps -fA | grep <COMMAND> to find the background python process
-and kill <PID> to kill it
+Use `ps -fA | grep <COMMAND>` to find the background python process
+and `kill <PID>` to kill it
   
 The web interface will be accessible at http://localhost:3000.
 
