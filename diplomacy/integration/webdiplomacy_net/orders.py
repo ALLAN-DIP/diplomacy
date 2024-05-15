@@ -352,7 +352,7 @@ class Order:
             from_terr_id = CACHE[self.map_name]['loc_to_ix'].get(from_loc_name, None)
 
             if to_loc_name is None:
-                LOGGER.error('[Convoy] Received invalid to loc "%s" for map "%s".', to_terr_id, self.map_name)
+                LOGGER.error('[Convoy] Received invalid to loc "%s" for map "%s".', to_terr_id, self.map_name)
                 LOGGER.error(order)
                 return
             if from_loc_name is None:
@@ -379,7 +379,7 @@ class Order:
         # {"id": "152", "unitID": "18", "type": "Retreat", "toTerrID": "75", "fromTerrID": "", "viaConvoy": ""}
         elif order_type == 'R':
             if len(words) < 4:
-                LOGGER.error('[Retreat] Unable to parse the move order "%s". Require at least 4 words', order)
+                LOGGER.error('[Retreat] Unable to parse the move order "%s". Require at least 4 words', order)
                 LOGGER.error(order)
                 return
 
@@ -526,7 +526,7 @@ class Order:
         # {"id": "73", "unitID": "16", "type": "Support hold", "toTerrID": "24", "fromTerrID": "", "viaConvoy": ""}
         elif order_type == 'Support hold':
             if to_loc_name is None:
-                LOGGER.error('[Support H] Received invalid to loc "%s" for map "%s".', to_terr_id, self.map_name)
+                LOGGER.error('[Support H] Received invalid to loc "%s" for map "%s".', to_terr_id, self.map_name)
                 LOGGER.error(order)
                 return
             self.order_str = '%s %s S %s' % (unit_type[0], loc_name, to_loc_name)

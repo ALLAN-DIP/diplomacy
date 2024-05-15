@@ -181,7 +181,7 @@ def _build_convoy_paths_cache(map_object, max_convoy_length):
         buckets[len(fleets)] += [(start, fleets, dests)]
 
     # Returning
-    LOGGER.info('Found {} convoy paths for {}\n'.format(len(results), map_object.name))
+    LOGGER.info('Found {} convoy paths for {}\n'.format(len(results), map_object.name))
     return buckets
 
 def get_file_md5(file_path):
