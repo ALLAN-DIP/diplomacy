@@ -20,6 +20,7 @@
 import collections
 import hashlib
 import glob
+import logging
 import pickle
 import multiprocessing
 import os
@@ -28,6 +29,8 @@ import threading
 import tqdm
 from diplomacy.engine.map import Map
 from diplomacy import settings
+
+LOGGER = logging.getLogger(__name__)
 
 # Using `os.path.expanduser()` to find home directory in a more cross-platform way.
 HOME_DIRECTORY = os.path.expanduser('~')
@@ -151,8 +154,8 @@ def _build_convoy_paths_cache(map_object, max_convoy_length):
                  the value is a list of convoy paths (start loc, {fleets}, {dest}) of that length for the map
         :type map_object: diplomacy.Map
     """
-    print('Generating convoy paths for "{}"'.format(map_object.name))
-    print('This is an operation that is required the first time a map is loaded. It might take several minutes...\n')
+    LOGGER.info('Generating convoy paths for "{}"'.format(map_object.name))
+    LOGGER.info('This is an operation that is required the first time a map is loaded. It might take several minutes...\n')
     coasts = [loc.upper() for loc in map_object.locs if map_object.area_type(loc) in COAST_TYPES and '/' not in loc]
     water_locs = [loc.upper() for loc in map_object.locs if map_object.area_type(loc) in WATER_TYPES]
 
@@ -178,7 +181,7 @@ def _build_convoy_paths_cache(map_object, max_convoy_length):
         buckets[len(fleets)] += [(start, fleets, dests)]
 
     # Returning
-    print('Found {} convoy paths for {}\n'.format(len(results), map_object.name))
+    LOGGER.info('Found {} convoy paths for {}\n'.format(len(results), map_object.name))
     return buckets
 
 def get_file_md5(file_path):

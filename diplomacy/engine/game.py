@@ -1528,7 +1528,7 @@ class Game(Jsonable):
         if not self.has_power(power_name):
             return
 
-        print(power_name + "\t" + "comm_status: " + comm_status)
+        LOGGER.info(power_name + "\t" + "comm_status: " + comm_status)
         power = self.get_power(power_name.upper())
         power.comm_status = comm_status
 
