@@ -16,7 +16,7 @@ The complete documentation is available at [diplomacy.readthedocs.io](https://di
 
 The latest version of the package can be installed with:
 
-```python3
+```shell
 pip install diplomacy
 ```
 
