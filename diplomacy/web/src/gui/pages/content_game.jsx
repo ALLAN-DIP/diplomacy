@@ -760,7 +760,7 @@ export class ContentGame extends React.Component {
         return this.setState({ logData: val });
     }
 
-    handleStance = (country, stance) => {
+    handleStance(country, stance) {
         const engine = this.props.data;
         const power = engine.getPower(engine.role);
 
@@ -777,7 +777,7 @@ export class ContentGame extends React.Component {
         }
     };
 
-    handleIsBot = (country, isBot) => {
+    handleIsBot(country, isBot) {
         const engine = this.props.data;
         const power = engine.getPower(engine.role);
 
@@ -817,7 +817,7 @@ export class ContentGame extends React.Component {
         networkGame.sendOrderLog({ log: message });
     }
 
-    handleRecipientAnnotation = (message, annotation) => {
+    handleRecipientAnnotation(message, annotation) {
         const engine = this.props.data;
         const newAnnotatedMessages = {
             ...this.state.annotatedMessages,
