@@ -1977,13 +1977,15 @@ export class ContentGame extends React.Component {
         return (
             <Box sx={{width:'100%', height:'550px', maxHeight:'550px', mb:'30px'}}>
                 <Grid container spacing={2}>
-                    <Grid item xs={6} sx={{height:'100%'}}>
+                    <Grid item xs={12} sx={{height:'100%'}}>
                         <Box sx={{ width: '100%', height: '550px'}}>
                             <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                                <Tabs2 value={0} aria-label="basic tabs example">
+                                <Tabs2 value={this.state.tabVal} onChange={this.updateTabVal} aria-label="basic tabs example">
                                     <Tab2 label="Messages" />
+                                    <Tab2 label="Captain's Log" />
                                 </Tabs2>
                             </Box>
+                            {this.state.tabVal === 0 && (
                             <div>
                                 <MainContainer responsive>
                                     <Sidebar position="left" scrollable={true}>
@@ -2091,22 +2093,8 @@ export class ContentGame extends React.Component {
                                         }}
                                     ></Button>
                                 )}
-                            </div>
-                        </Box>
-                    </Grid>
-                    <Grid item xs={6} sx={{height:'100%'}}>
-                        <Box sx={{ width: '100%', height: '550px'}}>
-                            <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                                <Tabs2 value={this.state.tabVal} onChange={this.updateTabVal} aria-label="basic tabs example">
-                                    <Tab2 label="Judgements" />
-                                    <Tab2 label="Captain's Log" />
-                                    <Tab2 label="DAIDE Composer" />
-                                </Tabs2>
-                            </Box>
-                            <Box sx={{height:'100%', overflow:'auto'}}>
-                                {this.state.tabVal === 0 && (
-                                    this.renderPowerInfo(engine)
-                                )}
+                            </div> )}
+
                                 {this.state.tabVal === 1 && (
                                 <MainContainer responsive>
                                     <ChatContainer>
@@ -2130,17 +2118,6 @@ export class ContentGame extends React.Component {
                                         )}
                                     </ChatContainer>
                                 </MainContainer> )}
-                                {this.state.tabVal === 2 && (
-                                    this.renderDaideComposer(engine, role)
-                                )}
-                                {this.state.gloss && (
-                                    <div>
-                                        <h5>DAIDE Preview:</h5>
-                                        <p>{this.state.daideMessage}</p>
-                                        <p>{this.state.glossMessage}</p>
-                                    </div>)
-                                }
-                            </Box>
                         </Box>
                     </Grid>
 
