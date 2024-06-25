@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM node:20.13.1-bookworm-slim as app-builder
+FROM node:20.13.1-bookworm-slim AS app-builder
 
 WORKDIR /app
 
@@ -17,7 +17,7 @@ ENV NODE_OPTIONS=--openssl-legacy-provider
 
 RUN npm run build
 
-FROM python:3.7.17-slim-bookworm as server
+FROM python:3.7.17-slim-bookworm AS server
 
 RUN apt-get -y update \
     && apt-get -y upgrade \
