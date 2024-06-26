@@ -2326,17 +2326,20 @@ export class ContentGame extends React.Component {
       <div>
         <ChatContainer
           style={{
-            height: "500px",
+            display: "flex",
+            flexDirection: "column",
+            flexGrow: 1,
             border: "1px solid black",
             boxSizing: "border-box",
           }}
         >
           <ConversationHeader>
-            <ConversationHeader.Content userName="Advice" />
+            <ConversationHeader.Content
+              userName={`Moves Advice for ${engine.phase}`}
+            />
           </ConversationHeader>
 
           <MessageList>
-            <MessageSeparator>{engine.phase}</MessageSeparator>
             {/*  */}
             {suggestionsForCurrentPowerFiltered &&
               suggestionsForCurrentPowerFiltered.map((m, i) => {
@@ -2491,6 +2494,24 @@ export class ContentGame extends React.Component {
                   </div>
                 );
               })}
+          </MessageList>
+        </ChatContainer>
+        <ChatContainer
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            flexGrow: 1,
+            border: "1px solid black",
+            boxSizing: "border-box",
+          }}
+        >
+          <ConversationHeader>
+            <ConversationHeader.Content
+              userName={`Messages Advice for ${engine.phase}`}
+            />
+          </ConversationHeader>
+
+          <MessageList>
             {suggestedMessagesForCurrentPower.map((m, i) => {
               const suggestedMessageRecipient = suggestedMsgRegex.exec(
                 m.message,
