@@ -1945,189 +1945,12 @@ export class ContentGame extends React.Component {
     );
   }
 
-  renderPastCentaur(engine, role) {
-    const tabNames = [];
-    for (let powerName of Object.keys(engine.powers))
-      if (powerName !== role) tabNames.push(powerName);
-    tabNames.sort();
-    let protagnist = this.state.tabPastMessages || tabNames[0];
+  renderCurrentCentaur(engine, role, isCurrent) {
+    const isAdmin =
+      engine.role === "omniscient_type" ||
+      engine.role === "master_type" ||
+      engine.role === "observer_type";
 
-    const currentPowerName =
-      this.state.power ||
-      (engine.getControllablePowers().length &&
-        engine.getControllablePowers()[0]);
-
-    const messageChannels = engine.getMessageChannels(currentPowerName, true);
-    const globalMessages = messageChannels["GLOBAL"] || [];
-    let globalSuggestedMoves = [];
-    let globalSuggestedMessages = [];
-
-    const suggestedMoveRegex = /^([A-Z]+).*\:\W(.*)+/;
-    const suggestedMsgRegex = /^([A-Z]+) .*to ([A-Z]+)\: (.*)/s;
-
-    for (let m of globalMessages) {
-      if (m.type === "suggested_message") {
-        globalSuggestedMessages.push(m);
-      } else {
-        globalSuggestedMoves.push(m);
-      }
-    }
-
-    const moveSuggestionForCurrentPower =
-      globalSuggestedMoves.filter((msg) => {
-        if (!msg.message.includes(":") || !msg.message.includes("-"))
-          return false;
-        const p = msg.message.split(":")[0].split("-")[0];
-        if (p === currentPowerName && msg.phase === engine.phase) {
-          return true;
-        }
-        return false;
-      }) || [];
-
-    const suggestedMessagesForCurrentPower =
-      globalSuggestedMessages.filter((msg) => {
-        if (!msg.message.includes(":") || !msg.message.includes("-"))
-          return false;
-        const ps = msg.message.split(":")[0].split("-");
-        const sender = ps[0];
-        const recipient = ps[1];
-        if (
-          sender === currentPowerName &&
-          recipient === protagnist &&
-          msg.phase === engine.phase
-        ) {
-          return true;
-        }
-        return false;
-      }) || [];
-
-    return (
-      <div>
-        <ChatContainer
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            flexGrow: 1,
-            border: "1px solid black",
-            boxSizing: "border-box",
-          }}
-        >
-          <ConversationHeader>
-            <ConversationHeader.Content
-              userName={`Moves Advice for ${engine.phase}`}
-            />
-          </ConversationHeader>
-
-          <MessageList>
-            {/*  */}
-            {moveSuggestionForCurrentPower &&
-              moveSuggestionForCurrentPower.length > 0 &&
-              moveSuggestionForCurrentPower.map((m, i) => {
-                let suggestedMoves;
-
-                if (m.type === "suggested_move_full")
-                  suggestedMoves = m.message
-                    .split(":")[1]
-                    .split(",")
-                    .map((m) => m.trim());
-                if (m.type === "suggested_move_partial")
-                  suggestedMoves = m.message
-                    .split(":")[2]
-                    .split(",")
-                    .map((m) => m.trim());
-
-                const suggestedMoveComponents = suggestedMoves.map(
-                  (move, index) => {
-                    return (
-                      <ChatMessage
-                        style={{ flexGrow: 1 }}
-                        model={{
-                          message: move,
-                          sent: m.sent_time,
-                          sender: m.sender,
-                          direction: "incoming",
-                          position: "single",
-                        }}
-                        avatarPosition={"tl"}
-                      ></ChatMessage>
-                    );
-                  },
-                );
-
-                return (
-                  <div>
-                    <ChatMessage
-                      style={{ flexGrow: 1 }}
-                      model={
-                        m.type === "suggested_move_full"
-                          ? {
-                              message: "Full Suggestions:",
-                              sent: m.sent_time,
-                              sender: m.sender,
-                              direction: "incoming",
-                              position: "single",
-                            }
-                          : {
-                              message: `Suggestions based on ${m.message.split(":")[1]}:`,
-                              sent: m.sent_time,
-                              sender: m.sender,
-                              direction: "incoming",
-                              position: "single",
-                            }
-                      }
-                      avatarPosition={"tl"}
-                    ></ChatMessage>
-                    {suggestedMoveComponents}
-                  </div>
-                );
-              })}
-          </MessageList>
-        </ChatContainer>
-        <ChatContainer
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            flexGrow: 1,
-            border: "1px solid black",
-            boxSizing: "border-box",
-            marginTop: "10px",
-          }}
-        >
-          <ConversationHeader>
-            <ConversationHeader.Content
-              userName={`Messages Advice to ${protagnist}`}
-            />
-          </ConversationHeader>
-
-          <MessageList>
-            {suggestedMessagesForCurrentPower.map((m, i) => {
-              const content = m.message;
-              const suggestedMessage = content.split(":").slice(1).join(":");
-              const suggestedMessageRecipient = content
-                .split(":")[0]
-                .split("-")[1];
-
-              return (
-                <ChatMessage
-                  style={{ flexGrow: 1 }}
-                  model={{
-                    message: m.message,
-                    sent: m.sent_time,
-                    sender: m.sender,
-                    direction: "incoming",
-                    position: "single",
-                  }}
-                  avatarPosition={"tl"}
-                ></ChatMessage>
-              );
-            })}
-          </MessageList>
-        </ChatContainer>
-      </div>
-    );
-  }
-
-  renderCurrentCentaur(engine, role) {
     let suggestionCount = 0;
 
     // for filtering message suggestions based on the current power talking to
@@ -2260,14 +2083,10 @@ export class ContentGame extends React.Component {
                                 `accept ${move}`,
                               );
                             }}
-                            disabled={
-                              this.state.annotatedMessages.hasOwnProperty(
-                                m.time_sent,
-                              ) ||
-                              engine.role === "omniscient_type" ||
-                              engine.role === "observer_type" ||
-                              engine.role === "master_type"
-                            }
+                            invisible={!(isCurrent && !isAdmin)}
+                            disabled={this.state.annotatedMessages.hasOwnProperty(
+                              m.time_sent,
+                            )}
                           ></Button>
                           <Button
                             key={"r"}
@@ -2277,14 +2096,10 @@ export class ContentGame extends React.Component {
                             onClick={() => {
                               this.handleRecipientAnnotation(m, "reject");
                             }}
-                            disabled={
-                              this.state.annotatedMessages.hasOwnProperty(
-                                m.time_sent,
-                              ) ||
-                              engine.role === "omniscient_type" ||
-                              engine.role === "observer_type" ||
-                              engine.role === "master_type"
-                            }
+                            invisible={!(isCurrent && !isAdmin)}
+                            disabled={this.state.annotatedMessages.hasOwnProperty(
+                              m.time_sent,
+                            )}
                           ></Button>
                         </div>
                       </div>
@@ -2341,14 +2156,10 @@ export class ContentGame extends React.Component {
 
                             this.handleRecipientAnnotation(m, "accept all");
                           }}
-                          disabled={
-                            this.state.annotatedMessages.hasOwnProperty(
-                              m.time_sent,
-                            ) ||
-                            engine.role === "omniscient_type" ||
-                            engine.role === "observer_type" ||
-                            engine.role === "master_type"
-                          }
+                          invisible={!(isCurrent && !isAdmin)}
+                          disabled={this.state.annotatedMessages.hasOwnProperty(
+                            m.time_sent,
+                          )}
                         ></Button>
                         <Button
                           key={"r"}
@@ -2358,14 +2169,10 @@ export class ContentGame extends React.Component {
                           onClick={() => {
                             this.handleRecipientAnnotation(m, "reject");
                           }}
-                          disabled={
-                            this.state.annotatedMessages.hasOwnProperty(
-                              m.time_sent,
-                            ) ||
-                            engine.role === "omniscient_type" ||
-                            engine.role === "observer_type" ||
-                            engine.role === "master_type"
-                          }
+                          invisible={!(isCurrent && !isAdmin)}
+                          disabled={this.state.annotatedMessages.hasOwnProperty(
+                            m.time_sent,
+                          )}
                         ></Button>
                       </div>
                     </div>
@@ -2438,14 +2245,10 @@ export class ContentGame extends React.Component {
 
                         this.handleRecipientAnnotation(m, "accept");
                       }}
-                      disabled={
-                        this.state.annotatedMessages.hasOwnProperty(
-                          m.time_sent,
-                        ) ||
-                        engine.role === "omniscient_type" ||
-                        engine.role === "observer_type" ||
-                        engine.role === "master_type"
-                      }
+                      invisible={!(isCurrent && !isAdmin)}
+                      disabled={this.state.annotatedMessages.hasOwnProperty(
+                        m.time_sent,
+                      )}
                     ></Button>
                     <Button
                       key={"r"}
@@ -2455,14 +2258,10 @@ export class ContentGame extends React.Component {
                       onClick={() => {
                         this.handleRecipientAnnotation(m, "reject");
                       }}
-                      disabled={
-                        this.state.annotatedMessages.hasOwnProperty(
-                          m.time_sent,
-                        ) ||
-                        engine.role === "omniscient_type" ||
-                        engine.role === "observer_type" ||
-                        engine.role === "master_type"
-                      }
+                      invisible={!(isCurrent && !isAdmin)}
+                      disabled={this.state.annotatedMessages.hasOwnProperty(
+                        m.time_sent,
+                      )}
                     ></Button>
                   </div>
                 </div>
@@ -2719,9 +2518,16 @@ export class ContentGame extends React.Component {
     const { engine, pastPhases, phaseIndex } =
       this.__get_engine_to_display(initialEngine);
 
-    return pastPhases[phaseIndex] === initialEngine.phase
-      ? this.renderCurrentCentaur(engine, role)
-      : this.renderPastCentaur(engine, role);
+    console.log(pastPhases[phaseIndex] === initialEngine.phase);
+
+    return this.renderCurrentCentaur(
+      engine,
+      role,
+      pastPhases[phaseIndex] === initialEngine.phase,
+    );
+    //return pastPhases[phaseIndex] === initialEngine.phase
+    //  ? this.renderCurrentCentaur(engine, role)
+    //  : this.renderPastCentaur(engine, role);
   }
 
   // ]
