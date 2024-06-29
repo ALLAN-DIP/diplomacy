@@ -2336,8 +2336,8 @@ export class ContentGame extends React.Component {
 
           <MessageList>
             {/*  */}
-            {suggestionsForCurrentPowerFiltered &&
-              suggestionsForCurrentPowerFiltered.map((m, i) => {
+            {moveSuggestionForCurrentPower && moveSuggestionForCurrentPower.length > 0 &&
+              moveSuggestionForCurrentPower.map((m, i) => {
                 const suggestedMoves = suggestedMoveRegex.exec(m.message)[2];
                 const suggestedMovesArray = suggestedMoves.split(",");
                 // trim the suggested moves
