@@ -2316,11 +2316,6 @@ export class ContentGame extends React.Component {
         return false;
       }) || [];
 
-    // temporary workaround: keep the first suggested move
-    const suggestionsForCurrentPowerFiltered =
-      moveSuggestionForCurrentPower.length
-        ? [moveSuggestionForCurrentPower[0]]
-        : null;
 
     return (
       <div>
