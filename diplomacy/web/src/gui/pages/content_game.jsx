@@ -152,6 +152,7 @@ export class ContentGame extends React.Component {
           this.props.data.phase,
         )
       : null;
+
     let orders = null;
     if (savedOrders) {
       orders = {};
@@ -2274,48 +2275,44 @@ export class ContentGame extends React.Component {
     let globalSuggestedMoves = [];
     let globalSuggestedMessages = [];
 
-    const suggestedMoveRegex = /^([A-Z]+).*\:\W(.*)+/;
-    const suggestedMsgRegex = /^([A-Z]+) .*to ([A-Z]+)\: (.*)/s;
-
     // split suggestions into moves and messages
     for (let m of globalMessages) {
       if (m.type === "suggested_message") {
         globalSuggestedMessages.push(m);
-      }
-      if (m.type === "suggested_move") {
+      } else {
         globalSuggestedMoves.push(m);
       }
     }
 
     const moveSuggestionForCurrentPower =
       globalSuggestedMoves.filter((msg) => {
-        // must be a move for the current power at current phase
-        if (
-          suggestedMoveRegex.test(msg.message) &&
-          suggestedMoveRegex.exec(msg.message)[1] === currentPowerName &&
-          msg.phase === engine.phase
-        ) {
+        if (!msg.message.includes(":") || !msg.message.includes("-"))
+          return false;
+        const p = msg.message.split(":")[0].split("-")[0];
+        if (p === currentPowerName && msg.phase === engine.phase) {
           return true;
         }
-
+        console.log(p, currentPowerName);
         return false;
       }) || [];
 
     const suggestedMessagesForCurrentPower =
       globalSuggestedMessages.filter((msg) => {
-        // must be a message for the current power at current phase to the current conversation partner
+        if (!msg.message.includes(":") || !msg.message.includes("-"))
+          return false;
+        const ps = msg.message.split(":")[0].split("-");
+        const sender = ps[0];
+        const recipient = ps[1];
         if (
-          suggestedMsgRegex.test(msg.message) &&
-          suggestedMsgRegex.exec(msg.message)[1] === currentPowerName &&
-          suggestedMsgRegex.exec(msg.message)[2] === protagnist &&
+          sender === currentPowerName &&
+          recipient === protagnist &&
           msg.phase === engine.phase
         ) {
           return true;
         }
-
+        console.log(ps, sender, recipient, currentPowerName, protagnist);
         return false;
       }) || [];
-
 
     return (
       <div>
@@ -2336,16 +2333,12 @@ export class ContentGame extends React.Component {
 
           <MessageList>
             {/*  */}
-            {moveSuggestionForCurrentPower && moveSuggestionForCurrentPower.length > 0 &&
+            {moveSuggestionForCurrentPower &&
+              moveSuggestionForCurrentPower.length > 0 &&
               moveSuggestionForCurrentPower.map((m, i) => {
-                const suggestedMoves = suggestedMoveRegex.exec(m.message)[2];
-                const suggestedMovesArray = suggestedMoves.split(",");
-                // trim the suggested moves
-                suggestedMovesArray.forEach((move, index) => {
-                  suggestedMovesArray[index] = move.trim();
-                });
+                const suggestedMoves = m.message.split(":")[1].split(",");
 
-                const suggestedMoveComponents = suggestedMovesArray.map(
+                const suggestedMoveComponents = suggestedMoves.map(
                   (move, index) => {
                     return (
                       <div
@@ -2451,7 +2444,7 @@ export class ContentGame extends React.Component {
                           title={"accept all"}
                           color={"success"}
                           onClick={async () => {
-                            for (let move of suggestedMovesArray) {
+                            for (let move of suggestedMoves) {
                               await this.onOrderBuilt(currentPowerName, move);
                             }
 
@@ -2498,20 +2491,22 @@ export class ContentGame extends React.Component {
             flexGrow: 1,
             border: "1px solid black",
             boxSizing: "border-box",
+            marginTop: "10px",
           }}
         >
           <ConversationHeader>
             <ConversationHeader.Content
-              userName={`Messages Advice for ${engine.phase}`}
+              userName={`Messages Advice to ${protagnist}`}
             />
           </ConversationHeader>
 
           <MessageList>
             {suggestedMessagesForCurrentPower.map((m, i) => {
-              const suggestedMessageRecipient = suggestedMsgRegex.exec(
-                m.message,
-              )[2];
-              const suggestedMessage = suggestedMsgRegex.exec(m.message)[3];
+              const content = m.message;
+              const suggestedMessage = content.split(":").slice(1).join(":");
+              const suggestedMessageRecipient = content
+                .split(":")[0]
+                .split("-")[1];
 
               return (
                 <div
