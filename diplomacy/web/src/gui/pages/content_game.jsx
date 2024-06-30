@@ -1395,8 +1395,6 @@ export class ContentGame extends React.Component {
     const globalMessages = messageChannels["GLOBAL"] || [];
     let globalSuggestedMessages = [];
 
-    const suggestedMsgRegex = /^([A-Z]+) .*to ([A-Z]+)\: (.*)/s;
-
     // split suggestions into moves and messages
     for (let m of globalMessages) {
       if (m.type === "suggested_message") {
@@ -1406,11 +1404,12 @@ export class ContentGame extends React.Component {
 
     const suggestedMessagesForCurrentPower =
       globalSuggestedMessages.filter((msg) => {
-        // must be a message for the current power at current phase to the current conversation partner
+        if (!msg.message.includes("-") || !msg.message.includes(":"))
+          return false;
+        const ps = msg.message.split(":")[0].split("-");
         if (
-          suggestedMsgRegex.test(msg.message) &&
-          suggestedMsgRegex.exec(msg.message)[1] === controlledPower &&
-          suggestedMsgRegex.exec(msg.message)[2] === protagnist &&
+          ps[0] === controlledPower &&
+          ps[1] === protagnist &&
           msg.phase === engine.phase &&
           !this.state.annotatedMessages.hasOwnProperty(msg.time_sent)
         ) {
@@ -1958,7 +1957,15 @@ export class ContentGame extends React.Component {
     for (let powerName of Object.keys(engine.powers))
       if (powerName !== role) tabNames.push(powerName);
     tabNames.sort();
-    let protagnist = this.state.tabCurrentMessages || tabNames[0];
+    let protagnist;
+
+    if (isCurrent && this.state.tabCurrentMessages) {
+      protagnist = this.state.tabCurrentMessages;
+    } else if (!isCurrent && this.state.tabPastMessages) {
+      protagnist = this.state.tabPastMessages;
+    } else {
+      protagnist = tabNames[0];
+    }
 
     const currentPowerName =
       this.state.power ||
@@ -1997,6 +2004,14 @@ export class ContentGame extends React.Component {
         const ps = msg.message.split(":")[0].split("-");
         const sender = ps[0];
         const recipient = ps[1];
+        console.log(
+          sender,
+          currentPowerName,
+          recipient,
+          protagnist,
+          msg.phase,
+          engine.phase,
+        );
         if (
           sender === currentPowerName &&
           recipient === protagnist &&
@@ -2206,6 +2221,8 @@ export class ContentGame extends React.Component {
                 .split(":")[0]
                 .split("-")[1];
 
+              console.log(suggestedMessage, suggestedMessageRecipient);
+
               return (
                 <div
                   style={{
@@ -2239,9 +2256,6 @@ export class ContentGame extends React.Component {
                       color={"success"}
                       onClick={() => {
                         this.setMessageInputValue(suggestedMessage);
-                        this.onChangeTabCurrentMessages(
-                          suggestedMessageRecipient,
-                        );
 
                         this.handleRecipientAnnotation(m, "accept");
                       }}
@@ -2517,8 +2531,6 @@ export class ContentGame extends React.Component {
   renderTabCentaur(toDisplay, initialEngine, role) {
     const { engine, pastPhases, phaseIndex } =
       this.__get_engine_to_display(initialEngine);
-
-    console.log(pastPhases[phaseIndex] === initialEngine.phase);
 
     return this.renderCurrentCentaur(
       engine,
