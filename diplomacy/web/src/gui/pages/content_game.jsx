@@ -1986,9 +1986,8 @@ export class ContentGame extends React.Component {
 
     const moveSuggestionForCurrentPower =
       globalSuggestedMoves.filter((msg) => {
-        if (!msg.message.includes(":") && !msg.message.includes("-"))
-          return false;
-        const p = msg.message.split(":")[0].split("-")[0];
+        if (!msg.message.includes(":")) return false;
+        const p = msg.message.split(":")[0];
         if (p === currentPowerName && msg.phase === engine.phase) {
           return true;
         }
