@@ -1950,8 +1950,6 @@ export class ContentGame extends React.Component {
       engine.role === "master_type" ||
       engine.role === "observer_type";
 
-    let suggestionCount = 0;
-
     // for filtering message suggestions based on the current power talking to
     const tabNames = [];
     for (let powerName of Object.keys(engine.powers))
@@ -1988,7 +1986,7 @@ export class ContentGame extends React.Component {
 
     const moveSuggestionForCurrentPower =
       globalSuggestedMoves.filter((msg) => {
-        if (!msg.message.includes(":") || !msg.message.includes("-"))
+        if (!msg.message.includes(":") && !msg.message.includes("-"))
           return false;
         const p = msg.message.split(":")[0].split("-")[0];
         if (p === currentPowerName && msg.phase === engine.phase) {
