@@ -132,3 +132,4 @@ data
 events.out.*
 
 nohup.out
+pyrightconfig.json
