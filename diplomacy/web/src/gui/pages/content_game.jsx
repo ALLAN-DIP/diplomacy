@@ -916,7 +916,7 @@ export class ContentGame extends React.Component {
    * @param {string} powerName - power name
    * @param {Order} order - order to remove
    */
-  onRemoveOrder(powerName, order) {
+  async onRemoveOrder(powerName, order) {
     const orders = this.__get_orders(this.props.data);
     if (
       orders.hasOwnProperty(powerName) &&
@@ -928,7 +928,7 @@ export class ContentGame extends React.Component {
       delete orders[powerName][order.loc];
       if (!UTILS.javascript.count(orders[powerName])) orders[powerName] = null;
       this.__store_orders(orders);
-      this.setState({ orders: orders });
+      await this.setState({ orders: orders });
     }
     this.setOrders();
   }
@@ -937,7 +937,7 @@ export class ContentGame extends React.Component {
    * Remove all local orders for current selected power, including empty orders set.
    * Equivalent request is clearOrders().
    */
-  onRemoveAllCurrentPowerOrders() {
+  async onRemoveAllCurrentPowerOrders() {
     const currentPowerName = this.getCurrentPowerName();
     if (currentPowerName) {
       const engine = this.props.data;
@@ -949,7 +949,7 @@ export class ContentGame extends React.Component {
       this.sendOrderLog(engine.client, "clear", null);
       allOrders[currentPowerName] = null;
       this.__store_orders(allOrders);
-      this.setState({ orders: allOrders });
+      await this.setState({ orders: allOrders });
     }
     this.setOrders();
   }
