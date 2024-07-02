@@ -39,6 +39,7 @@ from diplomacy.utils import exceptions, strings, constants, export
 from diplomacy.utils.common import hash_password
 from diplomacy.utils.constants import OrderSettings
 from diplomacy.utils.game_phase_data import GamePhaseData
+from diplomacy.negotiation import negotiation
 
 LOGGER = logging.getLogger(__name__)
 
@@ -114,6 +115,7 @@ def on_create_game(server, request, connection_handler):
     # Check request token.
     verify_request(server, request, connection_handler)
     game_id, token, power_name, state, daide_port = request.game_id, request.token, request.power_name, request.state, request.daide_port
+    player_type = request.player_type
 
     # Check if server still accepts to create new games.
     if server.cannot_create_more_games():
@@ -165,7 +167,7 @@ def on_create_game(server, request, connection_handler):
 
     # Register game creator, as either power player or omniscient observer.
     if power_name:
-        server_game.control(power_name, username, token)
+        server_game.control(power_name, username, token, player_type)
         client_game = server_game.as_power_game(power_name)
     else:
         server_game.add_omniscient_token(token)
@@ -388,6 +390,7 @@ def on_join_game(server, request, connection_handler):
     # Check request token.
     verify_request(server, request, connection_handler)
     token, power_name, registration_password = request.token, request.power_name, request.registration_password
+    player_type = request.player_type
 
     # Get related game.
     server_game = server.get_game(request.game_id)  # type: ServerGame
@@ -529,7 +532,7 @@ def on_join_game(server, request, connection_handler):
                 power_name = server_game.get_random_power_name()
 
             # Register sender token as power token.
-            server_game.control(power_name, username, token)
+            server_game.control(power_name, username, token, player_type)
 
             # Notify other game tokens about new powers controllers.
             Notifier(server, ignore_addresses=[(power_name, token)]).notify_game_powers_controllers(server_game)
@@ -857,6 +860,44 @@ def on_send_order_suggestions(server, request, connection_handler):
     server.save_game(level.game)    
 
 
+def on_send_daide_composer_message(server, request, connection_handler):
+    """ Manage request SendDaideComposerMessage
+
+    :param server:
+    :param request:
+    :param connection_handler:
+    :return:
+    """
+    level = verify_request(server, request, connection_handler, omniscient_role=True, observer_role=True)
+    token, message = request.token, request.message
+    assert_game_not_finished(level.game)
+    if level.game.no_press:
+        raise exceptions.ResponseException('Messages not allowed for this game.')
+    #if request.game_role != message.sender:
+    #    raise exceptions.ResponseException('A power can only send its own messages.')
+
+    if not level.game.has_power(message.sender):
+        raise exceptions.MapPowerException(message.sender)
+    if not request.message.is_global():
+        if level.game.public_press:
+            raise exceptions.ResponseException('Only public messages allowed for this game.')
+        if not level.game.is_game_active:
+            raise exceptions.GameNotPlayingException()
+        if level.game.current_short_phase != message.phase:
+            raise exceptions.GamePhaseException(level.game.current_short_phase, message.phase)
+        if not level.game.has_power(message.recipient):
+            raise exceptions.MapPowerException(message.recipient)
+        #username = server.users.get_name(token)
+        #power_name = message.sender
+        #if not level.game.is_controlled_by(power_name, username):
+        #    raise exceptions.ResponseException('Power name %s is not controlled by given username.' % power_name)
+        #if message.sender == message.recipient:
+        #    raise exceptions.ResponseException('A power cannot send message to itself.')
+
+        new_message_obj_str = negotiation.pressgloss(message, level.game.message_history, level.game.messages, level.game.powers, return_message_obj_str=True)
+        return responses.DataToken(data=new_message_obj_str, request_id=request.request_id)
+
+
 def on_send_game_message(server, request, connection_handler):
     """ Manage request SendGameMessage.
 
@@ -1151,6 +1192,26 @@ def on_set_orders(server, request, connection_handler):
         server.force_game_processing(level.game)
     server.save_game(level.game)
 
+def on_set_comm_status(server, request, connection_handler):
+    """ Manage request SetCommStatus
+        :param server: server which receives the request.
+        :param request: request to manage.
+        :param connection_handler: connection handler from which the request was sent.
+        :return: None
+        :type server: diplomacy.Server
+        :type request: diplomacy.communication.requests.SetCommStatus
+    """
+    level = verify_request(server, request, connection_handler, observer_role=False, require_power=True)
+    assert_game_not_finished(level.game)
+    level.game.set_comm_status(level.power_name, request.comm_status)
+
+    # Notify other power tokens.
+    Notifier(server, ignore_addresses=[request.address_in_game]).notify_power_comm_status(
+        level.game, level.game.get_power(level.power_name), request.comm_status)
+
+    server.save_game(level.game)
+
+
 def on_set_wait_flag(server, request, connection_handler):
     """ Manage request SetWaitFlag.
 
@@ -1360,6 +1421,8 @@ MAPPING = {
     requests.Synchronize: on_synchronize,
     requests.UnknownToken: on_unknown_token,
     requests.Vote: on_vote,
+    requests.SetCommStatus: on_set_comm_status,
+    requests.SendDaideComposerMessage: on_send_daide_composer_message
 }
 
 

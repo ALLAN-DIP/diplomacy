@@ -350,40 +350,12 @@ class Server:
         # Add default accounts.
         for (username, password) in (
                 ('admin', os.environ.get('DIPLOMACY_ADMIN_PASSWORD', 'password')),
-                ('cicero_AUSTRIA', 'password'),
-                ('cicero_TURKEY', 'password'),
-                ('cicero_ENGLAND', 'password'),
-                ('cicero_GERMANY', 'password'),
-                ('cicero_RUSSIA', 'password'),
-                ('cicero_FRANCE', 'password'),
-                ('cicero_ITALY', 'password'),
-                ('notJack', 'password'),
-                ('fgu1', 'password'),
-                ('player_114514', 'password'),
-                ('DDLewis', 'password'),
-                ('KD637', 'password'),
-                ('meatlover', 'password'),
-                ('ARandomCommie', 'password'),
                 (constants.PRIVATE_BOT_USERNAME, constants.PRIVATE_BOT_PASSWORD)
         ):
             if not self.users.has_username(username):
                 self.users.add_user(username, common.hash_password(password))
         # Set default admin account.
         self.users.add_admin('admin')
-        self.users.add_admin('cicero_AUSTRIA')
-        self.users.add_admin('cicero_TURKEY')
-        self.users.add_admin('cicero_ENGLAND')
-        self.users.add_admin('cicero_GERMANY')
-        self.users.add_admin('cicero_RUSSIA')
-        self.users.add_admin('cicero_FRANCE')
-        self.users.add_admin('cicero_ITALY')
-        self.users.add_admin('notJack')
-        self.users.add_admin('fgu1')
-        self.users.add_admin('player_114514')
-        self.users.add_admin('DDLewis')
-        self.users.add_admin('KD637')
-        self.users.add_admin('meatlover')
-        self.users.add_admin('ARandomCommie')
 
         self._load_available_maps()
 
