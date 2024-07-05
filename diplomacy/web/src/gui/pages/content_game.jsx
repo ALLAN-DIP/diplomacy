@@ -2003,7 +2003,7 @@ export class ContentGame extends React.Component {
     for (let m of globalMessages) {
       if (m.type === "suggested_message") {
         globalSuggestedMessages.push(m);
-      } else {
+      } else if (m.type.includes("move")) {
         globalSuggestedMoves.push(m);
       }
     }
@@ -2070,7 +2070,7 @@ export class ContentGame extends React.Component {
               {moveSuggestionForCurrentPower &&
                 moveSuggestionForCurrentPower.length > 0 &&
                 moveSuggestionForCurrentPower.map((m, i) => {
-                  let suggestedMoves = [];
+                  let suggestedMoves;
 
                   if (m.type === "suggested_move_full")
                     suggestedMoves = m.message
