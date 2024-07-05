@@ -1993,8 +1993,7 @@ export class ContentGame extends React.Component {
       const powerSuggestions = globalMessages.filter(
         (msg) => msg.type === "has_suggestions" && msg.phase === engine.phase,
       );
-      const powerSuggestion = powerSuggestions[0].message.split(",");
-      powerSuggestion.forEach((x) => {
+      powerSuggestions.forEach((x) => {
         const parts = x.split(":");
         const p = parts[0].trim();
         const t = parseInt(parts[1].trim());
