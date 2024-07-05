@@ -357,13 +357,7 @@ class Server:
                 ('cicero_RUSSIA', 'password'),
                 ('cicero_FRANCE', 'password'),
                 ('cicero_ITALY', 'password'),
-                ('notJack', 'password'),
                 ('fgu1', 'password'),
-                ('player_114514', 'password'),
-                ('DDLewis', 'password'),
-                ('KD637', 'password'),
-                ('meatlover', 'password'),
-                ('ARandomCommie', 'password'),
                 (constants.PRIVATE_BOT_USERNAME, constants.PRIVATE_BOT_PASSWORD)
         ):
             if not self.users.has_username(username):
@@ -377,13 +371,7 @@ class Server:
         self.users.add_admin('cicero_RUSSIA')
         self.users.add_admin('cicero_FRANCE')
         self.users.add_admin('cicero_ITALY')
-        self.users.add_admin('notJack')
         self.users.add_admin('fgu1')
-        self.users.add_admin('player_114514')
-        self.users.add_admin('DDLewis')
-        self.users.add_admin('KD637')
-        self.users.add_admin('meatlover')
-        self.users.add_admin('ARandomCommie')
 
         self._load_available_maps()
 
