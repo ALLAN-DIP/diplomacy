@@ -1975,35 +1975,28 @@ export class ContentGame extends React.Component {
     let globalSuggestedMoves = [];
     let globalSuggestedMessages = [];
 
-    let hasSuggestions = {
-      AUSTRIA: 0,
-      ENGLAND: 0,
-      FRANCE: 0,
-      GERMANY: 0,
-      ITALY: 0,
-      RUSSIA: 0,
-      TURKEY: 0,
-    };
+    let suggestionType = 0;
 
     const hasSuggestionMessage = globalMessages.some(
-      (msg) => msg.type === "has_suggestions" && msg.phase === engine.phase,
+      (msg) =>
+        msg.type === "has_suggestions" &&
+        msg.phase === engine.phase &&
+        msg.message.includes(currentPowerName),
     );
 
     if (hasSuggestionMessage) {
       const powerSuggestions = globalMessages.filter(
-        (msg) => msg.type === "has_suggestions" && msg.phase === engine.phase,
+        (msg) =>
+          msg.type === "has_suggestions" &&
+          msg.phase === engine.phase &&
+          msg.message.includes(currentPowerName),
       );
       powerSuggestions.forEach((x) => {
-        const parts = x.split(":");
+        const parts = x.message.split(":");
         const p = parts[0].trim();
         const t = parseInt(parts[1].trim());
-        hasSuggestions[p] = t;
+        if (p == currentPowerName) suggestionType = t;
       });
-    }
-
-    // empty component if no suggestions
-    if (!hasSuggestions[currentPowerName]) {
-      return <div />;
     }
 
     // split suggestions into moves and messages
@@ -2044,7 +2037,20 @@ export class ContentGame extends React.Component {
 
     return (
       <div>
-        {hasSuggestions[currentPowerName] !== 1 && (
+        {!hasSuggestionMessage && <div>We haven't assigned advisors yet.</div>}
+        {hasSuggestionMessage && suggestionType === 0 && (
+          <div>You are on your own this turn.</div>
+        )}
+        {suggestionType === 1 && (
+          <div>You are getting messages advice this turn.</div>
+        )}
+        {suggestionType === 2 && (
+          <div>You are getting moves advice this turn.</div>
+        )}
+        {suggestionType === 3 && (
+          <div>You are getting moves & messages advice this turn.</div>
+        )}
+        {suggestionType > 1 && (
           <ChatContainer
             style={{
               display: "flex",
@@ -2218,7 +2224,7 @@ export class ContentGame extends React.Component {
             </MessageList>
           </ChatContainer>
         )}
-        {hasSuggestions[currentPowerName] !== 2 && (
+        {(suggestionType & 1) === 1 && (
           <ChatContainer
             style={{
               display: "flex",
@@ -2242,8 +2248,6 @@ export class ContentGame extends React.Component {
                 const suggestedMessageRecipient = content
                   .split(":")[0]
                   .split("-")[1];
-
-                console.log(suggestedMessage, suggestedMessageRecipient);
 
                 return (
                   <div
