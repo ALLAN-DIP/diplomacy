@@ -1975,6 +1975,12 @@ export class ContentGame extends React.Component {
     let globalSuggestedMoves = [];
     let globalSuggestedMessages = [];
 
+    /*
+     * 0: no advisors
+       1: message only
+       2: move only
+       3: message and move
+     */
     let suggestionType = 0;
 
     const hasSuggestionMessage = globalMessages.some(
@@ -2017,6 +2023,314 @@ export class ContentGame extends React.Component {
         }
         return false;
       }) || [];
+
+    // display only the latest to avoid cluttering textbox
+    let latestMoveSuggestionFull = null;
+    let latestMoveSuggestionPartial = null;
+
+    for (const m of moveSuggestionForCurrentPower) {
+      if (m.type === "suggested_move_full") {
+        if (
+          !latestMoveSuggestionFull ||
+          m.time_sent > latestMoveSuggestionFull.time_sent
+        )
+          latestMoveSuggestionFull = m;
+      }
+      if (m.type === "suggested_move_partial") {
+        if (
+          !latestMoveSuggestionPartial ||
+          m.time_sent > latestMoveSuggestionPartial.time_sent
+        )
+          latestMoveSuggestionPartial = m;
+      }
+    }
+
+    let fullSuggestionComponent = null;
+    let partialSuggestionComponent = null;
+
+    if (latestMoveSuggestionFull) {
+      const suggestedMoves = latestMoveSuggestionFull.message
+        .split(":")[1]
+        .split(",")
+        .map((m) => m.trim());
+
+      const fullSuggestionMessages = suggestedMoves.map((move, index) => {
+        return (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "flex-end",
+            }}
+          >
+            <ChatMessage
+              style={{ flexGrow: 1 }}
+              model={{
+                message: move,
+                sent: latestMoveSuggestionFull.sent_time,
+                sender: latestMoveSuggestionFull.sender,
+                direction: "incoming",
+                position: "single",
+              }}
+              avatarPosition={"tl"}
+            ></ChatMessage>
+            <div
+              style={{
+                flexGrow: 0,
+                flexShrink: 0,
+                display: "flex",
+                alignItems: "flex-end",
+              }}
+            >
+              <Button
+                key={"a"}
+                pickEvent={true}
+                title={"accept"}
+                color={"success"}
+                onClick={() => {
+                  this.onOrderBuilt(currentPowerName, move);
+
+                  this.handleRecipientAnnotation(
+                    latestMoveSuggestionFull,
+                    `accept ${move}`,
+                  );
+                }}
+                invisible={!(isCurrent && !isAdmin)}
+                disabled={this.state.annotatedMessages.hasOwnProperty(
+                  latestMoveSuggestionFull.time_sent,
+                )}
+              ></Button>
+              <Button
+                key={"r"}
+                pickEvent={true}
+                title={"reject"}
+                color={"danger"}
+                onClick={() => {
+                  this.handleRecipientAnnotation(
+                    latestMoveSuggestionFull,
+                    "reject",
+                  );
+                }}
+                invisible={!(isCurrent && !isAdmin)}
+                disabled={this.state.annotatedMessages.hasOwnProperty(
+                  latestMoveSuggestionFull.time_sent,
+                )}
+              ></Button>
+            </div>
+          </div>
+        );
+      });
+
+      fullSuggestionComponent = (
+        <div>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "flex-end",
+            }}
+          >
+            <ChatMessage
+              style={{ flexGrow: 1 }}
+              model={{
+                message: "Full Suggestions:",
+                sent: latestMoveSuggestionFull.sent_time,
+                sender: latestMoveSuggestionFull.sender,
+                direction: "incoming",
+                position: "single",
+              }}
+              avatarPosition={"tl"}
+            ></ChatMessage>
+            <div
+              style={{
+                flexGrow: 0,
+                flexShrink: 0,
+                display: "flex",
+                alignItems: "flex-end",
+              }}
+            >
+              <Button
+                key={"a"}
+                pickEvent={true}
+                title={"accept all"}
+                color={"success"}
+                onClick={async () => {
+                  for (let move of suggestedMoves) {
+                    await this.onOrderBuilt(currentPowerName, move);
+                  }
+
+                  this.handleRecipientAnnotation(
+                    latestMoveSuggestionFull,
+                    "accept all",
+                  );
+                }}
+                invisible={!(isCurrent && !isAdmin)}
+                disabled={this.state.annotatedMessages.hasOwnProperty(
+                  latestMoveSuggestionFull.time_sent,
+                )}
+              ></Button>
+              <Button
+                key={"r"}
+                pickEvent={true}
+                title={"reject"}
+                color={"danger"}
+                onClick={() => {
+                  this.handleRecipientAnnotation(
+                    latestMoveSuggestionFull,
+                    "reject",
+                  );
+                }}
+                invisible={!(isCurrent && !isAdmin)}
+                disabled={this.state.annotatedMessages.hasOwnProperty(
+                  latestMoveSuggestionFull.time_sent,
+                )}
+              ></Button>
+            </div>
+          </div>
+          {fullSuggestionMessages}
+        </div>
+      );
+    }
+
+    if (latestMoveSuggestionPartial) {
+      const suggestedMoves = latestMoveSuggestionPartial.message
+        .split(":")[2]
+        .split(",")
+        .map((m) => m.trim());
+
+      const partialSuggestionMessages = suggestedMoves.map((move, index) => {
+        return (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "flex-end",
+            }}
+          >
+            <ChatMessage
+              style={{ flexGrow: 1 }}
+              model={{
+                message: move,
+                sent: latestMoveSuggestionPartial.sent_time,
+                sender: latestMoveSuggestionPartial.sender,
+                direction: "incoming",
+                position: "single",
+              }}
+              avatarPosition={"tl"}
+            ></ChatMessage>
+            <div
+              style={{
+                flexGrow: 0,
+                flexShrink: 0,
+                display: "flex",
+                alignItems: "flex-end",
+              }}
+            >
+              <Button
+                key={"a"}
+                pickEvent={true}
+                title={"accept"}
+                color={"success"}
+                onClick={() => {
+                  this.onOrderBuilt(currentPowerName, move);
+
+                  this.handleRecipientAnnotation(
+                    latestMoveSuggestionPartial,
+                    `accept ${move}`,
+                  );
+                }}
+                invisible={!(isCurrent && !isAdmin)}
+                disabled={this.state.annotatedMessages.hasOwnProperty(
+                  latestMoveSuggestionPartial.time_sent,
+                )}
+              ></Button>
+              <Button
+                key={"r"}
+                pickEvent={true}
+                title={"reject"}
+                color={"danger"}
+                onClick={() => {
+                  this.handleRecipientAnnotation(
+                    latestMoveSuggestionPartial,
+                    "reject",
+                  );
+                }}
+                invisible={!(isCurrent && !isAdmin)}
+                disabled={this.state.annotatedMessages.hasOwnProperty(
+                  latestMoveSuggestionPartial.time_sent,
+                )}
+              ></Button>
+            </div>
+          </div>
+        );
+      });
+
+      partialSuggestionComponent = (
+        <div>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "flex-end",
+            }}
+          >
+            <ChatMessage
+              style={{ flexGrow: 1 }}
+              model={{
+                message: `Suggestions based on ${latestMoveSuggestionPartial.message.split(":")[1]}:`,
+                sent: latestMoveSuggestionPartial.sent_time,
+                sender: latestMoveSuggestionPartial.sender,
+                direction: "incoming",
+                position: "single",
+              }}
+              avatarPosition={"tl"}
+            ></ChatMessage>
+            <div
+              style={{
+                flexGrow: 0,
+                flexShrink: 0,
+                display: "flex",
+                alignItems: "flex-end",
+              }}
+            >
+              <Button
+                key={"a"}
+                pickEvent={true}
+                title={"accept all"}
+                color={"success"}
+                onClick={async () => {
+                  for (let move of suggestedMoves) {
+                    await this.onOrderBuilt(currentPowerName, move);
+                  }
+
+                  this.handleRecipientAnnotation(
+                    latestMoveSuggestionPartial,
+                    "accept all",
+                  );
+                }}
+                invisible={!(isCurrent && !isAdmin)}
+                disabled={this.state.annotatedMessages.hasOwnProperty(
+                  latestMoveSuggestionPartial.time_sent,
+                )}
+              ></Button>
+              <Button
+                key={"r"}
+                pickEvent={true}
+                title={"reject"}
+                color={"danger"}
+                onClick={() => {
+                  this.handleRecipientAnnotation(
+                    latestMoveSuggestionPartial,
+                    "reject",
+                  );
+                }}
+                invisible={!(isCurrent && !isAdmin)}
+                disabled={this.state.annotatedMessages.hasOwnProperty(
+                  latestMoveSuggestionPartial.time_sent,
+                )}
+              ></Button>
+            </div>
+          </div>
+          {partialSuggestionMessages}
+        </div>
+      );
+    }
 
     const suggestedMessagesForCurrentPower =
       globalSuggestedMessages.filter((msg) => {
@@ -2067,160 +2381,8 @@ export class ContentGame extends React.Component {
             </ConversationHeader>
 
             <MessageList>
-              {moveSuggestionForCurrentPower &&
-                moveSuggestionForCurrentPower.length > 0 &&
-                moveSuggestionForCurrentPower.map((m, i) => {
-                  let suggestedMoves;
-
-                  if (m.type === "suggested_move_full")
-                    suggestedMoves = m.message
-                      .split(":")[1]
-                      .split(",")
-                      .map((m) => m.trim());
-                  if (m.type === "suggested_move_partial")
-                    suggestedMoves = m.message
-                      .split(":")[2]
-                      .split(",")
-                      .map((m) => m.trim());
-
-                  const suggestedMoveComponents = suggestedMoves.map(
-                    (move, index) => {
-                      return (
-                        <div
-                          style={{
-                            display: "flex",
-                            alignItems: "flex-end",
-                          }}
-                        >
-                          <ChatMessage
-                            style={{ flexGrow: 1 }}
-                            model={{
-                              message: move,
-                              sent: m.sent_time,
-                              sender: m.sender,
-                              direction: "incoming",
-                              position: "single",
-                            }}
-                            avatarPosition={"tl"}
-                          ></ChatMessage>
-                          <div
-                            style={{
-                              flexGrow: 0,
-                              flexShrink: 0,
-                              display: "flex",
-                              alignItems: "flex-end",
-                            }}
-                          >
-                            <Button
-                              key={"a"}
-                              pickEvent={true}
-                              title={"accept"}
-                              color={"success"}
-                              onClick={() => {
-                                this.onOrderBuilt(currentPowerName, move);
-
-                                this.handleRecipientAnnotation(
-                                  m,
-                                  `accept ${move}`,
-                                );
-                              }}
-                              invisible={!(isCurrent && !isAdmin)}
-                              disabled={this.state.annotatedMessages.hasOwnProperty(
-                                m.time_sent,
-                              )}
-                            ></Button>
-                            <Button
-                              key={"r"}
-                              pickEvent={true}
-                              title={"reject"}
-                              color={"danger"}
-                              onClick={() => {
-                                this.handleRecipientAnnotation(m, "reject");
-                              }}
-                              invisible={!(isCurrent && !isAdmin)}
-                              disabled={this.state.annotatedMessages.hasOwnProperty(
-                                m.time_sent,
-                              )}
-                            ></Button>
-                          </div>
-                        </div>
-                      );
-                    },
-                  );
-
-                  return (
-                    <div>
-                      <div
-                        style={{
-                          display: "flex",
-                          alignItems: "flex-end",
-                        }}
-                      >
-                        <ChatMessage
-                          style={{ flexGrow: 1 }}
-                          model={
-                            m.type === "suggested_move_full"
-                              ? {
-                                  message: "Full Suggestions:",
-                                  sent: m.sent_time,
-                                  sender: m.sender,
-                                  direction: "incoming",
-                                  position: "single",
-                                }
-                              : {
-                                  message: `Suggestions based on ${m.message.split(":")[1]}:`,
-                                  sent: m.sent_time,
-                                  sender: m.sender,
-                                  direction: "incoming",
-                                  position: "single",
-                                }
-                          }
-                          avatarPosition={"tl"}
-                        ></ChatMessage>
-                        <div
-                          style={{
-                            flexGrow: 0,
-                            flexShrink: 0,
-                            display: "flex",
-                            alignItems: "flex-end",
-                          }}
-                        >
-                          <Button
-                            key={"a"}
-                            pickEvent={true}
-                            title={"accept all"}
-                            color={"success"}
-                            onClick={async () => {
-                              for (let move of suggestedMoves) {
-                                await this.onOrderBuilt(currentPowerName, move);
-                              }
-
-                              this.handleRecipientAnnotation(m, "accept all");
-                            }}
-                            invisible={!(isCurrent && !isAdmin)}
-                            disabled={this.state.annotatedMessages.hasOwnProperty(
-                              m.time_sent,
-                            )}
-                          ></Button>
-                          <Button
-                            key={"r"}
-                            pickEvent={true}
-                            title={"reject"}
-                            color={"danger"}
-                            onClick={() => {
-                              this.handleRecipientAnnotation(m, "reject");
-                            }}
-                            invisible={!(isCurrent && !isAdmin)}
-                            disabled={this.state.annotatedMessages.hasOwnProperty(
-                              m.time_sent,
-                            )}
-                          ></Button>
-                        </div>
-                      </div>
-                      {suggestedMoveComponents}
-                    </div>
-                  );
-                })}
+              {fullSuggestionComponent}
+              {partialSuggestionComponent}
             </MessageList>
           </ChatContainer>
         )}
