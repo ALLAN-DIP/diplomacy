@@ -1639,7 +1639,16 @@ export class ContentGame extends React.Component {
                       .length <
                       engine.orderableLocations[currentPowerName].length))
               }
-              placeholder="You need to set orders for all units before sending messages."
+              placeholder={
+                phaseType === "M" &&
+                (!this.state.hasInitialOrders ||
+                  (this.__get_orders(engine)[currentPowerName] &&
+                    Object.keys(this.__get_orders(engine)[currentPowerName])
+                      .length <
+                      engine.orderableLocations[currentPowerName].length))
+                  ? "You need to set orders for all units before sending messages."
+                  : ""
+              }
             />
           )}
 
