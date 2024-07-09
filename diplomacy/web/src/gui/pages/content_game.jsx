@@ -2690,53 +2690,9 @@ export class ContentGame extends React.Component {
 
     return (
       <Tab id={"tab-current-phase"} display={toDisplay}>
-        <Row>
           <div className={"col-xl"}>
             {this.renderMapForCurrent(engine, powerName, orderType, orderPath)}
           </div>
-          <div className={"col-xl"}>
-            {/* Orders. */}
-            <div
-              className={"panel-orders mb-4"}
-              style={{ maxHeight: "500px", overflowY: "scroll" }}
-            >
-              {currentTabOrderCreation ? (
-                <div className="mb-4">{currentTabOrderCreation}</div>
-              ) : (
-                ""
-              )}
-              <PowerOrdersActionBar
-                onReset={this.reloadServerOrders}
-                onDeleteAll={this.onRemoveAllCurrentPowerOrders}
-                onUpdate={this.setOrders}
-                onProcess={
-                  !this.props.data.isPlayerGame() &&
-                  this.props.data.observer_level === STRINGS.MASTER_TYPE
-                    ? this.onProcessGame
-                    : null
-                }
-              />
-              <div className={"orders"}>
-                {this.renderOrders(this.props.data, powerName)}
-              </div>
-            </div>
-            {/* engine.role !== "omniscient_type" && (
-                            <div>
-                                <caption>Suggested Orders</caption>
-                                <div
-                                    style={{
-                                        display: "flex",
-                                        flexDirection: "column",
-                                    }}
-                                >
-                                    {this.renderOrderSuggestions(
-                                        orderSuggestions
-                                    )}
-                                </div>
-                            </div>
-                        ) */}
-          </div>
-        </Row>
       </Tab>
     );
   }
@@ -2945,7 +2901,7 @@ export class ContentGame extends React.Component {
           orderBuildingType,
           this.state.orderBuildingPath,
           currentPowerName,
-          currentTabOrderCreation,
+          false,
         );
       } else if (hasTabPhaseHistory) {
         phasePanel = this.renderTabResults(true, engine);
@@ -2966,17 +2922,43 @@ export class ContentGame extends React.Component {
           phaseSel={this.__form_phases(pastPhases, phaseIndex)}
           navigation={navigation}
         />
-        {phasePanel}
         <div style={{ display: "flex" }}>
-          <div className={"left"} style={{ width: "50%" }}>
-            {this.renderTabChat(true, engine, currentPowerName)}
-            {localStorage.getItem("username") === "admin" &&
+        <div style={{ flex: 1}}>
+        {phasePanel}
+        <div className={"col-xl"}>
+            {/* Orders. */}
+            <div
+              className={"panel-orders mb-4"}
+              style={{ maxHeight: "500px", overflowY: "scroll" }}
+            >
+            <div className="mb-4">{currentTabOrderCreation}</div>
+              
+              <PowerOrdersActionBar
+                onReset={this.reloadServerOrders}
+                onDeleteAll={this.onRemoveAllCurrentPowerOrders}
+                onUpdate={this.setOrders}
+                onProcess={
+                  !this.props.data.isPlayerGame() &&
+                  this.props.data.observer_level === STRINGS.MASTER_TYPE
+                    ? this.onProcessGame
+                    : null
+                }
+              />
+              <div className={"orders"}>
+                {this.renderOrders(this.props.data, currentPowerName)}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div  style={{ flex: 1}}>
+        {this.renderTabCentaur(true, engine, currentPowerName)}
+        {this.renderTabChat(true, engine, currentPowerName)}
+
+        {!engine.isPlayerGame() && this.renderPowerInfo(engine)}
+        {localStorage.getItem("username") === "admin" &&
               this.renderLogs(engine, currentPowerName)}
-          </div>
-          <div className={"right"} style={{ width: "50%" }}>
-            {this.renderTabCentaur(true, engine, currentPowerName)}
-            {!engine.isPlayerGame() && this.renderPowerInfo(engine)}
-          </div>
+        </div>
         </div>
       </main>
     );
