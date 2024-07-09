@@ -52,6 +52,8 @@ export class Button extends React.Component {
         }
         disabled={this.props.disabled}
         onClick={this.onClick}
+        onMouseEnter={this.props.onMouseEnter}
+        onMouseLeave={this.props.onMouseLeave}
       >
         <strong>{this.props.title}</strong>
       </button>
@@ -62,6 +64,8 @@ export class Button extends React.Component {
 Button.propTypes = {
   title: PropTypes.string.isRequired,
   onClick: PropTypes.func.isRequired,
+  onMouseEnter: PropTypes.func,
+  onMouseLeave: PropTypes.func,
   color: PropTypes.string,
   large: PropTypes.bool,
   small: PropTypes.bool,

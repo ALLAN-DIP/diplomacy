@@ -198,6 +198,7 @@ export class ContentGame extends React.Component {
         RUSSIA: false,
         TURKEY: false,
       },
+      hoverOrders: [],
     };
 
     // Bind some class methods to this instance.
@@ -1765,6 +1766,9 @@ export class ContentGame extends React.Component {
           orders[entry[0]].push(orderObject.order);
       }
     }
+    for (let oo of this.state.hoverOrders) {
+      orders[powerName].push(oo);
+    }
     return (
       <div id="current-map" key="current-map">
         <Map
@@ -2070,6 +2074,13 @@ export class ContentGame extends React.Component {
               display: "flex",
               alignItems: "flex-end",
             }}
+            onMouseEnter={ () => {
+              let newMoves = [move]
+              this.setState({ hoverOrders: newMoves });
+            }}
+            onMouseLeave={ () => {
+              this.setState({ hoverOrders: [] });
+            }}
           >
             <ChatMessage
               style={{ flexGrow: 1 }}
@@ -2135,6 +2146,16 @@ export class ContentGame extends React.Component {
             style={{
               display: "flex",
               alignItems: "flex-end",
+            }}
+            onMouseEnter={ () => {
+              let newMoves = []
+              for (let move of suggestedMoves) {
+                newMoves.push(move)
+              }
+              this.setState({ hoverOrders: newMoves });
+            }}
+            onMouseLeave={ () => {
+              this.setState({ hoverOrders: [] });
             }}
           >
             <ChatMessage
@@ -2212,6 +2233,13 @@ export class ContentGame extends React.Component {
               display: "flex",
               alignItems: "flex-end",
             }}
+            onMouseEnter={ () => {
+              let newMoves = [move]
+              this.setState({ hoverOrders: newMoves });
+            }}
+            onMouseLeave={ () => {
+              this.setState({ hoverOrders: [] });
+            }}
           >
             <ChatMessage
               style={{ flexGrow: 1 }}
@@ -2277,6 +2305,16 @@ export class ContentGame extends React.Component {
             style={{
               display: "flex",
               alignItems: "flex-end",
+            }}
+            onMouseEnter={ () => {
+              let newMoves = []
+              for (let move of suggestedMoves) {
+                newMoves.push(move)
+              }
+              this.setState({ hoverOrders: newMoves });
+            }}
+            onMouseLeave={ () => {
+              this.setState({ hoverOrders: [] });
             }}
           >
             <ChatMessage
@@ -2735,14 +2773,7 @@ export class ContentGame extends React.Component {
       role,
       pastPhases[phaseIndex] === initialEngine.phase,
     );
-    //return pastPhases[phaseIndex] === initialEngine.phase
-    //  ? this.renderCurrentCentaur(engine, role)
-    //  : this.renderPastCentaur(engine, role);
   }
-
-  // ]
-
-  // [ React.Component overridden methods.
 
   render() {
     const engine = this.props.data;
