@@ -1364,7 +1364,7 @@ export class ContentGame extends React.Component {
     }
 
     return (
-      <div className={"col-lg-12 col-md-12"} style={{ height: "500px" }}>
+      <div className={"col-4"} style={{ height: "500px" }}>
         <MainContainer responsive>
           <Sidebar
             style={{ maxWidth: "200px" }}
@@ -1596,28 +1596,10 @@ export class ContentGame extends React.Component {
       }
     }
 
-    /* let sliderClicked = 0;
-
-    for (let power of Object.keys(this.state.stances)) {
-        if (
-            engine.role !== power &&
-            !engine.getPower(power).isEliminated()
-        ) {
-            sliderClicked++;
-        }
-    } */
-
-    /* let totalSliders = 0;
-    for (let power of Object.values(engine.powers)) {
-        if (engine.role !== power.name && !power.isEliminated()) {
-            totalSliders++;
-        }
-    } */
-
     const phaseType = engine.getPhaseType();
 
     return (
-      <div className={"col-lg-12 col-md-12"} style={{ height: "500px" }}>
+      <div className={"col-4"} style={{ height: "500px" }}>
         <MainContainer responsive>
           <Sidebar position="left" scrollable={true}>
             <ConversationList>{convList}</ConversationList>
@@ -1957,6 +1939,181 @@ export class ContentGame extends React.Component {
     );
   }
 
+  renderCentaurMessages(engine, role, isCurrent) {
+    const isAdmin =
+      engine.role === "omniscient_type" ||
+      engine.role === "master_type" ||
+      engine.role === "observer_type";
+
+    // for filtering message suggestions based on the current power talking to
+    const tabNames = [];
+    for (let powerName of Object.keys(engine.powers))
+      if (powerName !== role) tabNames.push(powerName);
+    tabNames.sort();
+    let protagnist;
+
+    if (isCurrent && this.state.tabCurrentMessages) {
+      protagnist = this.state.tabCurrentMessages;
+    } else if (!isCurrent && this.state.tabPastMessages) {
+      protagnist = this.state.tabPastMessages;
+    } else {
+      protagnist = tabNames[0];
+    }
+
+    const currentPowerName =
+      this.state.power ||
+      (engine.getControllablePowers().length &&
+        engine.getControllablePowers()[0]);
+
+    const messageChannels = engine.getMessageChannels(currentPowerName, true);
+    const globalMessages = messageChannels["GLOBAL"] || [];
+    let globalSuggestedMessages = [];
+
+    /*
+   * 0: no advisors
+     1: message only
+     2: move only
+     3: message and move
+   */
+    let suggestionType = 0;
+
+    const hasSuggestionMessage = globalMessages.some(
+      (msg) =>
+        msg.type === "has_suggestions" &&
+        msg.phase === engine.phase &&
+        msg.message.includes(currentPowerName),
+    );
+
+    if (hasSuggestionMessage) {
+      const powerSuggestions = globalMessages.filter(
+        (msg) =>
+          msg.type === "has_suggestions" &&
+          msg.phase === engine.phase &&
+          msg.message.includes(currentPowerName),
+      );
+      powerSuggestions.forEach((x) => {
+        const parts = x.message.split(":");
+        const p = parts[0].trim();
+        const t = parseInt(parts[1].trim());
+        if (p == currentPowerName) suggestionType = t;
+      });
+    }
+
+    for (let m of globalMessages) {
+      if (m.type === "suggested_message") {
+        globalSuggestedMessages.push(m);
+      }
+    }
+
+    const suggestedMessagesForCurrentPower =
+      globalSuggestedMessages.filter((msg) => {
+        if (!msg.message.includes(":") || !msg.message.includes("-"))
+          return false;
+        const ps = msg.message.split(":")[0].split("-");
+        const sender = ps[0];
+        const recipient = ps[1];
+        if (
+          sender === currentPowerName &&
+          recipient === protagnist &&
+          msg.phase === engine.phase
+        ) {
+          return true;
+        }
+        return false;
+      }) || [];
+
+    return (
+      <div className={"col-4"}>
+        {(suggestionType & 1) === 1 && (
+          <ChatContainer
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              flexGrow: 1,
+              border: "1px solid black",
+              boxSizing: "border-box",
+              marginTop: "10px",
+            }}
+          >
+            <ConversationHeader>
+              <ConversationHeader.Content
+                userName={`Messages Advice to ${protagnist}`}
+              />
+            </ConversationHeader>
+
+            <MessageList>
+              {suggestedMessagesForCurrentPower.map((m, i) => {
+                const content = m.message;
+                const suggestedMessage = content.split(":").slice(1).join(":");
+                const suggestedMessageRecipient = content
+                  .split(":")[0]
+                  .split("-")[1];
+
+                return (
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "flex-end",
+                    }}
+                  >
+                    <ChatMessage
+                      style={{ flexGrow: 1 }}
+                      model={{
+                        message: m.message,
+                        sent: m.sent_time,
+                        sender: m.sender,
+                        direction: "incoming",
+                        position: "single",
+                      }}
+                      avatarPosition={"tl"}
+                    ></ChatMessage>
+                    <div
+                      style={{
+                        flexGrow: 0,
+                        flexShrink: 0,
+                        display: "flex",
+                        alignItems: "flex-end",
+                      }}
+                    >
+                      <Button
+                        key={"a"}
+                        pickEvent={true}
+                        title={"add to textbox"}
+                        color={"success"}
+                        onClick={() => {
+                          this.setMessageInputValue(suggestedMessage);
+
+                          this.handleRecipientAnnotation(m, "accept");
+                        }}
+                        invisible={!(isCurrent && !isAdmin)}
+                        //disabled={this.state.annotatedMessages.hasOwnProperty(
+                        //  m.time_sent,
+                        //)}
+                      ></Button>
+                      <Button
+                        key={"r"}
+                        pickEvent={true}
+                        title={"reject"}
+                        color={"danger"}
+                        onClick={() => {
+                          this.handleRecipientAnnotation(m, "reject");
+                        }}
+                        invisible={!(isCurrent && !isAdmin)}
+                        //disabled={this.state.annotatedMessages.hasOwnProperty(
+                        //  m.time_sent,
+                        //)}
+                      ></Button>
+                    </div>
+                  </div>
+                );
+              })}
+            </MessageList>
+          </ChatContainer>
+        )}
+      </div>
+    );
+  }
+
   renderCurrentCentaur(engine, role, isCurrent) {
     const isAdmin =
       engine.role === "omniscient_type" ||
@@ -2074,11 +2231,11 @@ export class ContentGame extends React.Component {
               display: "flex",
               alignItems: "flex-end",
             }}
-            onMouseEnter={ () => {
-              let newMoves = [move]
+            onMouseEnter={() => {
+              let newMoves = [move];
               this.setState({ hoverOrders: newMoves });
             }}
-            onMouseLeave={ () => {
+            onMouseLeave={() => {
               this.setState({ hoverOrders: [] });
             }}
           >
@@ -2147,14 +2304,14 @@ export class ContentGame extends React.Component {
               display: "flex",
               alignItems: "flex-end",
             }}
-            onMouseEnter={ () => {
-              let newMoves = []
+            onMouseEnter={() => {
+              let newMoves = [];
               for (let move of suggestedMoves) {
-                newMoves.push(move)
+                newMoves.push(move);
               }
               this.setState({ hoverOrders: newMoves });
             }}
-            onMouseLeave={ () => {
+            onMouseLeave={() => {
               this.setState({ hoverOrders: [] });
             }}
           >
@@ -2233,11 +2390,11 @@ export class ContentGame extends React.Component {
               display: "flex",
               alignItems: "flex-end",
             }}
-            onMouseEnter={ () => {
-              let newMoves = [move]
+            onMouseEnter={() => {
+              let newMoves = [move];
               this.setState({ hoverOrders: newMoves });
             }}
-            onMouseLeave={ () => {
+            onMouseLeave={() => {
               this.setState({ hoverOrders: [] });
             }}
           >
@@ -2306,14 +2463,14 @@ export class ContentGame extends React.Component {
               display: "flex",
               alignItems: "flex-end",
             }}
-            onMouseEnter={ () => {
-              let newMoves = []
+            onMouseEnter={() => {
+              let newMoves = [];
               for (let move of suggestedMoves) {
-                newMoves.push(move)
+                newMoves.push(move);
               }
               this.setState({ hoverOrders: newMoves });
             }}
-            onMouseLeave={ () => {
+            onMouseLeave={() => {
               this.setState({ hoverOrders: [] });
             }}
           >
@@ -2379,25 +2536,8 @@ export class ContentGame extends React.Component {
       );
     }
 
-    const suggestedMessagesForCurrentPower =
-      globalSuggestedMessages.filter((msg) => {
-        if (!msg.message.includes(":") || !msg.message.includes("-"))
-          return false;
-        const ps = msg.message.split(":")[0].split("-");
-        const sender = ps[0];
-        const recipient = ps[1];
-        if (
-          sender === currentPowerName &&
-          recipient === protagnist &&
-          msg.phase === engine.phase
-        ) {
-          return true;
-        }
-        return false;
-      }) || [];
-
     return (
-      <div>
+      <div className={"col-xl mb-4"}>
         {!hasSuggestionMessage && <div>We haven't assigned advisors yet.</div>}
         {hasSuggestionMessage && suggestionType === 0 && (
           <div>You are on your own this turn.</div>
@@ -2430,92 +2570,6 @@ export class ContentGame extends React.Component {
             <MessageList>
               {fullSuggestionComponent}
               {partialSuggestionComponent}
-            </MessageList>
-          </ChatContainer>
-        )}
-        {(suggestionType & 1) === 1 && (
-          <ChatContainer
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              flexGrow: 1,
-              border: "1px solid black",
-              boxSizing: "border-box",
-              marginTop: "10px",
-            }}
-          >
-            <ConversationHeader>
-              <ConversationHeader.Content
-                userName={`Messages Advice to ${protagnist}`}
-              />
-            </ConversationHeader>
-
-            <MessageList>
-              {suggestedMessagesForCurrentPower.map((m, i) => {
-                const content = m.message;
-                const suggestedMessage = content.split(":").slice(1).join(":");
-                const suggestedMessageRecipient = content
-                  .split(":")[0]
-                  .split("-")[1];
-
-                return (
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "flex-end",
-                    }}
-                  >
-                    <ChatMessage
-                      style={{ flexGrow: 1 }}
-                      model={{
-                        message: m.message,
-                        sent: m.sent_time,
-                        sender: m.sender,
-                        direction: "incoming",
-                        position: "single",
-                      }}
-                      avatarPosition={"tl"}
-                    ></ChatMessage>
-                    <div
-                      style={{
-                        flexGrow: 0,
-                        flexShrink: 0,
-                        display: "flex",
-                        alignItems: "flex-end",
-                      }}
-                    >
-                      <Button
-                        key={"a"}
-                        pickEvent={true}
-                        title={"add to textbox"}
-                        color={"success"}
-                        onClick={() => {
-                          this.setMessageInputValue(suggestedMessage);
-
-                          this.handleRecipientAnnotation(m, "accept");
-                        }}
-                        invisible={!(isCurrent && !isAdmin)}
-                        //disabled={this.state.annotatedMessages.hasOwnProperty(
-                        //  m.time_sent,
-                        //)}
-                      ></Button>
-                      <Button
-                        key={"r"}
-                        pickEvent={true}
-                        title={"reject"}
-                        color={"danger"}
-                        onClick={() => {
-                          this.handleRecipientAnnotation(m, "reject");
-                        }}
-                        invisible={!(isCurrent && !isAdmin)}
-                        //disabled={this.state.annotatedMessages.hasOwnProperty(
-                        //  m.time_sent,
-                        //)}
-                      ></Button>
-                    </div>
-                  </div>
-                );
-              })}
             </MessageList>
           </ChatContainer>
         )}
@@ -2690,9 +2744,9 @@ export class ContentGame extends React.Component {
 
     return (
       <Tab id={"tab-current-phase"} display={toDisplay}>
-          <div className={"col-xl"}>
-            {this.renderMapForCurrent(engine, powerName, orderType, orderPath)}
-          </div>
+        <div className={"col-xl"}>
+          {this.renderMapForCurrent(engine, powerName, orderType, orderPath)}
+        </div>
       </Tab>
     );
   }
@@ -2725,6 +2779,17 @@ export class ContentGame extends React.Component {
       this.__get_engine_to_display(initialEngine);
 
     return this.renderCurrentCentaur(
+      engine,
+      role,
+      pastPhases[phaseIndex] === initialEngine.phase,
+    );
+  }
+
+  renderTabCentaurMessages(toDisplay, initialEngine, role) {
+    const { engine, pastPhases, phaseIndex } =
+      this.__get_engine_to_display(initialEngine);
+
+    return this.renderCentaurMessages(
       engine,
       role,
       pastPhases[phaseIndex] === initialEngine.phase,
@@ -2922,43 +2987,45 @@ export class ContentGame extends React.Component {
           phaseSel={this.__form_phases(pastPhases, phaseIndex)}
           navigation={navigation}
         />
-        <div style={{ display: "flex" }}>
-        <div style={{ flex: 1}}>
-        {phasePanel}
-        <div className={"col-xl"}>
-            {/* Orders. */}
-            <div
-              className={"panel-orders mb-4"}
-              style={{ maxHeight: "500px", overflowY: "scroll" }}
-            >
-            <div className="mb-4">{currentTabOrderCreation}</div>
-              
-              <PowerOrdersActionBar
-                onReset={this.reloadServerOrders}
-                onDeleteAll={this.onRemoveAllCurrentPowerOrders}
-                onUpdate={this.setOrders}
-                onProcess={
-                  !this.props.data.isPlayerGame() &&
-                  this.props.data.observer_level === STRINGS.MASTER_TYPE
-                    ? this.onProcessGame
-                    : null
-                }
-              />
-              <div className={"orders"}>
-                {this.renderOrders(this.props.data, currentPowerName)}
+        <div>
+          <Row>
+            {phasePanel}
+            {this.renderTabCentaur(true, engine, currentPowerName)}
+          </Row>
+          <Row>
+            <div className={"col-4"}>
+              {/* Orders. */}
+              <div
+                className={"panel-orders mb-4"}
+                style={{ maxHeight: "500px", overflowY: "scroll" }}
+              >
+                <div className="mb-4">{currentTabOrderCreation}</div>
+
+                <PowerOrdersActionBar
+                  onReset={this.reloadServerOrders}
+                  onDeleteAll={this.onRemoveAllCurrentPowerOrders}
+                  onUpdate={this.setOrders}
+                  onProcess={
+                    !this.props.data.isPlayerGame() &&
+                    this.props.data.observer_level === STRINGS.MASTER_TYPE
+                      ? this.onProcessGame
+                      : null
+                  }
+                />
+                <div className={"orders"}>
+                  {this.renderOrders(this.props.data, currentPowerName)}
+                </div>
               </div>
             </div>
-          </div>
-        </div>
+            {this.renderTabChat(true, engine, currentPowerName)}
+            {this.renderTabCentaurMessages(true, engine, currentPowerName)}
+          </Row>
 
-        <div  style={{ flex: 1}}>
-        {this.renderTabCentaur(true, engine, currentPowerName)}
-        {this.renderTabChat(true, engine, currentPowerName)}
-
-        {!engine.isPlayerGame() && this.renderPowerInfo(engine)}
-        {localStorage.getItem("username") === "admin" &&
+          <Row>
+            {!engine.isPlayerGame() && this.renderPowerInfo(engine)}
+            {localStorage.getItem("username") === "admin" &&
               this.renderLogs(engine, currentPowerName)}
-        </div>
+          </Row>
         </div>
       </main>
     );
