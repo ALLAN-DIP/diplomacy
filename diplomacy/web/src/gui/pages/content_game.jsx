@@ -1599,7 +1599,7 @@ export class ContentGame extends React.Component {
     const phaseType = engine.getPhaseType();
 
     return (
-      <div className={"col-4"} style={{ height: "500px" }}>
+      <div className={"col-4 mb-4"} style={{ height: "500px" }}>
         <MainContainer responsive>
           <Sidebar position="left" scrollable={true}>
             <ConversationList>{convList}</ConversationList>
@@ -2023,7 +2023,7 @@ export class ContentGame extends React.Component {
       }) || [];
 
     return (
-      <div className={"col-4"}>
+      <div className={"col-4 mb-4"}>
         {(suggestionType & 1) === 1 && (
           <ChatContainer
             style={{
@@ -2537,7 +2537,7 @@ export class ContentGame extends React.Component {
     }
 
     return (
-      <div className={"col-xl mb-4"}>
+      <div className={"col-xl mb-4 pb-4"}>
         {!hasSuggestionMessage && <div>We haven't assigned advisors yet.</div>}
         {hasSuggestionMessage && suggestionType === 0 && (
           <div>You are on your own this turn.</div>
@@ -2555,8 +2555,6 @@ export class ContentGame extends React.Component {
           <ChatContainer
             style={{
               display: "flex",
-              flexDirection: "column",
-              flexGrow: 1,
               border: "1px solid black",
               boxSizing: "border-box",
             }}
@@ -2992,7 +2990,7 @@ export class ContentGame extends React.Component {
             {phasePanel}
             {this.renderTabCentaur(true, engine, currentPowerName)}
           </Row>
-          <Row>
+          <Row className={"mb-4"}>
             <div className={"col-4"}>
               {/* Orders. */}
               <div
