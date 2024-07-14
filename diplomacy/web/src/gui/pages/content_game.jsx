@@ -2177,10 +2177,12 @@ export class ContentGame extends React.Component {
 
     // split suggestions into moves and messages
     for (let m of globalMessages) {
-      if (m.type === "suggested_message") {
-        globalSuggestedMessages.push(m);
-      } else if (m.type.includes("move")) {
-        globalSuggestedMoves.push(m);
+      if (m.type) {
+        if (m.type === "suggested_message") {
+          globalSuggestedMessages.push(m);
+        } else if (m.type.includes("move")) {
+          globalSuggestedMoves.push(m);
+        }
       }
     }
 
