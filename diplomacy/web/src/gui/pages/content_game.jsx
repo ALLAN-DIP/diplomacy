@@ -864,65 +864,6 @@ export class ContentGame extends React.Component {
     }
   }
 
-  sendMessage(networkGame, recipient, body) {
-    const engine = networkGame.local;
-    const message = new Message({
-      phase: engine.phase,
-      sender: engine.role,
-      recipient: recipient,
-      message: body,
-    });
-
-    const tempDaide =
-      "FRM (" +
-      powerShortForm[message.sender] +
-      ")" +
-      " (" +
-      powerShortForm[message.recipient] +
-      ") (" +
-      message.message +
-      ")";
-    const daideCompMessage = new DaideComposerMessage({
-      phase: networkGame.local.phase,
-      sender: message.sender,
-      recipient: message.recipient,
-      message: "",
-      negotiation: "{}",
-      daide: tempDaide,
-      gloss: true,
-    });
-    const page = this.getPage();
-    networkGame
-      .sendGameMessage({ message: message })
-      .then(() =>
-        networkGame.sendDaideComposerMessage({ message: daideCompMessage }),
-      )
-      .then((transMessage) => {
-        console.log("TEST3");
-        console.log(transMessage);
-        const parsedMessage = JSON.parse(transMessage);
-        if (parsedMessage.message !== "Ahem.") {
-          //Message is most likely daide
-          //Update message with gloss
-          networkGame.local.addGlossToMessage(
-            message.time_sent,
-            parsedMessage.message,
-          );
-        }
-      })
-      .then(() => {
-        this.setState({ message: "" });
-        page.load(
-          `game: ${networkGame.local.game_id}`,
-          <ContentGame data={networkGame.local} />,
-          { success: `Message sent: ${JSON.stringify(message)}` },
-        );
-      })
-      .catch((error) => {
-        page.error(error.toString());
-      });
-  }
-
   sendRecipientAnnotation(networkGame, time_sent, annotation) {
     const page = this.getPage();
     const info = { time_sent: time_sent, annotation: annotation };
