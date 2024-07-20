@@ -2085,7 +2085,9 @@ export class ContentGame extends React.Component {
 
                           this.handleRecipientAnnotation(m, "accept");
                         }}
-                        invisible={!(isCurrent && !isAdmin)}
+                        invisible={!(isCurrent && !isAdmin && !this.state.annotatedMessages.hasOwnProperty(
+                            m.time_sent,
+                          ))}
                         //disabled={this.state.annotatedMessages.hasOwnProperty(
                         //  m.time_sent,
                         //)}
@@ -2098,7 +2100,9 @@ export class ContentGame extends React.Component {
                         onClick={() => {
                           this.handleRecipientAnnotation(m, "reject");
                         }}
-                        invisible={!(isCurrent && !isAdmin)}
+                        invisible={!(isCurrent && !isAdmin && !this.state.annotatedMessages.hasOwnProperty(
+                          m.time_sent,
+                        ))}
                         //disabled={this.state.annotatedMessages.hasOwnProperty(
                         //  m.time_sent,
                         //)}
