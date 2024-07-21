@@ -2054,6 +2054,7 @@ export class ContentGame extends React.Component {
                     style={{
                       display: "flex",
                       alignItems: "flex-end",
+                      display: !this.state.annotatedMessages.hasOwnProperty(m.time_sent) ? "flex" : "none",
                     }}
                   >
                     <ChatMessage
@@ -2085,9 +2086,7 @@ export class ContentGame extends React.Component {
 
                           this.handleRecipientAnnotation(m, "accept");
                         }}
-                        invisible={!(isCurrent && !isAdmin && !this.state.annotatedMessages.hasOwnProperty(
-                            m.time_sent,
-                          ))}
+                        invisible={!(isCurrent && !isAdmin)}
                         //disabled={this.state.annotatedMessages.hasOwnProperty(
                         //  m.time_sent,
                         //)}
@@ -2100,9 +2099,7 @@ export class ContentGame extends React.Component {
                         onClick={() => {
                           this.handleRecipientAnnotation(m, "reject");
                         }}
-                        invisible={!(isCurrent && !isAdmin && !this.state.annotatedMessages.hasOwnProperty(
-                          m.time_sent,
-                        ))}
+                        invisible={!(isCurrent && !isAdmin)}
                         //disabled={this.state.annotatedMessages.hasOwnProperty(
                         //  m.time_sent,
                         //)}
