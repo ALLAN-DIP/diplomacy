@@ -30,8 +30,6 @@ import { Message } from "../../diplomacy/engine/message";
 import { PowerOrders } from "../components/power_orders";
 import { STRINGS } from "../../diplomacy/utils/strings";
 import { Diplog } from "../../diplomacy/utils/diplog";
-import { Table } from "../components/table";
-import { PowersInfoTable } from "../components/powers_info_table";
 import { AdminPowersInfoTable } from "../components/admin_powers_info_table";
 import { PlayerPowersInfoTable } from "../components/PlayerPowersInfoTable";
 import { PowerView } from "../utils/power_view";
@@ -105,13 +103,6 @@ const HotKey = require("react-shortcut");
  * */
 
 const TABLE_POWER_VIEW = {
-  name: ["Power", 0],
-  controller: ["Controller", 1],
-  order_is_set: ["With orders", 2],
-  wait: ["Ready", 3],
-};
-
-const TABLE_POWER_VIEW_OMNISCIENT = {
   name: ["Power", 0],
   controller: ["Controller", 1],
   order_is_set: ["With orders", 2],
@@ -1995,7 +1986,7 @@ export class ContentGame extends React.Component {
         const parts = x.message.split(":");
         const p = parts[0].trim();
         const t = parseInt(parts[1].trim());
-        if (p == currentPowerName) suggestionType = t;
+        if (p === currentPowerName) suggestionType = t;
       });
     }
 
@@ -2015,7 +2006,7 @@ export class ContentGame extends React.Component {
         if (
           sender === currentPowerName &&
           recipient === protagnist &&
-          msg.phase === engine.phase && 
+          msg.phase === engine.phase &&
           !this.state.annotatedMessages.hasOwnProperty(msg.time_sent)
         ) {
           return true;
@@ -2046,16 +2037,16 @@ export class ContentGame extends React.Component {
               {suggestedMessagesForCurrentPower.map((m, i) => {
                 const content = m.message;
                 const suggestedMessage = content.split(":").slice(1).join(":");
-                const suggestedMessageRecipient = content
-                  .split(":")[0]
-                  .split("-")[1];
 
                 return (
                   <div
                     style={{
-                      display: "flex",
                       alignItems: "flex-end",
-                      display: !this.state.annotatedMessages.hasOwnProperty(m.time_sent) ? "flex" : "none",
+                      display: !this.state.annotatedMessages.hasOwnProperty(
+                        m.time_sent,
+                      )
+                        ? "flex"
+                        : "none",
                     }}
                   >
                     <ChatMessage
@@ -2127,15 +2118,6 @@ export class ContentGame extends React.Component {
     for (let powerName of Object.keys(engine.powers))
       if (powerName !== role) tabNames.push(powerName);
     tabNames.sort();
-    let protagnist;
-
-    if (isCurrent && this.state.tabCurrentMessages) {
-      protagnist = this.state.tabCurrentMessages;
-    } else if (!isCurrent && this.state.tabPastMessages) {
-      protagnist = this.state.tabPastMessages;
-    } else {
-      protagnist = tabNames[0];
-    }
 
     const currentPowerName =
       this.state.power ||
@@ -2173,7 +2155,7 @@ export class ContentGame extends React.Component {
         const parts = x.message.split(":");
         const p = parts[0].trim();
         const t = parseInt(parts[1].trim());
-        if (p == currentPowerName) suggestionType = t;
+        if (p === currentPowerName) suggestionType = t;
       });
     }
 
@@ -2592,23 +2574,6 @@ export class ContentGame extends React.Component {
     powerNames.sort();
     filteredPowerNames.sort();
 
-    const orderedPowers = powerNames.map((pn) => engine.powers[pn]);
-
-    let sliderClicked = 0;
-
-    for (let power of Object.keys(this.state.stances)) {
-      if (engine.role !== power && !engine.getPower(power).isEliminated()) {
-        sliderClicked++;
-      }
-    }
-
-    let totalSliders = 0;
-    for (let power of Object.values(engine.powers)) {
-      if (engine.role !== power.name && !power.isEliminated()) {
-        totalSliders++;
-      }
-    }
-
     const currentPowerName =
       this.state.power ||
       (engine.getControllablePowers().length &&
@@ -2696,7 +2661,7 @@ export class ContentGame extends React.Component {
             <ConversationHeader>
               <ConversationHeader.Content
                 userName={
-                  role.toString() + " (" + curController + ")" + "'s Log"
+                  curController
                 }
               />
             </ConversationHeader>
@@ -2738,11 +2703,6 @@ export class ContentGame extends React.Component {
   ) {
     const powerNames = Object.keys(engine.powers);
     powerNames.sort();
-    const serverOrders = this.__get_orders(engine);
-    const powerOrders = serverOrders[currentPowerName] || [];
-    let numOrderText = `[${Object.keys(powerOrders).length}/${
-      engine.orderableLocations[currentPowerName].length
-    }] moves have been set.`;
 
     return (
       <Tab id={"tab-current-phase"} display={toDisplay}>
