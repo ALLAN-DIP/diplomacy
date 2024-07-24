@@ -31,6 +31,7 @@ import { Message } from "../../diplomacy/engine/message";
 import { PowerOrders } from "../components/power_orders";
 import { STRINGS } from "../../diplomacy/utils/strings";
 import { Diplog } from "../../diplomacy/utils/diplog";
+import { Table } from "../components/table";
 import { AdminPowersInfoTable } from "../components/admin_powers_info_table";
 import { PlayerPowersInfoTable } from "../components/PlayerPowersInfoTable";
 import { PowerView } from "../utils/power_view";
@@ -1805,6 +1806,7 @@ export class ContentGame extends React.Component {
       );
     });
 
+    const renderedMessages = [];
     let protagonist = currentTabId;
 
     let msgs = messageChannels[protagonist];
@@ -3092,6 +3094,8 @@ export class ContentGame extends React.Component {
   ) {
     const powerNames = Object.keys(engine.powers);
     powerNames.sort();
+
+    const orderedPowers = powerNames.map((pn) => engine.powers[pn]);
 
     const serverOrders = this.__get_orders(engine);
     const powerOrders = serverOrders[currentPowerName] || [];
