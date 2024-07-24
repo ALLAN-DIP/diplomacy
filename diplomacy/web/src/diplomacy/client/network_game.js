@@ -95,6 +95,10 @@ export class NetworkGame {
         return this._req(Channel.prototype.sendGameMessage, parameters);
     }
 
+    sendDaideComposerMessage(parameters) {
+        return this._req(Channel.prototype.sendDaideComposerMessage, parameters);
+    }
+
     sendLogData(parameters) {
         return this._req(Channel.prototype.sendLogData, parameters);
     }
@@ -133,6 +137,10 @@ export class NetworkGame {
 
     setWait(wait, parameters) {
         return wait ? this.wait(parameters) : this.noWait(parameters);
+    }
+
+    setCommStatus(parameters) {
+        return this._req(Channel.prototype.setCommStatus, parameters)
     }
 
     vote(parameters) {
@@ -255,6 +263,10 @@ export class NetworkGame {
 
     addOnPowerWaitFlag(callback) {
         this.addCallback('power_wait_flag', callback);
+    }
+
+    addOnCommStatusUpdate(callback) {
+        this.addCallback('power_comm_status_update', callback)
     }
 
     addOnVoteCountUpdated(callback) {
