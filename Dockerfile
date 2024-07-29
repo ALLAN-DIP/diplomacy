@@ -47,3 +47,5 @@ EXPOSE 8432
 EXPOSE 8434-8600
 
 CMD ["bash", "-c", "python -m http.server 3000 --directory diplomacy/web/build/ & python -m diplomacy.server.run"]
+
+LABEL org.opencontainers.image.source=https://github.com/ALLAN-DIP/diplomacy
