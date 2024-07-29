@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM node:20.13.1-bookworm-slim AS app-builder
+FROM node:20.16.0-bookworm-slim AS app-builder
 
 WORKDIR /app
 
