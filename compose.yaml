@@ -1,7 +1,8 @@
 services:
   diplomacy:
-    image: diplomacy:latest
+    image: ghcr.io/allan-dip/diplomacy:${TAG:-latest}
     container_name: diplomacy
+    pull_policy: ${PULL_POLICY:-always}
     restart: always
     ports:
       - 3000:3000 # Web UI
