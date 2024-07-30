@@ -302,6 +302,8 @@ class Server:
         diplomacy_map_dir = os.path.join(diplomacy.settings.PACKAGE_DIR, strings.MAPS)
         new_maps_mtime = self.maps_mtime
         for filename in os.listdir(diplomacy_map_dir):
+            if diplomacy.settings.MAPS_TO_LOAD and filename not in diplomacy.settings.MAPS_TO_LOAD:
+                continue
             if filename.endswith('.map'):
                 map_filename = os.path.join(diplomacy_map_dir, filename)
                 map_mtime = os.path.getmtime(map_filename)

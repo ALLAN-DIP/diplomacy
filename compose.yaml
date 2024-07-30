@@ -8,5 +8,7 @@ services:
       - 3000:3000 # Web UI
       - 8432:8432 # Agent API
       - 8434-8600:8434-8600 # DAIDE server
+    environment:
+      MAPS_TO_LOAD: ${MAPS_TO_LOAD}
     volumes:
       - .cache/maps/:/app/maps/

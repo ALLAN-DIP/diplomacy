@@ -28,3 +28,9 @@ if "PRESSGLOSS_URL" in os.environ:
     PRESSGLOSS_URL = os.environ["PRESSGLOSS_URL"]
 else:
     PRESSGLOSS_URL = 'http://129.114.99.77:5000'
+
+maps_to_load_str = os.environ.get("MAPS_TO_LOAD")
+if maps_to_load_str:
+    MAPS_TO_LOAD = set(maps_to_load_str.split(','))
+else:
+    MAPS_TO_LOAD = set()
