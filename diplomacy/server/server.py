@@ -84,6 +84,7 @@ from diplomacy.server.server_game import ServerGame
 from diplomacy.server.users import Users
 from diplomacy.engine.map import Map
 from diplomacy.utils import common, exceptions, strings, constants, convoy_paths
+from diplomacy.utils.constants import DEFAULT_PORT
 
 LOGGER = logging.getLogger(__name__)
 
@@ -495,7 +496,7 @@ class Server:
         if self.backend is not None:
             raise exceptions.DiplomacyException('Server is already running on port %s.' % self.backend.port)
         if port is None:
-            port = 8433
+            port = DEFAULT_PORT
         if io_loop is None:
             io_loop = tornado.ioloop.IOLoop.instance()
         handlers = [
