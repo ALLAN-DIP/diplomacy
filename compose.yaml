@@ -5,7 +5,7 @@ services:
     pull_policy: ${PULL_POLICY:-always}
     restart: always
     ports:
-      - 3000:3000 # Web UI
+      - 3000:80 # Web UI
       - 8432:8432 # Agent API
       - 8434-8600:8434-8600 # DAIDE server
     environment:
