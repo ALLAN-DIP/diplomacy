@@ -495,7 +495,7 @@ class Server:
         if self.backend is not None:
             raise exceptions.DiplomacyException('Server is already running on port %s.' % self.backend.port)
         if port is None:
-            port = 8432
+            port = 8433
         if io_loop is None:
             io_loop = tornado.ioloop.IOLoop.instance()
         handlers = [

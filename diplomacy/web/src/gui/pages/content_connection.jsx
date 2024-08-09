@@ -100,7 +100,7 @@ export class ContentConnection extends React.Component {
             const storage = DipStorage.getConnectionForm();
             const username = storage.username;
             const password = storage.password;
-            this.onSubmit({"hostname": window.location.hostname, "port": 8432, "username": username, "password": password, "showServerFields": false});
+            this.onSubmit({"hostname": window.location.hostname, "port": 8433, "username": username, "password": password, "showServerFields": false});
         }
     }
 }

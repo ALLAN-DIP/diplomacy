@@ -42,7 +42,7 @@ COPY --from=app-builder /app/build /app/diplomacy/web/build
 # Web UI
 EXPOSE 80
 # Agent API
-EXPOSE 8432
+EXPOSE 8433
 # DAIDE server
 EXPOSE 8434-8600
 
