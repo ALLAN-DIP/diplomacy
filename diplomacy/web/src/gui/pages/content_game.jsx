@@ -2341,9 +2341,6 @@ export class ContentGame extends React.Component {
                   );
                 }}
                 invisible={!(isCurrent && !isAdmin)}
-                //disabled={this.state.annotatedMessages.hasOwnProperty(
-                //  latestMoveSuggestionFull.time_sent,
-                //)}
               ></Button>
               <Button
                 key={"r"}
@@ -2357,9 +2354,6 @@ export class ContentGame extends React.Component {
                   );
                 }}
                 invisible={!(isCurrent && !isAdmin)}
-                //disabled={this.state.annotatedMessages.hasOwnProperty(
-                //  latestMoveSuggestionFull.time_sent,
-                //)}
               ></Button>
             </div>
           </div>
@@ -2422,9 +2416,6 @@ export class ContentGame extends React.Component {
                   );
                 }}
                 invisible={!(isCurrent && !isAdmin)}
-                //disabled={this.state.annotatedMessages.hasOwnProperty(
-                //  latestMoveSuggestionPartial.time_sent,
-                //)}
               ></Button>
             </div>
           </div>
@@ -2484,9 +2475,6 @@ export class ContentGame extends React.Component {
                   );
                 }}
                 invisible={!(isCurrent && !isAdmin)}
-                //disabled={this.state.annotatedMessages.hasOwnProperty(
-                //  latestMoveSuggestionPartial.time_sent,
-                //)}
               ></Button>
               <Button
                 key={"r"}
@@ -2500,9 +2488,6 @@ export class ContentGame extends React.Component {
                   );
                 }}
                 invisible={!(isCurrent && !isAdmin)}
-                //disabled={this.state.annotatedMessages.hasOwnProperty(
-                //  latestMoveSuggestionPartial.time_sent,
-                //)}
               ></Button>
             </div>
           </div>
