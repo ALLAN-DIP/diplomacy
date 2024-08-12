@@ -2086,7 +2086,7 @@ export class ContentGame extends React.Component {
                       <Button
                         key={"r"}
                         pickEvent={true}
-                        title={"reject"}
+                        title={"dismiss"}
                         color={"danger"}
                         onClick={() => {
                           this.handleRecipientAnnotation(m, "reject");
