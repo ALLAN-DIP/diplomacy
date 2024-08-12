@@ -2201,6 +2201,27 @@ export class ContentGame extends React.Component {
       }
     }
 
+    // do not display if player dismissed the suggestion
+    if (latestMoveSuggestionFull) {
+      const sent_time = latestMoveSuggestionFull.time_sent;
+      if (
+        this.state.annotatedMessages.hasOwnProperty(sent_time) &&
+        this.state.annotatedMessages[sent_time] === "reject"
+      ) {
+        latestMoveSuggestionFull = null;
+      }
+    }
+
+    if (latestMoveSuggestionPartial) {
+      const sent_time = latestMoveSuggestionPartial.time_sent;
+      if (
+        this.state.annotatedMessages.hasOwnProperty(sent_time) &&
+        this.state.annotatedMessages[sent_time] === "reject"
+      ) {
+        latestMoveSuggestionPartial = null;
+      }
+    }
+
     let fullSuggestionComponent = null;
     let partialSuggestionComponent = null;
 
@@ -2255,22 +2276,6 @@ export class ContentGame extends React.Component {
                   this.handleRecipientAnnotation(
                     latestMoveSuggestionFull,
                     `accept ${move}`,
-                  );
-                }}
-                invisible={!(isCurrent && !isAdmin)}
-                //disabled={this.state.annotatedMessages.hasOwnProperty(
-                //  latestMoveSuggestionFull.time_sent,
-                //)}
-              ></Button>
-              <Button
-                key={"r"}
-                pickEvent={true}
-                title={"reject"}
-                color={"danger"}
-                onClick={() => {
-                  this.handleRecipientAnnotation(
-                    latestMoveSuggestionFull,
-                    "reject",
                   );
                 }}
                 invisible={!(isCurrent && !isAdmin)}
@@ -2343,7 +2348,7 @@ export class ContentGame extends React.Component {
               <Button
                 key={"r"}
                 pickEvent={true}
-                title={"reject"}
+                title={"dismiss"}
                 color={"danger"}
                 onClick={() => {
                   this.handleRecipientAnnotation(
@@ -2421,22 +2426,6 @@ export class ContentGame extends React.Component {
                 //  latestMoveSuggestionPartial.time_sent,
                 //)}
               ></Button>
-              <Button
-                key={"r"}
-                pickEvent={true}
-                title={"reject"}
-                color={"danger"}
-                onClick={() => {
-                  this.handleRecipientAnnotation(
-                    latestMoveSuggestionPartial,
-                    "reject",
-                  );
-                }}
-                invisible={!(isCurrent && !isAdmin)}
-                //disabled={this.state.annotatedMessages.hasOwnProperty(
-                //  latestMoveSuggestionPartial.time_sent,
-                //)}
-              ></Button>
             </div>
           </div>
         );
@@ -2502,7 +2491,7 @@ export class ContentGame extends React.Component {
               <Button
                 key={"r"}
                 pickEvent={true}
-                title={"reject"}
+                title={"dismiss"}
                 color={"danger"}
                 onClick={() => {
                   this.handleRecipientAnnotation(
@@ -2659,11 +2648,7 @@ export class ContentGame extends React.Component {
         <MainContainer responsive>
           <ChatContainer>
             <ConversationHeader>
-              <ConversationHeader.Content
-                userName={
-                  curController
-                }
-              />
+              <ConversationHeader.Content userName={curController} />
             </ConversationHeader>
             <MessageList>{renderedLogs}</MessageList>
           </ChatContainer>
