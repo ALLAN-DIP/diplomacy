@@ -14,7 +14,7 @@
 //  You should have received a copy of the GNU Affero General Public License along
 //  with this program.  If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
-import React from "react";
+import React, { useCallback } from "react";
 import { SelectLocationForm } from "../forms/select_location_form";
 import { SelectViaForm } from "../forms/select_via_form";
 import { Order } from "../utils/order";
@@ -25,11 +25,13 @@ import {
   POSSIBLE_ORDERS,
 } from "../utils/order_building";
 import { PowerOrderCreationForm } from "../forms/power_order_creation_form";
+import { MessageForm } from "../forms/message_form";
 import { UTILS } from "../../diplomacy/utils/utils";
 import { Message } from "../../diplomacy/engine/message";
 import { PowerOrders } from "../components/power_orders";
 import { STRINGS } from "../../diplomacy/utils/strings";
 import { Diplog } from "../../diplomacy/utils/diplog";
+import { Table } from "../components/table";
 import { AdminPowersInfoTable } from "../components/admin_powers_info_table";
 import { PlayerPowersInfoTable } from "../components/PlayerPowersInfoTable";
 import { PowerView } from "../utils/power_view";
@@ -51,16 +53,22 @@ import { SvgPure } from "../maps/pure/SvgPure";
 import { MapData } from "../utils/map_data";
 import { Queue } from "../../diplomacy/utils/queue";
 import styles from "@chatscope/chat-ui-kit-styles/dist/default/styles.min.css";
+import { default as Tabs2 } from "@mui/material/Tabs";
+import { default as Tab2 } from "@mui/material/Tab";
+import Box from "@mui/material/Box";
+
 import {
   MainContainer,
   ChatContainer,
   MessageList,
   MessageSeparator,
+  MessageInput,
   Sidebar,
   ConversationList,
   Conversation,
   ConversationHeader,
   Avatar,
+  Button as ChatButton,
   Message as ChatMessage,
 } from "@chatscope/chat-ui-kit-react";
 import AUS from "../assets/AUS.png";
@@ -71,6 +79,9 @@ import ITA from "../assets/ITA.png";
 import RUS from "../assets/RUS.png";
 import TUR from "../assets/TUR.png";
 import GLOBAL from "../assets/GLOBAL.png";
+import { Forms } from "../components/forms";
+import Grid from "@mui/material/Grid";
+import { DaideComposerMessage } from "../components/DaideComposerMessage";
 
 const POWER_ICONS = {
   AUSTRIA: AUS,
@@ -85,6 +96,15 @@ const POWER_ICONS = {
 };
 
 const HotKey = require("react-shortcut");
+const powerShortForm = {
+  AUSTRIA: "AUS",
+  FRANCE: "FRA",
+  GERMANY: "GER",
+  ENGLAND: "ENG",
+  ITALY: "ITA",
+  RUSSIA: "RUS",
+  TURKEY: "TUR",
+};
 
 /* Order management in game page.
  * When editing orders locally, we have to compare it to server orders
@@ -107,6 +127,15 @@ const TABLE_POWER_VIEW = {
   controller: ["Controller", 1],
   order_is_set: ["With orders", 2],
   wait: ["Ready", 3],
+  comm_status: ["Comm. Status", 4],
+};
+
+const TABLE_POWER_VIEW_OMNISCIENT = {
+  name: ["Power", 0],
+  controller: ["Controller", 1],
+  order_is_set: ["With orders", 2],
+  wait: ["Ready", 3],
+  comm_status: ["Comm. Status", 4],
 };
 
 const PRETTY_ROLES = {
@@ -190,6 +219,10 @@ export class ContentGame extends React.Component {
         TURKEY: false,
       },
       hoverOrders: [],
+      gloss: false,
+      glossMessage: "",
+      daideMessage: "",
+      tabVal: 0,
     };
 
     // Bind some class methods to this instance.
@@ -236,11 +269,17 @@ export class ContentGame extends React.Component {
     this.sendDeceiving = this.sendDeceiving.bind(this);
     this.sendRecipientAnnotation = this.sendRecipientAnnotation.bind(this);
     this.setOrders = this.setOrders.bind(this);
+    this.getDaide = this.getDaide.bind(this);
+    this.clearDaideComp = this.clearDaideComp.bind(this);
     this.setSelectedLocation = this.setSelectedLocation.bind(this);
     this.setSelectedVia = this.setSelectedVia.bind(this);
     this.setWaitFlag = this.setWaitFlag.bind(this);
+    this.setCommStatus = this.setCommStatus.bind(this);
     this.vote = this.vote.bind(this);
     this.updateDeadlineTimer = this.updateDeadlineTimer.bind(this);
+    this.updateTabVal = this.updateTabVal.bind(this);
+    this.copyToChat = this.copyToChat.bind(this);
+    this.handlePaste = this.handlePaste.bind(this);
   }
 
   static prettyRole(role) {
@@ -286,6 +325,15 @@ export class ContentGame extends React.Component {
       wait[powerName] = engine.powers[powerName].wait;
     }
     return wait;
+  }
+
+  static getCommStatuses(engine) {
+    const commStatus = {};
+    const controllablePowers = engine.getControllablePowers();
+    for (let powerName of controllablePowers) {
+      commStatus[powerName] = engine.powers[powerName].comm_status;
+    }
+    return commStatus;
   }
 
   static getOrderBuilding(powerName, orderType, orderPath) {
@@ -526,6 +574,26 @@ export class ContentGame extends React.Component {
   }
 
   notifiedNewGameMessage(networkGame, notification) {
+    const msg = notification.message;
+    const tempDaide =
+      "FRM (" +
+      powerShortForm[notification.message.sender] +
+      ")" +
+      " (" +
+      powerShortForm[notification.message.recipient] +
+      ") (" +
+      msg.message +
+      ")";
+    const message = new DaideComposerMessage({
+      phase: networkGame.local.phase,
+      sender: msg.sender,
+      recipient: msg.recipient,
+      message: "",
+      negotiation: "{}",
+      daide: tempDaide,
+      gloss: true,
+    });
+
     let protagonist = notification.message.sender;
     if (notification.message.recipient === "GLOBAL")
       protagonist = notification.message.recipient;
@@ -540,9 +608,22 @@ export class ContentGame extends React.Component {
     } else {
       ++messageHighlights["messages"];
     }
-    return this.setState({ messageHighlights: messageHighlights }).then(() =>
-      this.notifiedNetworkGame(networkGame, notification),
-    );
+    return this.setState({ messageHighlights: messageHighlights })
+      .then(() => networkGame.sendDaideComposerMessage({ message: message }))
+      .then((transMessage) => {
+        console.log("TEST1");
+        console.log(transMessage);
+        const parsedMessage = JSON.parse(transMessage);
+        if (parsedMessage.message !== "Ahem.") {
+          //Message is most likely daide
+          //Update message with gloss
+          networkGame.local.addGlossToMessage(
+            notification.message.time_sent,
+            parsedMessage.message,
+          );
+        }
+      })
+      .then(() => this.notifiedNetworkGame(networkGame, notification));
   }
 
   bindCallbacks(networkGame) {
@@ -571,6 +652,7 @@ export class ContentGame extends React.Component {
         case "omniscient_updated":
         case "power_vote_updated":
         case "power_wait_flag":
+        case "power_comm_status_update":
         case "vote_count_updated":
         case "vote_updated":
           return this.notifiedNetworkGame(networkGame, notification);
@@ -594,6 +676,7 @@ export class ContentGame extends React.Component {
       networkGame.addOnOmniscientUpdated(collector);
       networkGame.addOnPowerVoteUpdated(collector);
       networkGame.addOnPowerWaitFlag(collector);
+      networkGame.addOnCommStatusUpdate(collector);
       networkGame.addOnVoteCountUpdated(collector);
       networkGame.addOnVoteUpdated(collector);
       networkGame.callbacksBound = true;
@@ -628,11 +711,24 @@ export class ContentGame extends React.Component {
     return this.setState({ message: val });
   }
 
+  handlePaste(event) {
+    event.preventDefault();
+    let txt = event.clipboardData.getData("text/plain");
+    txt = txt.replace(/&nbsp;/, "");
+
+    if (this.state.message) {
+      let curText = this.state.message.replace(/&nbsp;/, "");
+      txt = curText + txt;
+    }
+    console.log("Pasted text " + txt);
+    return this.setMessageInputValue(txt);
+  }
+
   setlogDataInputValue(val) {
     return this.setState({ logData: val });
   }
 
-  handleStance = (country, stance) => {
+  handleStance(country, stance) {
     const engine = this.props.data;
     const power = engine.getPower(engine.role);
 
@@ -647,9 +743,9 @@ export class ContentGame extends React.Component {
         "Will not update stance of a noncontrollable power.",
       );
     }
-  };
+  }
 
-  handleIsBot = (country, isBot) => {
+  handleIsBot(country, isBot) {
     const engine = this.props.data;
     const power = engine.getPower(engine.role);
 
@@ -664,7 +760,7 @@ export class ContentGame extends React.Component {
         "Will not update stance of a noncontrollable power.",
       );
     }
-  };
+  }
 
   sendOrderLog(networkGame, logType, order) {
     const engine = networkGame.local;
@@ -689,7 +785,7 @@ export class ContentGame extends React.Component {
     networkGame.sendOrderLog({ log: message });
   }
 
-  handleRecipientAnnotation = (message, annotation) => {
+  handleRecipientAnnotation(message, annotation) {
     const engine = this.props.data;
     const newAnnotatedMessages = {
       ...this.state.annotatedMessages,
@@ -698,7 +794,76 @@ export class ContentGame extends React.Component {
     this.setState({ annotatedMessages: newAnnotatedMessages });
 
     this.sendRecipientAnnotation(engine.client, message.time_sent, annotation);
-  };
+  }
+
+  updateTabVal(event, value) {
+    return this.setState({ tabVal: value, gloss: false });
+  }
+
+  clearDaideComp(networkGame, recipient, negotiation, body, daide, gloss) {
+    const engine = networkGame.local;
+
+    this.setState({
+      gloss: false,
+      glossMessage: "",
+      daideMessage: "",
+    });
+    const page = this.getPage();
+
+    page.load(`game: ${engine.game_id}`, <ContentGame data={engine} />, {
+      success: `DAIDE Composer Message Cleared`,
+    });
+  }
+
+  getDaide(networkGame, recipient, negotiation, body, daide, gloss) {
+    const engine = networkGame.local;
+    const message = new DaideComposerMessage({
+      phase: engine.phase,
+      sender: engine.role,
+      recipient: recipient,
+      message: body,
+      negotiation: negotiation,
+      daide: daide,
+      gloss: gloss,
+    });
+    const page = this.getPage();
+
+    networkGame
+      .sendDaideComposerMessage({ message: message })
+      .then((tempMessage) => {
+        // when we get the message response, handle dealing with the gloss state
+        const daideCompMessage = JSON.parse(tempMessage);
+        const daideCompGloss = daideCompMessage.message;
+        const daide = daideCompMessage.daide;
+
+        this.setState({
+          gloss: true,
+          glossMessage: daideCompGloss,
+          daideMessage: daide,
+        });
+        /*if (message.gloss) {
+                    // we just store the message in local state, it doesn't end up
+                    // in the sortedDict with all the other messages (see game.js addMessage)
+                    this.setState({
+                        gloss: true, glossMessage: JSON.parse(message.time_sent).message
+                    });
+                } else if (!message.gloss) {
+                    // or clear it if it isn't a gloss message
+                    this.setState({ gloss: null, glossMessage: null });
+                }*/
+
+        page.load(`game: ${engine.game_id}`, <ContentGame data={engine} />, {
+          success: `Message sent: ${JSON.stringify(message)}`,
+        });
+      })
+      .catch((error) => page.error(error.toString()));
+  }
+
+  copyToChat() {
+    if (this.state.gloss && this.state.daideMessage !== "") {
+      this.setMessageInputValue(this.state.daideMessage);
+    }
+  }
 
   sendRecipientAnnotation(networkGame, time_sent, annotation) {
     const page = this.getPage();
@@ -707,6 +872,7 @@ export class ContentGame extends React.Component {
     networkGame
       .sendRecipientAnnotation({ annotation: info })
       .then(() => {
+        this.setState({ message: "" });
         page.load(
           `game: ${networkGame.local.game_id}`,
           <ContentGame data={networkGame.local} />,
@@ -1109,6 +1275,39 @@ export class ContentGame extends React.Component {
       });
   }
 
+  setCommStatus(commStatus) {
+    let newCommStatus =
+      commStatus === STRINGS.BUSY ? STRINGS.READY : STRINGS.BUSY;
+    const engine = this.props.data;
+    const networkGame = engine.client;
+    const controllablePowers = engine.getControllablePowers();
+    const currentPowerName =
+      this.state.power ||
+      (controllablePowers.length ? controllablePowers[0] : null);
+    if (!currentPowerName)
+      throw new Error(
+        `Internal error: unable to detect current selected power name.`,
+      );
+    networkGame
+      .setCommStatus({
+        comm_status: newCommStatus,
+        power_name: currentPowerName,
+      })
+      .then(() => {
+        this.forceUpdate(() =>
+          this.getPage().success(
+            `Comm. status set to ${newCommStatus} for ${currentPowerName}`,
+          ),
+        );
+      })
+      .catch((error) => {
+        Diplog.error(error.stack);
+        this.getPage().error(
+          `Error while setting comm. status for ${currentPowerName}: ${error.toString()}`,
+        );
+      });
+  }
+
   setWaitFlag(waitFlag) {
     const engine = this.props.data;
     const networkGame = engine.client;
@@ -1447,6 +1646,67 @@ export class ContentGame extends React.Component {
     return str.length > 15 ? str.substring(0, 12) + "..." : str;
   }
 
+  renderDaideComposer(engine, role) {
+    const tabNames = [];
+    for (let powerName of Object.keys(engine.powers))
+      if (powerName !== role) tabNames.push(powerName);
+    tabNames.sort();
+    tabNames.push("GLOBAL");
+    // const titles = tabNames.map(tabName => (tabName === 'GLOBAL' ? tabName : tabName.substr(0, 3)));
+    const currentTabId = this.state.tabCurrentMessages || tabNames[0];
+    const curController = engine.powers[role].getController();
+
+    const recMoves =
+      currentTabId === "GLOBAL" ? {} : engine.getOrderTypeToLocs(currentTabId);
+
+    let form = (
+      <div>
+        <h4>Global recipient not supported</h4>
+      </div>
+    );
+
+    if (currentTabId !== "GLOBAL") {
+      form = (
+        <div>
+          {engine.isPlayerGame() && (
+            <MessageForm
+              glossed={this.state.gloss}
+              sender={role}
+              recipient={currentTabId}
+              powers={engine.powers}
+              senderMoves={engine.getOrderTypeToLocs(role)}
+              recipientMoves={engine.getOrderTypeToLocs(currentTabId)}
+              engine={engine}
+              onSubmit={(form) => {
+                this.getDaide(
+                  engine.client,
+                  currentTabId,
+                  form.negotiation,
+                  form.message,
+                  form.daide,
+                  form.gloss,
+                );
+              }}
+              onClear={(form) => {
+                this.clearDaideComp(
+                  engine.client,
+                  currentTabId,
+                  form.negotiation,
+                  form.message,
+                  form.daide,
+                  form.gloss,
+                );
+              }}
+              onCopyToChat={() => this.copyToChat()}
+            />
+          )}
+        </div>
+      );
+    }
+
+    return form;
+  }
+
   renderCurrentMessages(engine, role) {
     const controllablePowers = engine.getControllablePowers();
     const currentPowerName =
@@ -1463,43 +1723,98 @@ export class ContentGame extends React.Component {
     tabNames.sort();
     //tabNames.push("Centaur");
     const currentTabId = this.state.tabCurrentMessages || tabNames[0];
+    const curController = engine.powers[role].getController();
+    // const highlights = this.state.messageHighlights;
+    const tVal = this.state.tabVal || 0;
+
+    const unreadCnt = (protagonist, currentTabId) => {
+      const hasUnreadMessages =
+        this.state.messageHighlights.hasOwnProperty(protagonist) &&
+        this.state.messageHighlights[protagonist] > 0;
+
+      if (!hasUnreadMessages) {
+        return 0;
+      }
+
+      if (currentTabId == protagonist && hasUnreadMessages) {
+        const modifiedMessageHighlights = this.state.messageHighlights;
+        modifiedMessageHighlights[protagonist] = 0;
+        this.setState({ messageHighlights: modifiedMessageHighlights });
+        return 0;
+      }
+
+      return this.state.messageHighlights[protagonist];
+    };
 
     const convList = tabNames.map((protagonist) => (
-      <div style={{ minWidth: "200px" }}>
-        <Conversation
-          info={
-            /* protagonist !== "GLOBAL"
-                ? this.truncate(
-                      engine.powers[protagonist].getController()
-                  )
-                :  */
-            ""
-          }
-          className={
-            protagonist === currentTabId ? "cs-conversation--active" : null
-          }
-          onClick={() => {
-            this.onChangeTabCurrentMessages(protagonist);
-          }}
-          key={protagonist}
+      <Conversation
+        style={{ minWidth: "200px" }}
+        info={
+          protagonist !== "GLOBAL"
+            ? engine.powers[protagonist].getController()
+            : ""
+        }
+        className={
+          protagonist === currentTabId ? "cs-conversation--active" : null
+        }
+        onClick={() => {
+          this.onChangeTabCurrentMessages(protagonist);
+        }}
+        key={protagonist}
+        name={protagonist}
+        unreadCnt={this.countUnreadMessages(engine, role, protagonist)}
+        unreadDot={this.hasUnreadAdvice(engine, role, protagonist)}
+      >
+        <Avatar
+          src={POWER_ICONS[protagonist]}
           name={protagonist}
-          unreadCnt={this.countUnreadMessages(engine, role, protagonist)}
-          unreadDot={this.hasUnreadAdvice(engine, role, protagonist)}
-        >
-          <Avatar src={POWER_ICONS[protagonist]} name={protagonist} size="sm" />
-        </Conversation>
-      </div>
+          size="sm"
+          status={
+            protagonist !== "GLOBAL"
+              ? engine.powers[protagonist].getCommStatus() === STRINGS.READY
+                ? "available"
+                : "dnd"
+              : "invisible"
+          }
+        />
+      </Conversation>
     ));
 
-    let renderedMessages = [];
+    const powerLogs = engine.getLogsForPower(role, true);
+    let renderedLogs = [];
+    let curPhase = "";
+    let prevPhase = "";
+    powerLogs.forEach((log) => {
+      if (log.phase != prevPhase) {
+        curPhase = log.phase;
+        renderedLogs.push(<MessageSeparator>{curPhase}</MessageSeparator>);
+
+        prevPhase = curPhase;
+      }
+
+      renderedLogs.push(
+        // eslint-disable-next-line react/jsx-key
+        <ChatMessage
+          model={{
+            message: log.message,
+            sent: log.sent_time,
+            sender: role,
+            direction: "outgoing",
+            position: "single",
+          }}
+        ></ChatMessage>,
+      );
+    });
+
+    const renderedMessages = [];
     let protagonist = currentTabId;
 
     let msgs = messageChannels[protagonist];
     let sender = "";
     let rec = "";
     let dir = "";
-    let curPhase = "";
-    let prevPhase = "";
+    curPhase = "";
+    prevPhase = "";
 
     for (let m in msgs) {
       let msg = msgs[m];
@@ -1590,93 +1905,120 @@ export class ContentGame extends React.Component {
     const phaseType = engine.getPhaseType();
 
     return (
-      <div className={"col-4 mb-4"} style={{ height: "500px" }}>
-        <MainContainer responsive>
-          <Sidebar position="left" scrollable={true}>
-            <ConversationList>{convList}</ConversationList>
-          </Sidebar>
-          <ChatContainer>
-            <MessageList>{renderedMessages}</MessageList>
-          </ChatContainer>
-        </MainContainer>
-        <div style={{ display: "flex", flexDirection: "row" }}>
-          {engine.isPlayerGame() && (
-            <textarea
-              style={{ flex: 1 }}
-              onChange={(val) => this.setMessageInputValue(val.target.value)}
-              value={this.state.message}
-              disabled={
-                phaseType === "M" &&
-                (!this.state.hasInitialOrders ||
-                  (this.__get_orders(engine)[currentPowerName] &&
-                    Object.keys(this.__get_orders(engine)[currentPowerName])
-                      .length <
-                      engine.orderableLocations[currentPowerName].length))
-              }
-              placeholder={
-                phaseType === "M" &&
-                (!this.state.hasInitialOrders ||
-                  (this.__get_orders(engine)[currentPowerName] &&
-                    Object.keys(this.__get_orders(engine)[currentPowerName])
-                      .length <
-                      engine.orderableLocations[currentPowerName].length))
-                  ? "You need to set orders for all units before sending messages."
-                  : ""
-              }
-            />
-          )}
+      <Box
+        sx={{ width: "100%", height: "550px", maxHeight: "550px", mb: "30px" }}
+      >
+        <Grid container spacing={2}>
+          <Grid item xs={12} sx={{ height: "100%" }}>
+            <Box sx={{ width: "100%", height: "550px" }}>
+              <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+                <Tabs2
+                  value={this.state.tabVal}
+                  onChange={this.updateTabVal}
+                  aria-label="basic tabs example"
+                >
+                  <Tab2 label="Messages" />
+                  <Tab2 label="Captain's Log" />
+                </Tabs2>
+              </Box>
+              {this.state.tabVal === 0 && (
+                <div>
+                  <MainContainer responsive>
+                    <Sidebar position="left" scrollable={true}>
+                      <ConversationList>{convList}</ConversationList>
+                    </Sidebar>
+                    <ChatContainer>
+                      <MessageList>{renderedMessages}</MessageList>
+                    </ChatContainer>
+                  </MainContainer>
+                  {engine.isPlayerGame() && (
+                    <textarea
+                      style={{ flex: 1 }}
+                      onChange={(val) => this.setMessageInputValue(val.target.value)}
+                      value={this.state.message}
+                      disabled={
+                        phaseType === "M" &&
+                        (!this.state.hasInitialOrders ||
+                          (this.__get_orders(engine)[currentPowerName] &&
+                            Object.keys(this.__get_orders(engine)[currentPowerName])
+                              .length <
+                              engine.orderableLocations[currentPowerName].length))
+                      }
+                      placeholder={
+                        phaseType === "M" &&
+                        (!this.state.hasInitialOrders ||
+                          (this.__get_orders(engine)[currentPowerName] &&
+                            Object.keys(this.__get_orders(engine)[currentPowerName])
+                              .length <
+                              engine.orderableLocations[currentPowerName].length))
+                          ? "You need to set orders for all units before sending messages."
+                          : ""
+                      }
+                    />
+                  )}
+                  {!engine.isPlayerGame() && (
+                    <textarea
+                      style={{ flex: 1 }}
+                      onChange={(val) =>
+                        this.setMessageInputValue(val.target.value)
+                      }
+                      value={this.state.message}
+                    />
+                  )}
+                  {!engine.isPlayerGame() && (
+                    <Button
+                      key={"n"}
+                      pickEvent={true}
+                      title={"Send"}
+                      onClick={() => {
+                        this.sendMessage(
+                          engine.client,
+                          "GLOBAL",
+                          this.state.message,
+                          "Neutral",
+                        );
+                        this.setMessageInputValue("");
+                      }}
+                    ></Button>
+                  )}
+                </div>
+              )}
 
-          {engine.isPlayerGame() && (
-            <div>
-              <Button
-                key={"t"}
-                pickEvent={true}
-                title={"Truth"}
-                color={"success"}
-                onClick={() => {
-                  this.sendMessage(
-                    engine.client,
-                    currentTabId,
-                    this.state.message,
-                    "Truth",
-                  );
-                  this.setMessageInputValue("");
-                }}
-              ></Button>
-              <Button
-                key={"f"}
-                pickEvent={true}
-                title={"Lie"}
-                color={"danger"}
-                onClick={() => {
-                  this.sendMessage(
-                    engine.client,
-                    currentTabId,
-                    this.state.message,
-                    "Lie",
-                  );
-                  this.setMessageInputValue("");
-                }}
-              ></Button>
-              <Button
-                key={"n"}
-                pickEvent={true}
-                title={"Neutral"}
-                color={"primary"}
-                onClick={() => {
-                  this.sendMessage(
-                    engine.client,
-                    currentTabId,
-                    this.state.message,
-                    "Neutral",
-                  );
-                  this.setMessageInputValue("");
-                }}
-              ></Button>
-            </div>
-          )}
-        </div>
-      </div>
+              {this.state.tabVal === 1 && (
+                <MainContainer responsive>
+                  <ChatContainer>
+                    <ConversationHeader>
+                      <ConversationHeader.Content
+                        userName={
+                          role.toString() +
+                          " (" +
+                          curController +
+                          ")" +
+                          ": Captain's Log"
+                        }
+                      />
+                    </ConversationHeader>
+                    <MessageList>{renderedLogs}</MessageList>
+                    {engine.isPlayerGame() && (
+                      <MessageInput
+                        attachButton={false}
+                        onChange={(val) => this.setlogDataInputValue(val)}
+                        onSend={() => {
+                          const message = this.sendLogData(
+                            engine.client,
+                            this.state.logData,
+                          );
+                          //this.setLogs([...this.state.logs, message])
+                        }}
+                      />
+                    )}
+                  </ChatContainer>
+                </MainContainer>
+              )}
+            </Box>
+          </Grid>
+        </Grid>
+      </Box>
     );
   }
 
@@ -2496,6 +2838,12 @@ export class ContentGame extends React.Component {
       );
     }
 
+    // temporary workaround: keep the first suggested move
+    const suggestionsForCurrentPowerFiltered =
+      moveSuggestionForCurrentPower.length
+        ? [moveSuggestionForCurrentPower[0]]
+        : null;
+
     return (
       <div className={"col-xl mb-4 pb-4"}>
         {!hasSuggestionMessage && <div>We haven't assigned advisors yet.</div>}
@@ -2556,24 +2904,22 @@ export class ContentGame extends React.Component {
     return engine.role === "omniscient_type" ||
       engine.role === "observer_type" ||
       engine.role === "master_type" ? (
-      <div className={"col-lg-6 col-md-12"}>
-        <div className={"table-responsive"}>
-          <AdminPowersInfoTable
-            className={"table table-striped table-sm"}
-            caption={"Powers info"}
-            columns={TABLE_POWER_VIEW}
-            data={filteredPowers}
-            wrapper={PowerView.wrap}
-            countries={filteredPowerNames}
-            //stances={engine.getPower(currentPowerName).getStances()}
-            player={currentPowerName}
-            //isBot={engine.getPower(currentPowerName).getIsBot()}
-            //stanceUpdated={this.state.stances}
-          />
-        </div>
+      <div className={"table-responsive"}>
+        <AdminPowersInfoTable
+          className={"table table-striped table-sm"}
+          caption={"Powers info"}
+          columns={TABLE_POWER_VIEW}
+          data={filteredPowers}
+          wrapper={PowerView.wrap}
+          countries={filteredPowerNames}
+          //stances={engine.getPower(currentPowerName).getStances()}
+          player={currentPowerName}
+          //isBot={engine.getPower(currentPowerName).getIsBot()}
+          //stanceUpdated={this.state.stances}
+        />
       </div>
     ) : (
-      <div className={"col-lg-6 col-md-12"}>
+      <>
         {/* <div>
                     [{sliderClicked}/{totalSliders}]You must click all sliders
                     before sending messages. Unclicked ones are{" "}
@@ -2595,7 +2941,7 @@ export class ContentGame extends React.Component {
             //stanceUpdated={this.state.stances}
           />
         </div>
-      </div>
+      </>
     );
   }
 
@@ -2662,6 +3008,50 @@ export class ContentGame extends React.Component {
     );
   }
 
+  renderTabMessages(toDisplay, initialEngine, currentPowerName) {
+    const { engine, pastPhases, phaseIndex } =
+      this.__get_engine_to_display(initialEngine);
+
+    return (
+      <Tab id={"tab-phase-history"} display={toDisplay}>
+        <Row>
+          <div className={"col-xl"}>
+            {this.state.historyCurrentOrders && (
+              <div className={"history-current-orders"}>
+                {this.state.historyCurrentOrders.join(", ")}
+              </div>
+            )}
+            {this.renderMapForMessages(engine, this.state.historyShowOrders)}
+          </div>
+          <div className={"col-xl"}>
+            {this.__form_phases(pastPhases, phaseIndex)}
+            {pastPhases[phaseIndex] === initialEngine.phase
+              ? this.renderCurrentMessages(initialEngine, currentPowerName)
+              : this.renderPastMessages(engine, currentPowerName)}
+          </div>
+        </Row>
+        {toDisplay && (
+          <HotKey
+            keys={["arrowleft"]}
+            onKeysCoincide={this.onDecrementPastPhase}
+          />
+        )}
+        {toDisplay && (
+          <HotKey
+            keys={["arrowright"]}
+            onKeysCoincide={this.onIncrementPastPhase}
+          />
+        )}
+        {toDisplay && (
+          <HotKey keys={["home"]} onKeysCoincide={this.displayFirstPastPhase} />
+        )}
+        {toDisplay && (
+          <HotKey keys={["end"]} onKeysCoincide={this.displayLastPastPhase} />
+        )}
+      </Tab>
+    );
+  }
+
   renderTabCurrentPhase(
     toDisplay,
     engine,
@@ -2670,15 +3060,64 @@ export class ContentGame extends React.Component {
     orderPath,
     currentPowerName,
     currentTabOrderCreation,
+    renderCommStatusForm,
   ) {
     const powerNames = Object.keys(engine.powers);
     powerNames.sort();
 
+    const orderedPowers = powerNames.map((pn) => engine.powers[pn]);
+
+    const serverOrders = this.__get_orders(engine);
+    const powerOrders = serverOrders[currentPowerName] || [];
+    let numOrderText = `[${Object.keys(powerOrders).length}/${
+      engine.orderableLocations[currentPowerName].length
+    }] moves have been set.`;
+
     return (
       <Tab id={"tab-current-phase"} display={toDisplay}>
-        <div className={"col-xl"}>
-          {this.renderMapForCurrent(engine, powerName, orderType, orderPath)}
-        </div>
+        <Row>
+          <div className={"col-xl"}>
+            {this.renderMapForCurrent(engine, powerName, orderType, orderPath)}
+          </div>
+          <div className={"col-xl"}>
+            {renderCommStatusForm}
+            {/* Orders. */}
+            <div
+              className={"panel-orders mb-4"}
+              style={{ maxHeight: "500px", overflowY: "scroll" }}
+            >
+              {currentTabOrderCreation ? (
+                <div className="mb-4">{currentTabOrderCreation}</div>
+              ) : (
+                ""
+              )}
+              <PowerOrdersActionBar
+                onReset={this.reloadServerOrders}
+                onDeleteAll={this.onRemoveAllCurrentPowerOrders}
+                onUpdate={this.setOrders}
+                onProcess={
+                  !this.props.data.isPlayerGame() &&
+                  this.props.data.observer_level === STRINGS.MASTER_TYPE
+                    ? this.onProcessGame
+                    : null
+                }
+              />
+              <div className={"orders"}>
+                {this.renderOrders(this.props.data, powerName)}
+              </div>
+
+              <div className={"table-responsive"}>
+                <Table
+                  className={"table table-striped table-sm"}
+                  caption={"Powers info"}
+                  columns={TABLE_POWER_VIEW}
+                  data={orderedPowers}
+                  wrapper={PowerView.wrap}
+                />
+              </div>
+            </div>
+          </div>
+        </Row>
       </Tab>
     );
   }
@@ -2695,6 +3134,20 @@ export class ContentGame extends React.Component {
   ) {
     const { engine, pastPhases, phaseIndex } =
       this.__get_engine_to_display(initialEngine);
+  }
+
+  renderTabLogs(toDisplay, initialEngine, currentPowerName) {
+    const { engine, pastPhases, phaseIndex } =
+      this.__get_engine_to_display(initialEngine);
+    return (
+      <div>
+        {pastPhases[phaseIndex] === initialEngine.phase ? (
+          this.renderCurrentLogs(initialEngine, currentPowerName)
+        ) : (
+          <p>"HEY THERE!</p>
+        )}
+      </div>
+    );
   }
 
   renderTabChat(toDisplay, initialEngine, currentPowerName) {
@@ -2848,6 +3301,23 @@ export class ContentGame extends React.Component {
       </form>
     );
 
+    const renderCommStatusForm = hasTabCurrentPhase && (
+      <div>
+        <div>
+          <strong key={"title"} className="mr-4">
+            Toggle comm. status:{" "}
+          </strong>
+        </div>
+        <form className={"form-inline power-actions-form"}>
+          {Forms.createButton(
+            currentPower.comm_status === STRINGS.READY ? "ready" : "busy",
+            () => this.setCommStatus(currentPower.comm_status),
+            currentPower.comm_status === STRINGS.READY ? "success" : "danger",
+          )}
+        </form>
+      </div>
+    );
+
     const currentTabOrderCreation = hasTabCurrentPhase && (
       <div>
         <PowerOrderCreationForm
@@ -2898,7 +3368,8 @@ export class ContentGame extends React.Component {
           orderBuildingType,
           this.state.orderBuildingPath,
           currentPowerName,
-          false,
+          currentTabOrderCreation,
+          renderCommStatusForm,
         );
       } else if (hasTabPhaseHistory) {
         phasePanel = this.renderTabResults(true, engine);

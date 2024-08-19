@@ -34,11 +34,8 @@ REQUEST_TIMEOUT_SECONDS = 30
 # Default host name for a server to connect to.
 DEFAULT_HOST = 'localhost'
 
-# Default port for normal non-securized server.
-DEFAULT_PORT = 8432
-
-# Default port for secure SSL server (not yet used).
-DEFAULT_SSL_PORT = 8433
+# Default port for server.
+DEFAULT_PORT = 8433
 
 # Default port range for DAIDE servers
 DEFAULT_DAIDE_PORT_RANGE = "8434:8600"
