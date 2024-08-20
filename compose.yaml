@@ -3,7 +3,7 @@ services:
     image: ghcr.io/allan-dip/diplomacy:${TAG:-latest}
     container_name: diplomacy
     pull_policy: ${PULL_POLICY:-always}
-    restart: always
+    restart: unless-stopped
     ports:
       - 3000:80 # Web UI
       - 8433:8433 # Agent API
