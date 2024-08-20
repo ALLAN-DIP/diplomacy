@@ -84,7 +84,6 @@ import inspect
 import logging
 
 from diplomacy.engine.message import Message
-from diplomacy.engine.daide_composer_message import DaideComposerMessage
 from diplomacy.engine.log import Log
 from diplomacy.utils import common, exceptions, parsing, strings
 from diplomacy.utils.network_data import NetworkData
@@ -789,22 +788,6 @@ class SendGameMessage(_AbstractGameRequest):
     def __init__(self, **kwargs):
         self.message = None  # type: Message
         super(SendGameMessage, self).__init__(**kwargs)
-
-class SendDaideComposerMessage(_AbstractGameRequest):
-    """ Message sent from the DAIDE Composer UI.
-    :param message: message to compose into DAIDE
-    :type message:DaideComposerMessage
-    :return
-        string: DAIDE Message
-    """
-    __slots__ = ['message']
-    params = {
-        strings.MESSAGE: parsing.JsonableClassType(DaideComposerMessage)
-    }
-
-    def __init__(self, **kwargs):
-        self.message = None  # type: Message
-        super(SendDaideComposerMessage, self).__init__(**kwargs)
 
 class SendLogData(_AbstractGameRequest):
     """Data to log intent, rationalize decision, note observations about universe

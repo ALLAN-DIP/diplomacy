@@ -24,11 +24,6 @@ PACKAGE_DIR = DIPLOMACY_ROOT_DIR
 TIME_ZONE = 'America/Montreal'
 PERMISSIVE_CLIENT_ORIGIN = True
 
-if "PRESSGLOSS_URL" in os.environ:
-    PRESSGLOSS_URL = os.environ["PRESSGLOSS_URL"]
-else:
-    PRESSGLOSS_URL = 'http://129.114.99.77:5000'
-
 maps_to_load_str = os.environ.get("MAPS_TO_LOAD")
 if maps_to_load_str:
     MAPS_TO_LOAD = set(maps_to_load_str.split(','))

@@ -635,7 +635,6 @@ export class Game {
   setCommStatus(powerName, commStatus) {
     if (this.powers.hasOwnProperty(powerName)) {
       this.powers[powerName].comm_status = commStatus;
-      //this.powers[powerName].set_comm_status(commStatus);
     }
   }
 
@@ -798,47 +797,6 @@ export class Game {
     for (let message of this.messages.values()) {
       if (message.sender !== this.role) message.read = true;
     }
-  }
-
-  addGlossToMessage(timeSent, gloss) {
-    console.log(gloss);
-    if (this.messages.contains(timeSent)) {
-      const msg = this.messages.get(timeSent).message;
-      this.messages.get(timeSent).message = msg + "\n\n" + gloss;
-      console.log(msg + "\n\n" + gloss);
-    }
-  }
-
-  getMessageChannels(role, all) {
-    const messageChannels = {};
-    role = role || this.role;
-    let messagesToShow = null;
-    if (all) {
-      messagesToShow = this.message_history.values();
-      if (this.messages.size() && !this.message_history.contains(this.phase))
-        messagesToShow.push(this.messages);
-    } else {
-      if (this.messages.size()) messagesToShow = [this.messages];
-      else if (this.message_history.contains(this.phase))
-        messagesToShow = this.message_history.get(this.phase);
-    }
-    for (let messages of messagesToShow) {
-      for (let message of messages.values()) {
-        let protagonist = null;
-        if (message.sender === role || message.recipient === "GLOBAL")
-          protagonist = message.recipient;
-        else if (message.recipient === role) protagonist = message.sender;
-        if (!messageChannels.hasOwnProperty(protagonist))
-          messageChannels[protagonist] = [];
-
-        if (this.annotated_messages.hasOwnProperty(message.time_sent)) {
-          message.recipient_annotation =
-            this.annotated_messages[message.time_sent];
-        }
-        messageChannels[protagonist].push(message);
-      }
-    }
-    return messageChannels;
   }
 
   setPossibleOrders(possibleOrders) {

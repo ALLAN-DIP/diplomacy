@@ -39,7 +39,6 @@ from diplomacy.utils import exceptions, strings, constants, export
 from diplomacy.utils.common import hash_password
 from diplomacy.utils.constants import OrderSettings
 from diplomacy.utils.game_phase_data import GamePhaseData
-from diplomacy.negotiation import negotiation
 
 LOGGER = logging.getLogger(__name__)
 
@@ -860,44 +859,6 @@ def on_send_order_suggestions(server, request, connection_handler):
     server.save_game(level.game)    
 
 
-def on_send_daide_composer_message(server, request, connection_handler):
-    """ Manage request SendDaideComposerMessage
-
-    :param server:
-    :param request:
-    :param connection_handler:
-    :return:
-    """
-    level = verify_request(server, request, connection_handler, omniscient_role=True, observer_role=True)
-    token, message = request.token, request.message
-    assert_game_not_finished(level.game)
-    if level.game.no_press:
-        raise exceptions.ResponseException('Messages not allowed for this game.')
-    #if request.game_role != message.sender:
-    #    raise exceptions.ResponseException('A power can only send its own messages.')
-
-    if not level.game.has_power(message.sender):
-        raise exceptions.MapPowerException(message.sender)
-    if not request.message.is_global():
-        if level.game.public_press:
-            raise exceptions.ResponseException('Only public messages allowed for this game.')
-        if not level.game.is_game_active:
-            raise exceptions.GameNotPlayingException()
-        if level.game.current_short_phase != message.phase:
-            raise exceptions.GamePhaseException(level.game.current_short_phase, message.phase)
-        if not level.game.has_power(message.recipient):
-            raise exceptions.MapPowerException(message.recipient)
-        #username = server.users.get_name(token)
-        #power_name = message.sender
-        #if not level.game.is_controlled_by(power_name, username):
-        #    raise exceptions.ResponseException('Power name %s is not controlled by given username.' % power_name)
-        #if message.sender == message.recipient:
-        #    raise exceptions.ResponseException('A power cannot send message to itself.')
-
-        new_message_obj_str = negotiation.pressgloss(message, level.game.message_history, level.game.messages, level.game.powers, return_message_obj_str=True)
-        return responses.DataToken(data=new_message_obj_str, request_id=request.request_id)
-
-
 def on_send_game_message(server, request, connection_handler):
     """ Manage request SendGameMessage.
 
@@ -1422,7 +1383,6 @@ MAPPING = {
     requests.UnknownToken: on_unknown_token,
     requests.Vote: on_vote,
     requests.SetCommStatus: on_set_comm_status,
-    requests.SendDaideComposerMessage: on_send_daide_composer_message
 }
 
 
