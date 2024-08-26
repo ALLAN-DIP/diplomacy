@@ -20,6 +20,8 @@ import {UTILS} from "../../diplomacy/utils/utils";
 import PropTypes from "prop-types";
 import {DipStorage} from "../utils/dipStorage";
 
+export const API_PORT = 8433;
+
 export class ConnectionForm extends React.Component {
     constructor(props) {
         super(props);
@@ -46,7 +48,7 @@ export class ConnectionForm extends React.Component {
     initState() {
         return {
             hostname: window.location.hostname,
-            port: (window.location.protocol.toLowerCase() === 'https:') ? 8433 : 8432,
+            port: API_PORT,
             username: '',
             password: '',
             showServerFields: false

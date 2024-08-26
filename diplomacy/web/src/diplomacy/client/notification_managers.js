@@ -101,6 +101,10 @@ export const NOTIFICATION_MANAGERS = {
     power_wait_flag: function (game, notification) {
         game.local.setWait(notification.power_name, notification.wait);
     },
+    power_comm_status_update: function (game, notification) {
+        game.local.setCommStatus(notification.power_name, notification.comm_status);
+        //game.local.getPower(notification.power_name).comm_status = notification.comm_status;
+    },
     vote_count_updated: function (game, notification) {
         // Nothing currently done.
     },
