@@ -1712,6 +1712,7 @@ export class ContentGame extends React.Component {
                     </ChatContainer>
                   </MainContainer>
                   {engine.isPlayerGame() && (
+                    <>
                     <textarea
                       style={{ flex: 1 }}
                       onChange={(val) => this.setMessageInputValue(val.target.value)}
@@ -1735,17 +1736,6 @@ export class ContentGame extends React.Component {
                           : ""
                       }
                     />
-                  )}
-                  {!engine.isPlayerGame() && (
-                    <textarea
-                      style={{ flex: 1 }}
-                      onChange={(val) =>
-                        this.setMessageInputValue(val.target.value)
-                      }
-                      value={this.state.message}
-                    />
-                  )}
-                  {!engine.isPlayerGame() && (
                     <Button
                       key={"n"}
                       pickEvent={true}
@@ -1760,6 +1750,7 @@ export class ContentGame extends React.Component {
                         this.setMessageInputValue("");
                       }}
                     ></Button>
+                    </>
                   )}
                 </div>
               )}
