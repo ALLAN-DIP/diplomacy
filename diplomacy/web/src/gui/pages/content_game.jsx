@@ -1737,13 +1737,44 @@ export class ContentGame extends React.Component {
                       }
                     />
                     <Button
-                      key={"n"}
+                      key={"t"}
                       pickEvent={true}
-                      title={"Send"}
+                      title={"Truth"}
+                      color={"success"}
                       onClick={() => {
                         this.sendMessage(
                           engine.client,
-                          "GLOBAL",
+                          currentTabId,
+                          this.state.message,
+                          "Truth",
+                        );
+                        this.setMessageInputValue("");
+                      }}
+                    ></Button>
+                    <Button
+                      key={"f"}
+                      pickEvent={true}
+                      title={"Lie"}
+                      color={"danger"}
+                      onClick={() => {
+                        this.sendMessage(
+                          engine.client,
+                          currentTabId,
+                          this.state.message,
+                          "Lie",
+                        );
+                        this.setMessageInputValue("");
+                      }}
+                    ></Button>
+                    <Button
+                      key={"n"}
+                      pickEvent={true}
+                      title={"Neutral"}
+                      color={"primary"}
+                      onClick={() => {
+                        this.sendMessage(
+                          engine.client,
+                          currentTabId,
                           this.state.message,
                           "Neutral",
                         );
