@@ -247,6 +247,12 @@ NONE = 'none'
 GLOSS = 'gloss'
 TONES = 'tones'
 DAIDE = 'daide'
+GLOBAL = "GLOBAL"
+HAS_SUGGESTIONS = "has_suggestions"
+SUGGESTED_MESSAGE = "suggested_message"
+SUGGESTED_MOVE_FULL = "suggested_move_full"
+VIA = "VIA"
+WAIVE = "WAIVE"
 
 # Special name sets.
 ALL_GAME_STATUSES = (FORMING, ACTIVE, PAUSED, COMPLETED, CANCELED)
