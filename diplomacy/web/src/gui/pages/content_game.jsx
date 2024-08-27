@@ -734,7 +734,6 @@ export class ContentGame extends React.Component {
     networkGame
       .sendRecipientAnnotation({ annotation: info })
       .then(() => {
-        this.setState({ message: "" });
         page.load(
           `game: ${networkGame.local.game_id}`,
           <ContentGame data={networkGame.local} />,
