@@ -2155,11 +2155,12 @@ export class ContentGame extends React.Component {
                 const ps = msg.message.split(":")[0].split("-");
                 const sender = ps[0];
                 const recipient = ps[1];
+
                 if (
                     sender === currentPowerName &&
                     recipient === protagnist &&
                     msg.phase === engine.phase &&
-                    !this.state.annotatedMessages.hasOwnProperty(msg.time_sent)
+                    (isAdmin || !this.state.annotatedMessages.hasOwnProperty(msg.time_sent))
                 ) {
                     return true;
                 }
