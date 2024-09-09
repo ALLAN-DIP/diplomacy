@@ -711,7 +711,7 @@ export class ContentGame extends React.Component {
                 "Will not update stance of a noncontrollable power."
             );
         }
-    }
+    };
 
     handleIsBot(country, isBot) {
         const engine = this.props.data;
@@ -728,7 +728,7 @@ export class ContentGame extends React.Component {
                 "Will not update stance of a noncontrollable power."
             );
         }
-    }
+    };
 
     sendOrderLog(networkGame, logType, order) {
         const engine = networkGame.local;
@@ -766,7 +766,7 @@ export class ContentGame extends React.Component {
             message.time_sent,
             annotation
         );
-    }
+    };
 
     updateTabVal(event, value) {
         return this.setState({ tabVal: value });
@@ -2324,6 +2324,7 @@ export class ContentGame extends React.Component {
                 const ps = msg.message.split(":")[0].split("-");
                 const sender = ps[0];
                 const recipient = ps[1];
+
                 if (
                     sender === currentPowerName &&
                     recipient === protagnist &&
@@ -3428,7 +3429,6 @@ export class ContentGame extends React.Component {
                             currentPowerName
                         )}
                     </Row>
-
                     <Row>
                         {!engine.isPlayerGame() && this.renderPowerInfo(engine)}
                         {localStorage.getItem("username") === "admin" &&
