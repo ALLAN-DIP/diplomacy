@@ -3369,6 +3369,63 @@ export class ContentGame extends React.Component {
             phasePanel = this.renderTabResults(true, engine);
         }
 
+        const gameContent = (
+            <div>
+                <Row>
+                    {phasePanel}
+                    {this.renderTabCentaur(true, engine, currentPowerName)}
+                </Row>
+                <Row className={"mb-4"}>
+                    <div className={"col-4"}>
+                        {/* Orders. */}
+                        <div
+                            className={"panel-orders mb-4"}
+                            style={{
+                                maxHeight: "500px",
+                                overflowY: "scroll",
+                            }}
+                        >
+                            <div className="mb-4">
+                                {currentTabOrderCreation}
+                            </div>
+
+                            <PowerOrdersActionBar
+                                onReset={this.reloadServerOrders}
+                                onDeleteAll={
+                                    this.onRemoveAllCurrentPowerOrders
+                                }
+                                onUpdate={this.setOrders}
+                                onProcess={
+                                    !this.props.data.isPlayerGame() &&
+                                    this.props.data.observer_level ===
+                                        STRINGS.MASTER_TYPE
+                                        ? this.onProcessGame
+                                        : null
+                                }
+                            />
+                            <div className={"orders"}>
+                                {this.renderOrders(
+                                    this.props.data,
+                                    currentPowerName
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                    {this.renderTabChat(true, engine, currentPowerName)}
+                    {this.renderTabCentaurMessages(
+                        true,
+                        engine,
+                        currentPowerName
+                    )}
+                </Row>
+                <Row>
+                    {!engine.isPlayerGame() && this.renderPowerInfo(engine)}
+                    {localStorage.getItem("username") === "admin" &&
+                        this.renderLogs(engine, currentPowerName)}
+                </Row>
+            </div>
+        );
+        
         return (
             <main>
                 <Helmet>
@@ -3381,60 +3438,7 @@ export class ContentGame extends React.Component {
                     phaseSel={this.__form_phases(pastPhases, phaseIndex)}
                     navigation={navigation}
                 />
-                <div>
-                    <Row>
-                        {phasePanel}
-                        {this.renderTabCentaur(true, engine, currentPowerName)}
-                    </Row>
-                    <Row className={"mb-4"}>
-                        <div className={"col-4"}>
-                            {/* Orders. */}
-                            <div
-                                className={"panel-orders mb-4"}
-                                style={{
-                                    maxHeight: "500px",
-                                    overflowY: "scroll",
-                                }}
-                            >
-                                <div className="mb-4">
-                                    {currentTabOrderCreation}
-                                </div>
-
-                                <PowerOrdersActionBar
-                                    onReset={this.reloadServerOrders}
-                                    onDeleteAll={
-                                        this.onRemoveAllCurrentPowerOrders
-                                    }
-                                    onUpdate={this.setOrders}
-                                    onProcess={
-                                        !this.props.data.isPlayerGame() &&
-                                        this.props.data.observer_level ===
-                                            STRINGS.MASTER_TYPE
-                                            ? this.onProcessGame
-                                            : null
-                                    }
-                                />
-                                <div className={"orders"}>
-                                    {this.renderOrders(
-                                        this.props.data,
-                                        currentPowerName
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-                        {this.renderTabChat(true, engine, currentPowerName)}
-                        {this.renderTabCentaurMessages(
-                            true,
-                            engine,
-                            currentPowerName
-                        )}
-                    </Row>
-                    <Row>
-                        {!engine.isPlayerGame() && this.renderPowerInfo(engine)}
-                        {localStorage.getItem("username") === "admin" &&
-                            this.renderLogs(engine, currentPowerName)}
-                    </Row>
-                </div>
+                {gameContent}
             </main>
         );
     }
