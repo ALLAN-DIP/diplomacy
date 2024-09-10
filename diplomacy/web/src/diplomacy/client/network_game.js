@@ -135,6 +135,10 @@ export class NetworkGame {
         return wait ? this.wait(parameters) : this.noWait(parameters);
     }
 
+    setCommStatus(parameters) {
+        return this._req(Channel.prototype.setCommStatus, parameters)
+    }
+
     vote(parameters) {
         return this._req(Channel.prototype.vote, parameters);
     }
@@ -255,6 +259,10 @@ export class NetworkGame {
 
     addOnPowerWaitFlag(callback) {
         this.addCallback('power_wait_flag', callback);
+    }
+
+    addOnCommStatusUpdate(callback) {
+        this.addCallback('power_comm_status_update', callback)
     }
 
     addOnVoteCountUpdated(callback) {
