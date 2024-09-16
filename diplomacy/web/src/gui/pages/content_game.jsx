@@ -1304,10 +1304,8 @@ export class ContentGame extends React.Component {
         return render;
     }
 
-    filterMessages(engine, messageChannels) {
-        /*
-        Hide messages that are not annotated.
-    */
+    blurMessages(engine, messageChannels) {
+        /* add a *show* key to decide whether to blur a message */
         if (
             engine.role === "omniscient_type" ||
             engine.role === "observer_type" ||
@@ -1315,40 +1313,42 @@ export class ContentGame extends React.Component {
         )
             return messageChannels;
 
-        let filteredMessageChannels = {};
+        let blurredMessageChannels = {};
         const controlledPower = this.getCurrentPowerName();
 
         for (const [powerName, messages] of Object.entries(messageChannels)) {
             if (powerName === "GLOBAL") {
-                filteredMessageChannels[powerName] = messages;
+                blurredMessageChannels[powerName] = messages;
             } else {
-                let filteredMessages = [];
+                let blurredMessages = [];
                 let showMessage = true;
 
                 for (let idx in messages) {
-                    const message = messages[idx];
-                    if (message.sender === controlledPower || showMessage) {
-                        filteredMessages.push(message);
-                    }
+                    const currentMessage = messages[idx];
+                    const toShow = { show: showMessage };
+                    const newMessage = Object.assign(toShow, currentMessage);
+                    blurredMessages.push(newMessage);
+
                     if (
-                        message.sender !== controlledPower &&
+                        currentMessage.sender !== controlledPower &&
                         !this.state.annotatedMessages.hasOwnProperty(
-                            message.time_sent
+                            currentMessage.time_sent
                         )
                     ) {
                         showMessage = false;
                     }
                 }
-                filteredMessageChannels[powerName] = filteredMessages;
+                blurredMessageChannels[powerName] = blurredMessages;
             }
         }
-        return filteredMessageChannels;
+        return blurredMessageChannels;
     }
 
     renderPastMessages(engine, role, isWide) {
-        const messageChannels = this.filterMessages(
+        const messageChannels = engine.getMessageChannels(role, true);
+        const filteredMessageChannels = this.blurMessages(
             engine,
-            engine.getMessageChannels(role, true)
+            messageChannels
         );
         const tabNames = [];
         for (let powerName of Object.keys(engine.powers))
@@ -1389,7 +1389,7 @@ export class ContentGame extends React.Component {
         const renderedMessages = [];
         let protagonist = currentTabId;
 
-        let msgs = messageChannels[protagonist];
+        let msgs = filteredMessageChannels[protagonist];
         let sender = "";
         let rec = "";
         let dir = "";
@@ -1410,10 +1410,12 @@ export class ContentGame extends React.Component {
 
             if (role === sender) dir = "outgoing";
             if (role === rec) dir = "incoming";
+            const html = msg.show
+                ? msg.message
+                : `<div style='color: transparent; text-shadow: 0 0 5px rgba(0, 0, 0, 0.5)'>${msg.message}</div>`;
             renderedMessages.push(
                 <ChatMessage
                     model={{
-                        message: msg.message,
                         sent: msg.sent_time,
                         sender: sender,
                         direction: dir,
@@ -1422,6 +1424,7 @@ export class ContentGame extends React.Component {
                     avatarPosition={dir === "outgoing" ? "tr" : "tl"}
                 >
                     <Avatar src={POWER_ICONS[sender]} name={sender} size="sm" />
+                    <ChatMessage.HtmlContent html={html} />
                 </ChatMessage>
             );
         }
@@ -1530,9 +1533,11 @@ export class ContentGame extends React.Component {
             this.state.power ||
             (controllablePowers.length ? controllablePowers[0] : null);
 
-        const messageChannels = this.filterMessages(
+        const messageChannels = engine.getMessageChannels(role, true);
+
+        const filteredMessageChannels = this.blurMessages(
             engine,
-            engine.getMessageChannels(role, true)
+            messageChannels
         );
         const tabNames = [];
         for (let powerName of Object.keys(engine.powers))
@@ -1581,7 +1586,7 @@ export class ContentGame extends React.Component {
         let renderedMessages = [];
         let protagonist = currentTabId;
 
-        let msgs = messageChannels[protagonist];
+        let msgs = filteredMessageChannels[protagonist];
         let sender = "";
         let rec = "";
         let dir = "";
@@ -1593,6 +1598,10 @@ export class ContentGame extends React.Component {
             sender = msg.sender;
             rec = msg.recipient;
             curPhase = msg.phase;
+            const html = msg.show
+                ? msg.message
+                : `<div style='color: transparent; text-shadow: 0 0 5px rgba(0, 0, 0, 0.5)'>${msg.message}</div>`;
+
             if (curPhase !== prevPhase) {
                 renderedMessages.push(
                     <MessageSeparator key={msg.phase}>
@@ -1609,7 +1618,6 @@ export class ContentGame extends React.Component {
             renderedMessages.push(
                 <ChatMessage
                     model={{
-                        message: msg.message,
                         sent: msg.time_sent,
                         sender: sender,
                         direction: dir,
@@ -1619,6 +1627,7 @@ export class ContentGame extends React.Component {
                     key={`${sender}-${rec}-${m}`}
                 >
                     <Avatar src={POWER_ICONS[sender]} name={sender} size="sm" />
+                    <ChatMessage.HtmlContent html={html} />
                 </ChatMessage>
             );
 
@@ -2160,7 +2169,10 @@ export class ContentGame extends React.Component {
                     sender === currentPowerName &&
                     recipient === protagnist &&
                     msg.phase === engine.phase &&
-                    (isAdmin || !this.state.annotatedMessages.hasOwnProperty(msg.time_sent))
+                    (isAdmin ||
+                        !this.state.annotatedMessages.hasOwnProperty(
+                            msg.time_sent
+                        ))
                 ) {
                     return true;
                 }
