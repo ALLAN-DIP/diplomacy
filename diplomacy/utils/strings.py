@@ -251,6 +251,7 @@ GLOBAL = "GLOBAL"
 HAS_SUGGESTIONS = "has_suggestions"
 SUGGESTED_MESSAGE = "suggested_message"
 SUGGESTED_MOVE_FULL = "suggested_move_full"
+SUGGESTED_MOVE_PARTIAL = "suggested_move_partial"
 VIA = "VIA"
 WAIVE = "WAIVE"
 
