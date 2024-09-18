@@ -23,3 +23,9 @@ DIPLOMACY_ROOT_DIR = os.path.dirname(os.path.realpath(__file__))
 PACKAGE_DIR = DIPLOMACY_ROOT_DIR
 TIME_ZONE = 'America/Montreal'
 PERMISSIVE_CLIENT_ORIGIN = True
+
+maps_to_load_str = os.environ.get("MAPS_TO_LOAD")
+if maps_to_load_str:
+    MAPS_TO_LOAD = set(maps_to_load_str.split(','))
+else:
+    MAPS_TO_LOAD = set()
