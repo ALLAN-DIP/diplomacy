@@ -1108,7 +1108,8 @@ def on_send_log_data(server, request, connection_handler):
     :param connection_handler: connection handler from which the request was sent
     :return:
     """
-    level = verify_request(server, request, connection_handler, omniscient_role=False, observer_role=False)
+    # TODO: Ensure only players and advisors can send intent logs
+    level = verify_request(server, request, connection_handler, omniscient_role=True, observer_role=True)
     assert_game_not_finished(level.game)
 
     log = request.log

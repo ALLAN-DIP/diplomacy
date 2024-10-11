@@ -1368,7 +1368,7 @@ class Game(Jsonable):
         :return: a new GameMessage object.
         :rtype: GameMessage
         """
-        assert self.is_player_game()
+        # TODO: Ensure only players and advisors can send intent logs
         return Log(
             phase=self.current_short_phase,
             sender=self.role,
