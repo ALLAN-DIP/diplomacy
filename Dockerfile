@@ -29,9 +29,9 @@ WORKDIR /app
 RUN pip install --no-cache-dir pip==24.0 \
     && pip uninstall --yes setuptools wheel
 
-COPY requirements.txt .
+COPY requirements-lock.txt .
 
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements-lock.txt
 
 COPY diplomacy/ diplomacy/
 COPY README.md .
