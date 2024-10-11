@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM node:20.18.0-bookworm-slim AS app-builder
+FROM node:20.18.0-alpine3.20 AS app-builder
 
 WORKDIR /app
 
@@ -17,12 +17,9 @@ ENV NODE_OPTIONS=--openssl-legacy-provider
 
 RUN npm run build
 
-FROM python:3.7.17-slim-bookworm AS server
+FROM python:3.7.17-alpine3.18 AS server
 
-RUN apt-get -y update \
-    && apt-get -y upgrade \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+RUN apk upgrade --no-cache
 
 WORKDIR /app
 
@@ -49,6 +46,6 @@ EXPOSE 8433
 # DAIDE server
 EXPOSE 8434-8600
 
-CMD ["bash", "-c", "python -m http.server 80 --directory diplomacy/web/build/ & python -m diplomacy.server.run"]
+CMD ["sh", "-c", "python -m http.server 80 --directory diplomacy/web/build/ & python -m diplomacy.server.run"]
 
 LABEL org.opencontainers.image.source=https://github.com/ALLAN-DIP/diplomacy
