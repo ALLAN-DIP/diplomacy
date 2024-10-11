@@ -26,6 +26,9 @@ RUN apt-get -y update \
 
 WORKDIR /app
 
+RUN pip install --no-cache-dir pip==24.0 \
+    && pip uninstall --yes setuptools wheel
+
 COPY requirements.txt .
 
 RUN pip install --no-cache-dir -r requirements.txt
