@@ -1347,16 +1347,18 @@ class Game(Jsonable):
                 self.set_controlled(dummy_power_name, None)
 
     def update_powers_controllers(self, powers_controllers, timestamps, player_types):
-        """ Update powers controllers.
+        """Update powers controllers.
 
-            :param powers_controllers: a dictionary mapping a power name to a controller name.
-            :param timestamps: a dictionary mapping a power name to timestamp when related controller
-                (in powers_controllers) was associated to power.
-            :param player_types: a dictionary mapping a power name to a player type
-            :type powers_controllers: dict
+        :param powers_controllers: a dictionary mapping a power name to a controller name.
+        :param timestamps: a dictionary mapping a power name to timestamp when related controller
+            (in powers_controllers) was associated to power.
+        :param player_types: a dictionary mapping a power name to a player type
+        :type powers_controllers: dict
         """
         for power_name, controller in powers_controllers.items():
-            self.get_power(power_name).update_controller(controller, timestamps[power_name])
+            self.get_power(power_name).update_controller(
+                controller, timestamps[power_name]
+            )
             self.get_power(power_name).set_player_type(player_types[power_name])
 
     def new_log_data(self, body, recipient="OMNISCIENT"):

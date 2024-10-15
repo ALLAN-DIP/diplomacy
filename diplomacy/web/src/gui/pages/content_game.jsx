@@ -1492,7 +1492,7 @@ export class ContentGame extends React.Component {
         return (
             <div
                 className={isWide ? "col-6" : "col-4"}
-                style={{height: "500px"}}
+                style={{ height: "500px" }}
             >
                 <MainContainer responsive>
                     <Sidebar
@@ -1625,7 +1625,11 @@ export class ContentGame extends React.Component {
                 }}
                 key={protagonist}
                 name={protagonist}
-                unreadCnt={this.countUnreadMessages(engine, role, protagonist)}
+                unreadCnt={this.countUnreadMessages(
+                    engine,
+                    role,
+                    protagonist
+                )}
                 unreadDot={this.hasUnreadAdvice(engine, role, protagonist)}
             >
                 <Avatar
@@ -1813,18 +1817,11 @@ export class ContentGame extends React.Component {
                             {this.state.tabVal === 0 && (
                                 <div>
                                     <MainContainer responsive>
-                                        <Sidebar
-                                            position="left"
-                                            scrollable={true}
-                                        >
-                                            <ConversationList>
-                                                {convList}
-                                            </ConversationList>
+                                        <Sidebar position="left" scrollable={true}>
+                                            <ConversationList>{convList}</ConversationList>
                                         </Sidebar>
                                         <ChatContainer>
-                                            <MessageList>
-                                                {renderedMessages}
-                                            </MessageList>
+                                            <MessageList>{renderedMessages}</MessageList>
                                         </ChatContainer>
                                     </MainContainer>
                                     {engine.isPlayerGame() && (
@@ -1832,46 +1829,36 @@ export class ContentGame extends React.Component {
                                             <textarea
                                                 style={{ flex: 1 }}
                                                 onChange={(val) =>
-                                                    this.setMessageInputValue(
-                                                        val.target.value
-                                                    )
+                                                    this.setMessageInputValue(val.target.value)
                                                 }
                                                 value={this.state.message}
                                                 disabled={
                                                     phaseType === "M" &&
-                                                    (!this.state
-                                                        .hasInitialOrders ||
-                                                        (this.__get_orders(
-                                                            engine
-                                                        )[currentPowerName] &&
+                                                    (!this.state.hasInitialOrders ||
+                                                        (this.__get_orders(engine)[
+                                                            currentPowerName
+                                                        ] &&
                                                             Object.keys(
-                                                                this.__get_orders(
-                                                                    engine
-                                                                )[
+                                                                this.__get_orders(engine)[
                                                                     currentPowerName
                                                                 ]
                                                             ).length <
-                                                                engine
-                                                                    .orderableLocations[
+                                                                engine.orderableLocations[
                                                                     currentPowerName
                                                                 ].length))
                                                 }
                                                 placeholder={
                                                     phaseType === "M" &&
-                                                    (!this.state
-                                                        .hasInitialOrders ||
-                                                        (this.__get_orders(
-                                                            engine
-                                                        )[currentPowerName] &&
+                                                    (!this.state.hasInitialOrders ||
+                                                        (this.__get_orders(engine)[
+                                                            currentPowerName
+                                                        ] &&
                                                             Object.keys(
-                                                                this.__get_orders(
-                                                                    engine
-                                                                )[
+                                                                this.__get_orders(engine)[
                                                                     currentPowerName
                                                                 ]
                                                             ).length <
-                                                                engine
-                                                                    .orderableLocations[
+                                                                engine.orderableLocations[
                                                                     currentPowerName
                                                                 ].length))
                                                         ? "You need to set orders for all units before sending messages."
@@ -1890,9 +1877,7 @@ export class ContentGame extends React.Component {
                                                         this.state.message,
                                                         "Truth"
                                                     );
-                                                    this.setMessageInputValue(
-                                                        ""
-                                                    );
+                                                    this.setMessageInputValue("");
                                                 }}
                                             ></Button>
                                             <Button
@@ -1907,9 +1892,7 @@ export class ContentGame extends React.Component {
                                                         this.state.message,
                                                         "Lie"
                                                     );
-                                                    this.setMessageInputValue(
-                                                        ""
-                                                    );
+                                                    this.setMessageInputValue("");
                                                 }}
                                             ></Button>
                                             <Button
@@ -1924,9 +1907,7 @@ export class ContentGame extends React.Component {
                                                         this.state.message,
                                                         "Neutral"
                                                     );
-                                                    this.setMessageInputValue(
-                                                        ""
-                                                    );
+                                                    this.setMessageInputValue("");
                                                 }}
                                             ></Button>
                                         </>
