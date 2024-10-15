@@ -16,7 +16,7 @@
 // ==============================================================================
 import React from 'react';
 import {Connection} from "../../diplomacy/client/connection";
-import {ConnectionForm} from "../forms/connection_form";
+import {API_PORT, ConnectionForm} from "../forms/connection_form";
 import {DipStorage} from "../utils/dipStorage";
 import {Helmet} from "react-helmet";
 import {Navigation} from "../components/navigation";
@@ -100,7 +100,7 @@ export class ContentConnection extends React.Component {
             const storage = DipStorage.getConnectionForm();
             const username = storage.username;
             const password = storage.password;
-            this.onSubmit({"hostname": window.location.hostname, "port": 8432, "username": username, "password": password, "showServerFields": false});
+            this.onSubmit({"hostname": window.location.hostname, "port": API_PORT, "username": username, "password": password, "showServerFields": false});
         }
     }
 }

@@ -21,7 +21,7 @@
 
     .. code-block:: bash
 
-        # run on port 8432.
+        # run on port 8433.
         python -m diplomacy.server.run
 
         # run on given port.

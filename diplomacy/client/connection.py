@@ -35,17 +35,19 @@ from diplomacy.utils import exceptions, strings, constants
 LOGGER = logging.getLogger(__name__)
 
 @gen.coroutine
-def connect(hostname, port):
+def connect(hostname, port, use_ssl=False):
     """ Connect to given hostname and port.
 
         :param hostname: a hostname
         :param port: a port
+        :param use_ssl: telling if connection should be securized (True) or not (False).
         :return: a Connection object connected.
         :type hostname: str
         :type port: int
+        :type use_ssl: bool
         :rtype: Connection
     """
-    connection = Connection(hostname, port)
+    connection = Connection(hostname, port, use_ssl)
     yield connection._connect('Trying to connect.')                 # pylint: disable=protected-access
     return connection
 

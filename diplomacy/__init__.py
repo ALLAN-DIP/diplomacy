@@ -33,8 +33,12 @@ ROOT.propagate = False
 
 STREAM_HANDLER = logging.StreamHandler()
 STREAM_HANDLER.setLevel(logging.DEBUG)
-COLORED_FORMATTER = coloredlogs.ColoredFormatter(fmt='%(asctime)s %(name)s[%(process)d] %(levelname)s %(message)s')
-STREAM_HANDLER.setFormatter(COLORED_FORMATTER)
+
+# Monkey patch module to show milliseconds
+logging.Formatter.default_msec_format = "%s.%03d"
+
+FORMATTER = logging.Formatter(fmt='[%(asctime)s] [%(levelname)s] [%(name)s[%(process)d]] %(message)s')
+STREAM_HANDLER.setFormatter(FORMATTER)
 ROOT.addHandler(STREAM_HANDLER)
 
 if 'DIPLOMACY_LOG_FILE' in os.environ:

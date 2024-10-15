@@ -84,6 +84,7 @@ from diplomacy.server.server_game import ServerGame
 from diplomacy.server.users import Users
 from diplomacy.engine.map import Map
 from diplomacy.utils import common, exceptions, strings, constants, convoy_paths
+from diplomacy.utils.constants import DEFAULT_PORT
 
 LOGGER = logging.getLogger(__name__)
 
@@ -302,6 +303,8 @@ class Server:
         diplomacy_map_dir = os.path.join(diplomacy.settings.PACKAGE_DIR, strings.MAPS)
         new_maps_mtime = self.maps_mtime
         for filename in os.listdir(diplomacy_map_dir):
+            if diplomacy.settings.MAPS_TO_LOAD and filename not in diplomacy.settings.MAPS_TO_LOAD:
+                continue
             if filename.endswith('.map'):
                 map_filename = os.path.join(diplomacy_map_dir, filename)
                 map_mtime = os.path.getmtime(map_filename)
@@ -350,28 +353,12 @@ class Server:
         # Add default accounts.
         for (username, password) in (
                 ('admin', os.environ.get('DIPLOMACY_ADMIN_PASSWORD', 'password')),
-                ('cicero_AUSTRIA', 'password'),
-                ('cicero_TURKEY', 'password'),
-                ('cicero_ENGLAND', 'password'),
-                ('cicero_GERMANY', 'password'),
-                ('cicero_RUSSIA', 'password'),
-                ('cicero_FRANCE', 'password'),
-                ('cicero_ITALY', 'password'),
-                ('fgu1', 'password'),
                 (constants.PRIVATE_BOT_USERNAME, constants.PRIVATE_BOT_PASSWORD)
         ):
             if not self.users.has_username(username):
                 self.users.add_user(username, common.hash_password(password))
         # Set default admin account.
         self.users.add_admin('admin')
-        self.users.add_admin('cicero_AUSTRIA')
-        self.users.add_admin('cicero_TURKEY')
-        self.users.add_admin('cicero_ENGLAND')
-        self.users.add_admin('cicero_GERMANY')
-        self.users.add_admin('cicero_RUSSIA')
-        self.users.add_admin('cicero_FRANCE')
-        self.users.add_admin('cicero_ITALY')
-        self.users.add_admin('fgu1')
 
         self._load_available_maps()
 
@@ -509,7 +496,7 @@ class Server:
         if self.backend is not None:
             raise exceptions.DiplomacyException('Server is already running on port %s.' % self.backend.port)
         if port is None:
-            port = 8432
+            port = DEFAULT_PORT
         if io_loop is None:
             io_loop = tornado.ioloop.IOLoop.instance()
         handlers = [

@@ -18,7 +18,7 @@ Update: the documentation isn't updated for the latest changes. See [here](https
 
 The latest version of the package can be installed with:
 
-```python3
+```shell
 pip install diplomacy
 ```
 
