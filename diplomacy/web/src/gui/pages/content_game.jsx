@@ -32,7 +32,6 @@ import { STRINGS } from "../../diplomacy/utils/strings";
 import { Diplog } from "../../diplomacy/utils/diplog";
 import { Table } from "../components/table";
 import { AdminPowersInfoTable } from "../components/admin_powers_info_table";
-import { PlayerPowersInfoTable } from "../components/PlayerPowersInfoTable";
 import { PowerView } from "../utils/power_view";
 import { DipStorage } from "../utils/dipStorage";
 import Helmet from "react-helmet";
@@ -2930,28 +2929,7 @@ export class ContentGame extends React.Component {
                 </div>
             </div>
         ) : (
-            <div className={"col-lg-6 col-md-12"}>
-                {/* <div>
-                    [{sliderClicked}/{totalSliders}]You must click all sliders
-                    before sending messages. Unclicked ones are{" "}
-                    <strong style={{ color: "red" }}>red and bold</strong>.
-                </div> */}
-                <div className={"table-responsive"}>
-                    <PlayerPowersInfoTable
-                        className={"table table-striped table-sm"}
-                        caption={"Powers info"}
-                        columns={TABLE_POWER_VIEW}
-                        data={filteredPowers}
-                        wrapper={PowerView.wrap}
-                        countries={filteredPowerNames}
-                        onChangeStance={this.handleStance}
-                        //stances={engine.getPower(engine.role).getStances()}
-                        player={engine.role}
-                        //onChangeIsBot={this.handleIsBot}
-                        //isBot={this.state.isBot}
-                        //stanceUpdated={this.state.stances}
-                    />
-                </div>
+            <div >
             </div>
         );
     }
@@ -3086,16 +3064,6 @@ export class ContentGame extends React.Component {
                             />
                             <div className={"orders"}>
                                 {this.renderOrders(this.props.data, powerName)}
-                            </div>
-
-                            <div className={"table-responsive"}>
-                                <Table
-                                    className={"table table-striped table-sm"}
-                                    caption={"Powers info"}
-                                    columns={TABLE_POWER_VIEW}
-                                    data={orderedPowers}
-                                    wrapper={PowerView.wrap}
-                                />
                             </div>
                         </div>
                     </div>
