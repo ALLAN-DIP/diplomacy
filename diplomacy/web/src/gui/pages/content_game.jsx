@@ -3011,8 +3011,7 @@ export class ContentGame extends React.Component {
         orderType,
         orderPath,
         currentPowerName,
-        currentTabOrderCreation,
-        renderCommStatusForm
+        currentTabOrderCreation
     ) {
         const powerNames = Object.keys(engine.powers);
         powerNames.sort();
@@ -3037,7 +3036,6 @@ export class ContentGame extends React.Component {
                         )}
                     </div>
                     <div className={"col-xl"}>
-                        {renderCommStatusForm}
                         {/* Orders. */}
                         <div
                             className={"panel-orders mb-4"}
@@ -3261,27 +3259,6 @@ export class ContentGame extends React.Component {
             </form>
         );
 
-        const renderCommStatusForm = hasTabCurrentPhase && (
-            <div>
-                <div>
-                    <strong key={"title"} className="mr-4">
-                        Toggle comm. status:{" "}
-                    </strong>
-                </div>
-                <form className={"form-inline power-actions-form"}>
-                    {Forms.createButton(
-                        currentPower.comm_status === STRINGS.READY
-                            ? "ready"
-                            : "busy",
-                        () => this.setCommStatus(currentPower.comm_status),
-                        currentPower.comm_status === STRINGS.READY
-                            ? "success"
-                            : "danger"
-                    )}
-                </form>
-            </div>
-        );
-
         const currentTabOrderCreation = hasTabCurrentPhase && (
             <div>
                 <PowerOrderCreationForm
@@ -3333,8 +3310,7 @@ export class ContentGame extends React.Component {
                     orderBuildingType,
                     this.state.orderBuildingPath,
                     currentPowerName,
-                    currentTabOrderCreation,
-                    renderCommStatusForm
+                    currentTabOrderCreation
                 );
             } else if (hasTabPhaseHistory) {
                 phasePanel = this.renderTabResults(true, engine);
