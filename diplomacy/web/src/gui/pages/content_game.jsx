@@ -3490,38 +3490,6 @@ export class ContentGame extends React.Component {
                             )}
                         </Row>
                         <Row className={"mb-4"}>
-                            <div
-                                className={"panel-orders col-4 mb-4"}
-                                style={{
-                                    maxHeight: "500px",
-                                    overflowY: "scroll",
-                                }}
-                            >
-                                <div className="mb-4">
-                                    {currentTabOrderCreation}
-                                </div>
-
-                                <PowerOrdersActionBar
-                                    onReset={this.reloadServerOrders}
-                                    onDeleteAll={
-                                        this.onRemoveAllCurrentPowerOrders
-                                    }
-                                    onUpdate={this.setOrders}
-                                    onProcess={
-                                        !this.props.data.isPlayerGame() &&
-                                        this.props.data.observer_level ===
-                                            STRINGS.MASTER_TYPE
-                                            ? this.onProcessGame
-                                            : null
-                                    }
-                                />
-                                <div className={"orders"}>
-                                    {this.renderOrders(
-                                        this.props.data,
-                                        currentPowerName
-                                    )}
-                                </div>
-                            </div>
                             {this.renderTabChat(
                                 true,
                                 engine,
@@ -3550,38 +3518,6 @@ export class ContentGame extends React.Component {
                             {phasePanel}
                             <div className={"col-4"}>
                                 {/* Orders. */}
-                                <div
-                                    className={"panel-orders mb-4"}
-                                    style={{
-                                        maxHeight: "500px",
-                                        overflowY: "scroll",
-                                    }}
-                                >
-                                    <div className="mb-4">
-                                        {currentTabOrderCreation}
-                                    </div>
-
-                                    <PowerOrdersActionBar
-                                        onReset={this.reloadServerOrders}
-                                        onDeleteAll={
-                                            this.onRemoveAllCurrentPowerOrders
-                                        }
-                                        onUpdate={this.setOrders}
-                                        onProcess={
-                                            !this.props.data.isPlayerGame() &&
-                                            this.props.data.observer_level ===
-                                                STRINGS.MASTER_TYPE
-                                                ? this.onProcessGame
-                                                : null
-                                        }
-                                    />
-                                    <div className={"orders"}>
-                                        {this.renderOrders(
-                                            this.props.data,
-                                            currentPowerName
-                                        )}
-                                    </div>
-                                </div>
                             </div>
                         </Row>
                         <Row>
