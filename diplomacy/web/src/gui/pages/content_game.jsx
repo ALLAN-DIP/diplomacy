@@ -200,7 +200,7 @@ export class ContentGame extends React.Component {
                 TURKEY: false,
             },
             hoverOrders: [],
-            tabVal: 0,
+            tabVal: "messages",
         };
 
         // Bind some class methods to this instance.
@@ -1880,12 +1880,12 @@ export class ContentGame extends React.Component {
                                     onChange={this.updateTabVal}
                                     aria-label="basic tabs example"
                                 >
-                                    <Tab2 label="Messages" />
-                                    <Tab2 label="Commentary Advisor" />
-                                    {isAdmin && <Tab2 label="Captain's Log" />}
+                                    <Tab2 label="Messages" value="messages" />
+                                    <Tab2 label="Commentary Advisor" value="commentary" />
+                                    {isAdmin && <Tab2 label="Captain's Log" value="intent-log" />}
                                 </Tabs2>
                             </Box>
-                            {this.state.tabVal === 0 && (
+                            {this.state.tabVal === "messages" && (
                                 <div>
                                     <MainContainer responsive>
                                         <Sidebar position="left" scrollable={true}>
@@ -1986,7 +1986,7 @@ export class ContentGame extends React.Component {
                                 </div>
                             )}
 
-                            {this.state.tabVal === 1 && (
+                            {this.state.tabVal === "commentary" && (
                                 <MainContainer responsive>
                                     <ChatContainer>
                                         <ConversationHeader>
@@ -2053,7 +2053,7 @@ export class ContentGame extends React.Component {
                                 </MainContainer>
                             )}
 
-                            {this.state.tabVal === 2 && (
+                            {this.state.tabVal === "intent-log" && (
                                 <MainContainer responsive>
                                     <ChatContainer>
                                         <ConversationHeader>
