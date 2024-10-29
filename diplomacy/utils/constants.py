@@ -15,7 +15,7 @@
 #  with this program.  If not, see <https://www.gnu.org/licenses/>.
 # ==============================================================================
 """ Some constant / config values used in Diplomacy package. """
-from enum import IntEnum
+from enum import IntFlag
 
 # Number of times to try to connect before throwing an exception.
 NB_CONNECTION_ATTEMPTS = 12
@@ -61,10 +61,14 @@ class OrderSettings:
     ALL_SETTINGS = {ORDER_NOT_SET, ORDER_SET_EMPTY, ORDER_SET}
 
 
-class SuggestionType(IntEnum):
+class SuggestionType(IntFlag):
     """Type of suggestions an advisor provides."""
 
     NONE = 0
-    MESSAGE_ONLY = 1
-    MOVE_ONLY = 2
-    MESSAGE_AND_MOVE = 3
+    MESSAGE = 1
+    MOVE = 2
+
+    # Old aliases for backwards compatibility
+    MESSAGE_ONLY = MESSAGE
+    MOVE_ONLY = MOVE
+    MESSAGE_AND_MOVE = MESSAGE | MOVE
