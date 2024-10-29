@@ -67,6 +67,7 @@ class SuggestionType(IntFlag):
     NONE = 0
     MESSAGE = 1
     MOVE = 2
+    COMMENTARY = 4
 
     # Old aliases for backwards compatibility
     MESSAGE_ONLY = MESSAGE
