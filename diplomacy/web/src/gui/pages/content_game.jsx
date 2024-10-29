@@ -1587,6 +1587,11 @@ export class ContentGame extends React.Component {
     }
 
     renderCurrentMessages(engine, role, isWide) {
+        const isAdmin =
+            engine.role === "omniscient_type" ||
+            engine.role === "master_type" ||
+            engine.role === "observer_type";
+
         const controllablePowers = engine.getControllablePowers();
         const currentPowerName =
             this.state.power ||
@@ -1610,7 +1615,7 @@ export class ContentGame extends React.Component {
             <Conversation
                 style={{ minWidth: "200px" }}
                 info={
-                    protagonist !== "GLOBAL"
+                    isAdmin && protagonist !== "GLOBAL"
                         ? engine.powers[protagonist].getController()
                         : ""
                 }
@@ -1636,7 +1641,7 @@ export class ContentGame extends React.Component {
                     name={protagonist}
                     size="sm"
                     status={
-                        protagonist !== "GLOBAL"
+                        isAdmin && protagonist !== "GLOBAL"
                             ? engine.powers[protagonist].getCommStatus() ===
                               STRINGS.READY
                                 ? "available"
@@ -1792,11 +1797,6 @@ export class ContentGame extends React.Component {
         }
 
         const phaseType = engine.getPhaseType();
-
-        const isAdmin =
-            engine.role === "omniscient_type" ||
-            engine.role === "master_type" ||
-            engine.role === "observer_type";
 
         // for filtering message suggestions based on the current power talking to
 
