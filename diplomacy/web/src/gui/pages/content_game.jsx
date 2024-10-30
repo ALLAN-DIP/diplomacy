@@ -1793,6 +1793,77 @@ export class ContentGame extends React.Component {
 
         const phaseType = engine.getPhaseType();
 
+        const isAdmin =
+            engine.role === "omniscient_type" ||
+            engine.role === "master_type" ||
+            engine.role === "observer_type";
+
+        // for filtering message suggestions based on the current power talking to
+
+        const globalMessages = messageChannels["GLOBAL"] || [];
+        let globalSuggestedMessages = [];
+
+        /*
+         0: no advisors
+         1: message only
+         2: move only
+         3: message and move
+        */
+        let suggestionType = 0;
+
+        const hasSuggestionMessage = globalMessages.some(
+            (msg) =>
+                msg.type === "has_suggestions" &&
+                msg.phase === engine.phase &&
+                msg.message.includes(currentPowerName)
+        );
+
+        if (hasSuggestionMessage) {
+            const powerSuggestions = globalMessages.filter(
+                (msg) =>
+                    msg.type === "has_suggestions" &&
+                    msg.phase === engine.phase &&
+                    msg.message.includes(currentPowerName)
+            );
+            powerSuggestions.forEach((x) => {
+                const parts = x.message.split(":");
+                const p = parts[0].trim();
+                const t = parseInt(parts[1].trim());
+                if (p === currentPowerName) suggestionType = t;
+            });
+        }
+
+        for (let m of globalMessages) {
+            if (m.type === "suggested_message") {
+                globalSuggestedMessages.push(m);
+            }
+        }
+
+        const suggestedMessagesForCurrentPower =
+            globalSuggestedMessages.filter((msg) => {
+                if (!msg.message.includes(":") || !msg.message.includes("-"))
+                    return false;
+                const ps = msg.message.split(":")[0].split("-");
+                const sender = ps[0];
+                const recipient = ps[1];
+
+                if (msg.message.split(":")[1] !== "commentary")
+                    return false;
+
+                if (
+                    sender === currentPowerName &&
+                    recipient === protagonist &&
+                    msg.phase === engine.phase &&
+                    (isAdmin ||
+                        !this.state.annotatedMessages.hasOwnProperty(
+                            msg.time_sent
+                        ))
+                ) {
+                    return true;
+                }
+                return false;
+            }) || [];
+
         return (
             <Box
                 className={isWide ? "col-6 mb-4" : "col-4 mb-4"}
@@ -1810,7 +1881,8 @@ export class ContentGame extends React.Component {
                                     aria-label="basic tabs example"
                                 >
                                     <Tab2 label="Messages" />
-                                    <Tab2 label="Captain's Log" />
+                                    <Tab2 label="Commentary Advisor" />
+                                    {isAdmin && <Tab2 label="Captain's Log" />}
                                 </Tabs2>
                             </Box>
                             {this.state.tabVal === 0 && (
@@ -1915,6 +1987,73 @@ export class ContentGame extends React.Component {
                             )}
 
                             {this.state.tabVal === 1 && (
+                                <MainContainer responsive>
+                                    <ChatContainer>
+                                        <ConversationHeader>
+                                            <ConversationHeader.Content
+                                                userName={
+                                                    "Commentary about " + protagonist
+                                                }
+                                            />
+                                        </ConversationHeader>
+                                        <MessageList>
+                                            {suggestedMessagesForCurrentPower.map((m, i) => {
+                                                const content = m.message;
+                                                const suggestedMessage = content
+                                                    .split(":")
+                                                    .slice(2)
+                                                    .join(":");
+
+                                                return (
+                                                    <div
+                                                        style={{
+                                                            alignItems: "flex-end",
+                                                            display:
+                                                                !this.state.annotatedMessages.hasOwnProperty(
+                                                                    m.time_sent
+                                                                )
+                                                                    ? "flex"
+                                                                    : "none",
+                                                        }}
+                                                    >
+                                                        <ChatMessage
+                                                            style={{ flexGrow: 1 }}
+                                                            model={{
+                                                                message: suggestedMessage,
+                                                                sent: m.sent_time,
+                                                                sender: m.sender,
+                                                                direction: "incoming",
+                                                                position: "single",
+                                                            }}
+                                                            avatarPosition={"tl"}
+                                                        ></ChatMessage>
+                                                    </div>
+                                                );
+                                            })}
+                                        </MessageList>
+                                        {engine.isPlayerGame() && (
+                                            <MessageInput
+                                                attachButton={false}
+                                                onChange={(val) =>
+                                                    this.setlogDataInputValue(
+                                                        val
+                                                    )
+                                                }
+                                                onSend={() => {
+                                                    const message =
+                                                        this.sendLogData(
+                                                            engine.client,
+                                                            this.state.logData
+                                                        );
+                                                    //this.setLogs([...this.state.logs, message])
+                                                }}
+                                            />
+                                        )}
+                                    </ChatContainer>
+                                </MainContainer>
+                            )}
+
+                            {this.state.tabVal === 2 && (
                                 <MainContainer responsive>
                                     <ChatContainer>
                                         <ConversationHeader>
@@ -2313,6 +2452,9 @@ export class ContentGame extends React.Component {
                 const sender = ps[0];
                 const recipient = ps[1];
 
+                if (msg.message.split(":")[1] !== "message")
+                    return false;
+
                 if (
                     sender === currentPowerName &&
                     recipient === protagnist &&
@@ -2351,7 +2493,7 @@ export class ContentGame extends React.Component {
                                 const content = m.message;
                                 const suggestedMessage = content
                                     .split(":")
-                                    .slice(1)
+                                    .slice(2)
                                     .join(":");
 
                                 return (
@@ -2369,7 +2511,7 @@ export class ContentGame extends React.Component {
                                         <ChatMessage
                                             style={{ flexGrow: 1 }}
                                             model={{
-                                                message: m.message,
+                                                message: suggestedMessage,
                                                 sent: m.sent_time,
                                                 sender: m.sender,
                                                 direction: "incoming",
