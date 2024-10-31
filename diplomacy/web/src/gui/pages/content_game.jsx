@@ -1881,7 +1881,10 @@ export class ContentGame extends React.Component {
                                     aria-label="basic tabs example"
                                 >
                                     <Tab2 label="Messages" value="messages" />
-                                    <Tab2 label="Commentary Advisor" value="commentary" />
+                                    {
+                                        (isAdmin || (suggestionType & 4) === 4) &&
+                                        <Tab2 label="Commentary Advisor" value="commentary" />
+                                    }
                                     {isAdmin && <Tab2 label="Captain's Log" value="intent-log" />}
                                 </Tabs2>
                             </Box>
