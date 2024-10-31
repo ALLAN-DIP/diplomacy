@@ -1882,7 +1882,7 @@ export class ContentGame extends React.Component {
                                 >
                                     <Tab2 label="Messages" value="messages" />
                                     {
-                                        (isAdmin || (suggestionType & 4) === 4) &&
+                                        (suggestionType & 4) === 4 &&
                                         <Tab2 label="Commentary Advisor" value="commentary" />
                                     }
                                     {isAdmin && <Tab2 label="Captain's Log" value="intent-log" />}
