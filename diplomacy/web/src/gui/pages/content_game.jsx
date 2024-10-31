@@ -1804,10 +1804,10 @@ export class ContentGame extends React.Component {
         let globalSuggestedMessages = [];
 
         /*
-         0: no advisors
-         1: message only
-         2: move only
-         3: message and move
+         0: NONE
+         1: MESSAGE
+         2: MOVE
+         4: COMMENTARY
         */
         let suggestionType = 0;
 
@@ -1829,7 +1829,7 @@ export class ContentGame extends React.Component {
                 const parts = x.message.split(":");
                 const p = parts[0].trim();
                 const t = parseInt(parts[1].trim());
-                if (p === currentPowerName) suggestionType = t;
+                if (p === currentPowerName) suggestionType |= t;
             });
         }
 
@@ -2409,11 +2409,11 @@ export class ContentGame extends React.Component {
         let globalSuggestedMessages = [];
 
         /*
-   * 0: no advisors
-     1: message only
-     2: move only
-     3: message and move
-   */
+         0: NONE
+         1: MESSAGE
+         2: MOVE
+         4: COMMENTARY
+        */
         let suggestionType = 0;
 
         const hasSuggestionMessage = globalMessages.some(
@@ -2434,7 +2434,7 @@ export class ContentGame extends React.Component {
                 const parts = x.message.split(":");
                 const p = parts[0].trim();
                 const t = parseInt(parts[1].trim());
-                if (p === currentPowerName) suggestionType = t;
+                if (p === currentPowerName) suggestionType |= t;
             });
         }
 
@@ -2604,11 +2604,11 @@ export class ContentGame extends React.Component {
         let globalSuggestedMessages = [];
 
         /*
-     * 0: no advisors
-       1: message only
-       2: move only
-       3: message and move
-     */
+         0: NONE
+         1: MESSAGE
+         2: MOVE
+         4: COMMENTARY
+        */
         let suggestionType = 0;
 
         const hasSuggestionMessage = globalMessages.some(
@@ -2629,7 +2629,7 @@ export class ContentGame extends React.Component {
                 const parts = x.message.split(":");
                 const p = parts[0].trim();
                 const t = parseInt(parts[1].trim());
-                if (p === currentPowerName) suggestionType = t;
+                if (p === currentPowerName) suggestionType |= t;
             });
         }
 
@@ -2985,6 +2985,11 @@ export class ContentGame extends React.Component {
             );
         }
 
+        const suggestionTypeDisplay = []
+        if ((suggestionType & 1) === 1) suggestionTypeDisplay.push("message")
+        if ((suggestionType & 2) === 2) suggestionTypeDisplay.push("move")
+        if ((suggestionType & 4) === 4) suggestionTypeDisplay.push("commentary")
+
         return (
             <div className={"col-4 mb-4"}>
                 {!hasSuggestionMessage && (
@@ -2996,18 +3001,10 @@ export class ContentGame extends React.Component {
                 {hasSuggestionMessage && suggestionType === 0 && (
                     <div>You are on your own this turn.</div>
                 )}
-                {suggestionType === 1 && (
-                    <div>You are getting messages advice this turn.</div>
+                {suggestionType >= 1 && (
+                    <div>You are getting advice this turn: {suggestionTypeDisplay.join(", ")}.</div>
                 )}
-                {suggestionType === 2 && (
-                    <div>You are getting moves advice this turn.</div>
-                )}
-                {suggestionType === 3 && (
-                    <div>
-                        You are getting moves & messages advice this turn.
-                    </div>
-                )}
-                {suggestionType > 1 && (
+                {(suggestionType & 2) === 2 && (
                     <ChatContainer
                         style={{
                             display: "flex",
@@ -3467,13 +3464,37 @@ export class ContentGame extends React.Component {
         );
         const globalMessages = messageChannels["GLOBAL"] || [];
 
-        const hasMoveSuggestion = globalMessages.some(
+        /*
+         0: NONE
+         1: MESSAGE
+         2: MOVE
+         4: COMMENTARY
+        */
+        let suggestionType = 0;
+
+        const hasSuggestionMessage = globalMessages.some(
             (msg) =>
                 msg.type === "has_suggestions" &&
                 msg.phase === engine.phase &&
-                msg.message.includes(currentPowerName) &&
-                (msg.message.includes("2") || msg.message.includes("3"))
+                msg.message.includes(currentPowerName)
         );
+
+        if (hasSuggestionMessage) {
+            const powerSuggestions = globalMessages.filter(
+                (msg) =>
+                    msg.type === "has_suggestions" &&
+                    msg.phase === engine.phase &&
+                    msg.message.includes(currentPowerName)
+            );
+            powerSuggestions.forEach((x) => {
+                const parts = x.message.split(":");
+                const p = parts[0].trim();
+                const t = parseInt(parts[1].trim());
+                if (p === currentPowerName) suggestionType |= t;
+            });
+        }
+
+        const hasMoveSuggestion = (suggestionType & 2) === 2
 
         let gameContent;
 
