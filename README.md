@@ -19,10 +19,10 @@ Update: the documentation isn't updated for the latest changes. See [here](https
 The latest version of the package can be installed with:
 
 ```shell
-pip install diplomacy
+pip install 'diplomacy @ git+https://git@github.com/ALLAN-DIP/diplomacy.git'
 ```
 
-The package is compatible with Python 3.5, 3.6, and 3.7.
+The package has been tested with Python 3.7 and 3.11, and it should work with all versions between them.
 
 ### Running a game
 
@@ -66,72 +66,15 @@ to_saved_game_format(game, output_path='game.json')
 
 It is also possible to install a web interface in React to play against bots and/or other humans and to visualize games.
 
-The web interface can be installed with:
+The web interface can be built and run with Docker:
 
-```bash
-# update
-sudo apt update
-# install npm
-sudo apt-get install npm
-
-# install conda
-wget http://repo.continuum.io/archive/Anaconda3-4.0.0-Linux-x86_64.sh
-bash Anaconda3-4.0.0-Linux-x86_64.sh
-export PATH="/home/username/anaconda3/bin:$PATH"
-source ~/.bashrc
-conda update conda
-conda create -n paquette python=3.6
-source activate paquette
-
-# Install NVM
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.34.0/install.sh | bash
-
-# Clone repo
-git clone https://github.com/diplomacy/diplomacy.git
-
-# Install package locally
-# You may want to install it in a conda or virtualenv environment
-cd diplomacy/
-pip install -r requirements_dev.txt
-
-# Build node modules
-cd diplomacy/web
-npm install .
-npm install . --only=dev
+```shell
+export MAPS_TO_LOAD=standard.map
+export PULL_POLICY=never
+make build
+docker compose up --detach
 ```
 
-
-use node version <= 16 or
-```
-export NODE_OPTIONS=--openssl-legacy-provider for linux and macos
-
-set PORT=<PORT> && react-scripts --openssl-legacy-provider start # for npm start in package.json on windows
-```
-
-To avoid `error:0308010C:digital envelope routines::unsupported`
-<br>
-In windows, you also need to change
-<br>
-`../../../diplomacy/maps/svg/${this.props.params.map.svgName()}.svg` in
-<br>
-`diploamcy/web/src/gui/wizard/gameCreation/panelChooseMap.js` to
-<br>
-`../../../../../../diplomacy/maps/svg/${this.props.params.map.svgName()}.svg`
-<br>
-
-```
-# In a terminal window or tab - Launch React server
-pm2 start "npm start" # for background activity
-npm start
-
-# In another terminal window or tab - Launch diplomacy server
-nohup python3 -m diplomacy.server.run & # for background activity
-python -m diplomacy.server.run
-```
-
-Use `ps -fA | grep <COMMAND>` to find the background python process
-and `kill <PID>` to kill it
-  
 The web interface will be accessible at http://localhost:3000.
 
 To login, users can use admin/password or username/password. Additional users can be created by logging in with a username that does not exist in the database.
