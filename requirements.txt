@@ -3,6 +3,7 @@ coloredlogs
 python-dateutil
 pytz
 requests
+setuptools
 tornado>=5.0
 tqdm
 ujson

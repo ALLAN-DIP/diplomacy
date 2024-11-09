@@ -27,6 +27,7 @@ export class Message {
         this.message = message.message;
         this.truth = message.truth;
         this.recipient_annotation = message.recipient_annotation;
+        this.type = message.type;
     }
 
     isGlobal() {

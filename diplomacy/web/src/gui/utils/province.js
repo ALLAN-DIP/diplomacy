@@ -54,7 +54,7 @@ export class Province {
             throw new Error(`Invalid province control type (${controlType}), expected 'C', 'I' or 'U'.`);
         if (this.controller && this.controller !== controller) {
             const controlTypeComparison = this.compareControlType(controlType, this.controlType);
-            if (controlTypeComparison === 0)
+            if (controlTypeComparison === 0 && !this.name.endsWith('C'))
                 throw new Error(`Found 2 powers (${this.controller}, ${controller}) trying to control same province ` +
                     `(${this.name}) with same control type (${controlType} VS ${this.controlType}).`);
             if (controlTypeComparison > 0)

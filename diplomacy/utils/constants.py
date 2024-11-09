@@ -15,6 +15,7 @@
 #  with this program.  If not, see <https://www.gnu.org/licenses/>.
 # ==============================================================================
 """ Some constant / config values used in Diplomacy package. """
+from enum import IntFlag
 
 # Number of times to try to connect before throwing an exception.
 NB_CONNECTION_ATTEMPTS = 12
@@ -34,11 +35,8 @@ REQUEST_TIMEOUT_SECONDS = 30
 # Default host name for a server to connect to.
 DEFAULT_HOST = 'localhost'
 
-# Default port for normal non-securized server.
-DEFAULT_PORT = 8432
-
-# Default port for secure SSL server (not yet used).
-DEFAULT_SSL_PORT = 8433
+# Default port for server.
+DEFAULT_PORT = 8433
 
 # Default port range for DAIDE servers
 DEFAULT_DAIDE_PORT_RANGE = "8434:8600"
@@ -61,3 +59,17 @@ class OrderSettings:
     ORDER_SET_EMPTY = 1
     ORDER_SET = 2
     ALL_SETTINGS = {ORDER_NOT_SET, ORDER_SET_EMPTY, ORDER_SET}
+
+
+class SuggestionType(IntFlag):
+    """Type of suggestions an advisor provides."""
+
+    NONE = 0
+    MESSAGE = 1
+    MOVE = 2
+    COMMENTARY = 4
+
+    # Old aliases for backwards compatibility
+    MESSAGE_ONLY = MESSAGE
+    MOVE_ONLY = MOVE
+    MESSAGE_AND_MOVE = MESSAGE | MOVE

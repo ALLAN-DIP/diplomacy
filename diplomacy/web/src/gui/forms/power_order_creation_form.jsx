@@ -60,9 +60,9 @@ export class PowerOrderCreationForm extends React.Component {
         } else {
             title = 'No orders available for this power.';
         }
-        if (!this.props.power.order_is_set) {
+        /* if (!this.props.power.order_is_set) {
             header.push(Forms.createButton('pass', this.props.onPass));
-        }
+        } */
 
         if (this.props.role !== STRINGS.OMNISCIENT_TYPE) {
             votes.push(<strong key={0} className={'ml-4 mr-2'}>Vote for draw:</strong>);
@@ -96,7 +96,6 @@ export class PowerOrderCreationForm extends React.Component {
                         this.props.onSetWaitFlag,
                         (this.props.power.wait ? 'success' : 'danger')
                     )}
-                    {votes}
                     <HotKey keys={['escape']} onKeysCoincide={onReset}/>
                     {this.props.orderTypes.map((letter, index) => (
                         <HotKey key={index} keys={[letter.toLowerCase()]}

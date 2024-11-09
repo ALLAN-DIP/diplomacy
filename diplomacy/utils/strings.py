@@ -236,6 +236,7 @@ ORDER_LOG_HISTORY = 'order_log_history'
 HAS_INITIAL_ORDERS = 'has_initial_orders'
 ANNOTATED_MESSAGES = 'annotated_messages'
 ORDER_SUGGESTIONS = 'order_suggestions'
+TYPE = 'type'
 BUSY = 'busy'
 READY = 'ready'
 INACTIVE = 'inactive'
@@ -243,10 +244,16 @@ HUMAN = 'human'
 NO_PRESS_BOT = 'no_press_bot'
 PRESS_BOT = 'press_bot'
 NONE = 'none'
-NEGOTIATION = 'negotiation'
 GLOSS = 'gloss'
 TONES = 'tones'
 DAIDE = 'daide'
+GLOBAL = "GLOBAL"
+HAS_SUGGESTIONS = "has_suggestions"
+SUGGESTED_MESSAGE = "suggested_message"
+SUGGESTED_MOVE_FULL = "suggested_move_full"
+SUGGESTED_MOVE_PARTIAL = "suggested_move_partial"
+VIA = "VIA"
+WAIVE = "WAIVE"
 
 # Special name sets.
 ALL_GAME_STATUSES = (FORMING, ACTIVE, PAUSED, COMPLETED, CANCELED)

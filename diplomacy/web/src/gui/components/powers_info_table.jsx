@@ -19,6 +19,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { Slider } from "./slider";
+import { Button } from "./button";
 
 class DefaultWrapper {
     constructor(data) {
@@ -56,10 +57,9 @@ export class PowersInfoTable extends React.Component {
             const name = entry[0];
             const title = entry[1][0];
             const order = entry[1][1];
-            if (name === 'name') {
+            if (name === "name") {
                 header.push([order, name, title]);
             }
-            
         }
         header.sort((a, b) => {
             let t = a[0] - b[0];
@@ -80,12 +80,12 @@ export class PowersInfoTable extends React.Component {
                     ))}
                     <th>
                         <span title="What is your attitute toward this player?">
-                            Your stance toward other players
+                            Your stance toward this player
                         </span>
                     </th>
                     <th>
                         <span title="Do you think this player is a bot?">
-                            Which players do you think are bots?
+                            Do you think this player is a bot?
                         </span>
                     </th>
                 </tr>
@@ -105,7 +105,16 @@ export class PowersInfoTable extends React.Component {
         this.props.onChangeDeceiving(country, checked);
     };
 
-    getBodyRow(header, row, rowIndex, wrapper, countries, stances, isBot, player) {
+    getBodyRow(
+        header,
+        row,
+        rowIndex,
+        wrapper,
+        countries,
+        stances,
+        isBot,
+        player
+    ) {
         const wrapped = wrapper(row);
 
         return (
@@ -116,45 +125,49 @@ export class PowersInfoTable extends React.Component {
                     </td>
                 ))}
 
-                {player !== countries[rowIndex] ? (
-                    <td>
+                {player !== countries[rowIndex] && !row.isEliminated() ? (
+                    <td style={{display: 'flex', flexDirection:'row'}}>
+                        <Button
+                            pickEvent={true}
+                            title={"No change"}
+                            onClick={() => {
+                                this.handleStance(countries[rowIndex], stances[countries[rowIndex]] ? stances[countries[rowIndex]] : 3);
+                            }}
+                        ></Button>&nbsp;
                         <Slider
                             country={countries[rowIndex]}
                             onChangeStance={this.handleStance}
                             stance={stances[countries[rowIndex]]}
-                            dict={{0: 'Hostile', 1: 'Neutral', 2: 'Friendly'}}
+                            dict={{
+                                1: "Very hostile",
+                                2: "Slightly hostile",
+                                3: "Neutral",
+                                4: "Slightly friendly",
+                                5: "Very friendly",
+                            }}
+                            clicked={
+                                this.props.stanceUpdated[countries[rowIndex]]
+                            }
                         />
                     </td>
                 ) : null}
 
-                {player !== countries[rowIndex] ? (
-                    <td className={"align-middle"}>
-                        <Slider
-                            country={countries[rowIndex]}
-                            onChangeStance={this.handleIsBot}
-                            stance={isBot[countries[rowIndex]]}
-                            dict={{0: 'This player is a bot', 1: 'Not sure', 2: 'This player is a real human'}}
-                        />
-                    </td>
-                ) : null}
-
-                {/* {player !== countries[rowIndex] ? (
+                {player !== countries[rowIndex] && !row.isEliminated() ? (
                     <td className={"align-middle"}>
                         <input
                             type="checkbox"
                             defaultChecked={
-                                this.props.deceiving &&
-                                this.props.deceiving[countries[rowIndex]]
+                                isBot[countries[rowIndex]] === true
                             }
                             onClick={(e) => {
-                                this.handleDeceiving(
+                                this.handleIsBot(
                                     countries[rowIndex],
                                     e.target.checked
                                 );
                             }}
                         ></input>
                     </td>
-                ) : null} */}
+                ) : null}
             </tr>
         );
     }
@@ -183,6 +196,9 @@ export class PowersInfoTable extends React.Component {
         return (
             <div className={"table-responsive"}>
                 <table className={this.props.className}>
+                    <caption>
+                        {this.props.caption} ({this.props.data.length})
+                    </caption>
                     {this.getHeaderLine(header)}
                     {this.getBodyLines(
                         header,

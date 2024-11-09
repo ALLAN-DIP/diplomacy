@@ -44,6 +44,7 @@ def to_saved_game_format(game, output_path=None, output_mode='a'):
     phases = Game.get_phase_history(game)                                       # Get phase history.
     phases.append(Game.get_phase_data(game))                                    # Add current game phase.
     rules = [rule for rule in game.rules if rule not in RULES_TO_SKIP]          # Filter rules.
+    annotated_messages = game.annotated_messages                                # Get annotations.
 
     # Extend states fields.
     phases_to_dict = [phase.to_dict() for phase in phases]
@@ -56,7 +57,8 @@ def to_saved_game_format(game, output_path=None, output_mode='a'):
     saved_game = {'id': game.game_id,
                   'map': game.map_name,
                   'rules': rules,
-                  'phases': phases_to_dict}
+                  'phases': phases_to_dict,
+                  'annotated_messages': annotated_messages}
 
     # Writing to disk
     if output_path:

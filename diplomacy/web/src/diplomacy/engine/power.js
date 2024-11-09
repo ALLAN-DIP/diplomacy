@@ -38,7 +38,15 @@ export class Power {
         this.influence = [];
         // represents a stance towards every other power
         this.stances = {};
-        this.isBot = {};
+        this.isBot = {
+            AUSTRIA: false,
+            ENGLAND: false,
+            FRANCE: false,
+            GERMANY: false,
+            ITALY: false,
+            RUSSIA: false,
+            TURKEY: false
+        };
         this.comm_status = STRINGS.BUSY;
         this.player_type = null;
     }

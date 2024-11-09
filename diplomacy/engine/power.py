@@ -373,10 +373,8 @@ class Power(Jsonable):
                 self.controller.put(common.timestamp_microseconds(), strings.DUMMY)
                 self.tokens.clear()
                 self.wait = True
-                #self.comm_status = strings.INACTIVE
                 self.comm_status = strings.BUSY
                 self.vote = strings.NEUTRAL
-
         elif self.controller.last_value() == strings.DUMMY:
             self.controller.put(common.timestamp_microseconds(), username)
             self.wait = not self.game.real_time

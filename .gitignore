@@ -130,4 +130,6 @@ data
 
 # Tensorboard
 events.out.*
-/diplomacy_research/
+
+nohup.out
+pyrightconfig.json

@@ -114,6 +114,8 @@ export class EquilateralTriangle {
                 distances.push([d3, p3_x, p3_y]);
             }
             distances.sort();
+            if (distances.length === 0)
+                return [null, null];
             const output = distances[0];
             output.shift();
             return output;

@@ -1,37 +1,37 @@
 import React from "react";
 import PropTypes from "prop-types";
+import "./slider.css";
 
 export class Slider extends React.Component {
     constructor(props) {
         super(props);
-        if (props.stance > 0) {
-            this.state = {value: props.stance}
-        } else{
-            this.state = this.getInitialValue();
-        }
-        this.handleChange = this.handleChange.bind(this);
-    }
-
-    getInitialValue() {
-        return {value: 1};
     }
 
     country = this.props.country;
 
-    handleChange = (event) => {
-        this.setState({value: event.target.value});
-        this.props.onChangeStance(this.country, event.target.value);
-    }
-
     render() {
         return (
             <div className={"slidecontainer"}>
-                <input type={"range"} value={this.state.value} min={"0"} max={"2"} step={"1"}
-                       onChange={this.handleChange}/>
+                <input
+                    type={"range"}
+                    defaultValue={this.props.stance > 0 ? this.props.stance : 3}
+                    min={"1"}
+                    max={"5"}
+                    step={"1"}
+                    onChange={(event) => this.props.onChangeStance(this.country, event.target.value)}
+                />
 
-                <p><span id={"stanceValue"}>{this.props.dict[this.state.value]}</span></p>
+                <p>
+                    <span
+                        id={"stanceValue"}
+                        className={
+                            this.props.clicked ? null : "unclickedSlider"
+                        }
+                    >
+                        {this.props.dict[this.props.stance > 0 ? this.props.stance : 3]}
+                    </span>
+                </p>
             </div>
-
         );
     }
 }
@@ -42,8 +42,3 @@ Slider.propTypes = {
     onChangeStance: PropTypes.func,
     dict: PropTypes.object,
 };
-
-/*
-Slider.defaultProps = {
-
-};*/

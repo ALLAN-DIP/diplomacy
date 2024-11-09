@@ -73,7 +73,6 @@ export const REQUESTS = {
         send_deceiving: {level: STRINGS.GAME, model: {info: null}},
         send_game_message: {level: STRINGS.GAME, model: {message: null}},
         send_order_log: {level: STRINGS.GAME, model: {log: null}},
-        send_daide_composer_message: {level: STRINGS.GAME, model: {message: null}},
         send_log_data: {level: STRINGS.GAME, model: {log: null}},
         send_order_suggestions: {level: STRINGS.GAME, model: {power: null, suggestions: null}},
         set_dummy_powers: {level: STRINGS.GAME, model: {username: null, power_names: null}},
