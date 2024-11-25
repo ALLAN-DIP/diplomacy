@@ -1601,6 +1601,32 @@ export class ContentGame extends React.Component {
         return receivedSuggestions
     }
 
+    getLatestSuggestedMoves(receivedSuggestions, suggestionType) {
+        let latestMoveSuggestion = null;
+        for (const msg of receivedSuggestions) {
+            if (msg.type === `suggested_move_${suggestionType}`) {
+                if (
+                    !latestMoveSuggestion ||
+                    msg.time_sent > latestMoveSuggestion.time_sent
+                )
+                    latestMoveSuggestion = msg;
+            }
+        }
+
+        // do not display if player dismissed the suggestion
+        if (latestMoveSuggestion) {
+            const sent_time = latestMoveSuggestion.time_sent;
+            if (
+                this.state.annotatedMessages.hasOwnProperty(sent_time) &&
+                this.state.annotatedMessages[sent_time] === "reject"
+            ) {
+                latestMoveSuggestion = null;
+            }
+        }
+
+        return latestMoveSuggestion;
+    }
+
     getSuggestedMessages(currentPowerName, protagonist, isAdmin, engine, globalMessages) {
         const receivedSuggestions =
             globalMessages.filter((msg) => {
@@ -2574,46 +2600,8 @@ export class ContentGame extends React.Component {
         const moveSuggestionForCurrentPower = this.getSuggestedMoves(currentPowerName, engine, globalMessages)
 
         // display only the latest to avoid cluttering textbox
-        let latestMoveSuggestionFull = null;
-        let latestMoveSuggestionPartial = null;
-
-        for (const m of moveSuggestionForCurrentPower) {
-            if (m.type === "suggested_move_full") {
-                if (
-                    !latestMoveSuggestionFull ||
-                    m.time_sent > latestMoveSuggestionFull.time_sent
-                )
-                    latestMoveSuggestionFull = m;
-            }
-            if (m.type === "suggested_move_partial") {
-                if (
-                    !latestMoveSuggestionPartial ||
-                    m.time_sent > latestMoveSuggestionPartial.time_sent
-                )
-                    latestMoveSuggestionPartial = m;
-            }
-        }
-
-        // do not display if player dismissed the suggestion
-        if (latestMoveSuggestionFull) {
-            const sent_time = latestMoveSuggestionFull.time_sent;
-            if (
-                this.state.annotatedMessages.hasOwnProperty(sent_time) &&
-                this.state.annotatedMessages[sent_time] === "reject"
-            ) {
-                latestMoveSuggestionFull = null;
-            }
-        }
-
-        if (latestMoveSuggestionPartial) {
-            const sent_time = latestMoveSuggestionPartial.time_sent;
-            if (
-                this.state.annotatedMessages.hasOwnProperty(sent_time) &&
-                this.state.annotatedMessages[sent_time] === "reject"
-            ) {
-                latestMoveSuggestionPartial = null;
-            }
-        }
+        let latestMoveSuggestionFull = this.getLatestSuggestedMoves(moveSuggestionForCurrentPower, "full");
+        let latestMoveSuggestionPartial = this.getLatestSuggestedMoves(moveSuggestionForCurrentPower, "partial");
 
         let fullSuggestionComponent = null;
         let partialSuggestionComponent = null;
