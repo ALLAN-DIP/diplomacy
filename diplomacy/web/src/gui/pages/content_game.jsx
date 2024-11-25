@@ -1590,28 +1590,15 @@ export class ContentGame extends React.Component {
     }
 
     getSuggestedMoves(currentPowerName, engine, globalMessages) {
-        let globalSuggestedMoves = [];
-
-        // split suggestions into moves and messages
-        for (let m of globalMessages) {
-            if (m.type) {
-                if (m.type.includes("move")) {
-                    globalSuggestedMoves.push(m);
-                }
-            }
-        }
-
-        const moveSuggestionForCurrentPower =
-            globalSuggestedMoves.filter((msg) => {
+        const receivedSuggestions =
+            globalMessages.filter((msg) => {
+                if (!msg.type.includes("move")) return false;
                 if (!msg.message.includes(":")) return false;
                 const p = msg.message.split(":")[0];
-                if (p === currentPowerName && msg.phase === engine.phase) {
-                    return true;
-                }
-                return false;
-            }) || [];
+                return p === currentPowerName && msg.phase === engine.phase;
+            });
 
-        return moveSuggestionForCurrentPower
+        return receivedSuggestions
     }
 
     getSuggestedMessages(currentPowerName, protagonist, isAdmin, engine, globalMessages) {
