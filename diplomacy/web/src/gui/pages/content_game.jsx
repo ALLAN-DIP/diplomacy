@@ -1592,29 +1592,20 @@ export class ContentGame extends React.Component {
         */
         let suggestionType = 0;
 
-        const hasSuggestionMessage = globalMessages.some(
+        const powerSuggestions = globalMessages.filter(
             (msg) =>
                 msg.type === "has_suggestions" &&
                 msg.phase === engine.phase &&
                 msg.message.includes(currentPowerName)
         );
+        powerSuggestions.forEach((x) => {
+            const parts = x.message.split(":");
+            const p = parts[0].trim();
+            const t = parseInt(parts[1].trim());
+            if (p === currentPowerName) suggestionType |= t;
+        });
 
-        if (hasSuggestionMessage) {
-            const powerSuggestions = globalMessages.filter(
-                (msg) =>
-                    msg.type === "has_suggestions" &&
-                    msg.phase === engine.phase &&
-                    msg.message.includes(currentPowerName)
-            );
-            powerSuggestions.forEach((x) => {
-                const parts = x.message.split(":");
-                const p = parts[0].trim();
-                const t = parseInt(parts[1].trim());
-                if (p === currentPowerName) suggestionType |= t;
-            });
-        }
-
-        if (hasSuggestionMessage) {
+        if (powerSuggestions.length > 0) {
             return suggestionType;
         } else {
             return null;
