@@ -1523,31 +1523,8 @@ export class ContentGame extends React.Component {
         const controlledPower = this.getCurrentPowerName();
 
         const globalMessages = messageChannels["GLOBAL"] || [];
-        let globalSuggestedMessages = [];
 
-        // split suggestions into moves and messages
-        for (let m of globalMessages) {
-            if (m.type === "suggested_message") {
-                globalSuggestedMessages.push(m);
-            }
-        }
-
-        const suggestedMessagesForCurrentPower =
-            globalSuggestedMessages.filter((msg) => {
-                if (!msg.message.includes("-") || !msg.message.includes(":"))
-                    return false;
-                const ps = msg.message.split(":")[0].split("-");
-                if (
-                    ps[0] === controlledPower &&
-                    ps[1] === protagnist &&
-                    msg.phase === engine.phase &&
-                    !this.state.annotatedMessages.hasOwnProperty(msg.time_sent)
-                ) {
-                    return true;
-                }
-
-                return false;
-            }) || [];
+        const suggestedMessagesForCurrentPower = this.getSuggestedMessages(controlledPower, protagnist, isAdmin, engine, globalMessages);
 
         return suggestedMessagesForCurrentPower.length > 0;
     }
@@ -1610,6 +1587,43 @@ export class ContentGame extends React.Component {
         } else {
             return null;
         }
+    }
+
+    getSuggestedMessages(currentPowerName, protagnist, isAdmin, engine, globalMessages) {
+        let globalSuggestedMessages = [];
+
+        for (let m of globalMessages) {
+            if (m.type === "suggested_message") {
+                globalSuggestedMessages.push(m);
+            }
+        }
+
+        const suggestedMessagesForCurrentPower =
+            globalSuggestedMessages.filter((msg) => {
+                if (!msg.message.includes(":") || !msg.message.includes("-"))
+                    return false;
+                const ps = msg.message.split(":")[0].split("-");
+                const sender = ps[0];
+                const recipient = ps[1];
+
+                if (msg.message.split(":")[1] !== "message")
+                    return false;
+
+                if (
+                    sender === currentPowerName &&
+                    recipient === protagnist &&
+                    msg.phase === engine.phase &&
+                    (isAdmin ||
+                        !this.state.annotatedMessages.hasOwnProperty(
+                            msg.time_sent
+                        ))
+                ) {
+                    return true;
+                }
+                return false;
+            }) || [];
+
+        return suggestedMessagesForCurrentPower;
     }
 
     renderCurrentMessages(engine, role, isWide) {
@@ -2407,40 +2421,10 @@ export class ContentGame extends React.Component {
             true
         );
         const globalMessages = messageChannels["GLOBAL"] || [];
-        let globalSuggestedMessages = [];
 
         const suggestionType = this.getSuggestionType(currentPowerName, engine, globalMessages);
 
-        for (let m of globalMessages) {
-            if (m.type === "suggested_message") {
-                globalSuggestedMessages.push(m);
-            }
-        }
-
-        const suggestedMessagesForCurrentPower =
-            globalSuggestedMessages.filter((msg) => {
-                if (!msg.message.includes(":") || !msg.message.includes("-"))
-                    return false;
-                const ps = msg.message.split(":")[0].split("-");
-                const sender = ps[0];
-                const recipient = ps[1];
-
-                if (msg.message.split(":")[1] !== "message")
-                    return false;
-
-                if (
-                    sender === currentPowerName &&
-                    recipient === protagnist &&
-                    msg.phase === engine.phase &&
-                    (isAdmin ||
-                        !this.state.annotatedMessages.hasOwnProperty(
-                            msg.time_sent
-                        ))
-                ) {
-                    return true;
-                }
-                return false;
-            }) || [];
+        const suggestedMessagesForCurrentPower = this.getSuggestedMessages(currentPowerName, protagnist, isAdmin, engine, globalMessages)
 
         return (
             <div className={isWide ? "col-6 mb-4" : "col-4 mb-4"}>
