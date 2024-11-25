@@ -1583,6 +1583,44 @@ export class ContentGame extends React.Component {
         return count;
     }
 
+    getSuggestionType(currentPowerName, engine, globalMessages){
+        /*
+         0: NONE
+         1: MESSAGE
+         2: MOVE
+         4: COMMENTARY
+        */
+        let suggestionType = 0;
+
+        const hasSuggestionMessage = globalMessages.some(
+            (msg) =>
+                msg.type === "has_suggestions" &&
+                msg.phase === engine.phase &&
+                msg.message.includes(currentPowerName)
+        );
+
+        if (hasSuggestionMessage) {
+            const powerSuggestions = globalMessages.filter(
+                (msg) =>
+                    msg.type === "has_suggestions" &&
+                    msg.phase === engine.phase &&
+                    msg.message.includes(currentPowerName)
+            );
+            powerSuggestions.forEach((x) => {
+                const parts = x.message.split(":");
+                const p = parts[0].trim();
+                const t = parseInt(parts[1].trim());
+                if (p === currentPowerName) suggestionType |= t;
+            });
+        }
+
+        if (hasSuggestionMessage) {
+            return suggestionType;
+        } else {
+            return null;
+        }
+    }
+
     renderCurrentMessages(engine, role, isWide) {
         const isAdmin =
             engine.role === "omniscient_type" ||
@@ -1800,35 +1838,7 @@ export class ContentGame extends React.Component {
         const globalMessages = messageChannels["GLOBAL"] || [];
         let globalSuggestedMessages = [];
 
-        /*
-         0: NONE
-         1: MESSAGE
-         2: MOVE
-         4: COMMENTARY
-        */
-        let suggestionType = 0;
-
-        const hasSuggestionMessage = globalMessages.some(
-            (msg) =>
-                msg.type === "has_suggestions" &&
-                msg.phase === engine.phase &&
-                msg.message.includes(currentPowerName)
-        );
-
-        if (hasSuggestionMessage) {
-            const powerSuggestions = globalMessages.filter(
-                (msg) =>
-                    msg.type === "has_suggestions" &&
-                    msg.phase === engine.phase &&
-                    msg.message.includes(currentPowerName)
-            );
-            powerSuggestions.forEach((x) => {
-                const parts = x.message.split(":");
-                const p = parts[0].trim();
-                const t = parseInt(parts[1].trim());
-                if (p === currentPowerName) suggestionType |= t;
-            });
-        }
+        const suggestionType = this.getSuggestionType(currentPowerName, engine, globalMessages);
 
         for (let m of globalMessages) {
             if (m.type === "suggested_message") {
@@ -1879,7 +1889,7 @@ export class ContentGame extends React.Component {
                                 >
                                     <Tab2 label="Messages" value="messages" />
                                     {
-                                        (suggestionType & 4) === 4 &&
+                                        suggestionType !== null && (suggestionType & 4) === 4 &&
                                         <Tab2 label="Commentary Advisor" value="commentary" />
                                     }
                                     {isAdmin && <Tab2 label="Captain's Log" value="intent-log" />}
@@ -2408,35 +2418,7 @@ export class ContentGame extends React.Component {
         const globalMessages = messageChannels["GLOBAL"] || [];
         let globalSuggestedMessages = [];
 
-        /*
-         0: NONE
-         1: MESSAGE
-         2: MOVE
-         4: COMMENTARY
-        */
-        let suggestionType = 0;
-
-        const hasSuggestionMessage = globalMessages.some(
-            (msg) =>
-                msg.type === "has_suggestions" &&
-                msg.phase === engine.phase &&
-                msg.message.includes(currentPowerName)
-        );
-
-        if (hasSuggestionMessage) {
-            const powerSuggestions = globalMessages.filter(
-                (msg) =>
-                    msg.type === "has_suggestions" &&
-                    msg.phase === engine.phase &&
-                    msg.message.includes(currentPowerName)
-            );
-            powerSuggestions.forEach((x) => {
-                const parts = x.message.split(":");
-                const p = parts[0].trim();
-                const t = parseInt(parts[1].trim());
-                if (p === currentPowerName) suggestionType |= t;
-            });
-        }
+        const suggestionType = this.getSuggestionType(currentPowerName, engine, globalMessages);
 
         for (let m of globalMessages) {
             if (m.type === "suggested_message") {
@@ -2471,7 +2453,7 @@ export class ContentGame extends React.Component {
 
         return (
             <div className={isWide ? "col-6 mb-4" : "col-4 mb-4"}>
-                {(suggestionType & 1) === 1 && (
+                {suggestionType !== null && (suggestionType & 1) === 1 && (
                     <ChatContainer
                         style={{
                             display: "flex",
@@ -2603,35 +2585,7 @@ export class ContentGame extends React.Component {
         let globalSuggestedMoves = [];
         let globalSuggestedMessages = [];
 
-        /*
-         0: NONE
-         1: MESSAGE
-         2: MOVE
-         4: COMMENTARY
-        */
-        let suggestionType = 0;
-
-        const hasSuggestionMessage = globalMessages.some(
-            (msg) =>
-                msg.type === "has_suggestions" &&
-                msg.phase === engine.phase &&
-                msg.message.includes(currentPowerName)
-        );
-
-        if (hasSuggestionMessage) {
-            const powerSuggestions = globalMessages.filter(
-                (msg) =>
-                    msg.type === "has_suggestions" &&
-                    msg.phase === engine.phase &&
-                    msg.message.includes(currentPowerName)
-            );
-            powerSuggestions.forEach((x) => {
-                const parts = x.message.split(":");
-                const p = parts[0].trim();
-                const t = parseInt(parts[1].trim());
-                if (p === currentPowerName) suggestionType |= t;
-            });
-        }
+        const suggestionType = this.getSuggestionType(currentPowerName, engine, globalMessages);
 
         // split suggestions into moves and messages
         for (let m of globalMessages) {
@@ -2986,25 +2940,27 @@ export class ContentGame extends React.Component {
         }
 
         const suggestionTypeDisplay = []
-        if ((suggestionType & 1) === 1) suggestionTypeDisplay.push("message")
-        if ((suggestionType & 2) === 2) suggestionTypeDisplay.push("move")
-        if ((suggestionType & 4) === 4) suggestionTypeDisplay.push("commentary")
+        if (suggestionType !== null) {
+            if ((suggestionType & 1) === 1) suggestionTypeDisplay.push("message")
+            if ((suggestionType & 2) === 2) suggestionTypeDisplay.push("move")
+            if ((suggestionType & 4) === 4) suggestionTypeDisplay.push("commentary")
+        }
 
         return (
             <div className={"col-4 mb-4"}>
-                {!hasSuggestionMessage && (
+                {suggestionType === null && (
                     <div>
                         We haven't assigned advisors yet / No advisor for this
                         year
                     </div>
                 )}
-                {hasSuggestionMessage && suggestionType === 0 && (
+                {suggestionType !== null && suggestionType === 0 && (
                     <div>You are on your own this turn.</div>
                 )}
-                {suggestionType >= 1 && (
+                {suggestionType !== null && suggestionType >= 1 && (
                     <div>You are getting advice this turn: {suggestionTypeDisplay.join(", ")}.</div>
                 )}
-                {(suggestionType & 2) === 2 && (
+                {suggestionType !== null && (suggestionType & 2) === 2 && (
                     <ChatContainer
                         style={{
                             display: "flex",
@@ -3464,37 +3420,9 @@ export class ContentGame extends React.Component {
         );
         const globalMessages = messageChannels["GLOBAL"] || [];
 
-        /*
-         0: NONE
-         1: MESSAGE
-         2: MOVE
-         4: COMMENTARY
-        */
-        let suggestionType = 0;
+        const suggestionType = this.getSuggestionType(currentPowerName, engine, globalMessages);
 
-        const hasSuggestionMessage = globalMessages.some(
-            (msg) =>
-                msg.type === "has_suggestions" &&
-                msg.phase === engine.phase &&
-                msg.message.includes(currentPowerName)
-        );
-
-        if (hasSuggestionMessage) {
-            const powerSuggestions = globalMessages.filter(
-                (msg) =>
-                    msg.type === "has_suggestions" &&
-                    msg.phase === engine.phase &&
-                    msg.message.includes(currentPowerName)
-            );
-            powerSuggestions.forEach((x) => {
-                const parts = x.message.split(":");
-                const p = parts[0].trim();
-                const t = parseInt(parts[1].trim());
-                if (p === currentPowerName) suggestionType |= t;
-            });
-        }
-
-        const hasMoveSuggestion = (suggestionType & 2) === 2
+        const hasMoveSuggestion = suggestionType !== null && (suggestionType & 2) === 2
 
         let gameContent;
 
