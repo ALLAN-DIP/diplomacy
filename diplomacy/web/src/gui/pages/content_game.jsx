@@ -1589,6 +1589,31 @@ export class ContentGame extends React.Component {
         }
     }
 
+    getSuggestedMoves(currentPowerName, engine, globalMessages) {
+        let globalSuggestedMoves = [];
+
+        // split suggestions into moves and messages
+        for (let m of globalMessages) {
+            if (m.type) {
+                if (m.type.includes("move")) {
+                    globalSuggestedMoves.push(m);
+                }
+            }
+        }
+
+        const moveSuggestionForCurrentPower =
+            globalSuggestedMoves.filter((msg) => {
+                if (!msg.message.includes(":")) return false;
+                const p = msg.message.split(":")[0];
+                if (p === currentPowerName && msg.phase === engine.phase) {
+                    return true;
+                }
+                return false;
+            }) || [];
+
+        return moveSuggestionForCurrentPower
+    }
+
     getSuggestedMessages(currentPowerName, protagonist, isAdmin, engine, globalMessages) {
         const receivedSuggestions =
             globalMessages.filter((msg) => {
@@ -2556,31 +2581,10 @@ export class ContentGame extends React.Component {
             true
         );
         const globalMessages = messageChannels["GLOBAL"] || [];
-        let globalSuggestedMoves = [];
-        let globalSuggestedMessages = [];
 
         const suggestionType = this.getSuggestionType(currentPowerName, engine, globalMessages);
 
-        // split suggestions into moves and messages
-        for (let m of globalMessages) {
-            if (m.type) {
-                if (m.type === "suggested_message") {
-                    globalSuggestedMessages.push(m);
-                } else if (m.type.includes("move")) {
-                    globalSuggestedMoves.push(m);
-                }
-            }
-        }
-
-        const moveSuggestionForCurrentPower =
-            globalSuggestedMoves.filter((msg) => {
-                if (!msg.message.includes(":")) return false;
-                const p = msg.message.split(":")[0];
-                if (p === currentPowerName && msg.phase === engine.phase) {
-                    return true;
-                }
-                return false;
-            }) || [];
+        const moveSuggestionForCurrentPower = this.getSuggestedMoves(currentPowerName, engine, globalMessages)
 
         // display only the latest to avoid cluttering textbox
         let latestMoveSuggestionFull = null;
