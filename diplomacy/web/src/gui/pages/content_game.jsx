@@ -1510,7 +1510,7 @@ export class ContentGame extends React.Component {
         );
     }
 
-    hasUnreadAdvice(engine, role, protagnist) {
+    hasUnreadAdvice(engine, role, protagonist) {
         const isAdmin =
             engine.role === "omniscient_type" ||
             engine.role === "master_type" ||
@@ -1524,12 +1524,12 @@ export class ContentGame extends React.Component {
 
         const globalMessages = messageChannels["GLOBAL"] || [];
 
-        const suggestedMessagesForCurrentPower = this.getSuggestedMessages(controlledPower, protagnist, isAdmin, engine, globalMessages);
+        const suggestedMessagesForCurrentPower = this.getSuggestedMessages(controlledPower, protagonist, isAdmin, engine, globalMessages);
 
         return suggestedMessagesForCurrentPower.length > 0;
     }
 
-    countUnreadMessages(engine, role, protagnist) {
+    countUnreadMessages(engine, role, protagonist) {
         let messageChannels = engine.getMessageChannels(role, true);
         if (
             engine.role === "omniscient_type" ||
@@ -1546,7 +1546,7 @@ export class ContentGame extends React.Component {
                 const message = messages[idx];
 
                 if (
-                    message.sender === protagnist &&
+                    message.sender === protagonist &&
                     message.recipient === controlledPower &&
                     !message.recipient_annotation &&
                     !this.state.annotatedMessages.hasOwnProperty(
@@ -1589,7 +1589,7 @@ export class ContentGame extends React.Component {
         }
     }
 
-    getSuggestedMessages(currentPowerName, protagnist, isAdmin, engine, globalMessages) {
+    getSuggestedMessages(currentPowerName, protagonist, isAdmin, engine, globalMessages) {
         const receivedSuggestions =
             globalMessages.filter((msg) => {
                 if (msg.type !== "suggested_message")
@@ -1605,7 +1605,7 @@ export class ContentGame extends React.Component {
                     return false;
 
                 return sender === currentPowerName &&
-                    recipient === protagnist &&
+                    recipient === protagonist &&
                     msg.phase === engine.phase &&
                     (isAdmin ||
                         !this.state.annotatedMessages.hasOwnProperty(
@@ -2406,14 +2406,14 @@ export class ContentGame extends React.Component {
         for (let powerName of Object.keys(engine.powers))
             if (powerName !== role) tabNames.push(powerName);
         tabNames.sort();
-        let protagnist;
+        let protagonist;
 
         if (isCurrent && this.state.tabCurrentMessages) {
-            protagnist = this.state.tabCurrentMessages;
+            protagonist = this.state.tabCurrentMessages;
         } else if (!isCurrent && this.state.tabPastMessages) {
-            protagnist = this.state.tabPastMessages;
+            protagonist = this.state.tabPastMessages;
         } else {
-            protagnist = tabNames[0];
+            protagonist = tabNames[0];
         }
 
         const currentPowerName =
@@ -2429,7 +2429,7 @@ export class ContentGame extends React.Component {
 
         const suggestionType = this.getSuggestionType(currentPowerName, engine, globalMessages);
 
-        const suggestedMessagesForCurrentPower = this.getSuggestedMessages(currentPowerName, protagnist, isAdmin, engine, globalMessages)
+        const suggestedMessagesForCurrentPower = this.getSuggestedMessages(currentPowerName, protagonist, isAdmin, engine, globalMessages)
 
         return (
             <div className={isWide ? "col-6 mb-4" : "col-4 mb-4"}>
@@ -2446,7 +2446,7 @@ export class ContentGame extends React.Component {
                     >
                         <ConversationHeader>
                             <ConversationHeader.Content
-                                userName={`Messages Advice to ${protagnist}`}
+                                userName={`Messages Advice to ${protagonist}`}
                             />
                         </ConversationHeader>
 
