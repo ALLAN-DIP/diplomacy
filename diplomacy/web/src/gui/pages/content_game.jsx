@@ -1583,10 +1583,6 @@ export class ContentGame extends React.Component {
         return count;
     }
 
-    truncate(str) {
-        return str.length > 15 ? str.substring(0, 12) + "..." : str;
-    }
-
     renderCurrentMessages(engine, role, isWide) {
         const isAdmin =
             engine.role === "omniscient_type" ||
