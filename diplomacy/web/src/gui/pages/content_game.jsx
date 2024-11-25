@@ -1628,6 +1628,43 @@ export class ContentGame extends React.Component {
         return suggestedMessages;
     }
 
+    getSuggestedCommentary(currentPowerName, protagonist, isAdmin, engine, globalMessages) {
+        let globalSuggestedMessages = [];
+
+        for (let m of globalMessages) {
+            if (m.type === "suggested_message") {
+                globalSuggestedMessages.push(m);
+            }
+        }
+
+        const suggestedMessagesForCurrentPower =
+            globalSuggestedMessages.filter((msg) => {
+                if (!msg.message.includes(":") || !msg.message.includes("-"))
+                    return false;
+                const ps = msg.message.split(":")[0].split("-");
+                const sender = ps[0];
+                const recipient = ps[1];
+
+                if (msg.message.split(":")[1] !== "commentary")
+                    return false;
+
+                if (
+                    sender === currentPowerName &&
+                    recipient === protagonist &&
+                    msg.phase === engine.phase &&
+                    (isAdmin ||
+                        !this.state.annotatedMessages.hasOwnProperty(
+                            msg.time_sent
+                        ))
+                ) {
+                    return true;
+                }
+                return false;
+            }) || [];
+
+        return suggestedMessagesForCurrentPower;
+    }
+
     renderCurrentMessages(engine, role, isWide) {
         const isAdmin =
             engine.role === "omniscient_type" ||
@@ -1843,40 +1880,10 @@ export class ContentGame extends React.Component {
         // for filtering message suggestions based on the current power talking to
 
         const globalMessages = messageChannels["GLOBAL"] || [];
-        let globalSuggestedMessages = [];
 
         const suggestionType = this.getSuggestionType(currentPowerName, engine, globalMessages);
 
-        for (let m of globalMessages) {
-            if (m.type === "suggested_message") {
-                globalSuggestedMessages.push(m);
-            }
-        }
-
-        const suggestedMessagesForCurrentPower =
-            globalSuggestedMessages.filter((msg) => {
-                if (!msg.message.includes(":") || !msg.message.includes("-"))
-                    return false;
-                const ps = msg.message.split(":")[0].split("-");
-                const sender = ps[0];
-                const recipient = ps[1];
-
-                if (msg.message.split(":")[1] !== "commentary")
-                    return false;
-
-                if (
-                    sender === currentPowerName &&
-                    recipient === protagonist &&
-                    msg.phase === engine.phase &&
-                    (isAdmin ||
-                        !this.state.annotatedMessages.hasOwnProperty(
-                            msg.time_sent
-                        ))
-                ) {
-                    return true;
-                }
-                return false;
-            }) || [];
+        const suggestedCommentaryForCurrentPower = this.getSuggestedCommentary(currentPowerName, protagonist, isAdmin, engine, globalMessages)
 
         return (
             <Box
@@ -2014,7 +2021,7 @@ export class ContentGame extends React.Component {
                                             />
                                         </ConversationHeader>
                                         <MessageList>
-                                            {suggestedMessagesForCurrentPower.map((m, i) => {
+                                            {suggestedCommentaryForCurrentPower.map((m, i) => {
                                                 const content = m.message;
                                                 const suggestedMessage = content
                                                     .split(":")
