@@ -1629,16 +1629,11 @@ export class ContentGame extends React.Component {
     }
 
     getSuggestedCommentary(currentPowerName, protagonist, isAdmin, engine, globalMessages) {
-        let globalSuggestedMessages = [];
-
-        for (let m of globalMessages) {
-            if (m.type === "suggested_message") {
-                globalSuggestedMessages.push(m);
-            }
-        }
-
         const suggestedMessagesForCurrentPower =
-            globalSuggestedMessages.filter((msg) => {
+            globalMessages.filter((msg) => {
+                if (msg.type !== "suggested_message")
+                    return false;
+
                 if (!msg.message.includes(":") || !msg.message.includes("-"))
                     return false;
                 const ps = msg.message.split(":")[0].split("-");
@@ -1648,19 +1643,14 @@ export class ContentGame extends React.Component {
                 if (msg.message.split(":")[1] !== "commentary")
                     return false;
 
-                if (
-                    sender === currentPowerName &&
+                return sender === currentPowerName &&
                     recipient === protagonist &&
                     msg.phase === engine.phase &&
                     (isAdmin ||
                         !this.state.annotatedMessages.hasOwnProperty(
                             msg.time_sent
-                        ))
-                ) {
-                    return true;
-                }
-                return false;
-            }) || [];
+                        ));
+            });
 
         return suggestedMessagesForCurrentPower;
     }
