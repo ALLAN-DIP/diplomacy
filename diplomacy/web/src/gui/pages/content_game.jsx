@@ -1629,7 +1629,7 @@ export class ContentGame extends React.Component {
     }
 
     getSuggestedCommentary(currentPowerName, protagonist, isAdmin, engine, globalMessages) {
-        const suggestedMessagesForCurrentPower =
+        const receivedSuggestions =
             globalMessages.filter((msg) => {
                 if (msg.type !== "suggested_message")
                     return false;
@@ -1652,7 +1652,19 @@ export class ContentGame extends React.Component {
                         ));
             });
 
-        return suggestedMessagesForCurrentPower;
+        const suggestedCommentary = receivedSuggestions.map((msg) => {
+            const commentary = msg.message
+                .split(":")
+                .slice(2)
+                .join(":");
+            return {
+                commentary: commentary,
+                sender: msg.sender,
+                time_sent: msg.time_sent,
+            }
+        })
+
+        return suggestedCommentary;
     }
 
     renderCurrentMessages(engine, role, isWide) {
@@ -2011,20 +2023,14 @@ export class ContentGame extends React.Component {
                                             />
                                         </ConversationHeader>
                                         <MessageList>
-                                            {suggestedCommentaryForCurrentPower.map((m, i) => {
-                                                const content = m.message;
-                                                const suggestedMessage = content
-                                                    .split(":")
-                                                    .slice(2)
-                                                    .join(":");
-
+                                            {suggestedCommentaryForCurrentPower.map((com, i) => {
                                                 return (
                                                     <div
                                                         style={{
                                                             alignItems: "flex-end",
                                                             display:
                                                                 !this.state.annotatedMessages.hasOwnProperty(
-                                                                    m.time_sent
+                                                                    com.time_sent
                                                                 )
                                                                     ? "flex"
                                                                     : "none",
@@ -2033,9 +2039,9 @@ export class ContentGame extends React.Component {
                                                         <ChatMessage
                                                             style={{ flexGrow: 1 }}
                                                             model={{
-                                                                message: suggestedMessage,
-                                                                sent: m.time_sent,
-                                                                sender: m.sender,
+                                                                message: com.commentary,
+                                                                sent: com.time_sent,
+                                                                sender: com.sender,
                                                                 direction: "incoming",
                                                                 position: "single",
                                                             }}
