@@ -752,17 +752,18 @@ export class ContentGame extends React.Component {
         networkGame.sendOrderLog({ log: message });
     }
 
-    handleRecipientAnnotation(message, annotation) {
+    handleRecipientAnnotation(message_time_sent, annotation) {
         const engine = this.props.data;
         const newAnnotatedMessages = {
             ...this.state.annotatedMessages,
-            [message.time_sent]: annotation,
+            // Server ensures that `Message.time_sent` is unique
+            [message_time_sent]: annotation,
         };
         this.setState({ annotatedMessages: newAnnotatedMessages });
 
         this.sendRecipientAnnotation(
             engine.client,
-            message.time_sent,
+            message_time_sent,
             annotation
         );
     };
@@ -1753,7 +1754,7 @@ export class ContentGame extends React.Component {
                                     }
                                     onClick={() => {
                                         this.handleRecipientAnnotation(
-                                            msg,
+                                            msg.time_sent,
                                             "yes"
                                         );
                                     }}
@@ -1778,7 +1779,7 @@ export class ContentGame extends React.Component {
                                     }
                                     onClick={() =>
                                         this.handleRecipientAnnotation(
-                                            msg,
+                                            msg.time_sent,
                                             "None"
                                         )
                                     }
@@ -2541,7 +2542,7 @@ export class ContentGame extends React.Component {
                                                     );
 
                                                     this.handleRecipientAnnotation(
-                                                        m,
+                                                        m.time_sent,
                                                         "accept"
                                                     );
                                                 }}
@@ -2559,7 +2560,7 @@ export class ContentGame extends React.Component {
                                                 color={"danger"}
                                                 onClick={() => {
                                                     this.handleRecipientAnnotation(
-                                                        m,
+                                                        m.time_sent,
                                                         "reject"
                                                     );
                                                 }}
@@ -2751,7 +2752,7 @@ export class ContentGame extends React.Component {
                                     this.onOrderBuilt(currentPowerName, move);
 
                                     this.handleRecipientAnnotation(
-                                        latestMoveSuggestionFull,
+                                        latestMoveSuggestionFull.time_sent,
                                         `accept ${move}`
                                     );
                                 }}
@@ -2816,7 +2817,7 @@ export class ContentGame extends React.Component {
                                     }
 
                                     this.handleRecipientAnnotation(
-                                        latestMoveSuggestionFull,
+                                        latestMoveSuggestionFull.time_sent,
                                         "accept all"
                                     );
                                 }}
@@ -2829,7 +2830,7 @@ export class ContentGame extends React.Component {
                                 color={"danger"}
                                 onClick={() => {
                                     this.handleRecipientAnnotation(
-                                        latestMoveSuggestionFull,
+                                        latestMoveSuggestionFull.time_sent,
                                         "reject"
                                     );
                                 }}
@@ -2895,7 +2896,7 @@ export class ContentGame extends React.Component {
                                         );
 
                                         this.handleRecipientAnnotation(
-                                            latestMoveSuggestionPartial,
+                                            latestMoveSuggestionPartial.time_sent,
                                             `accept ${move}`
                                         );
                                     }}
@@ -2962,7 +2963,7 @@ export class ContentGame extends React.Component {
                                     }
 
                                     this.handleRecipientAnnotation(
-                                        latestMoveSuggestionPartial,
+                                        latestMoveSuggestionPartial.time_sent,
                                         "accept all"
                                     );
                                 }}
@@ -2975,7 +2976,7 @@ export class ContentGame extends React.Component {
                                 color={"danger"}
                                 onClick={() => {
                                     this.handleRecipientAnnotation(
-                                        latestMoveSuggestionPartial,
+                                        latestMoveSuggestionPartial.time_sent,
                                         "reject"
                                     );
                                 }}
