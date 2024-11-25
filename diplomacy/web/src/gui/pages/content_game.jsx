@@ -1475,7 +1475,7 @@ export class ContentGame extends React.Component {
             renderedMessages.push(
                 <ChatMessage
                     model={{
-                        sent: msg.sent_time,
+                        sent: msg.time_sent,
                         sender: sender,
                         direction: dir,
                         position: "single",
@@ -1671,7 +1671,7 @@ export class ContentGame extends React.Component {
                 <ChatMessage
                     model={{
                         message: log.message,
-                        sent: log.sent_time,
+                        sent: log.time_sent,
                         sender: role,
                         direction: "outgoing",
                         position: "single",
@@ -2023,7 +2023,7 @@ export class ContentGame extends React.Component {
                                                             style={{ flexGrow: 1 }}
                                                             model={{
                                                                 message: suggestedMessage,
-                                                                sent: m.sent_time,
+                                                                sent: m.time_sent,
                                                                 sender: m.sender,
                                                                 direction: "incoming",
                                                                 position: "single",
@@ -2515,7 +2515,7 @@ export class ContentGame extends React.Component {
                                             style={{ flexGrow: 1 }}
                                             model={{
                                                 message: suggestedMessage,
-                                                sent: m.sent_time,
+                                                sent: m.time_sent,
                                                 sender: m.sender,
                                                 direction: "incoming",
                                                 position: "single",
@@ -2727,7 +2727,7 @@ export class ContentGame extends React.Component {
                             style={{ flexGrow: 1 }}
                             model={{
                                 message: move,
-                                sent: latestMoveSuggestionFull.sent_time,
+                                sent: latestMoveSuggestionFull.time_sent,
                                 sender: latestMoveSuggestionFull.sender,
                                 direction: "incoming",
                                 position: "single",
@@ -2787,7 +2787,7 @@ export class ContentGame extends React.Component {
                             style={{ flexGrow: 1 }}
                             model={{
                                 message: "Full Suggestions:",
-                                sent: latestMoveSuggestionFull.sent_time,
+                                sent: latestMoveSuggestionFull.time_sent,
                                 sender: latestMoveSuggestionFull.sender,
                                 direction: "incoming",
                                 position: "single",
@@ -2868,7 +2868,7 @@ export class ContentGame extends React.Component {
                                 style={{ flexGrow: 1 }}
                                 model={{
                                     message: move,
-                                    sent: latestMoveSuggestionPartial.sent_time,
+                                    sent: latestMoveSuggestionPartial.time_sent,
                                     sender: latestMoveSuggestionPartial.sender,
                                     direction: "incoming",
                                     position: "single",
@@ -2933,7 +2933,7 @@ export class ContentGame extends React.Component {
                                         ":"
                                     )[1]
                                 }:`,
-                                sent: latestMoveSuggestionPartial.sent_time,
+                                sent: latestMoveSuggestionPartial.time_sent,
                                 sender: latestMoveSuggestionPartial.sender,
                                 direction: "incoming",
                                 position: "single",
@@ -3098,7 +3098,7 @@ export class ContentGame extends React.Component {
                 <ChatMessage
                     model={{
                         message: log.message,
-                        sent: log.sent_time,
+                        sent: log.time_sent,
                         sender: role,
                         direction: "outgoing",
                         position: "single",
