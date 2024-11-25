@@ -1590,7 +1590,7 @@ export class ContentGame extends React.Component {
     }
 
     getSuggestedMessages(currentPowerName, protagnist, isAdmin, engine, globalMessages) {
-        const suggestedMessagesForCurrentPower =
+        const receivedSuggestions =
             globalMessages.filter((msg) => {
                 if (msg.type !== "suggested_message")
                     return false;
@@ -1613,7 +1613,19 @@ export class ContentGame extends React.Component {
                         ));
             });
 
-        return suggestedMessagesForCurrentPower;
+        const suggestedMessages = receivedSuggestions.map((msg) => {
+            const message = msg.message
+                .split(":")
+                .slice(2)
+                .join(":");
+            return {
+                message: message,
+                sender: msg.sender,
+                time_sent: msg.time_sent,
+            }
+        })
+
+        return suggestedMessages;
     }
 
     renderCurrentMessages(engine, role, isWide) {
@@ -2436,20 +2448,14 @@ export class ContentGame extends React.Component {
                         </ConversationHeader>
 
                         <MessageList>
-                            {suggestedMessagesForCurrentPower.map((m, i) => {
-                                const content = m.message;
-                                const suggestedMessage = content
-                                    .split(":")
-                                    .slice(2)
-                                    .join(":");
-
+                            {suggestedMessagesForCurrentPower.map((msg, i) => {
                                 return (
                                     <div
                                         style={{
                                             alignItems: "flex-end",
                                             display:
                                                 !this.state.annotatedMessages.hasOwnProperty(
-                                                    m.time_sent
+                                                    msg.time_sent
                                                 )
                                                     ? "flex"
                                                     : "none",
@@ -2458,9 +2464,9 @@ export class ContentGame extends React.Component {
                                         <ChatMessage
                                             style={{ flexGrow: 1 }}
                                             model={{
-                                                message: suggestedMessage,
-                                                sent: m.time_sent,
-                                                sender: m.sender,
+                                                message: msg.message,
+                                                sent: msg.time_sent,
+                                                sender: msg.sender,
                                                 direction: "incoming",
                                                 position: "single",
                                             }}
@@ -2481,11 +2487,11 @@ export class ContentGame extends React.Component {
                                                 color={"success"}
                                                 onClick={() => {
                                                     this.setMessageInputValue(
-                                                        suggestedMessage
+                                                        msg.message
                                                     );
 
                                                     this.handleRecipientAnnotation(
-                                                        m.time_sent,
+                                                        msg.time_sent,
                                                         "accept"
                                                     );
                                                 }}
@@ -2503,7 +2509,7 @@ export class ContentGame extends React.Component {
                                                 color={"danger"}
                                                 onClick={() => {
                                                     this.handleRecipientAnnotation(
-                                                        m.time_sent,
+                                                        msg.time_sent,
                                                         "reject"
                                                     );
                                                 }}
