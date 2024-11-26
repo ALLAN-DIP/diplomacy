@@ -1565,6 +1565,7 @@ export class ContentGame extends React.Component {
 
         const suggestionMessageTypes = [
             "has_suggestions",
+            "suggested_commentary",
             "suggested_message",
             "suggested_move_full",
             "suggested_move_partial",
@@ -1598,14 +1599,10 @@ export class ContentGame extends React.Component {
 
         const powerSuggestions = globalMessages.filter(
             (msg) =>
-                msg.type === "has_suggestions" &&
-                msg.message.includes(currentPowerName)
+                msg.type === "has_suggestions"
         );
-        powerSuggestions.forEach((x) => {
-            const parts = x.message.split(":");
-            const p = parts[0].trim();
-            const t = parseInt(parts[1].trim());
-            if (p === currentPowerName) suggestionType |= t;
+        powerSuggestions.forEach((msg) => {
+            suggestionType |= msg.parsed;
         });
 
         if (powerSuggestions.length > 0) {
@@ -1617,12 +1614,9 @@ export class ContentGame extends React.Component {
 
     getSuggestedMoves(currentPowerName, engine, globalMessages) {
         const receivedSuggestions =
-            globalMessages.filter((msg) => {
-                if (!msg.type.includes("move")) return false;
-                if (!msg.message.includes(":")) return false;
-                const p = msg.message.split(":")[0];
-                return p === currentPowerName;
-            });
+            globalMessages.filter((msg) =>
+                msg.type === "suggested_move_full" || msg.type === "suggested_move_partial"
+            );
 
         return receivedSuggestions
     }
@@ -1655,60 +1649,30 @@ export class ContentGame extends React.Component {
         }
 
         const suggestion = {
+            moves: latestMoveSuggestion.parsed.suggested_orders,
             sender: latestMoveSuggestion.sender,
             time_sent: latestMoveSuggestion.time_sent,
         }
-        if (suggestionType === "full") {
-            suggestion.moves = latestMoveSuggestion.message
-                .split(":")[1]
-                .split(",")
-                .map((m) => m.trim());
-        } else if (suggestionType === "partial") {
-            suggestion.givenMoves = latestMoveSuggestion.message
-                .split(":")[1]
-                .split(",")
-                .map((m) => m.trim());
-            suggestion.moves = latestMoveSuggestion.message
-                .split(":")[2]
-                .split(",")
-                .map((m) => m.trim());
-        } else {
-             throw new Error(`Unrecognized suggestionType ${suggestionType}`)
+        if (suggestionType === "partial") {
+            suggestion.givenMoves = latestMoveSuggestion.parsed.player_orders
         }
         return suggestion
-
     }
 
     getSuggestedMessages(currentPowerName, protagonist, isAdmin, engine, globalMessages) {
         const receivedSuggestions =
-            globalMessages.filter((msg) => {
-                if (msg.type !== "suggested_message")
-                    return false;
-
-                if (!msg.message.includes(":") || !msg.message.includes("-"))
-                    return false;
-                const ps = msg.message.split(":")[0].split("-");
-                const sender = ps[0];
-                const recipient = ps[1];
-
-                if (msg.message.split(":")[1] !== "message")
-                    return false;
-
-                return sender === currentPowerName &&
-                    recipient === protagonist &&
-                    (isAdmin ||
-                        !this.state.annotatedMessages.hasOwnProperty(
-                            msg.time_sent
-                        ));
-            });
+            globalMessages.filter((msg) =>
+                msg.type === "suggested_message" &&
+                msg.parsed.recipient === protagonist &&
+                (isAdmin ||
+                    !this.state.annotatedMessages.hasOwnProperty(
+                        msg.time_sent
+                    ))
+            );
 
         const suggestedMessages = receivedSuggestions.map((msg) => {
-            const message = msg.message
-                .split(":")
-                .slice(2)
-                .join(":");
             return {
-                message: message,
+                message: msg.parsed.message,
                 sender: msg.sender,
                 time_sent: msg.time_sent,
             }
@@ -1719,34 +1683,18 @@ export class ContentGame extends React.Component {
 
     getSuggestedCommentary(currentPowerName, protagonist, isAdmin, engine, globalMessages) {
         const receivedSuggestions =
-            globalMessages.filter((msg) => {
-                if (msg.type !== "suggested_message")
-                    return false;
-
-                if (!msg.message.includes(":") || !msg.message.includes("-"))
-                    return false;
-                const ps = msg.message.split(":")[0].split("-");
-                const sender = ps[0];
-                const recipient = ps[1];
-
-                if (msg.message.split(":")[1] !== "commentary")
-                    return false;
-
-                return sender === currentPowerName &&
-                    recipient === protagonist &&
-                    (isAdmin ||
-                        !this.state.annotatedMessages.hasOwnProperty(
-                            msg.time_sent
-                        ));
-            });
+            globalMessages.filter((msg) =>
+                msg.type === "suggested_commentary" &&
+                msg.parsed.recipient === protagonist &&
+                (isAdmin ||
+                    !this.state.annotatedMessages.hasOwnProperty(
+                        msg.time_sent
+                    ))
+            );
 
         const suggestedCommentary = receivedSuggestions.map((msg) => {
-            const commentary = msg.message
-                .split(":")
-                .slice(2)
-                .join(":");
             return {
-                commentary: commentary,
+                commentary: msg.parsed.commentary,
                 sender: msg.sender,
                 time_sent: msg.time_sent,
             }

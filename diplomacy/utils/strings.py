@@ -249,6 +249,7 @@ TONES = 'tones'
 DAIDE = 'daide'
 GLOBAL = "GLOBAL"
 HAS_SUGGESTIONS = "has_suggestions"
+SUGGESTED_COMMENTARY = "suggested_commentary"
 SUGGESTED_MESSAGE = "suggested_message"
 SUGGESTED_MOVE_FULL = "suggested_move_full"
 SUGGESTED_MOVE_PARTIAL = "suggested_move_partial"
