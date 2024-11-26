@@ -1624,7 +1624,33 @@ export class ContentGame extends React.Component {
             }
         }
 
-        return latestMoveSuggestion;
+        if (latestMoveSuggestion === null) {
+            return null
+        }
+
+        const suggestion = {
+            sender: latestMoveSuggestion.sender,
+            time_sent: latestMoveSuggestion.time_sent,
+        }
+        if (suggestionType === "full") {
+            suggestion.moves = latestMoveSuggestion.message
+                .split(":")[1]
+                .split(",")
+                .map((m) => m.trim());
+        } else if (suggestionType === "partial") {
+            suggestion.givenMoves = latestMoveSuggestion.message
+                .split(":")[1]
+                .split(",")
+                .map((m) => m.trim());
+            suggestion.moves = latestMoveSuggestion.message
+                .split(":")[2]
+                .split(",")
+                .map((m) => m.trim());
+        } else {
+             throw new Error(`Unrecognized suggestionType ${suggestionType}`)
+        }
+        return suggestion
+
     }
 
     getSuggestedMessages(currentPowerName, protagonist, isAdmin, engine, globalMessages) {
@@ -2607,12 +2633,7 @@ export class ContentGame extends React.Component {
         let partialSuggestionComponent = null;
 
         if (latestMoveSuggestionFull) {
-            const suggestedMoves = latestMoveSuggestionFull.message
-                .split(":")[1]
-                .split(",")
-                .map((m) => m.trim());
-
-            const fullSuggestionMessages = suggestedMoves.map((move, index) => {
+            const fullSuggestionMessages = latestMoveSuggestionFull.moves.map((move, index) => {
                 return (
                     <div
                         style={{
@@ -2678,7 +2699,7 @@ export class ContentGame extends React.Component {
                         }}
                         onMouseEnter={() => {
                             let newMoves = [];
-                            for (let move of suggestedMoves) {
+                            for (let move of latestMoveSuggestionFull.moves) {
                                 newMoves.push(move);
                             }
                             this.setState({ hoverOrders: newMoves });
@@ -2712,7 +2733,7 @@ export class ContentGame extends React.Component {
                                 title={"accept all"}
                                 color={"success"}
                                 onClick={async () => {
-                                    for (let move of suggestedMoves) {
+                                    for (let move of latestMoveSuggestionFull.moves) {
                                         await this.onOrderBuilt(
                                             currentPowerName,
                                             move
@@ -2747,12 +2768,7 @@ export class ContentGame extends React.Component {
         }
 
         if (latestMoveSuggestionPartial) {
-            const suggestedMoves = latestMoveSuggestionPartial.message
-                .split(":")[2]
-                .split(",")
-                .map((m) => m.trim());
-
-            const partialSuggestionMessages = suggestedMoves.map(
+            const partialSuggestionMessages = latestMoveSuggestionPartial.moves.map(
                 (move, index) => {
                     return (
                         <div
@@ -2820,7 +2836,7 @@ export class ContentGame extends React.Component {
                         }}
                         onMouseEnter={() => {
                             let newMoves = [];
-                            for (let move of suggestedMoves) {
+                            for (let move of latestMoveSuggestionPartial.moves) {
                                 newMoves.push(move);
                             }
                             this.setState({ hoverOrders: newMoves });
@@ -2833,9 +2849,7 @@ export class ContentGame extends React.Component {
                             style={{ flexGrow: 1 }}
                             model={{
                                 message: `Suggestions based on ${
-                                    latestMoveSuggestionPartial.message.split(
-                                        ":"
-                                    )[1]
+                                    latestMoveSuggestionPartial.givenMoves.join(", ")
                                 }:`,
                                 sent: latestMoveSuggestionPartial.time_sent,
                                 sender: latestMoveSuggestionPartial.sender,
@@ -2858,7 +2872,7 @@ export class ContentGame extends React.Component {
                                 title={"accept all"}
                                 color={"success"}
                                 onClick={async () => {
-                                    for (let move of suggestedMoves) {
+                                    for (let move of latestMoveSuggestionPartial.moves) {
                                         await this.onOrderBuilt(
                                             currentPowerName,
                                             move
