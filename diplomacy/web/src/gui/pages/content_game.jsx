@@ -1522,7 +1522,7 @@ export class ContentGame extends React.Component {
         let messageChannels = engine.getMessageChannels(role, true);
         const controlledPower = this.getCurrentPowerName();
 
-        const suggestionMessages = this.getSuggestionMessages(messageChannels, engine);
+        const suggestionMessages = this.getSuggestionMessages(controlledPower, messageChannels, engine);
 
         const suggestedMessagesForCurrentPower = this.getSuggestedMessages(controlledPower, protagonist, isAdmin, engine, suggestionMessages);
 
@@ -1560,7 +1560,7 @@ export class ContentGame extends React.Component {
         return count;
     }
 
-    getSuggestionMessages(messageChannels, engine) {
+    getSuggestionMessages(currentPowerName, messageChannels, engine) {
         const globalMessages = messageChannels["GLOBAL"] || [];
 
         const suggestionMessageTypes = [
@@ -1570,12 +1570,18 @@ export class ContentGame extends React.Component {
             "suggested_move_partial",
         ];
 
-        const suggestionMessages = globalMessages.filter(
+        let suggestionMessages = globalMessages.filter(
             (msg) => suggestionMessageTypes.includes(msg.type) &&
                 msg.phase === engine.phase
         );
         suggestionMessages.forEach((msg) => {
             msg.parsed = JSON.parse(msg.message);
+        });
+        suggestionMessages = suggestionMessages.filter(
+            (msg) => currentPowerName in msg.parsed
+        );
+        suggestionMessages.forEach((msg) => {
+            msg.parsed = msg.parsed[currentPowerName];
         });
 
         return suggestionMessages;
@@ -1963,7 +1969,7 @@ export class ContentGame extends React.Component {
 
         // for filtering message suggestions based on the current power talking to
 
-        const suggestionMessages = this.getSuggestionMessages(messageChannels, engine);
+        const suggestionMessages = this.getSuggestionMessages(currentPowerName, messageChannels, engine);
 
         const suggestionType = this.getSuggestionType(currentPowerName, engine, suggestionMessages);
 
@@ -2507,7 +2513,7 @@ export class ContentGame extends React.Component {
             currentPowerName,
             true
         );
-       const suggestionMessages = this.getSuggestionMessages(messageChannels, engine);
+       const suggestionMessages = this.getSuggestionMessages(currentPowerName, messageChannels, engine);
 
         const suggestionType = this.getSuggestionType(currentPowerName, engine, suggestionMessages);
 
@@ -2637,7 +2643,7 @@ export class ContentGame extends React.Component {
             currentPowerName,
             true
         );
-        const suggestionMessages = this.getSuggestionMessages(messageChannels, engine);
+        const suggestionMessages = this.getSuggestionMessages(currentPowerName, messageChannels, engine);
 
         const suggestionType = this.getSuggestionType(currentPowerName, engine, suggestionMessages);
 
@@ -3403,7 +3409,7 @@ export class ContentGame extends React.Component {
             currentPowerName,
             true
         );
-        const suggestionMessages = this.getSuggestionMessages(messageChannels, engine);
+        const suggestionMessages = this.getSuggestionMessages(currentPowerName, messageChannels, engine);
 
         const suggestionType = this.getSuggestionType(currentPowerName, engine, suggestionMessages);
 
