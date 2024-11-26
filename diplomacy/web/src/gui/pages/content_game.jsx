@@ -1562,7 +1562,19 @@ export class ContentGame extends React.Component {
 
     getSuggestionMessages(messageChannels) {
         const globalMessages = messageChannels["GLOBAL"] || [];
-        return globalMessages;
+
+        const suggestionMessageTypes = [
+            "has_suggestions",
+            "suggested_message",
+            "suggested_move_full",
+            "suggested_move_partial",
+        ];
+
+        const suggestionMessages = globalMessages.filter(
+            (msg) => suggestionMessageTypes.includes(msg.type)
+        );
+
+        return suggestionMessages;
     }
 
     getSuggestionType(currentPowerName, engine, globalMessages){
