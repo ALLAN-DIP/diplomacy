@@ -1522,7 +1522,7 @@ export class ContentGame extends React.Component {
         let messageChannels = engine.getMessageChannels(role, true);
         const controlledPower = this.getCurrentPowerName();
 
-        const suggestionMessages = this.getSuggestionMessages(messageChannels);
+        const suggestionMessages = this.getSuggestionMessages(messageChannels, engine);
 
         const suggestedMessagesForCurrentPower = this.getSuggestedMessages(controlledPower, protagonist, isAdmin, engine, suggestionMessages);
 
@@ -1560,7 +1560,7 @@ export class ContentGame extends React.Component {
         return count;
     }
 
-    getSuggestionMessages(messageChannels) {
+    getSuggestionMessages(messageChannels, engine) {
         const globalMessages = messageChannels["GLOBAL"] || [];
 
         const suggestionMessageTypes = [
@@ -1571,7 +1571,8 @@ export class ContentGame extends React.Component {
         ];
 
         const suggestionMessages = globalMessages.filter(
-            (msg) => suggestionMessageTypes.includes(msg.type)
+            (msg) => suggestionMessageTypes.includes(msg.type) &&
+                msg.phase === engine.phase
         );
 
         return suggestionMessages;
@@ -1589,7 +1590,6 @@ export class ContentGame extends React.Component {
         const powerSuggestions = globalMessages.filter(
             (msg) =>
                 msg.type === "has_suggestions" &&
-                msg.phase === engine.phase &&
                 msg.message.includes(currentPowerName)
         );
         powerSuggestions.forEach((x) => {
@@ -1612,7 +1612,7 @@ export class ContentGame extends React.Component {
                 if (!msg.type.includes("move")) return false;
                 if (!msg.message.includes(":")) return false;
                 const p = msg.message.split(":")[0];
-                return p === currentPowerName && msg.phase === engine.phase;
+                return p === currentPowerName;
             });
 
         return receivedSuggestions
@@ -1687,7 +1687,6 @@ export class ContentGame extends React.Component {
 
                 return sender === currentPowerName &&
                     recipient === protagonist &&
-                    msg.phase === engine.phase &&
                     (isAdmin ||
                         !this.state.annotatedMessages.hasOwnProperty(
                             msg.time_sent
@@ -1726,7 +1725,6 @@ export class ContentGame extends React.Component {
 
                 return sender === currentPowerName &&
                     recipient === protagonist &&
-                    msg.phase === engine.phase &&
                     (isAdmin ||
                         !this.state.annotatedMessages.hasOwnProperty(
                             msg.time_sent
@@ -1962,7 +1960,7 @@ export class ContentGame extends React.Component {
 
         // for filtering message suggestions based on the current power talking to
 
-        const suggestionMessages = this.getSuggestionMessages(messageChannels);
+        const suggestionMessages = this.getSuggestionMessages(messageChannels, engine);
 
         const suggestionType = this.getSuggestionType(currentPowerName, engine, suggestionMessages);
 
@@ -2506,7 +2504,7 @@ export class ContentGame extends React.Component {
             currentPowerName,
             true
         );
-       const suggestionMessages = this.getSuggestionMessages(messageChannels);
+       const suggestionMessages = this.getSuggestionMessages(messageChannels, engine);
 
         const suggestionType = this.getSuggestionType(currentPowerName, engine, suggestionMessages);
 
@@ -2636,7 +2634,7 @@ export class ContentGame extends React.Component {
             currentPowerName,
             true
         );
-        const suggestionMessages = this.getSuggestionMessages(messageChannels);
+        const suggestionMessages = this.getSuggestionMessages(messageChannels, engine);
 
         const suggestionType = this.getSuggestionType(currentPowerName, engine, suggestionMessages);
 
@@ -3402,7 +3400,7 @@ export class ContentGame extends React.Component {
             currentPowerName,
             true
         );
-        const suggestionMessages = this.getSuggestionMessages(messageChannels);
+        const suggestionMessages = this.getSuggestionMessages(messageChannels, engine);
 
         const suggestionType = this.getSuggestionType(currentPowerName, engine, suggestionMessages);
 
