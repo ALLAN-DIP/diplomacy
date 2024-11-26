@@ -1574,6 +1574,9 @@ export class ContentGame extends React.Component {
             (msg) => suggestionMessageTypes.includes(msg.type) &&
                 msg.phase === engine.phase
         );
+        suggestionMessages.forEach((msg) => {
+            msg.parsed = JSON.parse(msg.message);
+        });
 
         return suggestionMessages;
     }
