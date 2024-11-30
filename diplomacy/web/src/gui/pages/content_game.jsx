@@ -752,17 +752,18 @@ export class ContentGame extends React.Component {
         networkGame.sendOrderLog({ log: message });
     }
 
-    handleRecipientAnnotation(message, annotation) {
+    handleRecipientAnnotation(message_time_sent, annotation) {
         const engine = this.props.data;
         const newAnnotatedMessages = {
             ...this.state.annotatedMessages,
-            [message.time_sent]: annotation,
+            // Server ensures that `Message.time_sent` is unique
+            [message_time_sent]: annotation,
         };
         this.setState({ annotatedMessages: newAnnotatedMessages });
 
         this.sendRecipientAnnotation(
             engine.client,
-            message.time_sent,
+            message_time_sent,
             annotation
         );
     };
@@ -1475,7 +1476,7 @@ export class ContentGame extends React.Component {
             renderedMessages.push(
                 <ChatMessage
                     model={{
-                        sent: msg.sent_time,
+                        sent: msg.time_sent,
                         sender: sender,
                         direction: dir,
                         position: "single",
@@ -1509,7 +1510,7 @@ export class ContentGame extends React.Component {
         );
     }
 
-    hasUnreadAdvice(engine, role, protagnist) {
+    hasUnreadAdvice(engine, role, protagonist) {
         const isAdmin =
             engine.role === "omniscient_type" ||
             engine.role === "master_type" ||
@@ -1522,36 +1523,13 @@ export class ContentGame extends React.Component {
         const controlledPower = this.getCurrentPowerName();
 
         const globalMessages = messageChannels["GLOBAL"] || [];
-        let globalSuggestedMessages = [];
 
-        // split suggestions into moves and messages
-        for (let m of globalMessages) {
-            if (m.type === "suggested_message") {
-                globalSuggestedMessages.push(m);
-            }
-        }
-
-        const suggestedMessagesForCurrentPower =
-            globalSuggestedMessages.filter((msg) => {
-                if (!msg.message.includes("-") || !msg.message.includes(":"))
-                    return false;
-                const ps = msg.message.split(":")[0].split("-");
-                if (
-                    ps[0] === controlledPower &&
-                    ps[1] === protagnist &&
-                    msg.phase === engine.phase &&
-                    !this.state.annotatedMessages.hasOwnProperty(msg.time_sent)
-                ) {
-                    return true;
-                }
-
-                return false;
-            }) || [];
+        const suggestedMessagesForCurrentPower = this.getSuggestedMessages(controlledPower, protagonist, isAdmin, engine, globalMessages);
 
         return suggestedMessagesForCurrentPower.length > 0;
     }
 
-    countUnreadMessages(engine, role, protagnist) {
+    countUnreadMessages(engine, role, protagonist) {
         let messageChannels = engine.getMessageChannels(role, true);
         if (
             engine.role === "omniscient_type" ||
@@ -1568,7 +1546,7 @@ export class ContentGame extends React.Component {
                 const message = messages[idx];
 
                 if (
-                    message.sender === protagnist &&
+                    message.sender === protagonist &&
                     message.recipient === controlledPower &&
                     !message.recipient_annotation &&
                     !this.state.annotatedMessages.hasOwnProperty(
@@ -1582,8 +1560,175 @@ export class ContentGame extends React.Component {
         return count;
     }
 
-    truncate(str) {
-        return str.length > 15 ? str.substring(0, 12) + "..." : str;
+    getSuggestionType(currentPowerName, engine, globalMessages){
+        /*
+         0: NONE
+         1: MESSAGE
+         2: MOVE
+         4: COMMENTARY
+        */
+        let suggestionType = 0;
+
+        const powerSuggestions = globalMessages.filter(
+            (msg) =>
+                msg.type === "has_suggestions" &&
+                msg.phase === engine.phase &&
+                msg.message.includes(currentPowerName)
+        );
+        powerSuggestions.forEach((x) => {
+            const parts = x.message.split(":");
+            const p = parts[0].trim();
+            const t = parseInt(parts[1].trim());
+            if (p === currentPowerName) suggestionType |= t;
+        });
+
+        if (powerSuggestions.length > 0) {
+            return suggestionType;
+        } else {
+            return null;
+        }
+    }
+
+    getSuggestedMoves(currentPowerName, engine, globalMessages) {
+        const receivedSuggestions =
+            globalMessages.filter((msg) => {
+                if (!msg.type.includes("move")) return false;
+                if (!msg.message.includes(":")) return false;
+                const p = msg.message.split(":")[0];
+                return p === currentPowerName && msg.phase === engine.phase;
+            });
+
+        return receivedSuggestions
+    }
+
+    getLatestSuggestedMoves(receivedSuggestions, suggestionType) {
+        let latestMoveSuggestion = null;
+        for (const msg of receivedSuggestions) {
+            if (msg.type === `suggested_move_${suggestionType}`) {
+                if (
+                    !latestMoveSuggestion ||
+                    msg.time_sent > latestMoveSuggestion.time_sent
+                )
+                    latestMoveSuggestion = msg;
+            }
+        }
+
+        // do not display if player dismissed the suggestion
+        if (latestMoveSuggestion) {
+            const sent_time = latestMoveSuggestion.time_sent;
+            if (
+                this.state.annotatedMessages.hasOwnProperty(sent_time) &&
+                this.state.annotatedMessages[sent_time] === "reject"
+            ) {
+                latestMoveSuggestion = null;
+            }
+        }
+
+        if (latestMoveSuggestion === null) {
+            return null
+        }
+
+        const suggestion = {
+            sender: latestMoveSuggestion.sender,
+            time_sent: latestMoveSuggestion.time_sent,
+        }
+        if (suggestionType === "full") {
+            suggestion.moves = latestMoveSuggestion.message
+                .split(":")[1]
+                .split(",")
+                .map((m) => m.trim());
+        } else if (suggestionType === "partial") {
+            suggestion.givenMoves = latestMoveSuggestion.message
+                .split(":")[1]
+                .split(",")
+                .map((m) => m.trim());
+            suggestion.moves = latestMoveSuggestion.message
+                .split(":")[2]
+                .split(",")
+                .map((m) => m.trim());
+        } else {
+             throw new Error(`Unrecognized suggestionType ${suggestionType}`)
+        }
+        return suggestion
+
+    }
+
+    getSuggestedMessages(currentPowerName, protagonist, isAdmin, engine, globalMessages) {
+        const receivedSuggestions =
+            globalMessages.filter((msg) => {
+                if (msg.type !== "suggested_message")
+                    return false;
+
+                if (!msg.message.includes(":") || !msg.message.includes("-"))
+                    return false;
+                const ps = msg.message.split(":")[0].split("-");
+                const sender = ps[0];
+                const recipient = ps[1];
+
+                if (msg.message.split(":")[1] !== "message")
+                    return false;
+
+                return sender === currentPowerName &&
+                    recipient === protagonist &&
+                    msg.phase === engine.phase &&
+                    (isAdmin ||
+                        !this.state.annotatedMessages.hasOwnProperty(
+                            msg.time_sent
+                        ));
+            });
+
+        const suggestedMessages = receivedSuggestions.map((msg) => {
+            const message = msg.message
+                .split(":")
+                .slice(2)
+                .join(":");
+            return {
+                message: message,
+                sender: msg.sender,
+                time_sent: msg.time_sent,
+            }
+        })
+
+        return suggestedMessages;
+    }
+
+    getSuggestedCommentary(currentPowerName, protagonist, isAdmin, engine, globalMessages) {
+        const receivedSuggestions =
+            globalMessages.filter((msg) => {
+                if (msg.type !== "suggested_message")
+                    return false;
+
+                if (!msg.message.includes(":") || !msg.message.includes("-"))
+                    return false;
+                const ps = msg.message.split(":")[0].split("-");
+                const sender = ps[0];
+                const recipient = ps[1];
+
+                if (msg.message.split(":")[1] !== "commentary")
+                    return false;
+
+                return sender === currentPowerName &&
+                    recipient === protagonist &&
+                    msg.phase === engine.phase &&
+                    (isAdmin ||
+                        !this.state.annotatedMessages.hasOwnProperty(
+                            msg.time_sent
+                        ));
+            });
+
+        const suggestedCommentary = receivedSuggestions.map((msg) => {
+            const commentary = msg.message
+                .split(":")
+                .slice(2)
+                .join(":");
+            return {
+                commentary: commentary,
+                sender: msg.sender,
+                time_sent: msg.time_sent,
+            }
+        })
+
+        return suggestedCommentary;
     }
 
     renderCurrentMessages(engine, role, isWide) {
@@ -1671,7 +1816,7 @@ export class ContentGame extends React.Component {
                 <ChatMessage
                     model={{
                         message: log.message,
-                        sent: log.sent_time,
+                        sent: log.time_sent,
                         sender: role,
                         direction: "outgoing",
                         position: "single",
@@ -1753,7 +1898,7 @@ export class ContentGame extends React.Component {
                                     }
                                     onClick={() => {
                                         this.handleRecipientAnnotation(
-                                            msg,
+                                            msg.time_sent,
                                             "yes"
                                         );
                                     }}
@@ -1778,7 +1923,7 @@ export class ContentGame extends React.Component {
                                     }
                                     onClick={() =>
                                         this.handleRecipientAnnotation(
-                                            msg,
+                                            msg.time_sent,
                                             "None"
                                         )
                                     }
@@ -1801,68 +1946,10 @@ export class ContentGame extends React.Component {
         // for filtering message suggestions based on the current power talking to
 
         const globalMessages = messageChannels["GLOBAL"] || [];
-        let globalSuggestedMessages = [];
 
-        /*
-         0: NONE
-         1: MESSAGE
-         2: MOVE
-         4: COMMENTARY
-        */
-        let suggestionType = 0;
+        const suggestionType = this.getSuggestionType(currentPowerName, engine, globalMessages);
 
-        const hasSuggestionMessage = globalMessages.some(
-            (msg) =>
-                msg.type === "has_suggestions" &&
-                msg.phase === engine.phase &&
-                msg.message.includes(currentPowerName)
-        );
-
-        if (hasSuggestionMessage) {
-            const powerSuggestions = globalMessages.filter(
-                (msg) =>
-                    msg.type === "has_suggestions" &&
-                    msg.phase === engine.phase &&
-                    msg.message.includes(currentPowerName)
-            );
-            powerSuggestions.forEach((x) => {
-                const parts = x.message.split(":");
-                const p = parts[0].trim();
-                const t = parseInt(parts[1].trim());
-                if (p === currentPowerName) suggestionType |= t;
-            });
-        }
-
-        for (let m of globalMessages) {
-            if (m.type === "suggested_message") {
-                globalSuggestedMessages.push(m);
-            }
-        }
-
-        const suggestedMessagesForCurrentPower =
-            globalSuggestedMessages.filter((msg) => {
-                if (!msg.message.includes(":") || !msg.message.includes("-"))
-                    return false;
-                const ps = msg.message.split(":")[0].split("-");
-                const sender = ps[0];
-                const recipient = ps[1];
-
-                if (msg.message.split(":")[1] !== "commentary")
-                    return false;
-
-                if (
-                    sender === currentPowerName &&
-                    recipient === protagonist &&
-                    msg.phase === engine.phase &&
-                    (isAdmin ||
-                        !this.state.annotatedMessages.hasOwnProperty(
-                            msg.time_sent
-                        ))
-                ) {
-                    return true;
-                }
-                return false;
-            }) || [];
+        const suggestedCommentaryForCurrentPower = this.getSuggestedCommentary(currentPowerName, protagonist, isAdmin, engine, globalMessages)
 
         return (
             <Box
@@ -1882,7 +1969,7 @@ export class ContentGame extends React.Component {
                                 >
                                     <Tab2 label="Messages" value="messages" />
                                     {
-                                        (suggestionType & 4) === 4 &&
+                                        suggestionType !== null && (suggestionType & 4) === 4 &&
                                         <Tab2 label="Commentary Advisor" value="commentary" />
                                     }
                                     {isAdmin && <Tab2 label="Captain's Log" value="intent-log" />}
@@ -2000,20 +2087,14 @@ export class ContentGame extends React.Component {
                                             />
                                         </ConversationHeader>
                                         <MessageList>
-                                            {suggestedMessagesForCurrentPower.map((m, i) => {
-                                                const content = m.message;
-                                                const suggestedMessage = content
-                                                    .split(":")
-                                                    .slice(2)
-                                                    .join(":");
-
+                                            {suggestedCommentaryForCurrentPower.map((com, i) => {
                                                 return (
                                                     <div
                                                         style={{
                                                             alignItems: "flex-end",
                                                             display:
                                                                 !this.state.annotatedMessages.hasOwnProperty(
-                                                                    m.time_sent
+                                                                    com.time_sent
                                                                 )
                                                                     ? "flex"
                                                                     : "none",
@@ -2022,9 +2103,9 @@ export class ContentGame extends React.Component {
                                                         <ChatMessage
                                                             style={{ flexGrow: 1 }}
                                                             model={{
-                                                                message: suggestedMessage,
-                                                                sent: m.sent_time,
-                                                                sender: m.sender,
+                                                                message: com.commentary,
+                                                                sent: com.time_sent,
+                                                                sender: com.sender,
                                                                 direction: "incoming",
                                                                 position: "single",
                                                             }}
@@ -2389,14 +2470,14 @@ export class ContentGame extends React.Component {
         for (let powerName of Object.keys(engine.powers))
             if (powerName !== role) tabNames.push(powerName);
         tabNames.sort();
-        let protagnist;
+        let protagonist;
 
         if (isCurrent && this.state.tabCurrentMessages) {
-            protagnist = this.state.tabCurrentMessages;
+            protagonist = this.state.tabCurrentMessages;
         } else if (!isCurrent && this.state.tabPastMessages) {
-            protagnist = this.state.tabPastMessages;
+            protagonist = this.state.tabPastMessages;
         } else {
-            protagnist = tabNames[0];
+            protagonist = tabNames[0];
         }
 
         const currentPowerName =
@@ -2409,72 +2490,14 @@ export class ContentGame extends React.Component {
             true
         );
         const globalMessages = messageChannels["GLOBAL"] || [];
-        let globalSuggestedMessages = [];
 
-        /*
-         0: NONE
-         1: MESSAGE
-         2: MOVE
-         4: COMMENTARY
-        */
-        let suggestionType = 0;
+        const suggestionType = this.getSuggestionType(currentPowerName, engine, globalMessages);
 
-        const hasSuggestionMessage = globalMessages.some(
-            (msg) =>
-                msg.type === "has_suggestions" &&
-                msg.phase === engine.phase &&
-                msg.message.includes(currentPowerName)
-        );
-
-        if (hasSuggestionMessage) {
-            const powerSuggestions = globalMessages.filter(
-                (msg) =>
-                    msg.type === "has_suggestions" &&
-                    msg.phase === engine.phase &&
-                    msg.message.includes(currentPowerName)
-            );
-            powerSuggestions.forEach((x) => {
-                const parts = x.message.split(":");
-                const p = parts[0].trim();
-                const t = parseInt(parts[1].trim());
-                if (p === currentPowerName) suggestionType |= t;
-            });
-        }
-
-        for (let m of globalMessages) {
-            if (m.type === "suggested_message") {
-                globalSuggestedMessages.push(m);
-            }
-        }
-
-        const suggestedMessagesForCurrentPower =
-            globalSuggestedMessages.filter((msg) => {
-                if (!msg.message.includes(":") || !msg.message.includes("-"))
-                    return false;
-                const ps = msg.message.split(":")[0].split("-");
-                const sender = ps[0];
-                const recipient = ps[1];
-
-                if (msg.message.split(":")[1] !== "message")
-                    return false;
-
-                if (
-                    sender === currentPowerName &&
-                    recipient === protagnist &&
-                    msg.phase === engine.phase &&
-                    (isAdmin ||
-                        !this.state.annotatedMessages.hasOwnProperty(
-                            msg.time_sent
-                        ))
-                ) {
-                    return true;
-                }
-                return false;
-            }) || [];
+        const suggestedMessagesForCurrentPower = this.getSuggestedMessages(currentPowerName, protagonist, isAdmin, engine, globalMessages)
 
         return (
             <div className={isWide ? "col-6 mb-4" : "col-4 mb-4"}>
-                {(suggestionType & 1) === 1 && (
+                {suggestionType !== null && (suggestionType & 1) === 1 && (
                     <ChatContainer
                         style={{
                             display: "flex",
@@ -2487,25 +2510,19 @@ export class ContentGame extends React.Component {
                     >
                         <ConversationHeader>
                             <ConversationHeader.Content
-                                userName={`Messages Advice to ${protagnist}`}
+                                userName={`Messages Advice to ${protagonist}`}
                             />
                         </ConversationHeader>
 
                         <MessageList>
-                            {suggestedMessagesForCurrentPower.map((m, i) => {
-                                const content = m.message;
-                                const suggestedMessage = content
-                                    .split(":")
-                                    .slice(2)
-                                    .join(":");
-
+                            {suggestedMessagesForCurrentPower.map((msg, i) => {
                                 return (
                                     <div
                                         style={{
                                             alignItems: "flex-end",
                                             display:
                                                 !this.state.annotatedMessages.hasOwnProperty(
-                                                    m.time_sent
+                                                    msg.time_sent
                                                 )
                                                     ? "flex"
                                                     : "none",
@@ -2514,9 +2531,9 @@ export class ContentGame extends React.Component {
                                         <ChatMessage
                                             style={{ flexGrow: 1 }}
                                             model={{
-                                                message: suggestedMessage,
-                                                sent: m.sent_time,
-                                                sender: m.sender,
+                                                message: msg.message,
+                                                sent: msg.time_sent,
+                                                sender: msg.sender,
                                                 direction: "incoming",
                                                 position: "single",
                                             }}
@@ -2537,11 +2554,11 @@ export class ContentGame extends React.Component {
                                                 color={"success"}
                                                 onClick={() => {
                                                     this.setMessageInputValue(
-                                                        suggestedMessage
+                                                        msg.message
                                                     );
 
                                                     this.handleRecipientAnnotation(
-                                                        m,
+                                                        msg.time_sent,
                                                         "accept"
                                                     );
                                                 }}
@@ -2559,7 +2576,7 @@ export class ContentGame extends React.Component {
                                                 color={"danger"}
                                                 onClick={() => {
                                                     this.handleRecipientAnnotation(
-                                                        m,
+                                                        msg.time_sent,
                                                         "reject"
                                                     );
                                                 }}
@@ -2603,112 +2620,20 @@ export class ContentGame extends React.Component {
             true
         );
         const globalMessages = messageChannels["GLOBAL"] || [];
-        let globalSuggestedMoves = [];
-        let globalSuggestedMessages = [];
 
-        /*
-         0: NONE
-         1: MESSAGE
-         2: MOVE
-         4: COMMENTARY
-        */
-        let suggestionType = 0;
+        const suggestionType = this.getSuggestionType(currentPowerName, engine, globalMessages);
 
-        const hasSuggestionMessage = globalMessages.some(
-            (msg) =>
-                msg.type === "has_suggestions" &&
-                msg.phase === engine.phase &&
-                msg.message.includes(currentPowerName)
-        );
-
-        if (hasSuggestionMessage) {
-            const powerSuggestions = globalMessages.filter(
-                (msg) =>
-                    msg.type === "has_suggestions" &&
-                    msg.phase === engine.phase &&
-                    msg.message.includes(currentPowerName)
-            );
-            powerSuggestions.forEach((x) => {
-                const parts = x.message.split(":");
-                const p = parts[0].trim();
-                const t = parseInt(parts[1].trim());
-                if (p === currentPowerName) suggestionType |= t;
-            });
-        }
-
-        // split suggestions into moves and messages
-        for (let m of globalMessages) {
-            if (m.type) {
-                if (m.type === "suggested_message") {
-                    globalSuggestedMessages.push(m);
-                } else if (m.type.includes("move")) {
-                    globalSuggestedMoves.push(m);
-                }
-            }
-        }
-
-        const moveSuggestionForCurrentPower =
-            globalSuggestedMoves.filter((msg) => {
-                if (!msg.message.includes(":")) return false;
-                const p = msg.message.split(":")[0];
-                if (p === currentPowerName && msg.phase === engine.phase) {
-                    return true;
-                }
-                return false;
-            }) || [];
+        const moveSuggestionForCurrentPower = this.getSuggestedMoves(currentPowerName, engine, globalMessages)
 
         // display only the latest to avoid cluttering textbox
-        let latestMoveSuggestionFull = null;
-        let latestMoveSuggestionPartial = null;
-
-        for (const m of moveSuggestionForCurrentPower) {
-            if (m.type === "suggested_move_full") {
-                if (
-                    !latestMoveSuggestionFull ||
-                    m.time_sent > latestMoveSuggestionFull.time_sent
-                )
-                    latestMoveSuggestionFull = m;
-            }
-            if (m.type === "suggested_move_partial") {
-                if (
-                    !latestMoveSuggestionPartial ||
-                    m.time_sent > latestMoveSuggestionPartial.time_sent
-                )
-                    latestMoveSuggestionPartial = m;
-            }
-        }
-
-        // do not display if player dismissed the suggestion
-        if (latestMoveSuggestionFull) {
-            const sent_time = latestMoveSuggestionFull.time_sent;
-            if (
-                this.state.annotatedMessages.hasOwnProperty(sent_time) &&
-                this.state.annotatedMessages[sent_time] === "reject"
-            ) {
-                latestMoveSuggestionFull = null;
-            }
-        }
-
-        if (latestMoveSuggestionPartial) {
-            const sent_time = latestMoveSuggestionPartial.time_sent;
-            if (
-                this.state.annotatedMessages.hasOwnProperty(sent_time) &&
-                this.state.annotatedMessages[sent_time] === "reject"
-            ) {
-                latestMoveSuggestionPartial = null;
-            }
-        }
+        let latestMoveSuggestionFull = this.getLatestSuggestedMoves(moveSuggestionForCurrentPower, "full");
+        let latestMoveSuggestionPartial = this.getLatestSuggestedMoves(moveSuggestionForCurrentPower, "partial");
 
         let fullSuggestionComponent = null;
         let partialSuggestionComponent = null;
 
         if (latestMoveSuggestionFull) {
-            const suggestedMoves = latestMoveSuggestionFull.message
-                .split(":")[1]
-                .split(",")
-                .map((m) => m.trim());
-
-            const fullSuggestionMessages = suggestedMoves.map((move, index) => {
+            const fullSuggestionMessages = latestMoveSuggestionFull.moves.map((move, index) => {
                 return (
                     <div
                         style={{
@@ -2727,7 +2652,7 @@ export class ContentGame extends React.Component {
                             style={{ flexGrow: 1 }}
                             model={{
                                 message: move,
-                                sent: latestMoveSuggestionFull.sent_time,
+                                sent: latestMoveSuggestionFull.time_sent,
                                 sender: latestMoveSuggestionFull.sender,
                                 direction: "incoming",
                                 position: "single",
@@ -2751,7 +2676,7 @@ export class ContentGame extends React.Component {
                                     this.onOrderBuilt(currentPowerName, move);
 
                                     this.handleRecipientAnnotation(
-                                        latestMoveSuggestionFull,
+                                        latestMoveSuggestionFull.time_sent,
                                         `accept ${move}`
                                     );
                                 }}
@@ -2774,7 +2699,7 @@ export class ContentGame extends React.Component {
                         }}
                         onMouseEnter={() => {
                             let newMoves = [];
-                            for (let move of suggestedMoves) {
+                            for (let move of latestMoveSuggestionFull.moves) {
                                 newMoves.push(move);
                             }
                             this.setState({ hoverOrders: newMoves });
@@ -2787,7 +2712,7 @@ export class ContentGame extends React.Component {
                             style={{ flexGrow: 1 }}
                             model={{
                                 message: "Full Suggestions:",
-                                sent: latestMoveSuggestionFull.sent_time,
+                                sent: latestMoveSuggestionFull.time_sent,
                                 sender: latestMoveSuggestionFull.sender,
                                 direction: "incoming",
                                 position: "single",
@@ -2808,7 +2733,7 @@ export class ContentGame extends React.Component {
                                 title={"accept all"}
                                 color={"success"}
                                 onClick={async () => {
-                                    for (let move of suggestedMoves) {
+                                    for (let move of latestMoveSuggestionFull.moves) {
                                         await this.onOrderBuilt(
                                             currentPowerName,
                                             move
@@ -2816,7 +2741,7 @@ export class ContentGame extends React.Component {
                                     }
 
                                     this.handleRecipientAnnotation(
-                                        latestMoveSuggestionFull,
+                                        latestMoveSuggestionFull.time_sent,
                                         "accept all"
                                     );
                                 }}
@@ -2829,7 +2754,7 @@ export class ContentGame extends React.Component {
                                 color={"danger"}
                                 onClick={() => {
                                     this.handleRecipientAnnotation(
-                                        latestMoveSuggestionFull,
+                                        latestMoveSuggestionFull.time_sent,
                                         "reject"
                                     );
                                 }}
@@ -2843,12 +2768,7 @@ export class ContentGame extends React.Component {
         }
 
         if (latestMoveSuggestionPartial) {
-            const suggestedMoves = latestMoveSuggestionPartial.message
-                .split(":")[2]
-                .split(",")
-                .map((m) => m.trim());
-
-            const partialSuggestionMessages = suggestedMoves.map(
+            const partialSuggestionMessages = latestMoveSuggestionPartial.moves.map(
                 (move, index) => {
                     return (
                         <div
@@ -2868,7 +2788,7 @@ export class ContentGame extends React.Component {
                                 style={{ flexGrow: 1 }}
                                 model={{
                                     message: move,
-                                    sent: latestMoveSuggestionPartial.sent_time,
+                                    sent: latestMoveSuggestionPartial.time_sent,
                                     sender: latestMoveSuggestionPartial.sender,
                                     direction: "incoming",
                                     position: "single",
@@ -2895,7 +2815,7 @@ export class ContentGame extends React.Component {
                                         );
 
                                         this.handleRecipientAnnotation(
-                                            latestMoveSuggestionPartial,
+                                            latestMoveSuggestionPartial.time_sent,
                                             `accept ${move}`
                                         );
                                     }}
@@ -2916,7 +2836,7 @@ export class ContentGame extends React.Component {
                         }}
                         onMouseEnter={() => {
                             let newMoves = [];
-                            for (let move of suggestedMoves) {
+                            for (let move of latestMoveSuggestionPartial.moves) {
                                 newMoves.push(move);
                             }
                             this.setState({ hoverOrders: newMoves });
@@ -2929,11 +2849,9 @@ export class ContentGame extends React.Component {
                             style={{ flexGrow: 1 }}
                             model={{
                                 message: `Suggestions based on ${
-                                    latestMoveSuggestionPartial.message.split(
-                                        ":"
-                                    )[1]
+                                    latestMoveSuggestionPartial.givenMoves.join(", ")
                                 }:`,
-                                sent: latestMoveSuggestionPartial.sent_time,
+                                sent: latestMoveSuggestionPartial.time_sent,
                                 sender: latestMoveSuggestionPartial.sender,
                                 direction: "incoming",
                                 position: "single",
@@ -2954,7 +2872,7 @@ export class ContentGame extends React.Component {
                                 title={"accept all"}
                                 color={"success"}
                                 onClick={async () => {
-                                    for (let move of suggestedMoves) {
+                                    for (let move of latestMoveSuggestionPartial.moves) {
                                         await this.onOrderBuilt(
                                             currentPowerName,
                                             move
@@ -2962,7 +2880,7 @@ export class ContentGame extends React.Component {
                                     }
 
                                     this.handleRecipientAnnotation(
-                                        latestMoveSuggestionPartial,
+                                        latestMoveSuggestionPartial.time_sent,
                                         "accept all"
                                     );
                                 }}
@@ -2975,7 +2893,7 @@ export class ContentGame extends React.Component {
                                 color={"danger"}
                                 onClick={() => {
                                     this.handleRecipientAnnotation(
-                                        latestMoveSuggestionPartial,
+                                        latestMoveSuggestionPartial.time_sent,
                                         "reject"
                                     );
                                 }}
@@ -2989,25 +2907,27 @@ export class ContentGame extends React.Component {
         }
 
         const suggestionTypeDisplay = []
-        if ((suggestionType & 1) === 1) suggestionTypeDisplay.push("message")
-        if ((suggestionType & 2) === 2) suggestionTypeDisplay.push("move")
-        if ((suggestionType & 4) === 4) suggestionTypeDisplay.push("commentary")
+        if (suggestionType !== null) {
+            if ((suggestionType & 1) === 1) suggestionTypeDisplay.push("message")
+            if ((suggestionType & 2) === 2) suggestionTypeDisplay.push("move")
+            if ((suggestionType & 4) === 4) suggestionTypeDisplay.push("commentary")
+        }
 
         return (
             <div className={"col-4 mb-4"}>
-                {!hasSuggestionMessage && (
+                {suggestionType === null && (
                     <div>
                         We haven't assigned advisors yet / No advisor for this
                         year
                     </div>
                 )}
-                {hasSuggestionMessage && suggestionType === 0 && (
+                {suggestionType !== null && suggestionType === 0 && (
                     <div>You are on your own this turn.</div>
                 )}
-                {suggestionType >= 1 && (
+                {suggestionType !== null && suggestionType >= 1 && (
                     <div>You are getting advice this turn: {suggestionTypeDisplay.join(", ")}.</div>
                 )}
-                {(suggestionType & 2) === 2 && (
+                {suggestionType !== null && (suggestionType & 2) === 2 && (
                     <ChatContainer
                         style={{
                             display: "flex",
@@ -3098,7 +3018,7 @@ export class ContentGame extends React.Component {
                 <ChatMessage
                     model={{
                         message: log.message,
-                        sent: log.sent_time,
+                        sent: log.time_sent,
                         sender: role,
                         direction: "outgoing",
                         position: "single",
@@ -3467,37 +3387,9 @@ export class ContentGame extends React.Component {
         );
         const globalMessages = messageChannels["GLOBAL"] || [];
 
-        /*
-         0: NONE
-         1: MESSAGE
-         2: MOVE
-         4: COMMENTARY
-        */
-        let suggestionType = 0;
+        const suggestionType = this.getSuggestionType(currentPowerName, engine, globalMessages);
 
-        const hasSuggestionMessage = globalMessages.some(
-            (msg) =>
-                msg.type === "has_suggestions" &&
-                msg.phase === engine.phase &&
-                msg.message.includes(currentPowerName)
-        );
-
-        if (hasSuggestionMessage) {
-            const powerSuggestions = globalMessages.filter(
-                (msg) =>
-                    msg.type === "has_suggestions" &&
-                    msg.phase === engine.phase &&
-                    msg.message.includes(currentPowerName)
-            );
-            powerSuggestions.forEach((x) => {
-                const parts = x.message.split(":");
-                const p = parts[0].trim();
-                const t = parseInt(parts[1].trim());
-                if (p === currentPowerName) suggestionType |= t;
-            });
-        }
-
-        const hasMoveSuggestion = (suggestionType & 2) === 2
+        const hasMoveSuggestion = suggestionType !== null && (suggestionType & 2) === 2
 
         let gameContent;
 
