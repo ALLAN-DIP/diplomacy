@@ -1976,7 +1976,7 @@ class Game(Jsonable):
 
         LOGGER.info(power_name + "\t" + "comm_status: " + comm_status)
         power = self.get_power(power_name.upper())
-        power.comm_status = comm_status
+        power.comm_status = strings.READY
 
     def set_wait(self, power_name, wait):
         """Set wait flag for a power.
