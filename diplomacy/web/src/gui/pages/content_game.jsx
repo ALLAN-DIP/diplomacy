@@ -1196,7 +1196,7 @@ export class ContentGame extends React.Component {
 
     setCommStatus(commStatus) {
         let newCommStatus =
-            commStatus === STRINGS.BUSY ? STRINGS.READY : STRINGS.BUSY;
+            commStatus === STRINGS.READY ? STRINGS.READY : STRINGS.READY;
         const engine = this.props.data;
         const networkGame = engine.client;
         const controllablePowers = engine.getControllablePowers();
