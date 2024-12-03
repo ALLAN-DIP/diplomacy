@@ -710,7 +710,7 @@ export class ContentGame extends React.Component {
                 "Will not update stance of a noncontrollable power."
             );
         }
-    };
+    }
 
     handleIsBot(country, isBot) {
         const engine = this.props.data;
@@ -727,7 +727,7 @@ export class ContentGame extends React.Component {
                 "Will not update stance of a noncontrollable power."
             );
         }
-    };
+    }
 
     sendOrderLog(networkGame, logType, order) {
         const engine = networkGame.local;
@@ -766,7 +766,7 @@ export class ContentGame extends React.Component {
             message_time_sent,
             annotation
         );
-    };
+    }
 
     updateTabVal(event, value) {
         return this.setState({ tabVal: value });
@@ -1524,7 +1524,13 @@ export class ContentGame extends React.Component {
 
         const globalMessages = messageChannels["GLOBAL"] || [];
 
-        const suggestedMessagesForCurrentPower = this.getSuggestedMessages(controlledPower, protagonist, isAdmin, engine, globalMessages);
+        const suggestedMessagesForCurrentPower = this.getSuggestedMessages(
+            controlledPower,
+            protagonist,
+            isAdmin,
+            engine,
+            globalMessages
+        );
 
         return suggestedMessagesForCurrentPower.length > 0;
     }
@@ -1560,7 +1566,7 @@ export class ContentGame extends React.Component {
         return count;
     }
 
-    getSuggestionType(currentPowerName, engine, globalMessages){
+    getSuggestionType(currentPowerName, engine, globalMessages) {
         /*
          0: NONE
          1: MESSAGE
@@ -1590,15 +1596,14 @@ export class ContentGame extends React.Component {
     }
 
     getSuggestedMoves(currentPowerName, engine, globalMessages) {
-        const receivedSuggestions =
-            globalMessages.filter((msg) => {
-                if (!msg.type.includes("move")) return false;
-                if (!msg.message.includes(":")) return false;
-                const p = msg.message.split(":")[0];
-                return p === currentPowerName && msg.phase === engine.phase;
-            });
+        const receivedSuggestions = globalMessages.filter((msg) => {
+            if (!msg.type.includes("move")) return false;
+            if (!msg.message.includes(":")) return false;
+            const p = msg.message.split(":")[0];
+            return p === currentPowerName && msg.phase === engine.phase;
+        });
 
-        return receivedSuggestions
+        return receivedSuggestions;
     }
 
     getLatestSuggestedMoves(receivedSuggestions, suggestionType) {
@@ -1625,13 +1630,13 @@ export class ContentGame extends React.Component {
         }
 
         if (latestMoveSuggestion === null) {
-            return null
+            return null;
         }
 
         const suggestion = {
             sender: latestMoveSuggestion.sender,
             time_sent: latestMoveSuggestion.time_sent,
-        }
+        };
         if (suggestionType === "full") {
             suggestion.moves = latestMoveSuggestion.message
                 .split(":")[1]
@@ -1647,86 +1652,85 @@ export class ContentGame extends React.Component {
                 .split(",")
                 .map((m) => m.trim());
         } else {
-             throw new Error(`Unrecognized suggestionType ${suggestionType}`)
+            throw new Error(`Unrecognized suggestionType ${suggestionType}`);
         }
-        return suggestion
-
+        return suggestion;
     }
 
-    getSuggestedMessages(currentPowerName, protagonist, isAdmin, engine, globalMessages) {
-        const receivedSuggestions =
-            globalMessages.filter((msg) => {
-                if (msg.type !== "suggested_message")
-                    return false;
+    getSuggestedMessages(
+        currentPowerName,
+        protagonist,
+        isAdmin,
+        engine,
+        globalMessages
+    ) {
+        const receivedSuggestions = globalMessages.filter((msg) => {
+            if (msg.type !== "suggested_message") return false;
 
-                if (!msg.message.includes(":") || !msg.message.includes("-"))
-                    return false;
-                const ps = msg.message.split(":")[0].split("-");
-                const sender = ps[0];
-                const recipient = ps[1];
+            if (!msg.message.includes(":") || !msg.message.includes("-"))
+                return false;
+            const ps = msg.message.split(":")[0].split("-");
+            const sender = ps[0];
+            const recipient = ps[1];
 
-                if (msg.message.split(":")[1] !== "message")
-                    return false;
+            if (msg.message.split(":")[1] !== "message") return false;
 
-                return sender === currentPowerName &&
-                    recipient === protagonist &&
-                    msg.phase === engine.phase &&
-                    (isAdmin ||
-                        !this.state.annotatedMessages.hasOwnProperty(
-                            msg.time_sent
-                        ));
-            });
+            return (
+                sender === currentPowerName &&
+                recipient === protagonist &&
+                msg.phase === engine.phase &&
+                (isAdmin ||
+                    !this.state.annotatedMessages.hasOwnProperty(msg.time_sent))
+            );
+        });
 
         const suggestedMessages = receivedSuggestions.map((msg) => {
-            const message = msg.message
-                .split(":")
-                .slice(2)
-                .join(":");
+            const message = msg.message.split(":").slice(2).join(":");
             return {
                 message: message,
                 sender: msg.sender,
                 time_sent: msg.time_sent,
-            }
-        })
+            };
+        });
 
         return suggestedMessages;
     }
 
-    getSuggestedCommentary(currentPowerName, protagonist, isAdmin, engine, globalMessages) {
-        const receivedSuggestions =
-            globalMessages.filter((msg) => {
-                if (msg.type !== "suggested_message")
-                    return false;
+    getSuggestedCommentary(
+        currentPowerName,
+        protagonist,
+        isAdmin,
+        engine,
+        globalMessages
+    ) {
+        const receivedSuggestions = globalMessages.filter((msg) => {
+            if (msg.type !== "suggested_message") return false;
 
-                if (!msg.message.includes(":") || !msg.message.includes("-"))
-                    return false;
-                const ps = msg.message.split(":")[0].split("-");
-                const sender = ps[0];
-                const recipient = ps[1];
+            if (!msg.message.includes(":") || !msg.message.includes("-"))
+                return false;
+            const ps = msg.message.split(":")[0].split("-");
+            const sender = ps[0];
+            const recipient = ps[1];
 
-                if (msg.message.split(":")[1] !== "commentary")
-                    return false;
+            if (msg.message.split(":")[1] !== "commentary") return false;
 
-                return sender === currentPowerName &&
-                    recipient === protagonist &&
-                    msg.phase === engine.phase &&
-                    (isAdmin ||
-                        !this.state.annotatedMessages.hasOwnProperty(
-                            msg.time_sent
-                        ));
-            });
+            return (
+                sender === currentPowerName &&
+                recipient === protagonist &&
+                msg.phase === engine.phase &&
+                (isAdmin ||
+                    !this.state.annotatedMessages.hasOwnProperty(msg.time_sent))
+            );
+        });
 
         const suggestedCommentary = receivedSuggestions.map((msg) => {
-            const commentary = msg.message
-                .split(":")
-                .slice(2)
-                .join(":");
+            const commentary = msg.message.split(":").slice(2).join(":");
             return {
                 commentary: commentary,
                 sender: msg.sender,
                 time_sent: msg.time_sent,
-            }
-        })
+            };
+        });
 
         return suggestedCommentary;
     }
@@ -1774,11 +1778,7 @@ export class ContentGame extends React.Component {
                 }}
                 key={protagonist}
                 name={protagonist}
-                unreadCnt={this.countUnreadMessages(
-                    engine,
-                    role,
-                    protagonist
-                )}
+                unreadCnt={this.countUnreadMessages(engine, role, protagonist)}
                 unreadDot={this.hasUnreadAdvice(engine, role, protagonist)}
             >
                 <Avatar
@@ -1796,8 +1796,6 @@ export class ContentGame extends React.Component {
                 />
             </Conversation>
         ));
-
-        
 
         const renderedMessages = [];
         let protagonist = currentTabId;
@@ -1921,9 +1919,11 @@ export class ContentGame extends React.Component {
 
         const globalMessages = messageChannels["GLOBAL"] || [];
 
-        const suggestionType = this.getSuggestionType(currentPowerName, engine, globalMessages);
-
-        
+        const suggestionType = this.getSuggestionType(
+            currentPowerName,
+            engine,
+            globalMessages
+        );
 
         return (
             <Box
@@ -1933,105 +1933,112 @@ export class ContentGame extends React.Component {
                 <Grid container spacing={2}>
                     <Grid item xs={12} sx={{ height: "100%" }}>
                         <Box sx={{ width: "100%", height: "550px" }}>
-                                <div>
-                                    <MainContainer responsive>
-                                        <Sidebar position="left" scrollable={true}>
-                                            <ConversationList>{convList}</ConversationList>
-                                        </Sidebar>
-                                        <ChatContainer>
-                                            <MessageList>{renderedMessages}</MessageList>
-                                        </ChatContainer>
-                                    </MainContainer>
-                                    {engine.isPlayerGame() && (
-                                        <>
-                                            <textarea
-                                                style={{ flex: 1 }}
-                                                onChange={(val) =>
-                                                    this.setMessageInputValue(val.target.value)
-                                                }
-                                                value={this.state.message}
-                                                disabled={
-                                                    phaseType === "M" &&
-                                                    (!this.state.hasInitialOrders ||
-                                                        (this.__get_orders(engine)[
-                                                            currentPowerName
-                                                        ] &&
-                                                            Object.keys(
-                                                                this.__get_orders(engine)[
-                                                                    currentPowerName
-                                                                ]
-                                                            ).length <
-                                                                engine.orderableLocations[
-                                                                    currentPowerName
-                                                                ].length))
-                                                }
-                                                placeholder={
-                                                    phaseType === "M" &&
-                                                    (!this.state.hasInitialOrders ||
-                                                        (this.__get_orders(engine)[
-                                                            currentPowerName
-                                                        ] &&
-                                                            Object.keys(
-                                                                this.__get_orders(engine)[
-                                                                    currentPowerName
-                                                                ]
-                                                            ).length <
-                                                                engine.orderableLocations[
-                                                                    currentPowerName
-                                                                ].length))
-                                                        ? "You need to set orders for all units before sending messages."
-                                                        : ""
-                                                }
-                                            />
-                                            <Button
-                                                key={"t"}
-                                                pickEvent={true}
-                                                title={"Truth"}
-                                                color={"success"}
-                                                onClick={() => {
-                                                    this.sendMessage(
-                                                        engine.client,
-                                                        currentTabId,
-                                                        this.state.message,
-                                                        "Truth"
-                                                    );
-                                                    this.setMessageInputValue("");
-                                                }}
-                                            ></Button>
-                                            <Button
-                                                key={"f"}
-                                                pickEvent={true}
-                                                title={"Lie"}
-                                                color={"danger"}
-                                                onClick={() => {
-                                                    this.sendMessage(
-                                                        engine.client,
-                                                        currentTabId,
-                                                        this.state.message,
-                                                        "Lie"
-                                                    );
-                                                    this.setMessageInputValue("");
-                                                }}
-                                            ></Button>
-                                            <Button
-                                                key={"n"}
-                                                pickEvent={true}
-                                                title={"Neutral"}
-                                                color={"primary"}
-                                                onClick={() => {
-                                                    this.sendMessage(
-                                                        engine.client,
-                                                        currentTabId,
-                                                        this.state.message,
-                                                        "Neutral"
-                                                    );
-                                                    this.setMessageInputValue("");
-                                                }}
-                                            ></Button>
-                                        </>
-                                    )}
-                                </div>
-                            
+                            <div>
+                                <MainContainer responsive>
+                                    <Sidebar position="left" scrollable={true}>
+                                        <ConversationList>
+                                            {convList}
+                                        </ConversationList>
+                                    </Sidebar>
+                                    <ChatContainer>
+                                        <MessageList>
+                                            {renderedMessages}
+                                        </MessageList>
+                                    </ChatContainer>
+                                </MainContainer>
+                                {engine.isPlayerGame() && (
+                                    <>
+                                        <textarea
+                                            style={{ flex: 1 }}
+                                            onChange={(val) =>
+                                                this.setMessageInputValue(
+                                                    val.target.value
+                                                )
+                                            }
+                                            value={this.state.message}
+                                            disabled={
+                                                phaseType === "M" &&
+                                                (!this.state.hasInitialOrders ||
+                                                    (this.__get_orders(engine)[
+                                                        currentPowerName
+                                                    ] &&
+                                                        Object.keys(
+                                                            this.__get_orders(
+                                                                engine
+                                                            )[currentPowerName]
+                                                        ).length <
+                                                            engine
+                                                                .orderableLocations[
+                                                                currentPowerName
+                                                            ].length))
+                                            }
+                                            placeholder={
+                                                phaseType === "M" &&
+                                                (!this.state.hasInitialOrders ||
+                                                    (this.__get_orders(engine)[
+                                                        currentPowerName
+                                                    ] &&
+                                                        Object.keys(
+                                                            this.__get_orders(
+                                                                engine
+                                                            )[currentPowerName]
+                                                        ).length <
+                                                            engine
+                                                                .orderableLocations[
+                                                                currentPowerName
+                                                            ].length))
+                                                    ? "You need to set orders for all units before sending messages."
+                                                    : ""
+                                            }
+                                        />
+                                        <Button
+                                            key={"t"}
+                                            pickEvent={true}
+                                            title={"Truth"}
+                                            color={"success"}
+                                            onClick={() => {
+                                                this.sendMessage(
+                                                    engine.client,
+                                                    currentTabId,
+                                                    this.state.message,
+                                                    "Truth"
+                                                );
+                                                this.setMessageInputValue("");
+                                            }}
+                                        ></Button>
+                                        <Button
+                                            key={"f"}
+                                            pickEvent={true}
+                                            title={"Lie"}
+                                            color={"danger"}
+                                            onClick={() => {
+                                                this.sendMessage(
+                                                    engine.client,
+                                                    currentTabId,
+                                                    this.state.message,
+                                                    "Lie"
+                                                );
+                                                this.setMessageInputValue("");
+                                            }}
+                                        ></Button>
+                                        <Button
+                                            key={"n"}
+                                            pickEvent={true}
+                                            title={"Neutral"}
+                                            color={"primary"}
+                                            onClick={() => {
+                                                this.sendMessage(
+                                                    engine.client,
+                                                    currentTabId,
+                                                    this.state.message,
+                                                    "Neutral"
+                                                );
+                                                this.setMessageInputValue("");
+                                            }}
+                                        ></Button>
+                                    </>
+                                )}
+                            </div>
                         </Box>
                     </Grid>
                 </Grid>
@@ -2377,18 +2384,34 @@ export class ContentGame extends React.Component {
         );
         const globalMessages = messageChannels["GLOBAL"] || [];
 
-        const suggestionType = this.getSuggestionType(currentPowerName, engine, globalMessages);
+        const suggestionType = this.getSuggestionType(
+            currentPowerName,
+            engine,
+            globalMessages
+        );
 
-        const suggestedMessagesForCurrentPower = this.getSuggestedMessages(currentPowerName, protagonist, isAdmin, engine, globalMessages)
-        const suggestedCommentaryForCurrentPower = this.getSuggestedCommentary(currentPowerName, protagonist, isAdmin, engine, globalMessages)
+        const suggestedMessagesForCurrentPower = this.getSuggestedMessages(
+            currentPowerName,
+            protagonist,
+            isAdmin,
+            engine,
+            globalMessages
+        );
+        const suggestedCommentaryForCurrentPower = this.getSuggestedCommentary(
+            currentPowerName,
+            protagonist,
+            isAdmin,
+            engine,
+            globalMessages
+        );
         const curController = engine.powers[role].getController();
 
         return (
             <Box className={isWide ? "col-6 mb-4" : "col-4 mb-4"}>
                 <Grid container spacing={2}>
-                    <Grid item xs={12} sx={{ height: "100%"}}>
+                    <Grid item xs={12} sx={{ height: "100%" }}>
                         <Box sx={{ width: "100%", height: "550px" }}>
-                        <Box
+                            <Box
                                 sx={{ borderBottom: 1, borderColor: "divider" }}
                             >
                                 <Tabs2
@@ -2396,147 +2419,192 @@ export class ContentGame extends React.Component {
                                     onChange={this.updateTabVal}
                                     aria-label="basic tabs example"
                                 >
-                                    <Tab2 label="Message Advice" value="message advice" />
-                                    <Tab2 label="Commentary" value="commentary" />
-                                    {isAdmin && <Tab2 label="Captain's Log" value="intent-log" />}
+                                    <Tab2
+                                        label="Message Advice"
+                                        value="messages"
+                                    />
+                                    <Tab2
+                                        label="Commentary"
+                                        value="commentary"
+                                    />
+                                    {isAdmin && (
+                                        <Tab2
+                                            label="Captain's Log"
+                                            value="intent-log"
+                                        />
+                                    )}
                                 </Tabs2>
                             </Box>
-                {this.state.tabVal === "messages" && (
-                    <ChatContainer
-                        style={{
-                            display: "flex",
-                            flexDirection: "column",
-                            flexGrow: 1,
-                            border: "1px solid black",
-                            boxSizing: "border-box",
-                            marginTop: "10px",
-                        }}
-                    >
-                        <ConversationHeader>
-                            <ConversationHeader.Content
-                                userName={`Messages Advice to ${protagonist}`}
-                            />
-                        </ConversationHeader>
+                            {this.state.tabVal === "messages" && (
+                                <ChatContainer
+                                    style={{
+                                        display: "flex",
+                                        flexDirection: "column",
+                                        flexGrow: 1,
+                                        border: "1px solid black",
+                                        boxSizing: "border-box",
+                                        marginTop: "10px",
+                                    }}
+                                >
+                                    <ConversationHeader>
+                                        <ConversationHeader.Content
+                                            userName={`Messages Advice to ${protagonist}`}
+                                        />
+                                    </ConversationHeader>
 
-                        <MessageList>
-                            {suggestedMessagesForCurrentPower.map((msg, i) => {
-                                return (
-                                    <div
-                                        style={{
-                                            alignItems: "flex-end",
-                                            display:
-                                                !this.state.annotatedMessages.hasOwnProperty(
-                                                    msg.time_sent
-                                                )
-                                                    ? "flex"
-                                                    : "none",
-                                        }}
-                                    >
-                                        <ChatMessage
-                                            style={{ flexGrow: 1 }}
-                                            model={{
-                                                message: msg.message,
-                                                sent: msg.time_sent,
-                                                sender: msg.sender,
-                                                direction: "incoming",
-                                                position: "single",
-                                            }}
-                                            avatarPosition={"tl"}
-                                        ></ChatMessage>
-                                        <div
-                                            style={{
-                                                flexGrow: 0,
-                                                flexShrink: 0,
-                                                display: "flex",
-                                                alignItems: "flex-end",
-                                            }}
-                                        >
-                                            <Button
-                                                key={"a"}
-                                                pickEvent={true}
-                                                title={"add to textbox"}
-                                                color={"success"}
-                                                onClick={() => {
-                                                    this.setMessageInputValue(
-                                                        msg.message
-                                                    );
-
-                                                    this.handleRecipientAnnotation(
-                                                        msg.time_sent,
-                                                        "accept"
-                                                    );
-                                                }}
-                                                invisible={
-                                                    !(isCurrent && !isAdmin)
-                                                }
-                                                //disabled={this.state.annotatedMessages.hasOwnProperty(
-                                                //  m.time_sent,
-                                                //)}
-                                            ></Button>
-                                            <Button
-                                                key={"r"}
-                                                pickEvent={true}
-                                                title={"dismiss"}
-                                                color={"danger"}
-                                                onClick={() => {
-                                                    this.handleRecipientAnnotation(
-                                                        msg.time_sent,
-                                                        "reject"
-                                                    );
-                                                }}
-                                                invisible={
-                                                    !(isCurrent && !isAdmin)
-                                                }
-                                                //disabled={this.state.annotatedMessages.hasOwnProperty(
-                                                //  m.time_sent,
-                                                //)}
-                                            ></Button>
-                                        </div>
-                                    </div>
-                                );
-                            })}
-                        </MessageList>
-                    </ChatContainer>
-                )}
-
-{this.state.tabVal === "commentary" && (
-                                <MainContainer responsive>
-                                    <ChatContainer>
-                                        <ConversationHeader>
-                                            <ConversationHeader.Content
-                                                userName={
-                                                    "Commentary about " + protagonist
-                                                }
-                                            />
-                                        </ConversationHeader>
-                                        <MessageList>
-                                            {suggestedCommentaryForCurrentPower.map((com, i) => {
+                                    <MessageList>
+                                        {suggestedMessagesForCurrentPower.map(
+                                            (msg, i) => {
                                                 return (
                                                     <div
                                                         style={{
-                                                            alignItems: "flex-end",
+                                                            alignItems:
+                                                                "flex-end",
                                                             display:
                                                                 !this.state.annotatedMessages.hasOwnProperty(
-                                                                    com.time_sent
+                                                                    msg.time_sent
                                                                 )
                                                                     ? "flex"
                                                                     : "none",
                                                         }}
                                                     >
                                                         <ChatMessage
-                                                            style={{ flexGrow: 1 }}
-                                                            model={{
-                                                                message: com.commentary,
-                                                                sent: com.time_sent,
-                                                                sender: com.sender,
-                                                                direction: "incoming",
-                                                                position: "single",
+                                                            style={{
+                                                                flexGrow: 1,
                                                             }}
-                                                            avatarPosition={"tl"}
+                                                            model={{
+                                                                message:
+                                                                    msg.message,
+                                                                sent: msg.time_sent,
+                                                                sender: msg.sender,
+                                                                direction:
+                                                                    "incoming",
+                                                                position:
+                                                                    "single",
+                                                            }}
+                                                            avatarPosition={
+                                                                "tl"
+                                                            }
                                                         ></ChatMessage>
+                                                        <div
+                                                            style={{
+                                                                flexGrow: 0,
+                                                                flexShrink: 0,
+                                                                display: "flex",
+                                                                alignItems:
+                                                                    "flex-end",
+                                                            }}
+                                                        >
+                                                            <Button
+                                                                key={"a"}
+                                                                pickEvent={true}
+                                                                title={
+                                                                    "add to textbox"
+                                                                }
+                                                                color={
+                                                                    "success"
+                                                                }
+                                                                onClick={() => {
+                                                                    this.setMessageInputValue(
+                                                                        msg.message
+                                                                    );
+
+                                                                    this.handleRecipientAnnotation(
+                                                                        msg.time_sent,
+                                                                        "accept"
+                                                                    );
+                                                                }}
+                                                                invisible={
+                                                                    !(
+                                                                        isCurrent &&
+                                                                        !isAdmin
+                                                                    )
+                                                                }
+                                                                //disabled={this.state.annotatedMessages.hasOwnProperty(
+                                                                //  m.time_sent,
+                                                                //)}
+                                                            ></Button>
+                                                            <Button
+                                                                key={"r"}
+                                                                pickEvent={true}
+                                                                title={
+                                                                    "dismiss"
+                                                                }
+                                                                color={"danger"}
+                                                                onClick={() => {
+                                                                    this.handleRecipientAnnotation(
+                                                                        msg.time_sent,
+                                                                        "reject"
+                                                                    );
+                                                                }}
+                                                                invisible={
+                                                                    !(
+                                                                        isCurrent &&
+                                                                        !isAdmin
+                                                                    )
+                                                                }
+                                                                //disabled={this.state.annotatedMessages.hasOwnProperty(
+                                                                //  m.time_sent,
+                                                                //)}
+                                                            ></Button>
+                                                        </div>
                                                     </div>
                                                 );
-                                            })}
+                                            }
+                                        )}
+                                    </MessageList>
+                                </ChatContainer>
+                            )}
+
+                            {this.state.tabVal === "commentary" && (
+                                <MainContainer responsive>
+                                    <ChatContainer>
+                                        <ConversationHeader>
+                                            <ConversationHeader.Content
+                                                userName={
+                                                    "Commentary about " +
+                                                    protagonist
+                                                }
+                                            />
+                                        </ConversationHeader>
+                                        <MessageList>
+                                            {suggestedCommentaryForCurrentPower.map(
+                                                (com, i) => {
+                                                    return (
+                                                        <div
+                                                            style={{
+                                                                alignItems:
+                                                                    "flex-end",
+                                                                display:
+                                                                    !this.state.annotatedMessages.hasOwnProperty(
+                                                                        com.time_sent
+                                                                    )
+                                                                        ? "flex"
+                                                                        : "none",
+                                                            }}
+                                                        >
+                                                            <ChatMessage
+                                                                style={{
+                                                                    flexGrow: 1,
+                                                                }}
+                                                                model={{
+                                                                    message:
+                                                                        com.commentary,
+                                                                    sent: com.time_sent,
+                                                                    sender: com.sender,
+                                                                    direction:
+                                                                        "incoming",
+                                                                    position:
+                                                                        "single",
+                                                                }}
+                                                                avatarPosition={
+                                                                    "tl"
+                                                                }
+                                                            ></ChatMessage>
+                                                        </div>
+                                                    );
+                                                }
+                                            )}
                                         </MessageList>
                                         {engine.isPlayerGame() && (
                                             <MessageInput
@@ -2598,8 +2666,8 @@ export class ContentGame extends React.Component {
                                     </ChatContainer>
                                 </MainContainer>
                             )}
-                </Box>
-                </Grid>
+                        </Box>
+                    </Grid>
                 </Grid>
             </Box>
         );
@@ -2628,74 +2696,93 @@ export class ContentGame extends React.Component {
         );
         const globalMessages = messageChannels["GLOBAL"] || [];
 
-        const suggestionType = this.getSuggestionType(currentPowerName, engine, globalMessages);
+        const suggestionType = this.getSuggestionType(
+            currentPowerName,
+            engine,
+            globalMessages
+        );
 
-        const moveSuggestionForCurrentPower = this.getSuggestedMoves(currentPowerName, engine, globalMessages)
+        const moveSuggestionForCurrentPower = this.getSuggestedMoves(
+            currentPowerName,
+            engine,
+            globalMessages
+        );
 
         // display only the latest to avoid cluttering textbox
-        let latestMoveSuggestionFull = this.getLatestSuggestedMoves(moveSuggestionForCurrentPower, "full");
-        let latestMoveSuggestionPartial = this.getLatestSuggestedMoves(moveSuggestionForCurrentPower, "partial");
+        let latestMoveSuggestionFull = this.getLatestSuggestedMoves(
+            moveSuggestionForCurrentPower,
+            "full"
+        );
+        let latestMoveSuggestionPartial = this.getLatestSuggestedMoves(
+            moveSuggestionForCurrentPower,
+            "partial"
+        );
 
         let fullSuggestionComponent = null;
         let partialSuggestionComponent = null;
 
         if (latestMoveSuggestionFull) {
-            const fullSuggestionMessages = latestMoveSuggestionFull.moves.map((move, index) => {
-                return (
-                    <div
-                        style={{
-                            display: "flex",
-                            alignItems: "flex-end",
-                        }}
-                        onMouseEnter={() => {
-                            let newMoves = [move];
-                            this.setState({ hoverOrders: newMoves });
-                        }}
-                        onMouseLeave={() => {
-                            this.setState({ hoverOrders: [] });
-                        }}
-                    >
-                        <ChatMessage
-                            style={{ flexGrow: 1 }}
-                            model={{
-                                message: move,
-                                sent: latestMoveSuggestionFull.time_sent,
-                                sender: latestMoveSuggestionFull.sender,
-                                direction: "incoming",
-                                position: "single",
-                            }}
-                            avatarPosition={"tl"}
-                        ></ChatMessage>
+            const fullSuggestionMessages = latestMoveSuggestionFull.moves.map(
+                (move, index) => {
+                    return (
                         <div
                             style={{
-                                flexGrow: 0,
-                                flexShrink: 0,
                                 display: "flex",
                                 alignItems: "flex-end",
                             }}
+                            onMouseEnter={() => {
+                                let newMoves = [move];
+                                this.setState({ hoverOrders: newMoves });
+                            }}
+                            onMouseLeave={() => {
+                                this.setState({ hoverOrders: [] });
+                            }}
                         >
-                            <Button
-                                key={"a"}
-                                pickEvent={true}
-                                title={"accept"}
-                                color={"success"}
-                                onClick={() => {
-                                    this.onOrderBuilt(currentPowerName, move);
-
-                                    this.handleRecipientAnnotation(
-                                        latestMoveSuggestionFull.time_sent,
-                                        `accept ${move}`
-                                    );
+                            <ChatMessage
+                                style={{ flexGrow: 1 }}
+                                model={{
+                                    message: move,
+                                    sent: latestMoveSuggestionFull.time_sent,
+                                    sender: latestMoveSuggestionFull.sender,
+                                    direction: "incoming",
+                                    position: "single",
                                 }}
-                                invisible={!(isCurrent && !isAdmin)}
-                                //disabled={this.state.annotatedMessages.hasOwnProperty(
-                                //  latestMoveSuggestionFull.time_sent,
-                                //)}
-                            ></Button>
+                                avatarPosition={"tl"}
+                            ></ChatMessage>
+                            <div
+                                style={{
+                                    flexGrow: 0,
+                                    flexShrink: 0,
+                                    display: "flex",
+                                    alignItems: "flex-end",
+                                }}
+                            >
+                                <Button
+                                    key={"a"}
+                                    pickEvent={true}
+                                    title={"accept"}
+                                    color={"success"}
+                                    onClick={() => {
+                                        this.onOrderBuilt(
+                                            currentPowerName,
+                                            move
+                                        );
+
+                                        this.handleRecipientAnnotation(
+                                            latestMoveSuggestionFull.time_sent,
+                                            `accept ${move}`
+                                        );
+                                    }}
+                                    invisible={!(isCurrent && !isAdmin)}
+                                    //disabled={this.state.annotatedMessages.hasOwnProperty(
+                                    //  latestMoveSuggestionFull.time_sent,
+                                    //)}
+                                ></Button>
+                            </div>
                         </div>
-                    </div>
-                );
-            });
+                    );
+                }
+            );
 
             fullSuggestionComponent = (
                 <div>
@@ -2775,8 +2862,8 @@ export class ContentGame extends React.Component {
         }
 
         if (latestMoveSuggestionPartial) {
-            const partialSuggestionMessages = latestMoveSuggestionPartial.moves.map(
-                (move, index) => {
+            const partialSuggestionMessages =
+                latestMoveSuggestionPartial.moves.map((move, index) => {
                     return (
                         <div
                             style={{
@@ -2831,8 +2918,7 @@ export class ContentGame extends React.Component {
                             </div>
                         </div>
                     );
-                }
-            );
+                });
 
             partialSuggestionComponent = (
                 <div>
@@ -2855,9 +2941,9 @@ export class ContentGame extends React.Component {
                         <ChatMessage
                             style={{ flexGrow: 1 }}
                             model={{
-                                message: `Suggestions based on ${
-                                    latestMoveSuggestionPartial.givenMoves.join(", ")
-                                }:`,
+                                message: `Suggestions based on ${latestMoveSuggestionPartial.givenMoves.join(
+                                    ", "
+                                )}:`,
                                 sent: latestMoveSuggestionPartial.time_sent,
                                 sender: latestMoveSuggestionPartial.sender,
                                 direction: "incoming",
@@ -2913,11 +2999,13 @@ export class ContentGame extends React.Component {
             );
         }
 
-        const suggestionTypeDisplay = []
+        const suggestionTypeDisplay = [];
         if (suggestionType !== null) {
-            if ((suggestionType & 1) === 1) suggestionTypeDisplay.push("message")
-            if ((suggestionType & 2) === 2) suggestionTypeDisplay.push("move")
-            if ((suggestionType & 4) === 4) suggestionTypeDisplay.push("commentary")
+            if ((suggestionType & 1) === 1)
+                suggestionTypeDisplay.push("message");
+            if ((suggestionType & 2) === 2) suggestionTypeDisplay.push("move");
+            if ((suggestionType & 4) === 4)
+                suggestionTypeDisplay.push("commentary");
         }
 
         return (
@@ -2932,7 +3020,10 @@ export class ContentGame extends React.Component {
                     <div>You are on your own this turn.</div>
                 )}
                 {suggestionType !== null && suggestionType >= 1 && (
-                    <div>You are getting advice this turn: {suggestionTypeDisplay.join(", ")}.</div>
+                    <div>
+                        You are getting advice this turn:{" "}
+                        {suggestionTypeDisplay.join(", ")}.
+                    </div>
                 )}
                 {suggestionType !== null && (suggestionType & 2) === 2 && (
                     <ChatContainer
@@ -2998,8 +3089,7 @@ export class ContentGame extends React.Component {
                 </div>
             </div>
         ) : (
-            <div >
-            </div>
+            <div></div>
         );
     }
 
@@ -3394,9 +3484,14 @@ export class ContentGame extends React.Component {
         );
         const globalMessages = messageChannels["GLOBAL"] || [];
 
-        const suggestionType = this.getSuggestionType(currentPowerName, engine, globalMessages);
+        const suggestionType = this.getSuggestionType(
+            currentPowerName,
+            engine,
+            globalMessages
+        );
 
-        const hasMoveSuggestion = suggestionType !== null && (suggestionType & 2) === 2
+        const hasMoveSuggestion =
+            suggestionType !== null && (suggestionType & 2) === 2;
 
         let gameContent;
 
@@ -3439,9 +3534,7 @@ export class ContentGame extends React.Component {
                     <div>
                         <Row>
                             {phasePanel}
-                            <div className={"col-4"}>
-                                {/* Orders. */}
-                            </div>
+                            <div className={"col-4"}>{/* Orders. */}</div>
                         </Row>
                         <Row>
                             {this.renderTabChat(
