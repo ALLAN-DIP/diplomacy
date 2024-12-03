@@ -1797,33 +1797,7 @@ export class ContentGame extends React.Component {
             </Conversation>
         ));
 
-        const powerLogs = engine.getLogsForPower(role, true);
-        let renderedLogs = [];
-        let curPhase = "";
-        let prevPhase = "";
-        powerLogs.forEach((log) => {
-            if (log.phase != prevPhase) {
-                curPhase = log.phase;
-                renderedLogs.push(
-                    <MessageSeparator>{curPhase}</MessageSeparator>
-                );
-
-                prevPhase = curPhase;
-            }
-
-            renderedLogs.push(
-                // eslint-disable-next-line react/jsx-key
-                <ChatMessage
-                    model={{
-                        message: log.message,
-                        sent: log.time_sent,
-                        sender: role,
-                        direction: "outgoing",
-                        position: "single",
-                    }}
-                ></ChatMessage>
-            );
-        });
+        
 
         const renderedMessages = [];
         let protagonist = currentTabId;
@@ -1832,8 +1806,8 @@ export class ContentGame extends React.Component {
         let sender = "";
         let rec = "";
         let dir = "";
-        curPhase = "";
-        prevPhase = "";
+        let curPhase = "";
+        let prevPhase = "";
 
         for (let m in msgs) {
             let msg = msgs[m];
@@ -1949,7 +1923,7 @@ export class ContentGame extends React.Component {
 
         const suggestionType = this.getSuggestionType(currentPowerName, engine, globalMessages);
 
-        const suggestedCommentaryForCurrentPower = this.getSuggestedCommentary(currentPowerName, protagonist, isAdmin, engine, globalMessages)
+        
 
         return (
             <Box
@@ -1959,23 +1933,6 @@ export class ContentGame extends React.Component {
                 <Grid container spacing={2}>
                     <Grid item xs={12} sx={{ height: "100%" }}>
                         <Box sx={{ width: "100%", height: "550px" }}>
-                            <Box
-                                sx={{ borderBottom: 1, borderColor: "divider" }}
-                            >
-                                <Tabs2
-                                    value={this.state.tabVal}
-                                    onChange={this.updateTabVal}
-                                    aria-label="basic tabs example"
-                                >
-                                    <Tab2 label="Messages" value="messages" />
-                                    {
-                                        suggestionType !== null && (suggestionType & 4) === 4 &&
-                                        <Tab2 label="Commentary Advisor" value="commentary" />
-                                    }
-                                    {isAdmin && <Tab2 label="Captain's Log" value="intent-log" />}
-                                </Tabs2>
-                            </Box>
-                            {this.state.tabVal === "messages" && (
                                 <div>
                                     <MainContainer responsive>
                                         <Sidebar position="left" scrollable={true}>
@@ -2074,107 +2031,7 @@ export class ContentGame extends React.Component {
                                         </>
                                     )}
                                 </div>
-                            )}
-
-                            {this.state.tabVal === "commentary" && (
-                                <MainContainer responsive>
-                                    <ChatContainer>
-                                        <ConversationHeader>
-                                            <ConversationHeader.Content
-                                                userName={
-                                                    "Commentary about " + protagonist
-                                                }
-                                            />
-                                        </ConversationHeader>
-                                        <MessageList>
-                                            {suggestedCommentaryForCurrentPower.map((com, i) => {
-                                                return (
-                                                    <div
-                                                        style={{
-                                                            alignItems: "flex-end",
-                                                            display:
-                                                                !this.state.annotatedMessages.hasOwnProperty(
-                                                                    com.time_sent
-                                                                )
-                                                                    ? "flex"
-                                                                    : "none",
-                                                        }}
-                                                    >
-                                                        <ChatMessage
-                                                            style={{ flexGrow: 1 }}
-                                                            model={{
-                                                                message: com.commentary,
-                                                                sent: com.time_sent,
-                                                                sender: com.sender,
-                                                                direction: "incoming",
-                                                                position: "single",
-                                                            }}
-                                                            avatarPosition={"tl"}
-                                                        ></ChatMessage>
-                                                    </div>
-                                                );
-                                            })}
-                                        </MessageList>
-                                        {engine.isPlayerGame() && (
-                                            <MessageInput
-                                                attachButton={false}
-                                                onChange={(val) =>
-                                                    this.setlogDataInputValue(
-                                                        val
-                                                    )
-                                                }
-                                                onSend={() => {
-                                                    const message =
-                                                        this.sendLogData(
-                                                            engine.client,
-                                                            this.state.logData
-                                                        );
-                                                    //this.setLogs([...this.state.logs, message])
-                                                }}
-                                            />
-                                        )}
-                                    </ChatContainer>
-                                </MainContainer>
-                            )}
-
-                            {this.state.tabVal === "intent-log" && (
-                                <MainContainer responsive>
-                                    <ChatContainer>
-                                        <ConversationHeader>
-                                            <ConversationHeader.Content
-                                                userName={
-                                                    role.toString() +
-                                                    " (" +
-                                                    curController +
-                                                    ")" +
-                                                    ": Captain's Log"
-                                                }
-                                            />
-                                        </ConversationHeader>
-                                        <MessageList>
-                                            {renderedLogs}
-                                        </MessageList>
-                                        {engine.isPlayerGame() && (
-                                            <MessageInput
-                                                attachButton={false}
-                                                onChange={(val) =>
-                                                    this.setlogDataInputValue(
-                                                        val
-                                                    )
-                                                }
-                                                onSend={() => {
-                                                    const message =
-                                                        this.sendLogData(
-                                                            engine.client,
-                                                            this.state.logData
-                                                        );
-                                                    //this.setLogs([...this.state.logs, message])
-                                                }}
-                                            />
-                                        )}
-                                    </ChatContainer>
-                                </MainContainer>
-                            )}
+                            
                         </Box>
                     </Grid>
                 </Grid>
@@ -2480,6 +2337,35 @@ export class ContentGame extends React.Component {
             protagonist = tabNames[0];
         }
 
+        const powerLogs = engine.getLogsForPower(role, true);
+        let renderedLogs = [];
+        let curPhase = "";
+        let prevPhase = "";
+
+        powerLogs.forEach((log) => {
+            if (log.phase != prevPhase) {
+                curPhase = log.phase;
+                renderedLogs.push(
+                    <MessageSeparator>{curPhase}</MessageSeparator>
+                );
+
+                prevPhase = curPhase;
+            }
+
+            renderedLogs.push(
+                // eslint-disable-next-line react/jsx-key
+                <ChatMessage
+                    model={{
+                        message: log.message,
+                        sent: log.time_sent,
+                        sender: role,
+                        direction: "outgoing",
+                        position: "single",
+                    }}
+                ></ChatMessage>
+            );
+        });
+
         const currentPowerName =
             this.state.power ||
             (engine.getControllablePowers().length &&
@@ -2494,10 +2380,28 @@ export class ContentGame extends React.Component {
         const suggestionType = this.getSuggestionType(currentPowerName, engine, globalMessages);
 
         const suggestedMessagesForCurrentPower = this.getSuggestedMessages(currentPowerName, protagonist, isAdmin, engine, globalMessages)
+        const suggestedCommentaryForCurrentPower = this.getSuggestedCommentary(currentPowerName, protagonist, isAdmin, engine, globalMessages)
+        const curController = engine.powers[role].getController();
 
         return (
-            <div className={isWide ? "col-6 mb-4" : "col-4 mb-4"}>
-                {suggestionType !== null && (suggestionType & 1) === 1 && (
+            <Box className={isWide ? "col-6 mb-4" : "col-4 mb-4"}>
+                <Grid container spacing={2}>
+                    <Grid item xs={12} sx={{ height: "100%"}}>
+                        <Box sx={{ width: "100%", height: "550px" }}>
+                        <Box
+                                sx={{ borderBottom: 1, borderColor: "divider" }}
+                            >
+                                <Tabs2
+                                    value={this.state.tabVal}
+                                    onChange={this.updateTabVal}
+                                    aria-label="basic tabs example"
+                                >
+                                    <Tab2 label="Message Advice" value="message advice" />
+                                    <Tab2 label="Commentary" value="commentary" />
+                                    {isAdmin && <Tab2 label="Captain's Log" value="intent-log" />}
+                                </Tabs2>
+                            </Box>
+                {this.state.tabVal === "messages" && (
                     <ChatContainer
                         style={{
                             display: "flex",
@@ -2594,7 +2498,110 @@ export class ContentGame extends React.Component {
                         </MessageList>
                     </ChatContainer>
                 )}
-            </div>
+
+{this.state.tabVal === "commentary" && (
+                                <MainContainer responsive>
+                                    <ChatContainer>
+                                        <ConversationHeader>
+                                            <ConversationHeader.Content
+                                                userName={
+                                                    "Commentary about " + protagonist
+                                                }
+                                            />
+                                        </ConversationHeader>
+                                        <MessageList>
+                                            {suggestedCommentaryForCurrentPower.map((com, i) => {
+                                                return (
+                                                    <div
+                                                        style={{
+                                                            alignItems: "flex-end",
+                                                            display:
+                                                                !this.state.annotatedMessages.hasOwnProperty(
+                                                                    com.time_sent
+                                                                )
+                                                                    ? "flex"
+                                                                    : "none",
+                                                        }}
+                                                    >
+                                                        <ChatMessage
+                                                            style={{ flexGrow: 1 }}
+                                                            model={{
+                                                                message: com.commentary,
+                                                                sent: com.time_sent,
+                                                                sender: com.sender,
+                                                                direction: "incoming",
+                                                                position: "single",
+                                                            }}
+                                                            avatarPosition={"tl"}
+                                                        ></ChatMessage>
+                                                    </div>
+                                                );
+                                            })}
+                                        </MessageList>
+                                        {engine.isPlayerGame() && (
+                                            <MessageInput
+                                                attachButton={false}
+                                                onChange={(val) =>
+                                                    this.setlogDataInputValue(
+                                                        val
+                                                    )
+                                                }
+                                                onSend={() => {
+                                                    const message =
+                                                        this.sendLogData(
+                                                            engine.client,
+                                                            this.state.logData
+                                                        );
+                                                    //this.setLogs([...this.state.logs, message])
+                                                }}
+                                            />
+                                        )}
+                                    </ChatContainer>
+                                </MainContainer>
+                            )}
+
+                            {this.state.tabVal === "intent-log" && (
+                                <MainContainer responsive>
+                                    <ChatContainer>
+                                        <ConversationHeader>
+                                            <ConversationHeader.Content
+                                                userName={
+                                                    role.toString() +
+                                                    " (" +
+                                                    curController +
+                                                    ")" +
+                                                    ": Captain's Log"
+                                                }
+                                            />
+                                        </ConversationHeader>
+                                        <MessageList>
+                                            {renderedLogs}
+                                        </MessageList>
+                                        {engine.isPlayerGame() && (
+                                            <MessageInput
+                                                attachButton={false}
+                                                onChange={(val) =>
+                                                    this.setlogDataInputValue(
+                                                        val
+                                                    )
+                                                }
+                                                onSend={() => {
+                                                    const message =
+                                                        this.sendLogData(
+                                                            engine.client,
+                                                            this.state.logData
+                                                        );
+                                                    //this.setLogs([...this.state.logs, message])
+                                                }}
+                                            />
+                                        )}
+                                    </ChatContainer>
+                                </MainContainer>
+                            )}
+                </Box>
+                </Grid>
+                </Grid>
+            </Box>
         );
     }
 
