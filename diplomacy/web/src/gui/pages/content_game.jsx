@@ -1571,18 +1571,18 @@ export class ContentGame extends React.Component {
             "suggested_move_partial",
         ];
 
-        let suggestionMessages = globalMessages.filter(
-            (msg) => suggestionMessageTypes.includes(msg.type) &&
-                msg.phase === engine.phase
-        );
-        suggestionMessages.forEach((msg) => {
-            msg.parsed = JSON.parse(msg.message);
-        });
-        suggestionMessages = suggestionMessages.filter(
-            (msg) => currentPowerName in msg.parsed
-        );
-        suggestionMessages.forEach((msg) => {
-            msg.parsed = msg.parsed[currentPowerName];
+        // For `Array.flatMap()` explanation, see
+        // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/flatMap#for_adding_and_removing_items_during_a_map
+        const suggestionMessages = globalMessages.flatMap((msg) => {
+            if (!suggestionMessageTypes.includes(msg.type) || msg.phase !== engine.phase) {
+                return [];
+            }
+            const parsed = JSON.parse(msg.message);
+            if (!(currentPowerName in parsed)) {
+                return [];
+            }
+            msg.parsed = parsed[currentPowerName];
+            return [msg];
         });
 
         return suggestionMessages;
