@@ -1564,11 +1564,11 @@ export class ContentGame extends React.Component {
         const globalMessages = messageChannels["GLOBAL"] || [];
 
         const suggestionMessageTypes = [
-            "has_suggestions",
-            "suggested_commentary",
-            "suggested_message",
-            "suggested_move_full",
-            "suggested_move_partial",
+            STRINGS.HAS_SUGGESTIONS,
+            STRINGS.SUGGESTED_COMMENTARY,
+            STRINGS.SUGGESTED_MESSAGE,
+            STRINGS.SUGGESTED_MOVE_FULL,
+            STRINGS.SUGGESTED_MOVE_PARTIAL,
         ];
 
         // For `Array.flatMap()` explanation, see
@@ -1599,7 +1599,7 @@ export class ContentGame extends React.Component {
 
         const powerSuggestions = globalMessages.filter(
             (msg) =>
-                msg.type === "has_suggestions"
+                msg.type === STRINGS.HAS_SUGGESTIONS
         );
         powerSuggestions.forEach((msg) => {
             suggestionType |= msg.parsed;
@@ -1615,7 +1615,7 @@ export class ContentGame extends React.Component {
     getSuggestedMoves(currentPowerName, engine, globalMessages) {
         const receivedSuggestions =
             globalMessages.filter((msg) =>
-                msg.type === "suggested_move_full" || msg.type === "suggested_move_partial"
+                msg.type === STRINGS.SUGGESTED_MOVE_FULL || msg.type === STRINGS.SUGGESTED_MOVE_PARTIAL
             );
 
         return receivedSuggestions
@@ -1662,7 +1662,7 @@ export class ContentGame extends React.Component {
     getSuggestedMessages(currentPowerName, protagonist, isAdmin, engine, globalMessages) {
         const receivedSuggestions =
             globalMessages.filter((msg) =>
-                msg.type === "suggested_message" &&
+                msg.type === STRINGS.SUGGESTED_MESSAGE &&
                 msg.parsed.recipient === protagonist &&
                 (isAdmin ||
                     !this.state.annotatedMessages.hasOwnProperty(
@@ -1684,7 +1684,7 @@ export class ContentGame extends React.Component {
     getSuggestedCommentary(currentPowerName, protagonist, isAdmin, engine, globalMessages) {
         const receivedSuggestions =
             globalMessages.filter((msg) =>
-                msg.type === "suggested_commentary" &&
+                msg.type === STRINGS.SUGGESTED_COMMENTARY &&
                 msg.parsed.recipient === protagonist &&
                 (isAdmin ||
                     !this.state.annotatedMessages.hasOwnProperty(
