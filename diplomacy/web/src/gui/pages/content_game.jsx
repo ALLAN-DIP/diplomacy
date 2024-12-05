@@ -1624,7 +1624,7 @@ export class ContentGame extends React.Component {
     getLatestSuggestedMoves(receivedSuggestions, suggestionType) {
         let latestMoveSuggestion = null;
         for (const msg of receivedSuggestions) {
-            if (msg.type === `suggested_move_${suggestionType}`) {
+            if (msg.type === suggestionType) {
                 if (
                     !latestMoveSuggestion ||
                     msg.time_sent > latestMoveSuggestion.time_sent
@@ -1653,7 +1653,7 @@ export class ContentGame extends React.Component {
             sender: latestMoveSuggestion.sender,
             time_sent: latestMoveSuggestion.time_sent,
         }
-        if (suggestionType === "partial") {
+        if (suggestionType === STRINGS.SUGGESTED_MOVE_PARTIAL) {
             suggestion.givenMoves = latestMoveSuggestion.parsed.player_orders
         }
         return suggestion
@@ -2598,8 +2598,8 @@ export class ContentGame extends React.Component {
         const moveSuggestionForCurrentPower = this.getSuggestedMoves(currentPowerName, engine, suggestionMessages)
 
         // display only the latest to avoid cluttering textbox
-        let latestMoveSuggestionFull = this.getLatestSuggestedMoves(moveSuggestionForCurrentPower, "full");
-        let latestMoveSuggestionPartial = this.getLatestSuggestedMoves(moveSuggestionForCurrentPower, "partial");
+        let latestMoveSuggestionFull = this.getLatestSuggestedMoves(moveSuggestionForCurrentPower, STRINGS.SUGGESTED_MOVE_FULL);
+        let latestMoveSuggestionPartial = this.getLatestSuggestedMoves(moveSuggestionForCurrentPower, STRINGS.SUGGESTED_MOVE_PARTIAL);
 
         let fullSuggestionComponent = null;
         let partialSuggestionComponent = null;
