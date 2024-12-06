@@ -40,6 +40,13 @@ export const STRINGS = {
     READY: 'ready',
     STATE_HISTORY: 'state_history',
     SYNCHRONIZE: 'synchronize',
+    // Suggestion message types (start)
+    HAS_SUGGESTIONS: 'has_suggestions',
+    SUGGESTED_COMMENTARY: 'suggested_commentary',
+    SUGGESTED_MESSAGE: 'suggested_message',
+    SUGGESTED_MOVE_FULL: 'suggested_move_full',
+    SUGGESTED_MOVE_PARTIAL: 'suggested_move_partial',
+    // Suggestion message types (end)
     ALL_GAME_STATUSES: ['forming', 'active', 'paused', 'completed', 'canceled'],
     ALL_POWER_NAMES: ['AUSTRIA', 'ENGLAND', 'FRANCE', 'GERMANY', 'ITALY', 'RUSSIA', 'TURKEY'],
     RULES: [
