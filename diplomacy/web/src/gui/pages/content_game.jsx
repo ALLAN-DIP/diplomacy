@@ -1578,10 +1578,10 @@ export class ContentGame extends React.Component {
                 return [];
             }
             const parsed = JSON.parse(msg.message);
-            if (!(currentPowerName in parsed)) {
+            if (parsed.recipient !== currentPowerName) {
                 return [];
             }
-            msg.parsed = parsed[currentPowerName];
+            msg.parsed = parsed;
             return [msg];
         });
 
@@ -1602,7 +1602,7 @@ export class ContentGame extends React.Component {
                 msg.type === STRINGS.HAS_SUGGESTIONS
         );
         powerSuggestions.forEach((msg) => {
-            suggestionType |= msg.parsed;
+            suggestionType |= msg.parsed.payload;
         });
 
         if (powerSuggestions.length > 0) {
@@ -1621,7 +1621,7 @@ export class ContentGame extends React.Component {
         return receivedSuggestions
     }
 
-    getLatestSuggestedMoves(receivedSuggestions, suggestionType) {
+    getLatestSuggestedMoves(currentPowerName, receivedSuggestions, suggestionType) {
         let latestMoveSuggestion = null;
         for (const msg of receivedSuggestions) {
             if (msg.type === suggestionType) {
@@ -1649,12 +1649,12 @@ export class ContentGame extends React.Component {
         }
 
         const suggestion = {
-            moves: latestMoveSuggestion.parsed.suggested_orders,
+            moves: latestMoveSuggestion.parsed.payload[currentPowerName].suggested_orders,
             sender: latestMoveSuggestion.sender,
             time_sent: latestMoveSuggestion.time_sent,
         }
         if (suggestionType === STRINGS.SUGGESTED_MOVE_PARTIAL) {
-            suggestion.givenMoves = latestMoveSuggestion.parsed.player_orders
+            suggestion.givenMoves = latestMoveSuggestion.parsed.payload[currentPowerName].player_orders
         }
         return suggestion
     }
@@ -1663,7 +1663,7 @@ export class ContentGame extends React.Component {
         const receivedSuggestions =
             globalMessages.filter((msg) =>
                 msg.type === STRINGS.SUGGESTED_MESSAGE &&
-                msg.parsed.recipient === protagonist &&
+                msg.parsed.payload.recipient === protagonist &&
                 (isAdmin ||
                     !this.state.annotatedMessages.hasOwnProperty(
                         msg.time_sent
@@ -1672,7 +1672,7 @@ export class ContentGame extends React.Component {
 
         const suggestedMessages = receivedSuggestions.map((msg) => {
             return {
-                message: msg.parsed.message,
+                message: msg.parsed.payload.message,
                 sender: msg.sender,
                 time_sent: msg.time_sent,
             }
@@ -1685,7 +1685,7 @@ export class ContentGame extends React.Component {
         const receivedSuggestions =
             globalMessages.filter((msg) =>
                 msg.type === STRINGS.SUGGESTED_COMMENTARY &&
-                msg.parsed.recipient === protagonist &&
+                msg.parsed.payload.recipient === protagonist &&
                 (isAdmin ||
                     !this.state.annotatedMessages.hasOwnProperty(
                         msg.time_sent
@@ -1694,7 +1694,7 @@ export class ContentGame extends React.Component {
 
         const suggestedCommentary = receivedSuggestions.map((msg) => {
             return {
-                commentary: msg.parsed.commentary,
+                commentary: msg.parsed.payload.commentary,
                 sender: msg.sender,
                 time_sent: msg.time_sent,
             }
@@ -2598,8 +2598,8 @@ export class ContentGame extends React.Component {
         const moveSuggestionForCurrentPower = this.getSuggestedMoves(currentPowerName, engine, suggestionMessages)
 
         // display only the latest to avoid cluttering textbox
-        let latestMoveSuggestionFull = this.getLatestSuggestedMoves(moveSuggestionForCurrentPower, STRINGS.SUGGESTED_MOVE_FULL);
-        let latestMoveSuggestionPartial = this.getLatestSuggestedMoves(moveSuggestionForCurrentPower, STRINGS.SUGGESTED_MOVE_PARTIAL);
+        let latestMoveSuggestionFull = this.getLatestSuggestedMoves(currentPowerName, moveSuggestionForCurrentPower, STRINGS.SUGGESTED_MOVE_FULL);
+        let latestMoveSuggestionPartial = this.getLatestSuggestedMoves(currentPowerName, moveSuggestionForCurrentPower, STRINGS.SUGGESTED_MOVE_PARTIAL);
 
         let fullSuggestionComponent = null;
         let partialSuggestionComponent = null;
