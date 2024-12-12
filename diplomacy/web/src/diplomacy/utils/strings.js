@@ -45,6 +45,7 @@ export const STRINGS = {
     SUGGESTED_COMMENTARY: 'suggested_commentary',
     SUGGESTED_MESSAGE: 'suggested_message',
     SUGGESTED_MOVE_FULL: 'suggested_move_full',
+    SUGGESTED_MOVE_OPPONENTS: 'suggested_move_opponents',
     SUGGESTED_MOVE_PARTIAL: 'suggested_move_partial',
     // Suggestion message types (end)
     ALL_GAME_STATUSES: ['forming', 'active', 'paused', 'completed', 'canceled'],

@@ -1568,6 +1568,7 @@ export class ContentGame extends React.Component {
             STRINGS.SUGGESTED_COMMENTARY,
             STRINGS.SUGGESTED_MESSAGE,
             STRINGS.SUGGESTED_MOVE_FULL,
+            STRINGS.SUGGESTED_MOVE_OPPONENTS,
             STRINGS.SUGGESTED_MOVE_PARTIAL,
         ];
 
