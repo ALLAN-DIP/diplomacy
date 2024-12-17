@@ -54,6 +54,7 @@ import styles from "@chatscope/chat-ui-kit-styles/dist/default/styles.min.css";
 import { default as Tabs2 } from "@mui/material/Tabs";
 import { default as Tab2 } from "@mui/material/Tab";
 import Box from "@mui/material/Box";
+import Badge from "@mui/material/Badge";
 
 import {
     MainContainer,
@@ -201,6 +202,9 @@ export class ContentGame extends React.Component {
             },
             hoverOrders: [],
             tabVal: "messages",
+            numAllCommentary: 0,
+            numReadCommentary: 0,
+            showBadge: false,
         };
 
         // Bind some class methods to this instance.
@@ -258,6 +262,7 @@ export class ContentGame extends React.Component {
         this.vote = this.vote.bind(this);
         this.updateDeadlineTimer = this.updateDeadlineTimer.bind(this);
         this.updateTabVal = this.updateTabVal.bind(this);
+        this.updateReadCommentary = this.updateReadCommentary.bind(this);
     }
 
     static prettyRole(role) {
@@ -770,6 +775,14 @@ export class ContentGame extends React.Component {
 
     updateTabVal(event, value) {
         return this.setState({ tabVal: value });
+    }
+
+    updateReadCommentary(event) {
+        const numAllCommentary = this.state.numAllCommentary;
+        return this.setState({
+            numReadCommentary: numAllCommentary,
+            showBadge: false,
+        });
     }
 
     sendRecipientAnnotation(networkGame, time_sent, annotation) {
@@ -1721,6 +1734,12 @@ export class ContentGame extends React.Component {
             };
         });
 
+        const numCommentary = suggestedCommentary.length;
+
+        if (numCommentary > this.state.numAllCommentary) {
+            this.setState({ numAllCommentary: numCommentary, showBadge: true });
+        }
+
         return suggestedCommentary;
     }
 
@@ -2416,8 +2435,33 @@ export class ContentGame extends React.Component {
                                     {suggestionType !== null &&
                                         (suggestionType & 4) === 4 && (
                                             <Tab2
-                                                label="Commentary"
+                                                label={
+                                                    this.state.showBadge ? (
+                                                        <Badge
+                                                            variant="dot"
+                                                            color="warning"
+                                                        >
+                                                            {" "}
+                                                            {/* invisible={!this.state.showBadge}> */}
+                                                        </Badge>
+                                                    ) : (
+                                                        <span
+                                                            sx={{
+                                                                marginRight:
+                                                                    "8px",
+                                                            }}
+                                                        >
+                                                            Commentary
+                                                        </span>
+                                                    )
+                                                }
                                                 value="commentary"
+                                                onClick={() => {
+                                                    console.log(
+                                                        this.state.showBadge
+                                                    );
+                                                    this.updateReadCommentary();
+                                                }}
                                             />
                                         )}
                                     {isAdmin && (
