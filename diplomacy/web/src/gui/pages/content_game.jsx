@@ -2643,7 +2643,7 @@ export class ContentGame extends React.Component {
                                                 }
                                             )}
                                         </MessageList>
-                                        {engine.isPlayerGame() && (
+                                        {/* {engine.isPlayerGame() && (
                                             <MessageInput
                                                 attachButton={false}
                                                 onChange={(val) =>
@@ -2660,7 +2660,7 @@ export class ContentGame extends React.Component {
                                                     //this.setLogs([...this.state.logs, message])
                                                 }}
                                             />
-                                        )}
+                                        )} */}
                                     </ChatContainer>
                                 </MainContainer>
                             )}
