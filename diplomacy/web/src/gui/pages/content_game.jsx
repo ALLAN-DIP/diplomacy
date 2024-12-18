@@ -783,7 +783,7 @@ export class ContentGame extends React.Component {
         return this.setState({
             numReadCommentary: numAllCommentary,
             showBadge: false,
-        });
+        }); // sync numReadCommentary with numAllCommentary and hide badge
     }
 
     sendRecipientAnnotation(networkGame, time_sent, annotation) {
@@ -1739,7 +1739,7 @@ export class ContentGame extends React.Component {
 
         if (numCommentary > this.state.numAllCommentary) {
             this.setState({ numAllCommentary: numCommentary, showBadge: true, commentaryProtagonist: protagonist });
-        }
+        } // update numAllCommentary and show badge if new commentary is received
 
         return suggestedCommentary;
     }
@@ -2442,8 +2442,6 @@ export class ContentGame extends React.Component {
                                                             variant="dot"
                                                             color="warning"
                                                         >
-                                                            {" "}
-                                                            {/* invisible={!this.state.showBadge}> */}
                                                         </Badge>
                                                     ) : (
                                                         <span
@@ -2462,7 +2460,7 @@ export class ContentGame extends React.Component {
                                                         this.setState({
                                                             tabCurrentMessages: this.state.commentaryProtagonist,
                                                         });
-                                                    }
+                                                    } // make sure commentary tab is selected for the correct conversation
                                                     this.updateReadCommentary();
                                                 }}
                                             />
