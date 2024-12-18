@@ -205,6 +205,7 @@ export class ContentGame extends React.Component {
             numAllCommentary: 0,
             numReadCommentary: 0,
             showBadge: false,
+            commentaryProtagonist: null,
         };
 
         // Bind some class methods to this instance.
@@ -1737,7 +1738,7 @@ export class ContentGame extends React.Component {
         const numCommentary = suggestedCommentary.length;
 
         if (numCommentary > this.state.numAllCommentary) {
-            this.setState({ numAllCommentary: numCommentary, showBadge: true });
+            this.setState({ numAllCommentary: numCommentary, showBadge: true, commentaryProtagonist: protagonist });
         }
 
         return suggestedCommentary;
@@ -2457,9 +2458,11 @@ export class ContentGame extends React.Component {
                                                 }
                                                 value="commentary"
                                                 onClick={() => {
-                                                    console.log(
-                                                        this.state.showBadge
-                                                    );
+                                                    if (isCurrent) {
+                                                        this.setState({
+                                                            tabCurrentMessages: this.state.commentaryProtagonist,
+                                                        });
+                                                    }
                                                     this.updateReadCommentary();
                                                 }}
                                             />
