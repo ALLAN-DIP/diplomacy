@@ -1592,6 +1592,7 @@ export class ContentGame extends React.Component {
             STRINGS.SUGGESTED_COMMENTARY,
             STRINGS.SUGGESTED_MESSAGE,
             STRINGS.SUGGESTED_MOVE_FULL,
+            STRINGS.SUGGESTED_MOVE_OPPONENTS,
             STRINGS.SUGGESTED_MOVE_PARTIAL,
         ];
 
@@ -1605,10 +1606,10 @@ export class ContentGame extends React.Component {
                 return [];
             }
             const parsed = JSON.parse(msg.message);
-            if (!(currentPowerName in parsed)) {
+            if (parsed.recipient !== currentPowerName) {
                 return [];
             }
-            msg.parsed = parsed[currentPowerName];
+            msg.parsed = parsed;
             return [msg];
         });
 
@@ -1628,7 +1629,7 @@ export class ContentGame extends React.Component {
             (msg) => msg.type === STRINGS.HAS_SUGGESTIONS
         );
         powerSuggestions.forEach((msg) => {
-            suggestionType |= msg.parsed;
+            suggestionType |= msg.parsed.payload;
         });
 
         if (powerSuggestions.length > 0) {
@@ -1676,12 +1677,12 @@ export class ContentGame extends React.Component {
         }
 
         const suggestion = {
-            moves: latestMoveSuggestion.parsed.suggested_orders,
+            moves: latestMoveSuggestion.parsed.payload.suggested_orders,
             sender: latestMoveSuggestion.sender,
             time_sent: latestMoveSuggestion.time_sent,
         };
         if (suggestionType === STRINGS.SUGGESTED_MOVE_PARTIAL) {
-            suggestion.givenMoves = latestMoveSuggestion.parsed.player_orders;
+            suggestion.givenMoves = latestMoveSuggestion.parsed.payload.player_orders
         }
         return suggestion;
     }
@@ -1696,14 +1697,14 @@ export class ContentGame extends React.Component {
         const receivedSuggestions = globalMessages.filter(
             (msg) =>
                 msg.type === STRINGS.SUGGESTED_MESSAGE &&
-                msg.parsed.recipient === protagonist &&
+                msg.parsed.payload.recipient === protagonist &&
                 (isAdmin ||
                     !this.state.annotatedMessages.hasOwnProperty(msg.time_sent))
         );
 
         const suggestedMessages = receivedSuggestions.map((msg) => {
             return {
-                message: msg.parsed.message,
+                message: msg.parsed.payload.message,
                 sender: msg.sender,
                 time_sent: msg.time_sent,
             };
@@ -1722,14 +1723,14 @@ export class ContentGame extends React.Component {
         const receivedSuggestions = globalMessages.filter(
             (msg) =>
                 msg.type === STRINGS.SUGGESTED_COMMENTARY &&
-                msg.parsed.recipient === protagonist &&
+                msg.parsed.payload.recipient === protagonist &&
                 (isAdmin ||
                     !this.state.annotatedMessages.hasOwnProperty(msg.time_sent))
         );
 
         const suggestedCommentary = receivedSuggestions.map((msg) => {
             return {
-                commentary: msg.parsed.commentary,
+                commentary: msg.parsed.payload.commentary,
                 sender: msg.sender,
                 time_sent: msg.time_sent,
             };
