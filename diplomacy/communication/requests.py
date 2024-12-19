@@ -575,6 +575,18 @@ class SetGrade(_AbstractChannelRequest):
 # Game requests.
 # ==============
 
+class GetBaselinePredictions(_AbstractGameRequest):
+    """
+    Game request to get baseline model predictions for move advice
+    """
+    __slots__ = ['power_name', 'province']
+
+    params = {
+        'power_name': str,
+        'province': str
+    }
+
+
 class ClearCenters(_AbstractGameRequest):
     """ Game request to clear supply centers. See method :meth:`.Game.clear_centers`.
 

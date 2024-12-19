@@ -7,4 +7,4 @@ setuptools
 tornado>=5.0
 tqdm
 ujson
-
+baseline-models @ git+https://git@github.com/ALLAN-DIP/baseline-models.git@092ecd9da7339f4bca680fb625c2c8bb04d8ecd6

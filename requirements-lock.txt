@@ -14,3 +14,4 @@ tornado==6.2
 tqdm==4.66.5
 ujson==5.7.0
 urllib3==2.0.7
+baseline-models @ git+https://git@github.com/ALLAN-DIP/baseline-models.git@092ecd9da7339f4bca680fb625c2c8bb04d8ecd6

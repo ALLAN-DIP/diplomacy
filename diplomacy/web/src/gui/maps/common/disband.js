@@ -20,6 +20,7 @@ import PropTypes from "prop-types";
 
 export class Disband extends React.Component {
     render() {
+        const opacity = (this.props?.opacity === undefined ? 1 : this.props?.opacity);
         const Coordinates = this.props.coordinates;
         const SymbolSizes = this.props.symbolSizes;
         const loc = this.props.loc;
@@ -27,7 +28,7 @@ export class Disband extends React.Component {
         const symbol = 'RemoveUnit';
         const [loc_x, loc_y] = centerSymbolAroundUnit(Coordinates, SymbolSizes, loc, phaseType === 'R', symbol);
         return (
-            <g>
+            <g opacity={opacity}>
                 <use x={loc_x}
                      y={loc_y}
                      height={SymbolSizes[symbol].height}
@@ -43,5 +44,6 @@ Disband.propTypes = {
     loc: PropTypes.string.isRequired,
     phaseType: PropTypes.string.isRequired,
     coordinates: PropTypes.object.isRequired,
-    symbolSizes: PropTypes.object.isRequired
+    symbolSizes: PropTypes.object.isRequired,
+    opacity: PropTypes.number
 };

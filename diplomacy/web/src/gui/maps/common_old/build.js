@@ -20,7 +20,6 @@ import PropTypes from "prop-types";
 
 export class Build extends React.Component {
     render() {
-        const opacity = (this.props?.opacity === undefined ? 1 : this.props?.opacity);
         const Coordinates = this.props.coordinates;
         const SymbolSizes = this.props.symbolSizes;
         const loc = this.props.loc;
@@ -35,13 +34,11 @@ export class Build extends React.Component {
             <g>
                 <use x={build_loc_x}
                      y={build_loc_y}
-                     opacity={opacity}
                      height={SymbolSizes[build_symbol].height}
                      width={SymbolSizes[build_symbol].width}
                      href={`#${build_symbol}`}/>
                 <use x={loc_x}
                      y={loc_y}
-                     opacity={opacity}
                      height={SymbolSizes[symbol].height}
                      width={SymbolSizes[symbol].width}
                      href={`#${symbol}`}
@@ -56,6 +53,5 @@ Build.propTypes = {
     loc: PropTypes.string.isRequired,
     powerName: PropTypes.string.isRequired,
     coordinates: PropTypes.object.isRequired,
-    symbolSizes: PropTypes.object.isRequired,
-    opacity: PropTypes.number
+    symbolSizes: PropTypes.object.isRequired
 };

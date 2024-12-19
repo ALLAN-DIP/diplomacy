@@ -175,6 +175,10 @@ export const ORDER_BUILDER = {
         name: 'build fleet (F)',
         steps: [ProvinceCheck.any]
     },
+    P: {
+        name: 'model predictions (P)',
+        steps: []
+    }
 };
 
 export const POSSIBLE_ORDERS = {

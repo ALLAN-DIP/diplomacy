@@ -39,6 +39,8 @@ from diplomacy.utils import exceptions, strings, constants, export
 from diplomacy.utils.common import hash_password
 from diplomacy.utils.constants import OrderSettings
 from diplomacy.utils.game_phase_data import GamePhaseData
+from baseline_models.model_code.engine_predict import BaselineAdvice
+
 
 LOGGER = logging.getLogger(__name__)
 
@@ -47,6 +49,20 @@ LOGGER = logging.getLogger(__name__)
 # =================
 
 SERVER_GAME_RULES = ['NO_PRESS', 'IGNORE_ERRORS', 'POWER_CHOICE']
+MODEL_PATH = "" # TODO: specify baseline model path here
+
+def on_get_baseline_predictions(server, request, connection_handler):
+    """Manage request GetBaselinePredictions
+    
+        :param server: server responding to request
+        :param request: request sent by client to get baseline predictions
+        :param connection_handler: connection handler from which the request was sent.
+    """
+    level = verify_request(server, request, connection_handler, require_master=False)
+    game_state = level.game.get_state()
+    model = BaselineAdvice(MODEL_PATH, game_state, request.power_name, request.province)
+    preds = model.predict(top_k=6)
+    return responses.DataSavedGame(data=preds, request_id=request.request_id)
 
 
 def on_clear_centers(server, request, connection_handler):
@@ -1344,6 +1360,7 @@ def on_vote(server, request, connection_handler):
 
 # Mapping dictionary from request class to request handler function.
 MAPPING = {
+    requests.GetBaselinePredictions: on_get_baseline_predictions,
     requests.ClearCenters: on_clear_centers,
     requests.ClearOrders: on_clear_orders,
     requests.ClearUnits: on_clear_units,

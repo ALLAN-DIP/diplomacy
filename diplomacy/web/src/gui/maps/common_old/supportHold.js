@@ -15,49 +15,58 @@
 //  with this program.  If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
 import React from "react";
-import {ARMY, coloredStrokeWidth, getUnitCenter} from "./common";
+import {centerSymbolAroundUnit, getUnitCenter} from "./common";
 import PropTypes from "prop-types";
 
-export class SupportMove extends React.Component {
+export class SupportHold extends React.Component {
     render() {
-        const opacity = (this.props?.opacity === undefined ? 1 : this.props?.opacity);
         const Coordinates = this.props.coordinates;
         const SymbolSizes = this.props.symbolSizes;
         const Colors = this.props.colors;
         const loc = this.props.loc;
-        const src_loc = this.props.srcLoc;
         const dest_loc = this.props.dstLoc;
+        const symbol = 'SupportHoldUnit';
+        const [symbol_loc_x, symbol_loc_y] = centerSymbolAroundUnit(Coordinates, SymbolSizes, dest_loc, false, symbol);
         const [loc_x, loc_y] = getUnitCenter(Coordinates, SymbolSizes, loc, false);
-        const [src_loc_x, src_loc_y] = getUnitCenter(Coordinates, SymbolSizes, src_loc, false);
         let [dest_loc_x, dest_loc_y] = getUnitCenter(Coordinates, SymbolSizes, dest_loc, false);
 
-        // Adjusting destination
-        const delta_x = dest_loc_x - src_loc_x;
-        const delta_y = dest_loc_y - src_loc_y;
+        const delta_x = dest_loc_x - loc_x;
+        const delta_y = dest_loc_y - loc_y;
         const vector_length = Math.sqrt(delta_x * delta_x + delta_y * delta_y);
-        const delta_dec = parseFloat(SymbolSizes[ARMY].width) / 2 + 2 * coloredStrokeWidth(SymbolSizes);
-        dest_loc_x = '' + Math.round((parseFloat(src_loc_x) + (vector_length - delta_dec) / vector_length * delta_x) * 100.) / 100.;
-        dest_loc_y = '' + Math.round((parseFloat(src_loc_y) + (vector_length - delta_dec) / vector_length * delta_y) * 100.) / 100.;
+        const delta_dec = parseFloat(SymbolSizes[symbol].height) / 2;
+        dest_loc_x = '' + Math.round((parseFloat(loc_x) + (vector_length - delta_dec) / vector_length * delta_x) * 100.) / 100.;
+        dest_loc_y = '' + Math.round((parseFloat(loc_y) + (vector_length - delta_dec) / vector_length * delta_y) * 100.) / 100.;
+
         return (
-            <g opacity={opacity}>
-                <path className={'shadowdash'}
-                      d={`M ${loc_x},${loc_y} C ${src_loc_x},${src_loc_y} ${src_loc_x},${src_loc_y} ${dest_loc_x},${dest_loc_y}`}/>
-                <path className={'supportorder'}
-                      markerEnd={'url(#arrow)'}
-                      stroke={Colors[this.props.powerName]}
-                      d={`M ${loc_x},${loc_y} C ${src_loc_x},${src_loc_y} ${src_loc_x},${src_loc_y} ${dest_loc_x},${dest_loc_y}`}/>
+            <g stroke={Colors[this.props.powerName]}>
+                <line x1={loc_x}
+                      y1={loc_y}
+                      x2={dest_loc_x}
+                      y2={dest_loc_y}
+                      className={'shadowdash'}/>
+                <line x1={loc_x}
+                      y1={loc_y}
+                      x2={dest_loc_x}
+                      y2={dest_loc_y}
+                      className={'supportorder'}
+                      stroke={Colors[this.props.powerName]}/>
+                <use
+                    x={symbol_loc_x}
+                    y={symbol_loc_y}
+                    width={SymbolSizes[symbol].width}
+                    height={SymbolSizes[symbol].height}
+                    href={`#${symbol}`}
+                />
             </g>
         );
     }
 }
 
-SupportMove.propTypes = {
+SupportHold.propTypes = {
     loc: PropTypes.string.isRequired,
-    srcLoc: PropTypes.string.isRequired,
     dstLoc: PropTypes.string.isRequired,
     powerName: PropTypes.string.isRequired,
     coordinates: PropTypes.object.isRequired,
     symbolSizes: PropTypes.object.isRequired,
-    colors: PropTypes.object.isRequired,
-    opacity: PropTypes.number
+    colors: PropTypes.object.isRequired
 };

@@ -182,6 +182,8 @@ export class ContentGame extends React.Component {
             power: null,
             orderBuildingType: null,
             orderBuildingPath: [],
+            baselinePredictions: {"powerName": null, "preds": {}, "phase": null},
+            showTextualPredictions: false, // setting for whether to display textual/visual baseline model advice
             showAbbreviations: true,
             message: "",
             logData: "",
@@ -204,6 +206,7 @@ export class ContentGame extends React.Component {
         };
 
         // Bind some class methods to this instance.
+        this.onChangeBaselinePredictions = this.onChangeBaselinePredictions.bind(this);
         this.clearOrderBuildingPath = this.clearOrderBuildingPath.bind(this);
         this.displayFirstPastPhase = this.displayFirstPastPhase.bind(this);
         this.displayLastPastPhase = this.displayLastPastPhase.bind(this);
@@ -420,6 +423,11 @@ export class ContentGame extends React.Component {
 
     // ]
 
+    onChangeBaselinePredictions(powerName, phase, preds){
+        return this.setState({
+            baselinePredictions: {"powerName": powerName, "phase": phase, "preds": preds}
+        });
+    }
     getMapInfo() {
         return this.getPage().availableMaps[this.props.data.map_name];
     }
@@ -2246,6 +2254,9 @@ export class ContentGame extends React.Component {
                     )}
                     onOrderBuilding={this.onOrderBuilding}
                     onOrderBuilt={this.onOrderBuilt}
+                    baselinePredictions={this.state.baselinePredictions}
+                    onChangeBaselinePredictions={this.onChangeBaselinePredictions}
+                    showTextualPredictions={this.state.showTextualPredictions}
                     orders={orders}
                     onSelectLocation={this.onSelectLocation}
                     onSelectVia={this.onSelectVia}
@@ -3155,6 +3166,31 @@ export class ContentGame extends React.Component {
         );
     }
 
+    getAllOrderableLocations(allowedPowerOrderTypes, orderTypeToLocs) {
+        /**
+         * Used for the baseline model advice mode to display 
+         * the text description that lists the orderable locations
+         * 
+         * :param allowedPowerOrderTypes (string[]||null) - all the allowed order types of the controlling power
+         * :param orderTypeToLocs (object) - keys are the allowed order types
+         * 
+         * Return:
+         * a string that lists the orderable locations with ',' as separator 
+         */
+
+        const orderableLocs = new Set()
+        for (var orderType of allowedPowerOrderTypes){
+            if (!orderTypeToLocs.hasOwnProperty(orderType)){
+                continue;
+            }
+            orderTypeToLocs[orderType].forEach((x) => {
+                orderableLocs.add(x);
+            });
+        }
+        return Array.from(orderableLocs).join(", ");
+    }
+
+
     render() {
         const engine = this.props.data;
         const controllablePowers = engine.getControllablePowers();
@@ -3241,6 +3277,7 @@ export class ContentGame extends React.Component {
                     allowedPowerOrderTypes,
                     phaseType
                 );
+                allowedPowerOrderTypes.push("P"); //mode for baseline model prediction
                 if (
                     this.state.orderBuildingType &&
                     allowedPowerOrderTypes.includes(
@@ -3309,7 +3346,8 @@ export class ContentGame extends React.Component {
                 {(allowedPowerOrderTypes.length && (
                     <span>
                         <strong>Orderable locations</strong>:{" "}
-                        {orderTypeToLocs[orderBuildingType].join(", ")}
+                        {(orderBuildingType !== "P" && orderTypeToLocs[orderBuildingType].join(", ")) 
+                        || this.getAllOrderableLocations(allowedPowerOrderTypes,orderTypeToLocs) }
                     </span>
                 )) || <strong>&nbsp;No orderable location.</strong>}
                 {phaseType === "A" &&

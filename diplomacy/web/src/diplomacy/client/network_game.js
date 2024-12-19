@@ -63,6 +63,10 @@ export class NetworkGame {
 
     //// Game requests API.
 
+    getBaselinePredictions(parameters){
+        return this._req(Channel.prototype.getBaselinePredictions, parameters);
+    }
+
     getAllPossibleOrders(parameters) {
         return this._req(Channel.prototype.getAllPossibleOrders, parameters);
     }
