@@ -1486,7 +1486,7 @@ export class ContentGame extends React.Component {
             if (role === rec) dir = "incoming";
             const html = msg.show
                 ? msg.message
-                : `<div style='color: transparent; text-shadow: 0 0 5px rgba(0, 0, 0, 0.5)'>${msg.message}</div>`;
+                : `<div style='color: transparent; text-shadow: 0 0 5px rgba(0, 0, 0, 0.5)'; user-select: none>${msg.message}</div>`;
             renderedMessages.push(
                 <ChatMessage
                     model={{
@@ -1823,7 +1823,7 @@ export class ContentGame extends React.Component {
             curPhase = msg.phase;
             const html = msg.show
                 ? msg.message
-                : `<div style='color: transparent; text-shadow: 0 0 5px rgba(0, 0, 0, 0.5)'>${msg.message}</div>`;
+                : `<div style='color: transparent; text-shadow: 0 0 5px rgba(0, 0, 0, 0.5); user-select: none'>${msg.message}</div>`;
 
             if (curPhase !== prevPhase) {
                 renderedMessages.push(
