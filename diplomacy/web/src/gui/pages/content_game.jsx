@@ -531,6 +531,7 @@ export class ContentGame extends React.Component {
                         orderBuildingPath: [],
                         hasInitialOrders: false,
                         stances: {},
+                        hoverOrders: [],
                     }).then(() =>
                         this.getPage().info(
                             `Game update (${notification.name}) to ${networkGame.local.phase}.`
@@ -892,7 +893,7 @@ export class ContentGame extends React.Component {
             .then(() => {
                 page.success("Game processed.");
                 this.props.data.clearInitialOrders();
-                return this.setState({ hasInitialOrders: false });
+                return this.setState({ hasInitialOrders: false, hoverOrders: [] });
             })
             .catch((err) => {
                 page.error(err.toString());
@@ -1606,7 +1607,7 @@ export class ContentGame extends React.Component {
                 return [];
             }
             const parsed = JSON.parse(msg.message);
-            if (parsed.recipient !== currentPowerName) {
+            if ("recipient" in parsed && parsed.recipient !== currentPowerName) {
                 return [];
             }
             msg.parsed = parsed;
@@ -1626,10 +1627,11 @@ export class ContentGame extends React.Component {
         let suggestionType = 0;
 
         const powerSuggestions = globalMessages.filter(
-            (msg) => msg.type === STRINGS.HAS_SUGGESTIONS
+            (msg) => msg.type === STRINGS.HAS_SUGGESTIONS && currentPowerName in msg.parsed
         );
+
         powerSuggestions.forEach((msg) => {
-            suggestionType |= msg.parsed.payload;
+            suggestionType |= msg.parsed[currentPowerName];
         });
 
         if (powerSuggestions.length > 0) {
@@ -1639,17 +1641,19 @@ export class ContentGame extends React.Component {
         }
     }
 
-    getSuggestedMoves(currentPowerName, engine, globalMessages) {
-        const receivedSuggestions = globalMessages.filter(
+    getSuggestedMoves(currentPowerName, engine, suggestionMessages) {
+        const receivedSuggestions = suggestionMessages.filter(
             (msg) =>
+                msg.parsed && currentPowerName in msg.parsed && (
                 msg.type === STRINGS.SUGGESTED_MOVE_FULL ||
                 msg.type === STRINGS.SUGGESTED_MOVE_PARTIAL
+                )
         );
 
         return receivedSuggestions;
     }
 
-    getLatestSuggestedMoves(receivedSuggestions, suggestionType) {
+    getLatestSuggestedMoves(currentPowerName, receivedSuggestions, suggestionType) {
         let latestMoveSuggestion = null;
         for (const msg of receivedSuggestions) {
             if (msg.type === suggestionType) {
@@ -1677,12 +1681,12 @@ export class ContentGame extends React.Component {
         }
 
         const suggestion = {
-            moves: latestMoveSuggestion.parsed.payload.suggested_orders,
+            moves: latestMoveSuggestion.parsed[currentPowerName].suggested_orders,
             sender: latestMoveSuggestion.sender,
             time_sent: latestMoveSuggestion.time_sent,
         };
         if (suggestionType === STRINGS.SUGGESTED_MOVE_PARTIAL) {
-            suggestion.givenMoves = latestMoveSuggestion.parsed.payload.player_orders
+            suggestion.givenMoves = latestMoveSuggestion.parsed.player_orders
         }
         return suggestion;
     }
@@ -2753,10 +2757,12 @@ export class ContentGame extends React.Component {
 
         // display only the latest to avoid cluttering textbox
         let latestMoveSuggestionFull = this.getLatestSuggestedMoves(
+            currentPowerName,
             moveSuggestionForCurrentPower,
             STRINGS.SUGGESTED_MOVE_FULL
         );
         let latestMoveSuggestionPartial = this.getLatestSuggestedMoves(
+            currentPowerName,
             moveSuggestionForCurrentPower,
             STRINGS.SUGGESTED_MOVE_PARTIAL
         );
