@@ -101,6 +101,7 @@ export class Game {
       ? gameData.order_suggestions
       : {};
     this.is_bot = gameData.is_bot ? gameData.is_bot : {};
+    this.commentary_durations = gameData.commentary_durations
     this.deceiving = gameData.deceiving ? gameData.deceiving : {};
 
     // {short phase name => state}
@@ -168,6 +169,7 @@ export class Game {
     // represents stances from every power to every other power
     this.stances = gameData.stances;
     this.is_bot = gameData.is_bot;
+    this.commentary_durations = gameData.commentary_durations;
     this.deceiving = gameData.deceiving;
 
     this.phase = gameData.phase_abbr || null; // phase abbreviation
@@ -371,6 +373,10 @@ export class Game {
 
   addIsBot(powerName, isBot) {
     this.is_bot[powerName] = isBot;
+  }
+
+  addCommentaryDurations(powerName, durations) {
+    this.commentary_durations[powerName] = durations;
   }
 
   addDeceiving(controlledPower, targetPower, deceiving) {
@@ -611,6 +617,9 @@ export class Game {
           country.setIsBot(is_bot);
         }
       }
+    }
+    if (state.commentary_durations) {
+      this.commentary_durations = state.commentary_durations;
     }
   }
 

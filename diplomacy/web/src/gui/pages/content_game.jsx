@@ -206,6 +206,8 @@ export class ContentGame extends React.Component {
             numReadCommentary: 0,
             showBadge: false,
             commentaryProtagonist: null,
+            lastSwitchPanelTime: Date.now(),
+            commentaryTimeSpent: [],
         };
 
         // Bind some class methods to this instance.
@@ -884,6 +886,31 @@ export class ContentGame extends React.Component {
                 page.error(error.toString());
             });
     }
+
+    sendCommentaryDurations(networkGame, powerName, durations) {
+        const info = {
+            power_name: powerName,
+            durations: durations,
+        };
+        networkGame.sendCommentaryDurations({ durations: info });
+    }
+
+    handleExit = () => {
+        // Send the commentary durations to the server on exit
+        const now = Date.now();
+        const timeSpent = now - this.state.lastSwitchPanelTime;
+        const newTimeSpent = this.state.commentaryTimeSpent.concat(timeSpent);
+        const engine = this.props.data;
+
+        this.sendCommentaryDurations(engine.client, engine.role, newTimeSpent);
+    };
+
+    handleVisibilityChange = () => {
+        if (document.hidden) {
+            this.handleExit();
+        }
+    };
+
 
     onProcessGame() {
         const page = this.getPage();
@@ -1682,7 +1709,8 @@ export class ContentGame extends React.Component {
             time_sent: latestMoveSuggestion.time_sent,
         };
         if (suggestionType === STRINGS.SUGGESTED_MOVE_PARTIAL) {
-            suggestion.givenMoves = latestMoveSuggestion.parsed.payload.player_orders
+            suggestion.givenMoves =
+                latestMoveSuggestion.parsed.payload.player_orders;
         }
         return suggestion;
     }
@@ -1739,7 +1767,11 @@ export class ContentGame extends React.Component {
         const numCommentary = suggestedCommentary.length;
 
         if (numCommentary > this.state.numAllCommentary) {
-            this.setState({ numAllCommentary: numCommentary, showBadge: true, commentaryProtagonist: protagonist });
+            this.setState({
+                numAllCommentary: numCommentary,
+                showBadge: true,
+                commentaryProtagonist: protagonist,
+            });
         } // update numAllCommentary and show badge if new commentary is received
 
         return suggestedCommentary;
@@ -2433,6 +2465,19 @@ export class ContentGame extends React.Component {
                                     <Tab2
                                         label="Message Advice"
                                         value="messages"
+                                        onClick={() => {
+                                            // track time spent on commentary
+                                            const now = Date.now();
+                                            const timeDiff =
+                                                now -
+                                                this.state.commentaryStartTime;
+                                            this.setState({
+                                                commentaryTimeSpent:
+                                                    this.state
+                                                        .commentaryTimeSpent +
+                                                    timeDiff,
+                                            });
+                                        }}
                                     />
                                     {suggestionType !== null &&
                                         (suggestionType & 4) === 4 && (
@@ -2442,8 +2487,7 @@ export class ContentGame extends React.Component {
                                                         <Badge
                                                             variant="dot"
                                                             color="warning"
-                                                        >
-                                                        </Badge>
+                                                        ></Badge>
                                                     ) : (
                                                         <span
                                                             sx={{
@@ -2459,7 +2503,11 @@ export class ContentGame extends React.Component {
                                                 onClick={() => {
                                                     if (isCurrent) {
                                                         this.setState({
-                                                            tabCurrentMessages: this.state.commentaryProtagonist,
+                                                            tabCurrentMessages:
+                                                                this.state
+                                                                    .commentaryProtagonist,
+                                                            lastSwitchPanelTime:
+                                                                Date.now(),
                                                         });
                                                     } // make sure commentary tab is selected for the correct conversation
                                                     this.updateReadCommentary();
@@ -3665,6 +3713,9 @@ export class ContentGame extends React.Component {
                 if (event.preventDefault) event.preventDefault();
             }
         };
+
+        window.addEventListener("beforeunload", this.handleExit);
+        window.addEventListener("visibilitychange", this.handleVisibilityChange);
     }
 
     componentDidUpdate() {
@@ -3675,6 +3726,13 @@ export class ContentGame extends React.Component {
         this.clearScheduleTimeout();
         this.props.data.displayed = false;
         document.onkeydown = null;
+
+        this.handleExit();
+        window.removeEventListener("beforeunload", this.handleExit);
+        window.removeEventListener(
+            "visibilitychange",
+            this.handleVisibilityChange
+        );
     }
 
     // ]
