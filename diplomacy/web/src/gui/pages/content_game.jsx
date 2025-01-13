@@ -207,7 +207,7 @@ export class ContentGame extends React.Component {
             showBadge: false,
             commentaryProtagonist: null,
             lastSwitchPanelTime: Date.now(),
-            commentaryTimeSpent: [],
+            commentaryTimeSpent: this.props.data.commentary_durations[this.props.data.role] || [],
         };
 
         // Bind some class methods to this instance.
@@ -777,7 +777,24 @@ export class ContentGame extends React.Component {
     }
 
     updateTabVal(event, value) {
-        return this.setState({ tabVal: value });
+        const now = Date.now();
+
+        if (value === "messages") {
+            // track time spent on commentary
+            const timeDiff =
+                now -
+                this.state.lastSwitchPanelTime;
+
+            const newTimeSpent = [...this.state.commentaryTimeSpent, timeDiff];
+            this.setState({
+                commentaryTimeSpent:
+                newTimeSpent
+            });
+
+
+            return this.setState({ tabVal: value, commentaryTimeSpent: newTimeSpent });
+        }
+        return this.setState({ tabVal: value, lastSwitchPanelTime: now });
     }
 
     updateReadCommentary(event) {
@@ -899,7 +916,8 @@ export class ContentGame extends React.Component {
         // Send the commentary durations to the server on exit
         const now = Date.now();
         const timeSpent = now - this.state.lastSwitchPanelTime;
-        const newTimeSpent = this.state.commentaryTimeSpent.concat(timeSpent);
+        const newTimeSpent = [...this.state.commentaryTimeSpent, timeSpent];
+        this.setState({ lastSwitchPanelTime: now, commentaryTimeSpent: newTimeSpent });
         const engine = this.props.data;
 
         this.sendCommentaryDurations(engine.client, engine.role, newTimeSpent);
@@ -2465,19 +2483,6 @@ export class ContentGame extends React.Component {
                                     <Tab2
                                         label="Message Advice"
                                         value="messages"
-                                        onClick={() => {
-                                            // track time spent on commentary
-                                            const now = Date.now();
-                                            const timeDiff =
-                                                now -
-                                                this.state.commentaryStartTime;
-                                            this.setState({
-                                                commentaryTimeSpent:
-                                                    this.state
-                                                        .commentaryTimeSpent +
-                                                    timeDiff,
-                                            });
-                                        }}
                                     />
                                     {suggestionType !== null &&
                                         (suggestionType & 4) === 4 && (
@@ -3716,6 +3721,7 @@ export class ContentGame extends React.Component {
 
         window.addEventListener("beforeunload", this.handleExit);
         window.addEventListener("visibilitychange", this.handleVisibilityChange);
+        this.state.lastSwitchPanelTime = Date.now();
     }
 
     componentDidUpdate() {

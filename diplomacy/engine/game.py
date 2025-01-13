@@ -379,7 +379,7 @@ class Game(Jsonable):
             {},
         ),
         "commentary_durations": parsing.DefaultValueType(
-            parsing.DictType(str, parsing.SequenceType(str)), {}
+            parsing.DictType(str, parsing.SequenceType(int)), {}
         ),
         "deceiving": parsing.DefaultValueType(
             parsing.DictType(str, parsing.DictType(str, bool)), {}
@@ -1479,7 +1479,6 @@ class Game(Jsonable):
         self.is_bot[power] = is_bot
 
     def add_commentary_durations(self, durations):
-        print("Adding commentary durations", durations)
         power = durations["power_name"]
         durations = durations["durations"]
         self.commentary_durations[power] = durations
