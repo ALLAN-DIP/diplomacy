@@ -196,6 +196,10 @@ export class Channel {
         return this._req('send_log_data', undefined, undefined, parameters, game);
     }
 
+    sendCommentaryDurations(parameters, game) {
+        return this._req('send_commentary_durations', undefined, undefined, parameters, game);
+    }
+
     sendOrderLog(parameters, game) {
         return this._req('send_order_log', undefined, undefined, parameters, game);
     }

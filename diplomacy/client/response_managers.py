@@ -245,6 +245,12 @@ def on_send_is_bot(context, response):
     is_bot = request.is_bot
     Game.add_is_bot(context.game, is_bot)
 
+def on_send_commentary_durations(context, response):
+    request = context.request
+    power_name = request.power_name
+    durations = request.durations
+    Game.add_commentary_durations(context.game, durations)
+
 def on_send_deceiving(context, response):
     request = context.request
     info = request.info
@@ -408,6 +414,7 @@ MAPPING = {
     requests.SendOrderLog: on_send_order_log,
     requests.SetDummyPowers: default_manager,
     requests.SendLogData: on_send_log_data,
+    requests.SendCommentaryDurations: on_send_commentary_durations,
     requests.SendOrderSuggestions: on_send_order_suggestions,
     requests.SetGameState: on_set_game_state,
     requests.SetGameStatus: on_set_game_status,
