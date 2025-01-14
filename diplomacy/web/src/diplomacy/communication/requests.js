@@ -44,6 +44,7 @@ export const REQUESTS = {
             }
         },
         delete_account: {level: STRINGS.CHANNEL, model: {username: null}},
+        get_order_distribution: {level: STRINGS.GAME, model: {power_name: null, province: null}},
         get_all_possible_orders: {level: STRINGS.GAME, model: {}},
         get_available_maps: {level: STRINGS.CHANNEL, model: {}},
         get_playable_powers: {level: STRINGS.CHANNEL, model: {game_id: null}},

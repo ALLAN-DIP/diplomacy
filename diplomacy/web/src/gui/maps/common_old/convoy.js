@@ -21,7 +21,6 @@ import PropTypes from "prop-types";
 
 export class Convoy extends React.Component {
     render() {
-        const opacity = (this.props?.opacity === undefined ? 1 : this.props?.opacity);
         const Coordinates = this.props.coordinates;
         const SymbolSizes = this.props.symbolSizes;
         const Colors = this.props.colors;
@@ -57,9 +56,7 @@ export class Convoy extends React.Component {
         dest_loc_y = '' + Math.round((parseFloat(src_loc_y) + (dest_vector_length - delta_dec) / dest_vector_length * dest_delta_y) * 100.) / 100.;
 
         return (
-            <g stroke={Colors[this.props.powerName]}
-               opacity={opacity}
-            >
+            <g stroke={Colors[this.props.powerName]}>
                 <line x1={loc_x}
                       y1={loc_y}
                       x2={src_loc_x_1}
@@ -102,6 +99,5 @@ Convoy.propTypes = {
     powerName: PropTypes.string.isRequired,
     coordinates: PropTypes.object.isRequired,
     symbolSizes: PropTypes.object.isRequired,
-    colors: PropTypes.object.isRequired,
-    opacity: PropTypes.number
+    colors: PropTypes.object.isRequired
 };

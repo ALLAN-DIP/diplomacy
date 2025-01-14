@@ -39,6 +39,7 @@ from diplomacy.utils import exceptions, strings, constants, export
 from diplomacy.utils.common import hash_password
 from diplomacy.utils.constants import OrderSettings
 from diplomacy.utils.game_phase_data import GamePhaseData
+from diplomacy.utils.models import Models
 
 LOGGER = logging.getLogger(__name__)
 
@@ -48,6 +49,19 @@ LOGGER = logging.getLogger(__name__)
 
 SERVER_GAME_RULES = ['NO_PRESS', 'IGNORE_ERRORS', 'POWER_CHOICE']
 
+
+def on_get_order_distribution(server, request, connection_handler):
+    """Manage request GetOrderDistribution.
+
+    (Currently runs the logistic regression model by default)
+    """
+
+    level = verify_request(server, request, connection_handler, require_master=False)
+    game_state = level.game.get_state()
+    requested_province = request.province
+    model = Models.LOGISTIC_REGRESSION(game_state, requested_province)
+    preds = model.predict(top_k=6)
+    return responses.DataSavedGame(data=preds, request_id=request.request_id)
 
 def on_clear_centers(server, request, connection_handler):
     """ Manage request ClearCenters.
@@ -1344,6 +1358,7 @@ def on_vote(server, request, connection_handler):
 
 # Mapping dictionary from request class to request handler function.
 MAPPING = {
+    requests.GetOrderDistribution: on_get_order_distribution,
     requests.ClearCenters: on_clear_centers,
     requests.ClearOrders: on_clear_orders,
     requests.ClearUnits: on_clear_units,

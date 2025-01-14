@@ -15,20 +15,21 @@
 //  with this program.  If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
 import React from "react";
-import {ARMY, coloredStrokeWidth, getUnitCenter, plainStrokeWidth} from "./common";
+import {ARMY, coloredStrokeWidth, getUnitCenter} from "./common";
 import PropTypes from "prop-types";
 
-export class Move extends React.Component {
+export class SupportMove extends React.Component {
     render() {
-        const opacity = (this.props?.opacity === undefined ? 1 : this.props?.opacity);
         const Coordinates = this.props.coordinates;
         const SymbolSizes = this.props.symbolSizes;
         const Colors = this.props.colors;
+        const loc = this.props.loc;
         const src_loc = this.props.srcLoc;
         const dest_loc = this.props.dstLoc;
-        const is_dislodged = this.props.phaseType === 'R';
-        const [src_loc_x, src_loc_y] = getUnitCenter(Coordinates, SymbolSizes, src_loc, is_dislodged);
-        let [dest_loc_x, dest_loc_y] = getUnitCenter(Coordinates, SymbolSizes, dest_loc, is_dislodged);
+        const [loc_x, loc_y] = getUnitCenter(Coordinates, SymbolSizes, loc, false);
+        const [src_loc_x, src_loc_y] = getUnitCenter(Coordinates, SymbolSizes, src_loc, false);
+        let [dest_loc_x, dest_loc_y] = getUnitCenter(Coordinates, SymbolSizes, dest_loc, false);
+
         // Adjusting destination
         const delta_x = dest_loc_x - src_loc_x;
         const delta_y = dest_loc_y - src_loc_y;
@@ -37,33 +38,24 @@ export class Move extends React.Component {
         dest_loc_x = '' + Math.round((parseFloat(src_loc_x) + (vector_length - delta_dec) / vector_length * delta_x) * 100.) / 100.;
         dest_loc_y = '' + Math.round((parseFloat(src_loc_y) + (vector_length - delta_dec) / vector_length * delta_y) * 100.) / 100.;
         return (
-            <g opacity={opacity}>
-                <line x1={src_loc_x}
-                      y1={src_loc_y}
-                      x2={dest_loc_x}
-                      y2={dest_loc_y}
-                      className={'varwidthshadow'}
-                      strokeWidth={'' + plainStrokeWidth(SymbolSizes)}/>
-                <line x1={src_loc_x}
-                      y1={src_loc_y}
-                      x2={dest_loc_x}
-                      y2={dest_loc_y}
-                      className={'varwidthorder'}
+            <g>
+                <path className={'shadowdash'}
+                      d={`M ${loc_x},${loc_y} C ${src_loc_x},${src_loc_y} ${src_loc_x},${src_loc_y} ${dest_loc_x},${dest_loc_y}`}/>
+                <path className={'supportorder'}
                       markerEnd={'url(#arrow)'}
                       stroke={Colors[this.props.powerName]}
-                      strokeWidth={'' + coloredStrokeWidth(SymbolSizes)}/>
+                      d={`M ${loc_x},${loc_y} C ${src_loc_x},${src_loc_y} ${src_loc_x},${src_loc_y} ${dest_loc_x},${dest_loc_y}`}/>
             </g>
         );
     }
 }
 
-Move.propTypes = {
+SupportMove.propTypes = {
+    loc: PropTypes.string.isRequired,
     srcLoc: PropTypes.string.isRequired,
     dstLoc: PropTypes.string.isRequired,
     powerName: PropTypes.string.isRequired,
-    phaseType: PropTypes.string.isRequired,
     coordinates: PropTypes.object.isRequired,
     symbolSizes: PropTypes.object.isRequired,
-    colors: PropTypes.object.isRequired,
-    opacity: PropTypes.number
+    colors: PropTypes.object.isRequired
 };

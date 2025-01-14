@@ -15,45 +15,33 @@
 //  with this program.  If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
 import React from "react";
-import {ARMY, centerSymbolAroundUnit, FLEET} from "./common";
+import {centerSymbolAroundUnit} from "./common";
 import PropTypes from "prop-types";
 
-export class Build extends React.Component {
+export class Disband extends React.Component {
     render() {
-        const opacity = (this.props?.opacity === undefined ? 1 : this.props?.opacity);
         const Coordinates = this.props.coordinates;
         const SymbolSizes = this.props.symbolSizes;
         const loc = this.props.loc;
-        const unit_type = this.props.unitType;
-        const build_symbol = 'BuildUnit';
-        const loc_x = Coordinates[loc].unit[0];
-        const loc_y = Coordinates[loc].unit[1];
-        const [build_loc_x, build_loc_y] = centerSymbolAroundUnit(Coordinates, SymbolSizes, loc, false, build_symbol);
-
-        const symbol = unit_type === 'A' ? ARMY : FLEET;
+        const phaseType = this.props.phaseType;
+        const symbol = 'RemoveUnit';
+        const [loc_x, loc_y] = centerSymbolAroundUnit(Coordinates, SymbolSizes, loc, phaseType === 'R', symbol);
         return (
-            <g opacity={opacity}>
-                <use x={build_loc_x}
-                     y={build_loc_y}
-                     height={SymbolSizes[build_symbol].height}
-                     width={SymbolSizes[build_symbol].width}
-                     href={`#${build_symbol}`}/>
+            <g>
                 <use x={loc_x}
                      y={loc_y}
                      height={SymbolSizes[symbol].height}
                      width={SymbolSizes[symbol].width}
                      href={`#${symbol}`}
-                     className={`unit${this.props.powerName.toLowerCase()}`}/>
+                />
             </g>
         );
     }
 }
 
-Build.propTypes = {
-    unitType: PropTypes.string.isRequired,
+Disband.propTypes = {
     loc: PropTypes.string.isRequired,
-    powerName: PropTypes.string.isRequired,
+    phaseType: PropTypes.string.isRequired,
     coordinates: PropTypes.object.isRequired,
-    symbolSizes: PropTypes.object.isRequired,
-    opacity: PropTypes.number
+    symbolSizes: PropTypes.object.isRequired
 };

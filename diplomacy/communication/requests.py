@@ -575,6 +575,21 @@ class SetGrade(_AbstractChannelRequest):
 # Game requests.
 # ==============
 
+class GetOrderDistribution(_AbstractGameRequest):
+    """
+    Game request to get model prediction (i.e., the probability distribution) of possible orders 
+    for a selected province
+
+    :param power_name (str): power that requests the predictions
+    :param province (str): the province selected by the requested power
+    """
+    __slots__ = ['power_name', 'province']
+
+    params = {
+        'power_name': str,
+        'province': str
+    }
+
 class ClearCenters(_AbstractGameRequest):
     """ Game request to clear supply centers. See method :meth:`.Game.clear_centers`.
 
