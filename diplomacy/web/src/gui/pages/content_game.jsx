@@ -791,6 +791,7 @@ export class ContentGame extends React.Component {
                 newTimeSpent
             });
 
+            this.sendCommentaryDurations(this.props.data.client, this.props.data.role, timeDiff);
 
             return this.setState({ tabVal: value, commentaryTimeSpent: newTimeSpent });
         }
@@ -905,27 +906,50 @@ export class ContentGame extends React.Component {
     }
 
     sendCommentaryDurations(networkGame, powerName, durations) {
+        if (
+            this.props.data.role === "omniscient_type" ||
+            this.props.data.role === "observer_type" ||
+            this.props.data.role === "master_type"
+        ) {
+            return;
+        }
+
         const info = {
             power_name: powerName,
             durations: durations,
         };
+        console.log("Sending", durations);
         networkGame.sendCommentaryDurations({ durations: info });
     }
 
     handleExit = () => {
         // Send the commentary durations to the server on exit
+        if (this.state.tabVal === "messages") {
+            return;
+        }
         const now = Date.now();
         const timeSpent = now - this.state.lastSwitchPanelTime;
         const newTimeSpent = [...this.state.commentaryTimeSpent, timeSpent];
         this.setState({ lastSwitchPanelTime: now, commentaryTimeSpent: newTimeSpent });
         const engine = this.props.data;
 
-        this.sendCommentaryDurations(engine.client, engine.role, newTimeSpent);
+        this.sendCommentaryDurations(engine.client, engine.role, timeSpent);
+    };
+
+    handleFocus = () => {
+        console.log("updated current time");
+        this.setState({ lastSwitchPanelTime: Date.now() });
+    };
+
+    handleBlur = () => {
+        this.handleExit();
     };
 
     handleVisibilityChange = () => {
         if (document.hidden) {
-            this.handleExit();
+            this.handleBlur();
+        } else {
+            this.handleFocus();
         }
     };
 
@@ -1424,7 +1448,7 @@ export class ContentGame extends React.Component {
     }
 
     blurMessages(engine, messageChannels) {
-        /* add a *show* key to decide whether to blur a message */
+        /* add a *hide* key to decide whether to blur a message */
         if (
             engine.role === "omniscient_type" ||
             engine.role === "observer_type" ||
@@ -1440,11 +1464,11 @@ export class ContentGame extends React.Component {
                 blurredMessageChannels[powerName] = messages;
             } else {
                 let blurredMessages = [];
-                let showMessage = true;
+                let hideMessage = true;
 
                 for (let idx in messages) {
                     const currentMessage = messages[idx];
-                    const toShow = { show: showMessage };
+                    const toShow = { hide: hideMessage };
                     const newMessage = Object.assign(toShow, currentMessage);
                     blurredMessages.push(newMessage);
 
@@ -1454,7 +1478,7 @@ export class ContentGame extends React.Component {
                             currentMessage.time_sent
                         )
                     ) {
-                        showMessage = false;
+                        hideMessage = false;
                     }
                 }
                 blurredMessageChannels[powerName] = blurredMessages;
@@ -1529,9 +1553,9 @@ export class ContentGame extends React.Component {
 
             if (role === sender) dir = "outgoing";
             if (role === rec) dir = "incoming";
-            const html = msg.show
-                ? msg.message
-                : `<div style='color: transparent; text-shadow: 0 0 5px rgba(0, 0, 0, 0.5)'; user-select: none>${msg.message}</div>`;
+            const html = msg.hide
+                ? `<div style='color: transparent; text-shadow: 0 0 5px rgba(0, 0, 0, 0.5)'; user-select: none>${msg.message}</div>`
+                : msg.message;
             renderedMessages.push(
                 <ChatMessage
                     model={{
@@ -1871,9 +1895,9 @@ export class ContentGame extends React.Component {
             sender = msg.sender;
             rec = msg.recipient;
             curPhase = msg.phase;
-            const html = msg.show
-                ? msg.message
-                : `<div style='color: transparent; text-shadow: 0 0 5px rgba(0, 0, 0, 0.5); user-select: none'>${msg.message}</div>`;
+            const html = msg.hide
+                ? `<div style='color: transparent; text-shadow: 0 0 5px rgba(0, 0, 0, 0.5); user-select: none'>${msg.message}</div>`
+                : msg.message;
 
             if (curPhase !== prevPhase) {
                 renderedMessages.push(
@@ -3720,7 +3744,9 @@ export class ContentGame extends React.Component {
         };
 
         window.addEventListener("beforeunload", this.handleExit);
-        window.addEventListener("visibilitychange", this.handleVisibilityChange);
+        //window.addEventListener("visibilitychange", this.handleVisibilityChange);
+        window.addEventListener("blur", this.handleBlur);
+        window.addEventListener("focus", this.handleFocus);
         this.state.lastSwitchPanelTime = Date.now();
     }
 
@@ -3735,10 +3761,12 @@ export class ContentGame extends React.Component {
 
         this.handleExit();
         window.removeEventListener("beforeunload", this.handleExit);
-        window.removeEventListener(
-            "visibilitychange",
-            this.handleVisibilityChange
-        );
+        //window.removeEventListener(
+        //    "visibilitychange",
+        //    this.handleVisibilityChange
+        //);
+        window.removeEventListener("blur", this.handleBlur);
+        window.removeEventListener("focus", this.handleFocus);
     }
 
     // ]

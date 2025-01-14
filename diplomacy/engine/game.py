@@ -1481,8 +1481,10 @@ class Game(Jsonable):
     def add_commentary_durations(self, durations):
         power = durations["power_name"]
         durations = durations["durations"]
-        self.commentary_durations[power] = durations
-
+        if power not in self.commentary_durations:
+            self.commentary_durations[power] = []
+        self.commentary_durations[power].append(durations)
+        
     def add_deceiving(self, info):
         controlled_power = info["controlled_power"]
         target_power = info["target_power"]
