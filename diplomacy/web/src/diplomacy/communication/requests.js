@@ -70,6 +70,7 @@ export const REQUESTS = {
         send_recipient_annotation: {level: STRINGS.GAME, model: {time_sent: null, annotation: null}},
         send_stance: {level: STRINGS.GAME, model: {power_name: null, stance: null}},
         send_is_bot: {level: STRINGS.GAME, model: {power_name: null, is_bot: null}},
+        send_commentary_durations: {level: STRINGS.GAME, model: {power_name: null, durations: null}},
         send_deceiving: {level: STRINGS.GAME, model: {info: null}},
         send_game_message: {level: STRINGS.GAME, model: {message: null}},
         send_order_log: {level: STRINGS.GAME, model: {log: null}},
