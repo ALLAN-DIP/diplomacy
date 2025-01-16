@@ -1464,23 +1464,40 @@ export class ContentGame extends React.Component {
                 blurredMessageChannels[powerName] = messages;
             } else {
                 let blurredMessages = [];
-                let hideMessage = true;
+                let hideMessage = false;
 
                 for (let idx in messages) {
                     const currentMessage = messages[idx];
-                    const toShow = { hide: hideMessage };
-                    const newMessage = Object.assign(toShow, currentMessage);
-                    blurredMessages.push(newMessage);
 
+                    // if the message is from self or is annotated, don't blur
                     if (
-                        currentMessage.sender !== controlledPower &&
-                        !this.state.annotatedMessages.hasOwnProperty(
+                        currentMessage.sender === controlledPower ||
+                        this.state.annotatedMessages.hasOwnProperty(
                             currentMessage.time_sent
                         )
                     ) {
-                        hideMessage = false;
+                        blurredMessages.push(currentMessage);
+                    } else {
+                        // show only the first unannotated message
+                        if (!hideMessage) {
+                            blurredMessages.push(currentMessage);
+                        } else {
+                            const toShow = { hide: hideMessage };
+                            const newMessage = Object.assign(toShow, currentMessage);
+                            blurredMessages.push(newMessage);
+                        }
+                        
+                        if (
+                            currentMessage.sender !== controlledPower &&
+                            !this.state.annotatedMessages.hasOwnProperty(
+                                currentMessage.time_sent
+                            )
+                        ) {
+                            hideMessage = true;
+                        }
                     }
                 }
+                // reconstruct message channels with unannotated "hide" key
                 blurredMessageChannels[powerName] = blurredMessages;
             }
         }
