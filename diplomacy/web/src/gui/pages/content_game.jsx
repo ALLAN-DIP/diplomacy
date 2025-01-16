@@ -530,6 +530,7 @@ export class ContentGame extends React.Component {
                         messageHighlights: {},
                         orderBuildingPath: [],
                         hasInitialOrders: false,
+                        hoverOrders: [],
                         stances: {},
                     }).then(() =>
                         this.getPage().info(
@@ -892,7 +893,7 @@ export class ContentGame extends React.Component {
             .then(() => {
                 page.success("Game processed.");
                 this.props.data.clearInitialOrders();
-                return this.setState({ hasInitialOrders: false });
+                return this.setState({ hasInitialOrders: false, hoverOrders: [] });
             })
             .catch((err) => {
                 page.error(err.toString());
