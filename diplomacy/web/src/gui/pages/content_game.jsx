@@ -207,7 +207,9 @@ export class ContentGame extends React.Component {
             showBadge: false,
             commentaryProtagonist: null,
             lastSwitchPanelTime: Date.now(),
-            commentaryTimeSpent: this.props.data.commentary_durations[this.props.data.role] || [],
+            commentaryTimeSpent:
+                this.props.data.commentary_durations[this.props.data.role] ||
+                [],
         };
 
         // Bind some class methods to this instance.
@@ -781,19 +783,23 @@ export class ContentGame extends React.Component {
 
         if (value === "messages") {
             // track time spent on commentary
-            const timeDiff =
-                now -
-                this.state.lastSwitchPanelTime;
+            const timeDiff = now - this.state.lastSwitchPanelTime;
 
             const newTimeSpent = [...this.state.commentaryTimeSpent, timeDiff];
             this.setState({
-                commentaryTimeSpent:
-                newTimeSpent
+                commentaryTimeSpent: newTimeSpent,
             });
 
-            this.sendCommentaryDurations(this.props.data.client, this.props.data.role, timeDiff);
+            this.sendCommentaryDurations(
+                this.props.data.client,
+                this.props.data.role,
+                timeDiff
+            );
 
-            return this.setState({ tabVal: value, commentaryTimeSpent: newTimeSpent });
+            return this.setState({
+                tabVal: value,
+                commentaryTimeSpent: newTimeSpent,
+            });
         }
         return this.setState({ tabVal: value, lastSwitchPanelTime: now });
     }
@@ -930,7 +936,10 @@ export class ContentGame extends React.Component {
         const now = Date.now();
         const timeSpent = now - this.state.lastSwitchPanelTime;
         const newTimeSpent = [...this.state.commentaryTimeSpent, timeSpent];
-        this.setState({ lastSwitchPanelTime: now, commentaryTimeSpent: newTimeSpent });
+        this.setState({
+            lastSwitchPanelTime: now,
+            commentaryTimeSpent: newTimeSpent,
+        });
         const engine = this.props.data;
 
         this.sendCommentaryDurations(engine.client, engine.role, timeSpent);
@@ -952,7 +961,6 @@ export class ContentGame extends React.Component {
             this.handleFocus();
         }
     };
-
 
     onProcessGame() {
         const page = this.getPage();
@@ -1483,10 +1491,13 @@ export class ContentGame extends React.Component {
                             blurredMessages.push(currentMessage);
                         } else {
                             const toShow = { hide: hideMessage };
-                            const newMessage = Object.assign(toShow, currentMessage);
+                            const newMessage = Object.assign(
+                                toShow,
+                                currentMessage
+                            );
                             blurredMessages.push(newMessage);
                         }
-                        
+
                         if (
                             currentMessage.sender !== controlledPower &&
                             !this.state.annotatedMessages.hasOwnProperty(
@@ -2031,112 +2042,110 @@ export class ContentGame extends React.Component {
                 <Grid container spacing={2}>
                     <Grid item xs={12} sx={{ height: "100%" }}>
                         <Box sx={{ width: "100%", height: "550px" }}>
-                            <div>
-                                <MainContainer responsive>
-                                    <Sidebar position="left" scrollable={true}>
-                                        <ConversationList>
-                                            {convList}
-                                        </ConversationList>
-                                    </Sidebar>
-                                    <ChatContainer>
-                                        <MessageList>
-                                            {renderedMessages}
-                                        </MessageList>
-                                    </ChatContainer>
-                                </MainContainer>
-                                {engine.isPlayerGame() && (
-                                    <>
-                                        <textarea
-                                            style={{ flex: 1 }}
-                                            onChange={(val) =>
-                                                this.setMessageInputValue(
-                                                    val.target.value
-                                                )
-                                            }
-                                            value={this.state.message}
-                                            disabled={
-                                                phaseType === "M" &&
-                                                (!this.state.hasInitialOrders ||
-                                                    (this.__get_orders(engine)[
-                                                        currentPowerName
-                                                    ] &&
-                                                        Object.keys(
-                                                            this.__get_orders(
-                                                                engine
-                                                            )[currentPowerName]
-                                                        ).length <
+                            <MainContainer responsive>
+                                <Sidebar position="left" scrollable={true}>
+                                    <ConversationList>
+                                        {convList}
+                                    </ConversationList>
+                                </Sidebar>
+                                <ChatContainer>
+                                    <MessageList>
+                                        {renderedMessages}
+                                    </MessageList>
+                                </ChatContainer>
+                            </MainContainer>
+                            {engine.isPlayerGame() && (
+                                <>
+                                    <textarea
+                                        style={{ flex: 1 }}
+                                        onChange={(val) =>
+                                            this.setMessageInputValue(
+                                                val.target.value
+                                            )
+                                        }
+                                        value={this.state.message}
+                                        disabled={
+                                            phaseType === "M" &&
+                                            (!this.state.hasInitialOrders ||
+                                                (this.__get_orders(engine)[
+                                                    currentPowerName
+                                                ] &&
+                                                    Object.keys(
+                                                        this.__get_orders(
                                                             engine
-                                                                .orderableLocations[
-                                                                currentPowerName
-                                                            ].length))
-                                            }
-                                            placeholder={
-                                                phaseType === "M" &&
-                                                (!this.state.hasInitialOrders ||
-                                                    (this.__get_orders(engine)[
-                                                        currentPowerName
-                                                    ] &&
-                                                        Object.keys(
-                                                            this.__get_orders(
-                                                                engine
-                                                            )[currentPowerName]
-                                                        ).length <
+                                                        )[currentPowerName]
+                                                    ).length <
+                                                        engine
+                                                            .orderableLocations[
+                                                            currentPowerName
+                                                        ].length))
+                                        }
+                                        placeholder={
+                                            phaseType === "M" &&
+                                            (!this.state.hasInitialOrders ||
+                                                (this.__get_orders(engine)[
+                                                    currentPowerName
+                                                ] &&
+                                                    Object.keys(
+                                                        this.__get_orders(
                                                             engine
-                                                                .orderableLocations[
-                                                                currentPowerName
-                                                            ].length))
-                                                    ? "You need to set orders for all units before sending messages."
-                                                    : ""
-                                            }
-                                        />
-                                        <Button
-                                            key={"t"}
-                                            pickEvent={true}
-                                            title={"Truth"}
-                                            color={"success"}
-                                            onClick={() => {
-                                                this.sendMessage(
-                                                    engine.client,
-                                                    currentTabId,
-                                                    this.state.message,
-                                                    "Truth"
-                                                );
-                                                this.setMessageInputValue("");
-                                            }}
-                                        ></Button>
-                                        <Button
-                                            key={"f"}
-                                            pickEvent={true}
-                                            title={"Lie"}
-                                            color={"danger"}
-                                            onClick={() => {
-                                                this.sendMessage(
-                                                    engine.client,
-                                                    currentTabId,
-                                                    this.state.message,
-                                                    "Lie"
-                                                );
-                                                this.setMessageInputValue("");
-                                            }}
-                                        ></Button>
-                                        <Button
-                                            key={"n"}
-                                            pickEvent={true}
-                                            title={"Neutral"}
-                                            color={"primary"}
-                                            onClick={() => {
-                                                this.sendMessage(
-                                                    engine.client,
-                                                    currentTabId,
-                                                    this.state.message,
-                                                    "Neutral"
-                                                );
-                                                this.setMessageInputValue("");
-                                            }}
-                                        ></Button>
-                                    </>
-                                )}
-                            </div>
+                                                        )[currentPowerName]
+                                                    ).length <
+                                                        engine
+                                                            .orderableLocations[
+                                                            currentPowerName
+                                                        ].length))
+                                                ? "You need to set orders for all units before sending messages."
+                                                : ""
+                                        }
+                                    />
+                                    <Button
+                                        key={"t"}
+                                        pickEvent={true}
+                                        title={"Truth"}
+                                        color={"success"}
+                                        onClick={() => {
+                                            this.sendMessage(
+                                                engine.client,
+                                                currentTabId,
+                                                this.state.message,
+                                                "Truth"
+                                            );
+                                            this.setMessageInputValue("");
+                                        }}
+                                    ></Button>
+                                    <Button
+                                        key={"f"}
+                                        pickEvent={true}
+                                        title={"Lie"}
+                                        color={"danger"}
+                                        onClick={() => {
+                                            this.sendMessage(
+                                                engine.client,
+                                                currentTabId,
+                                                this.state.message,
+                                                "Lie"
+                                            );
+                                            this.setMessageInputValue("");
+                                        }}
+                                    ></Button>
+                                    <Button
+                                        key={"n"}
+                                        pickEvent={true}
+                                        title={"Neutral"}
+                                        color={"primary"}
+                                        onClick={() => {
+                                            this.sendMessage(
+                                                engine.client,
+                                                currentTabId,
+                                                this.state.message,
+                                                "Neutral"
+                                            );
+                                            this.setMessageInputValue("");
+                                        }}
+                                    ></Button>
+                                </>
+                            )}
                         </Box>
                     </Grid>
                 </Grid>
