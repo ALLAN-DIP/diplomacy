@@ -1794,14 +1794,6 @@ export class ContentGame extends React.Component {
                     src={POWER_ICONS[protagonist]}
                     name={protagonist}
                     size="sm"
-                    status={
-                        isAdmin && protagonist !== "GLOBAL"
-                            ? engine.powers[protagonist].getCommStatus() ===
-                              STRINGS.READY
-                                ? "available"
-                                : "dnd"
-                            : "invisible"
-                    }
                 />
             </Conversation>
         ));
