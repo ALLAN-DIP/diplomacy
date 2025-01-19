@@ -2889,8 +2889,8 @@ export class ContentGame extends React.Component {
                                 <Button
                                     title={"+"}
                                     color={"success"}
-                                    onClick={async () => {
-                                        await this.onOrderBuilt(
+                                    onClick={() => {
+                                        this.onOrderBuilt(
                                             currentPowerName,
                                             move
                                         );
@@ -2940,9 +2940,9 @@ export class ContentGame extends React.Component {
                             <Button
                                 title={"+all"}
                                 color={"success"}
-                                onClick={async () => {
+                                onClick={() => {
                                     for (let move of latestMoveSuggestionFull.moves) {
-                                        await this.onOrderBuilt(
+                                        this.onOrderBuilt(
                                             currentPowerName,
                                             move
                                         );
@@ -3005,8 +3005,8 @@ export class ContentGame extends React.Component {
                                 <Button
                                     title={"+"}
                                     color={"success"}
-                                    onClick={async () => {
-                                        await this.onOrderBuilt(
+                                    onClick={() => {
+                                        this.onOrderBuilt(
                                             currentPowerName,
                                             move
                                         );
@@ -3060,9 +3060,9 @@ export class ContentGame extends React.Component {
                             <Button
                                 title={"+all"}
                                 color={"success"}
-                                onClick={async () => {
+                                onClick={() => {
                                     for (let move of latestMoveSuggestionPartial.moves) {
-                                        await this.onOrderBuilt(
+                                        this.onOrderBuilt(
                                             currentPowerName,
                                             move
                                         );
