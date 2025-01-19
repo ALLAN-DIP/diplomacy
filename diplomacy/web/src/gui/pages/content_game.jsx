@@ -763,7 +763,7 @@ export class ContentGame extends React.Component {
         networkGame.sendOrderLog({ log: message });
     }
 
-    handleRecipientAnnotation(message_time_sent, annotation) {
+    async handleRecipientAnnotation(message_time_sent, annotation) {
         const engine = this.props.data;
         const newAnnotatedMessages = {
             ...this.state.annotatedMessages,
@@ -772,7 +772,7 @@ export class ContentGame extends React.Component {
         };
         this.setState({ annotatedMessages: newAnnotatedMessages });
 
-        this.sendRecipientAnnotation(
+        await this.sendRecipientAnnotation(
             engine.client,
             message_time_sent,
             annotation
@@ -813,7 +813,7 @@ export class ContentGame extends React.Component {
         }); // sync numReadCommentary with numAllCommentary and hide badge
     }
 
-    sendRecipientAnnotation(networkGame, time_sent, annotation) {
+    async sendRecipientAnnotation(networkGame, time_sent, annotation) {
         const page = this.getPage();
         const info = { time_sent: time_sent, annotation: annotation };
 
@@ -2646,12 +2646,12 @@ export class ContentGame extends React.Component {
                                                                 color={
                                                                     "success"
                                                                 }
-                                                                onClick={() => {
-                                                                    this.setMessageInputValue(
+                                                                onClick={async () => {
+                                                                    await this.setMessageInputValue(
                                                                         msg.message
                                                                     );
 
-                                                                    this.handleRecipientAnnotation(
+                                                                    await this.handleRecipientAnnotation(
                                                                         msg.time_sent,
                                                                         "accept"
                                                                     );
@@ -2673,8 +2673,8 @@ export class ContentGame extends React.Component {
                                                                     "dismiss"
                                                                 }
                                                                 color={"danger"}
-                                                                onClick={() => {
-                                                                    this.handleRecipientAnnotation(
+                                                                onClick={async () => {
+                                                                    await this.handleRecipientAnnotation(
                                                                         msg.time_sent,
                                                                         "reject"
                                                                     );
@@ -2887,7 +2887,7 @@ export class ContentGame extends React.Component {
                                             move
                                         );
 
-                                        this.handleRecipientAnnotation(
+                                        await this.handleRecipientAnnotation(
                                             latestMoveSuggestionFull.time_sent,
                                             `accept ${move}`
                                         );
@@ -2940,7 +2940,7 @@ export class ContentGame extends React.Component {
                                         );
                                     }
 
-                                    this.handleRecipientAnnotation(
+                                    await this.handleRecipientAnnotation(
                                         latestMoveSuggestionFull.time_sent,
                                         "accept all"
                                     );
@@ -2950,8 +2950,8 @@ export class ContentGame extends React.Component {
                             <Button
                                 title={String.fromCharCode(0x2715)}
                                 color={"danger"}
-                                onClick={() => {
-                                    this.handleRecipientAnnotation(
+                                onClick={async () => {
+                                    await this.handleRecipientAnnotation(
                                         latestMoveSuggestionFull.time_sent,
                                         "reject"
                                     );
@@ -3003,7 +3003,7 @@ export class ContentGame extends React.Component {
                                             move
                                         );
 
-                                        this.handleRecipientAnnotation(
+                                        await this.handleRecipientAnnotation(
                                             latestMoveSuggestionPartial.time_sent,
                                             `accept ${move}`
                                         );
@@ -3060,7 +3060,7 @@ export class ContentGame extends React.Component {
                                         );
                                     }
 
-                                    this.handleRecipientAnnotation(
+                                    await this.handleRecipientAnnotation(
                                         latestMoveSuggestionPartial.time_sent,
                                         "accept all"
                                     );
@@ -3070,8 +3070,8 @@ export class ContentGame extends React.Component {
                             <Button
                                 title={String.fromCharCode(0x2715)}
                                 color={"danger"}
-                                onClick={() => {
-                                    this.handleRecipientAnnotation(
+                                onClick={async () => {
+                                    await this.handleRecipientAnnotation(
                                         latestMoveSuggestionPartial.time_sent,
                                         "reject"
                                     );
