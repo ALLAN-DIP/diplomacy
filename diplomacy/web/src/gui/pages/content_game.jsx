@@ -2973,9 +2973,9 @@ export class ContentGame extends React.Component {
                                 pickEvent={true}
                                 title={"accept all"}
                                 color={"success"}
-                                onClick={async () => {
+                                onClick={() => {
                                     for (let move of latestMoveSuggestionFull.moves) {
-                                        await this.onOrderBuilt(
+                                        this.onOrderBuilt(
                                             currentPowerName,
                                             move
                                         );
@@ -3111,9 +3111,9 @@ export class ContentGame extends React.Component {
                                 pickEvent={true}
                                 title={"accept all"}
                                 color={"success"}
-                                onClick={async () => {
+                                onClick={() => {
                                     for (let move of latestMoveSuggestionPartial.moves) {
-                                        await this.onOrderBuilt(
+                                        this.onOrderBuilt(
                                             currentPowerName,
                                             move
                                         );
