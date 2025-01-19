@@ -763,7 +763,7 @@ export class ContentGame extends React.Component {
         networkGame.sendOrderLog({ log: message });
     }
 
-    async handleRecipientAnnotation(message_time_sent, annotation) {
+    handleRecipientAnnotation(message_time_sent, annotation) {
         const engine = this.props.data;
         const newAnnotatedMessages = {
             ...this.state.annotatedMessages,
@@ -772,7 +772,7 @@ export class ContentGame extends React.Component {
         };
         this.setState({ annotatedMessages: newAnnotatedMessages });
 
-        await this.sendRecipientAnnotation(
+        this.sendRecipientAnnotation(
             engine.client,
             message_time_sent,
             annotation
@@ -813,7 +813,7 @@ export class ContentGame extends React.Component {
         }); // sync numReadCommentary with numAllCommentary and hide badge
     }
 
-    async sendRecipientAnnotation(networkGame, time_sent, annotation) {
+    sendRecipientAnnotation(networkGame, time_sent, annotation) {
         const page = this.getPage();
         const info = { time_sent: time_sent, annotation: annotation };
 
@@ -2035,115 +2035,113 @@ export class ContentGame extends React.Component {
                 <Grid container spacing={2}>
                     <Grid item xs={12} sx={{ height: "100%" }}>
                         <Box sx={{ width: "100%", height: "550px" }}>
-                            <MainContainer responsive>
-                                <Sidebar
-                                    style={{ maxWidth: "200px" }}
-                                    position="left"
-                                    scrollable={true}
-                                >
-                                    <ConversationList>
-                                        {convList}
-                                    </ConversationList>
-                                </Sidebar>
-                                <ChatContainer>
-                                    <MessageList>
-                                        {renderedMessages}
-                                    </MessageList>
-                                </ChatContainer>
-                            </MainContainer>
-                            {engine.isPlayerGame() && (
-                                <Row>
-                                    <textarea
-                                        style={{ resize: "both" }}
-                                        cols={30}
-                                        onChange={(val) =>
-                                            this.setMessageInputValue(
-                                                val.target.value
-                                            )
-                                        }
-                                        value={this.state.message}
-                                        disabled={
-                                            phaseType === "M" &&
-                                            (!this.state.hasInitialOrders ||
-                                                (this.__get_orders(engine)[
-                                                    currentPowerName
-                                                ] &&
-                                                    Object.keys(
-                                                        this.__get_orders(
+                                <MainContainer responsive>
+                                    <Sidebar position="left" scrollable={true}>
+                                        <ConversationList>
+                                            {convList}
+                                        </ConversationList>
+                                    </Sidebar>
+                                    <ChatContainer>
+                                        <MessageList>
+                                            {renderedMessages}
+                                        </MessageList>
+                                    </ChatContainer>
+                                </MainContainer>
+                                {engine.isPlayerGame() && (
+                                    <>
+                                        <textarea
+                                            style={{ flex: 1 }}
+                                            onChange={(val) =>
+                                                this.setMessageInputValue(
+                                                    val.target.value
+                                                )
+                                            }
+                                            value={this.state.message}
+                                            disabled={
+                                                phaseType === "M" &&
+                                                (!this.state.hasInitialOrders ||
+                                                    (this.__get_orders(engine)[
+                                                        currentPowerName
+                                                    ] &&
+                                                        Object.keys(
+                                                            this.__get_orders(
+                                                                engine
+                                                            )[currentPowerName]
+                                                        ).length <
                                                             engine
-                                                        )[currentPowerName]
-                                                    ).length <
-                                                        engine
-                                                            .orderableLocations[
-                                                            currentPowerName
-                                                        ].length))
-                                        }
-                                        placeholder={
-                                            phaseType === "M" &&
-                                            (!this.state.hasInitialOrders ||
-                                                (this.__get_orders(engine)[
-                                                    currentPowerName
-                                                ] &&
-                                                    Object.keys(
-                                                        this.__get_orders(
+                                                                .orderableLocations[
+                                                                currentPowerName
+                                                            ].length))
+                                            }
+                                            placeholder={
+                                                phaseType === "M" &&
+                                                (!this.state.hasInitialOrders ||
+                                                    (this.__get_orders(engine)[
+                                                        currentPowerName
+                                                    ] &&
+                                                        Object.keys(
+                                                            this.__get_orders(
+                                                                engine
+                                                            )[currentPowerName]
+                                                        ).length <
                                                             engine
-                                                        )[currentPowerName]
-                                                    ).length <
-                                                        engine
-                                                            .orderableLocations[
-                                                            currentPowerName
-                                                        ].length))
-                                                ? "You need to set orders for all units before sending messages."
-                                                : ""
-                                        }
-                                    />
-                                    <Button
-                                        key={"t"}
-                                        pickEvent={true}
-                                        title={"Truth"}
-                                        color={"success"}
-                                        onClick={() => {
-                                            this.sendMessage(
-                                                engine.client,
-                                                currentTabId,
-                                                this.state.message,
-                                                "Truth",
-                                            );
-                                            this.setMessageInputValue("");
-                                        }}
-                                    ></Button>
-                                    <Button
-                                        key={"f"}
-                                        pickEvent={true}
-                                        title={"Lie"}
-                                        color={"danger"}
-                                        onClick={() => {
-                                            this.sendMessage(
-                                                engine.client,
-                                                currentTabId,
-                                                this.state.message,
-                                                "Lie",
-                                            );
-                                            this.setMessageInputValue("");
-                                        }}
-                                    ></Button>
-                                    <Button
-                                        key={"n"}
-                                        pickEvent={true}
-                                        title={"Neutral"}
-                                        color={"primary"}
-                                        onClick={() => {
-                                            this.sendMessage(
-                                                engine.client,
-                                                currentTabId,
-                                                this.state.message,
-                                                "Neutral",
-                                            );
-                                            this.setMessageInputValue("");
-                                        }}
-                                    ></Button>
-                                </Row>
-                            )}
+                                                                .orderableLocations[
+                                                                currentPowerName
+                                                            ].length))
+                                                    ? "You need to set orders for all units before sending messages."
+                                                    : ""
+                                            }
+                                        />
+                                        <Button
+                                            key={"t"}
+                                            pickEvent={true}
+                                            title={"Truth"}
+                                            color={"success"}
+                                            onClick={() => {
+                                                this.sendMessage(
+                                                    engine.client,
+                                                    currentTabId,
+                                                    this.state.message,
+                                                    "Truth",
+                                                    null
+                                                );
+                                                this.setMessageInputValue("");
+                                            }}
+                                        ></Button>
+                                        <Button
+                                            key={"f"}
+                                            pickEvent={true}
+                                            title={"Lie"}
+                                            color={"danger"}
+                                            onClick={() => {
+                                                this.sendMessage(
+                                                    engine.client,
+                                                    currentTabId,
+                                                    this.state.message,
+                                                    "Lie",
+                                                    null
+                                                );
+                                                this.setMessageInputValue("");
+                                            }}
+                                        ></Button>
+                                        <Button
+                                            key={"n"}
+                                            pickEvent={true}
+                                            title={"Neutral"}
+                                            color={"primary"}
+                                            onClick={() => {
+                                                this.sendMessage(
+                                                    engine.client,
+                                                    currentTabId,
+                                                    this.state.message,
+                                                    "Neutral",
+                                                    null
+                                                );
+                                                this.setMessageInputValue("");
+                                            }}
+                                        ></Button>
+                                    </>
+                                )}
                         </Box>
                     </Grid>
                 </Grid>
@@ -2646,12 +2644,12 @@ export class ContentGame extends React.Component {
                                                                 color={
                                                                     "success"
                                                                 }
-                                                                onClick={async () => {
-                                                                    await this.setMessageInputValue(
+                                                                onClick={() => {
+                                                                    this.setMessageInputValue(
                                                                         msg.message
                                                                     );
 
-                                                                    await this.handleRecipientAnnotation(
+                                                                    this.handleRecipientAnnotation(
                                                                         msg.time_sent,
                                                                         "accept"
                                                                     );
@@ -2673,8 +2671,8 @@ export class ContentGame extends React.Component {
                                                                     "dismiss"
                                                                 }
                                                                 color={"danger"}
-                                                                onClick={async () => {
-                                                                    await this.handleRecipientAnnotation(
+                                                                onClick={() => {
+                                                                    this.handleRecipientAnnotation(
                                                                         msg.time_sent,
                                                                         "reject"
                                                                     );
@@ -2887,7 +2885,7 @@ export class ContentGame extends React.Component {
                                             move
                                         );
 
-                                        await this.handleRecipientAnnotation(
+                                        this.handleRecipientAnnotation(
                                             latestMoveSuggestionFull.time_sent,
                                             `accept ${move}`
                                         );
@@ -2940,7 +2938,7 @@ export class ContentGame extends React.Component {
                                         );
                                     }
 
-                                    await this.handleRecipientAnnotation(
+                                    this.handleRecipientAnnotation(
                                         latestMoveSuggestionFull.time_sent,
                                         "accept all"
                                     );
@@ -2950,8 +2948,8 @@ export class ContentGame extends React.Component {
                             <Button
                                 title={String.fromCharCode(0x2715)}
                                 color={"danger"}
-                                onClick={async () => {
-                                    await this.handleRecipientAnnotation(
+                                onClick={() => {
+                                    this.handleRecipientAnnotation(
                                         latestMoveSuggestionFull.time_sent,
                                         "reject"
                                     );
@@ -3003,7 +3001,7 @@ export class ContentGame extends React.Component {
                                             move
                                         );
 
-                                        await this.handleRecipientAnnotation(
+                                        this.handleRecipientAnnotation(
                                             latestMoveSuggestionPartial.time_sent,
                                             `accept ${move}`
                                         );
@@ -3060,7 +3058,7 @@ export class ContentGame extends React.Component {
                                         );
                                     }
 
-                                    await this.handleRecipientAnnotation(
+                                    this.handleRecipientAnnotation(
                                         latestMoveSuggestionPartial.time_sent,
                                         "accept all"
                                     );
@@ -3070,8 +3068,8 @@ export class ContentGame extends React.Component {
                             <Button
                                 title={String.fromCharCode(0x2715)}
                                 color={"danger"}
-                                onClick={async () => {
-                                    await this.handleRecipientAnnotation(
+                                onClick={() => {
+                                    this.handleRecipientAnnotation(
                                         latestMoveSuggestionPartial.time_sent,
                                         "reject"
                                     );
