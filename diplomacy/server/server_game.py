@@ -511,8 +511,14 @@ class ServerGame(Game):
         # Process game and retrieve previous state.
         previous_phase_data = super(ServerGame, self).process()
         if self.count_controlled_powers() < self.get_expected_controls_count():
-            # There is no more enough controlled powers, we should stop game.
-            self.set_status(strings.FORMING)
+            pause = False
+            for power in self.powers.values():
+                if not power.is_eliminated() and not power.is_controlled():
+                    pause = True
+                    break
+            # Only stop the game when there is at least one non-eliminated power controlled by a user.
+            if pause:
+                self.set_status(strings.FORMING)
 
         # Return process results: previous phase data, current phase data, and None for no kicked powers.
         return previous_phase_data, self.get_phase_data(), None
