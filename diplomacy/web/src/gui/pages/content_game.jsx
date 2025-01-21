@@ -1903,7 +1903,7 @@ export class ContentGame extends React.Component {
                               STRINGS.READY
                                 ? "available"
                                 : "dnd"
-                            : "invisible"
+                            : null
                     }
                 />
             </Conversation>
