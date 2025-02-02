@@ -2044,11 +2044,7 @@ export class ContentGame extends React.Component {
                     <Grid item xs={12} sx={{ height: "100%" }}>
                         <Box sx={{ width: "100%", height: "550px" }}>
                             <MainContainer responsive>
-                                <Sidebar
-                                    style={{ maxWidth: "200px" }}
-                                    position="left"
-                                    scrollable={true}
-                                >
+                                <Sidebar position="left" scrollable={true}>
                                     <ConversationList>
                                         {convList}
                                     </ConversationList>
