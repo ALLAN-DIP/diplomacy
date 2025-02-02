@@ -2044,7 +2044,11 @@ export class ContentGame extends React.Component {
                     <Grid item xs={12} sx={{ height: "100%" }}>
                         <Box sx={{ width: "100%", height: "550px" }}>
                             <MainContainer responsive>
-                                <Sidebar position="left" scrollable={true}>
+                                <Sidebar
+                                    style={{ maxWidth: "200px" }}
+                                    position="left"
+                                    scrollable={true}
+                                >
                                     <ConversationList>
                                         {convList}
                                     </ConversationList>
@@ -2391,7 +2395,7 @@ export class ContentGame extends React.Component {
         return (
             <Tab id={"tab-phase-history"} display={toDisplay}>
                 <Row>
-                    <div className={"col-xl"}>
+                    <div className={"col-6"}>
                         {this.state.historyCurrentOrders && (
                             <div className={"history-current-orders"}>
                                 {this.state.historyCurrentOrders.join(", ")}
@@ -2752,24 +2756,6 @@ export class ContentGame extends React.Component {
                                                 }
                                             )}
                                         </MessageList>
-                                        {/* {engine.isPlayerGame() && (
-                                            <MessageInput
-                                                attachButton={false}
-                                                onChange={(val) =>
-                                                    this.setlogDataInputValue(
-                                                        val
-                                                    )
-                                                }
-                                                onSend={() => {
-                                                    const message =
-                                                        this.sendLogData(
-                                                            engine.client,
-                                                            this.state.logData
-                                                        );
-                                                    //this.setLogs([...this.state.logs, message])
-                                                }}
-                                            />
-                                        )} */}
                                     </ChatContainer>
                                 </MainContainer>
                             )}
@@ -2889,9 +2875,8 @@ export class ContentGame extends React.Component {
                             }}
                             key={index}
                         >
-
-                            <div className={'col align-self-center order'}>
-                                    <span className={'order-string'}>{move}</span>
+                            <div className={"col align-self-center order"}>
+                                <span className={"order-string"}>{move}</span>
                             </div>
                             <div
                                 style={{
@@ -2901,7 +2886,10 @@ export class ContentGame extends React.Component {
                                     alignItems: "flex-end",
                                 }}
                             >
-                                <Button title={"+"} color={"success"} onClick={async () => {
+                                <Button
+                                    title={"+"}
+                                    color={"success"}
+                                    onClick={async () => {
                                         await this.onOrderBuilt(
                                             currentPowerName,
                                             move
@@ -2911,7 +2899,9 @@ export class ContentGame extends React.Component {
                                             latestMoveSuggestionFull.time_sent,
                                             `accept ${move}`
                                         );
-                                    }} invisible={!(isCurrent && !isAdmin)}></Button>
+                                    }}
+                                    invisible={!(isCurrent && !isAdmin)}
+                                ></Button>
                             </div>
                         </div>
                     );
@@ -2936,18 +2926,21 @@ export class ContentGame extends React.Component {
                             this.setState({ hoverOrders: [] });
                         }}
                     >
-                        <div className={'col align-self-center order'}>
-                                    <span className={'order-string'}>Full:</span>
+                        <div className={"col align-self-center order"}>
+                            <span className={"order-string"}>Full:</span>
                         </div>
-                        <div 
-                        style={{
-                            flexGrow: 0,
-                            flexShrink: 0,
-                            display: "flex",
-                            alignItems: "flex-end",
-                        }}
+                        <div
+                            style={{
+                                flexGrow: 0,
+                                flexShrink: 0,
+                                display: "flex",
+                                alignItems: "flex-end",
+                            }}
                         >
-                        <Button title={'+all'} color={"success"} onClick={async () => {
+                            <Button
+                                title={"+all"}
+                                color={"success"}
+                                onClick={async () => {
                                     for (let move of latestMoveSuggestionFull.moves) {
                                         await this.onOrderBuilt(
                                             currentPowerName,
@@ -2960,15 +2953,19 @@ export class ContentGame extends React.Component {
                                         "accept all"
                                     );
                                 }}
-                                invisible={!(isCurrent && !isAdmin)}/>
-                        <Button title={String.fromCharCode(0x2715)} color={"danger"}
+                                invisible={!(isCurrent && !isAdmin)}
+                            />
+                            <Button
+                                title={String.fromCharCode(0x2715)}
+                                color={"danger"}
                                 onClick={() => {
                                     this.handleRecipientAnnotation(
                                         latestMoveSuggestionFull.time_sent,
                                         "reject"
                                     );
                                 }}
-                                invisible={!(isCurrent && !isAdmin)}></Button>
+                                invisible={!(isCurrent && !isAdmin)}
+                            ></Button>
                         </div>
                     </div>
                     {fullSuggestionMessages}
@@ -2994,8 +2991,8 @@ export class ContentGame extends React.Component {
                             }}
                             key={index}
                         >
-                            <div className={'col align-self-center order'}>
-                                    <span className={'order-string'}>{move}</span>
+                            <div className={"col align-self-center order"}>
+                                <span className={"order-string"}>{move}</span>
                             </div>
                             <div
                                 style={{
@@ -3005,8 +3002,10 @@ export class ContentGame extends React.Component {
                                     alignItems: "flex-end",
                                 }}
                             >
-
-                                <Button title={"+"} color={"success"} onClick={async () => {
+                                <Button
+                                    title={"+"}
+                                    color={"success"}
+                                    onClick={async () => {
                                         await this.onOrderBuilt(
                                             currentPowerName,
                                             move
@@ -3017,7 +3016,8 @@ export class ContentGame extends React.Component {
                                             `accept ${move}`
                                         );
                                     }}
-                                    invisible={!(isCurrent && !isAdmin)}></Button>
+                                    invisible={!(isCurrent && !isAdmin)}
+                                ></Button>
                             </div>
                         </div>
                     );
@@ -3041,12 +3041,15 @@ export class ContentGame extends React.Component {
                             this.setState({ hoverOrders: [] });
                         }}
                     >
-                        <div className={'col align-self-center order'}>
-                                    <span className={'order-string'}>Based on {latestMoveSuggestionPartial.givenMoves.join(
+                        <div className={"col align-self-center order"}>
+                            <span className={"order-string"}>
+                                Based on{" "}
+                                {latestMoveSuggestionPartial.givenMoves.join(
                                     ", "
-                                )}</span>
+                                )}
+                            </span>
                         </div>
-                        <div 
+                        <div
                             style={{
                                 flexGrow: 0,
                                 flexShrink: 0,
@@ -3054,7 +3057,10 @@ export class ContentGame extends React.Component {
                                 alignItems: "flex-end",
                             }}
                         >
-                        <Button title={'+all'} color={"success"} onClick={async () => {
+                            <Button
+                                title={"+all"}
+                                color={"success"}
+                                onClick={async () => {
                                     for (let move of latestMoveSuggestionPartial.moves) {
                                         await this.onOrderBuilt(
                                             currentPowerName,
@@ -3067,15 +3073,19 @@ export class ContentGame extends React.Component {
                                         "accept all"
                                     );
                                 }}
-                                invisible={!(isCurrent && !isAdmin)}/>
-                        <Button title={String.fromCharCode(0x2715)} color={"danger"}
+                                invisible={!(isCurrent && !isAdmin)}
+                            />
+                            <Button
+                                title={String.fromCharCode(0x2715)}
+                                color={"danger"}
                                 onClick={() => {
                                     this.handleRecipientAnnotation(
                                         latestMoveSuggestionPartial.time_sent,
                                         "reject"
                                     );
                                 }}
-                                invisible={!(isCurrent && !isAdmin)}></Button>
+                                invisible={!(isCurrent && !isAdmin)}
+                            ></Button>
                         </div>
                     </div>
                     {partialSuggestionMessages}
@@ -3093,35 +3103,34 @@ export class ContentGame extends React.Component {
         }
 
         return (
-            <div className={"col-3 mb-4"}>
+            <div className={"col-2 mb-4"}>
                 {suggestionType === null && (
                     <div>
-                        We haven't assigned advisors yet / No advisor for this
-                        year
+                        No advice for this turn
                     </div>
                 )}
                 {suggestionType !== null && suggestionType === 0 && (
-                    <div>You are on your own this turn.</div>
+                    <div>You are on your own</div>
                 )}
                 {suggestionType !== null && suggestionType >= 1 && (
                     <div>
-                        You are getting advice this turn:{" "}
+                        You are getting advice:{" "}
                         {suggestionTypeDisplay.join(", ")}.
                     </div>
                 )}
                 {suggestionType !== null && (suggestionType & 2) === 2 && (
-                        <div
-                            style={{
-                                display: "flex",
-                                flexDirection: "column",
-                                border: "1px solid black",
-                                boxSizing: "border-box",
-                                marginTop: "10px",
-                            }}
-                        >
+                    <div
+                        style={{
+                            display: "flex",
+                            flexDirection: "column",
+                            border: "1px solid black",
+                            boxSizing: "border-box",
+                            marginTop: "10px",
+                        }}
+                    >
                         {fullSuggestionComponent}
                         {partialSuggestionComponent}
-                        </div>                    
+                    </div>
                 )}
             </div>
         );
@@ -3159,10 +3168,7 @@ export class ContentGame extends React.Component {
                         data={filteredPowers}
                         wrapper={PowerView.wrap}
                         countries={filteredPowerNames}
-                        //stances={engine.getPower(currentPowerName).getStances()}
                         player={currentPowerName}
-                        //isBot={engine.getPower(currentPowerName).getIsBot()}
-                        //stanceUpdated={this.state.stances}
                     />
                 </div>
             </div>
@@ -3248,7 +3254,8 @@ export class ContentGame extends React.Component {
         orderType,
         orderPath,
         currentPowerName,
-        currentTabOrderCreation
+        currentTabOrderCreation,
+        moveAdvicePanel
     ) {
         const powerNames = Object.keys(engine.powers);
         powerNames.sort();
@@ -3264,7 +3271,7 @@ export class ContentGame extends React.Component {
         return (
             <Tab id={"tab-current-phase"} display={toDisplay}>
                 <Row>
-                    <div className={"col-xl"}>
+                    <div className={"col-6"}>
                         {this.renderMapForCurrent(
                             engine,
                             powerName,
@@ -3272,7 +3279,7 @@ export class ContentGame extends React.Component {
                             orderPath
                         )}
                     </div>
-                    <div className={"col-xl"}>
+                    <div className={moveAdvicePanel ? "col-4" : "col-6"}>
                         {/* Orders. */}
                         <div
                             className={"panel-orders mb-4"}
@@ -3302,6 +3309,7 @@ export class ContentGame extends React.Component {
                             </div>
                         </div>
                     </div>
+                    {moveAdvicePanel}
                 </Row>
             </Tab>
         );
@@ -3535,6 +3543,12 @@ export class ContentGame extends React.Component {
             </div>
         );
 
+        const moveAdvicePanel = this.renderTabCentaur(
+            true,
+            engine,
+            currentPowerName
+        );
+
         const { engineCur, pastPhases, phaseIndex } =
             this.__get_engine_to_display(engine);
         let phasePanel;
@@ -3547,7 +3561,8 @@ export class ContentGame extends React.Component {
                     orderBuildingType,
                     this.state.orderBuildingPath,
                     currentPowerName,
-                    currentTabOrderCreation
+                    currentTabOrderCreation,
+                    moveAdvicePanel
                 );
             } else if (hasTabPhaseHistory) {
                 phasePanel = this.renderTabResults(true, engine);
@@ -3561,7 +3576,11 @@ export class ContentGame extends React.Component {
             true
         );
 
-        const advice = this.getSuggestionMessages(currentPowerName, messageChannels, engine);
+        const advice = this.getSuggestionMessages(
+            currentPowerName,
+            messageChannels,
+            engine
+        );
 
         const isAdmin =
             engine.role === "omniscient_type" ||
@@ -3571,113 +3590,48 @@ export class ContentGame extends React.Component {
         const receivedSuggestions = advice.filter(
             (msg) =>
                 msg.type &&
-                (msg.type === STRINGS.SUGGESTED_COMMENTARY || msg.type === STRINGS.SUGGESTED_MESSAGE) &&
+                (msg.type === STRINGS.SUGGESTED_COMMENTARY ||
+                    msg.type === STRINGS.SUGGESTED_MESSAGE) &&
                 (isAdmin ||
                     !this.state.annotatedMessages.hasOwnProperty(msg.time_sent))
         );
 
-        const suggestionType = this.getSuggestionType(currentPowerName, engine, advice);
+        const suggestionType = this.getSuggestionType(
+            currentPowerName,
+            engine,
+            advice
+        );
 
         const showMessageAdviceTab =
             suggestionType !== null &&
             (suggestionType === 1 || suggestionType > 2) &&
             receivedSuggestions.length > 0;
 
-        const hasMoveSuggestion =
-            suggestionType !== null && (suggestionType & 2) === 2;
-
-        let gameContent;
-
-        if (pastPhases[phaseIndex] === engine.phase) {
-            if (hasMoveSuggestion) {
-                gameContent = (
-                    <div>
-                        <Row>
-                            {phasePanel}
-                            {this.renderTabCentaur(
-                                true,
-                                engine,
-                                currentPowerName
-                            )}
-                        </Row>
-                        <Row className={"mb-4"}>
-                            {this.renderTabChat(
-                                true,
-                                engine,
-                                currentPowerName,
-                                showMessageAdviceTab ? false : true
-                            )}
-                            {showMessageAdviceTab && this.renderTabCentaurMessages(
-                                true,
-                                engine,
-                                currentPowerName,
-                                false
-                            )}
-                        </Row>
-                        <Row>
-                            {!engine.isPlayerGame() &&
-                                this.renderPowerInfo(engine)}
-                            {localStorage.getItem("username") === "admin" &&
-                                this.renderLogs(engine, currentPowerName)}
-                        </Row>
-                    </div>
-                );
-            } else {
-                gameContent = (
-                    <div>
-                        <Row>
-                            {phasePanel}
-                            <div className={"col-4"}>{/* Orders. */}</div>
-                        </Row>
-                        <Row>
-                            {this.renderTabChat(
-                                true,
-                                engine,
-                                currentPowerName,
-                                showMessageAdviceTab ? false : true
-                            )}
-                            {showMessageAdviceTab && this.renderTabCentaurMessages(
-                                true,
-                                engine,
-                                currentPowerName,
-                                true
-                            )}
-                        </Row>
-                        <Row>
-                            {!engine.isPlayerGame() &&
-                                this.renderPowerInfo(engine)}
-                            {localStorage.getItem("username") === "admin" &&
-                                this.renderLogs(engine, currentPowerName)}
-                        </Row>
-                    </div>
-                );
-            }
-        } else {
-            gameContent = (
-                <div>
-                    {phasePanel}
-                    <Row>
-                        {this.renderTabChat(
+        const gameContent = (
+            <div>
+                {phasePanel}
+                <Row className={"mb-4"}>
+                    {this.renderTabChat(
+                        true,
+                        engine,
+                        currentPowerName,
+                        showMessageAdviceTab ? false : true
+                    )}
+                    {showMessageAdviceTab &&
+                        this.renderTabCentaurMessages(
                             true,
                             engine,
                             currentPowerName,
-                            showMessageAdviceTab ? false : true
+                            false
                         )}
-                        {this.renderTabCentaurMessages(
-                            true,
-                            engine,
-                            currentPowerName,
-                            true
-                        )}
-                    </Row>
-                    <Row>
-                        {!engine.isPlayerGame() && this.renderPowerInfo(engine)}
-                        {localStorage.getItem("username") === "admin" &&
-                            this.renderLogs(engine, currentPowerName)}
-                    </Row>
-                </div>
-            );
-        }
+                </Row>
+                <Row>
+                    {!engine.isPlayerGame() && this.renderPowerInfo(engine)}
+                    {localStorage.getItem("username") === "admin" &&
+                        this.renderLogs(engine, currentPowerName)}
+                </Row>
+            </div>
+        );
 
         return (
             <main>
