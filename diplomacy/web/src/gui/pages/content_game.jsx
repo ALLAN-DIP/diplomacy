@@ -1603,7 +1603,7 @@ export class ContentGame extends React.Component {
 
         return (
             <div
-                className={isWide ? "col-6" : "col-4"}
+                className={isWide ? "col-12" : "col-6"}
                 style={{ height: "500px" }}
             >
                 <MainContainer responsive>
@@ -2037,7 +2037,7 @@ export class ContentGame extends React.Component {
 
         return (
             <Box
-                className={isWide ? "col-6 mb-4" : "col-4 mb-4"}
+                className={isWide ? "col-12 mb-4" : "col-6 mb-4"}
                 style={{ height: "500px" }}
             >
                 <Grid container spacing={2}>
@@ -2056,9 +2056,10 @@ export class ContentGame extends React.Component {
                                 </ChatContainer>
                             </MainContainer>
                             {engine.isPlayerGame() && (
-                                <>
+                                <Row>
                                     <textarea
-                                        style={{ flex: 1 }}
+                                        style={{ resize: "both" }}
+                                        cols={30}
                                         onChange={(val) =>
                                             this.setMessageInputValue(
                                                 val.target.value
@@ -2110,7 +2111,7 @@ export class ContentGame extends React.Component {
                                                 engine.client,
                                                 currentTabId,
                                                 this.state.message,
-                                                "Truth"
+                                                "Truth",
                                             );
                                             this.setMessageInputValue("");
                                         }}
@@ -2125,7 +2126,7 @@ export class ContentGame extends React.Component {
                                                 engine.client,
                                                 currentTabId,
                                                 this.state.message,
-                                                "Lie"
+                                                "Lie",
                                             );
                                             this.setMessageInputValue("");
                                         }}
@@ -2140,12 +2141,12 @@ export class ContentGame extends React.Component {
                                                 engine.client,
                                                 currentTabId,
                                                 this.state.message,
-                                                "Neutral"
+                                                "Neutral",
                                             );
                                             this.setMessageInputValue("");
                                         }}
                                     ></Button>
-                                </>
+                                </Row>
                             )}
                         </Box>
                     </Grid>
@@ -2519,7 +2520,7 @@ export class ContentGame extends React.Component {
         const curController = engine.powers[role].getController();
 
         return (
-            <Box className={isWide ? "col-6 mb-4" : "col-4 mb-4"}>
+            <Box className={"col-6 mb-4"}>
                 <Grid container spacing={2}>
                     <Grid item xs={12} sx={{ height: "100%" }}>
                         <Box sx={{ width: "100%", height: "550px" }}>
@@ -3631,17 +3632,28 @@ export class ContentGame extends React.Component {
             currentPowerName,
             true
         );
-        const suggestionMessages = this.getSuggestionMessages(
-            currentPowerName,
-            messageChannels,
-            engine
+
+        const advice = this.getSuggestionMessages(currentPowerName, messageChannels, engine);
+
+        const isAdmin =
+            engine.role === "omniscient_type" ||
+            engine.role === "master_type" ||
+            engine.role === "observer_type";
+
+        const receivedSuggestions = advice.filter(
+            (msg) =>
+                msg.type &&
+                (msg.type === STRINGS.SUGGESTED_COMMENTARY || msg.type === STRINGS.SUGGESTED_MESSAGE) &&
+                (isAdmin ||
+                    !this.state.annotatedMessages.hasOwnProperty(msg.time_sent))
         );
 
-        const suggestionType = this.getSuggestionType(
-            currentPowerName,
-            engine,
-            suggestionMessages
-        );
+        const suggestionType = this.getSuggestionType(currentPowerName, engine, advice);
+
+        const showMessageAdviceTab =
+            suggestionType !== null &&
+            (suggestionType === 1 || suggestionType > 2) &&
+            receivedSuggestions.length > 0;
 
         const hasMoveSuggestion =
             suggestionType !== null && (suggestionType & 2) === 2;
@@ -3665,9 +3677,9 @@ export class ContentGame extends React.Component {
                                 true,
                                 engine,
                                 currentPowerName,
-                                false
+                                showMessageAdviceTab ? false : true
                             )}
-                            {this.renderTabCentaurMessages(
+                            {showMessageAdviceTab && this.renderTabCentaurMessages(
                                 true,
                                 engine,
                                 currentPowerName,
@@ -3694,9 +3706,9 @@ export class ContentGame extends React.Component {
                                 true,
                                 engine,
                                 currentPowerName,
-                                true
+                                showMessageAdviceTab ? false : true
                             )}
-                            {this.renderTabCentaurMessages(
+                            {showMessageAdviceTab && this.renderTabCentaurMessages(
                                 true,
                                 engine,
                                 currentPowerName,
@@ -3721,7 +3733,7 @@ export class ContentGame extends React.Component {
                             true,
                             engine,
                             currentPowerName,
-                            true
+                            showMessageAdviceTab ? false : true
                         )}
                         {this.renderTabCentaurMessages(
                             true,
