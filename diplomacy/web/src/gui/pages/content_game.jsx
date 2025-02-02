@@ -2036,7 +2036,11 @@ export class ContentGame extends React.Component {
                     <Grid item xs={12} sx={{ height: "100%" }}>
                         <Box sx={{ width: "100%", height: "550px" }}>
                             <MainContainer responsive>
-                                <Sidebar position="left" scrollable={true}>
+                                <Sidebar
+                                    style={{ maxWidth: "200px" }}
+                                    position="left"
+                                    scrollable={true}
+                                >
                                     <ConversationList>
                                         {convList}
                                     </ConversationList>
@@ -2845,6 +2849,10 @@ export class ContentGame extends React.Component {
             STRINGS.SUGGESTED_MOVE_PARTIAL
         );
 
+        if (!latestMoveSuggestionFull && !latestMoveSuggestionPartial) {
+            return null;
+        }
+
         let fullSuggestionComponent = null;
         let partialSuggestionComponent = null;
 
@@ -2955,7 +2963,8 @@ export class ContentGame extends React.Component {
                                         "reject"
                                     );
                                 }}
-                                invisible={!(isCurrent && !isAdmin)}></Button>
+                                invisible={!(isCurrent && !isAdmin)}
+                            ></Button>
                         </div>
                     </div>
                     {fullSuggestionMessages}
@@ -3006,7 +3015,8 @@ export class ContentGame extends React.Component {
                                             `accept ${move}`
                                         );
                                     }}
-                                    invisible={!(isCurrent && !isAdmin)}></Button>
+                                    invisible={!(isCurrent && !isAdmin)}
+                                ></Button>
                             </div>
                         </div>
                     );
@@ -3073,7 +3083,8 @@ export class ContentGame extends React.Component {
                                         "reject"
                                     );
                                 }}
-                                invisible={!(isCurrent && !isAdmin)}></Button>
+                                invisible={!(isCurrent && !isAdmin)}
+                            ></Button>
                         </div>
                     </div>
                     {partialSuggestionMessages}
