@@ -2035,113 +2035,114 @@ export class ContentGame extends React.Component {
                 <Grid container spacing={2}>
                     <Grid item xs={12} sx={{ height: "100%" }}>
                         <Box sx={{ width: "100%", height: "550px" }}>
-                                <MainContainer responsive>
-                                    <Sidebar position="left" scrollable={true}>
-                                        <ConversationList>
-                                            {convList}
-                                        </ConversationList>
-                                    </Sidebar>
-                                    <ChatContainer>
-                                        <MessageList>
-                                            {renderedMessages}
-                                        </MessageList>
-                                    </ChatContainer>
-                                </MainContainer>
-                                {engine.isPlayerGame() && (
-                                    <>
-                                        <textarea
-                                            style={{ flex: 1 }}
-                                            onChange={(val) =>
-                                                this.setMessageInputValue(
-                                                    val.target.value
-                                                )
-                                            }
-                                            value={this.state.message}
-                                            disabled={
-                                                phaseType === "M" &&
-                                                (!this.state.hasInitialOrders ||
-                                                    (this.__get_orders(engine)[
-                                                        currentPowerName
-                                                    ] &&
-                                                        Object.keys(
-                                                            this.__get_orders(
-                                                                engine
-                                                            )[currentPowerName]
-                                                        ).length <
+                            <MainContainer responsive>
+                                <Sidebar position="left" scrollable={true}>
+                                    <ConversationList>
+                                        {convList}
+                                    </ConversationList>
+                                </Sidebar>
+                                <ChatContainer>
+                                    <MessageList>
+                                        {renderedMessages}
+                                    </MessageList>
+                                </ChatContainer>
+                            </MainContainer>
+                            {engine.isPlayerGame() && (
+                                <Row>
+                                    <textarea
+                                        style={{ resize: "both" }}
+                                        cols={30}
+                                        onChange={(val) =>
+                                            this.setMessageInputValue(
+                                                val.target.value
+                                            )
+                                        }
+                                        value={this.state.message}
+                                        disabled={
+                                            phaseType === "M" &&
+                                            (!this.state.hasInitialOrders ||
+                                                (this.__get_orders(engine)[
+                                                    currentPowerName
+                                                ] &&
+                                                    Object.keys(
+                                                        this.__get_orders(
                                                             engine
-                                                                .orderableLocations[
-                                                                currentPowerName
-                                                            ].length))
-                                            }
-                                            placeholder={
-                                                phaseType === "M" &&
-                                                (!this.state.hasInitialOrders ||
-                                                    (this.__get_orders(engine)[
-                                                        currentPowerName
-                                                    ] &&
-                                                        Object.keys(
-                                                            this.__get_orders(
-                                                                engine
-                                                            )[currentPowerName]
-                                                        ).length <
+                                                        )[currentPowerName]
+                                                    ).length <
+                                                        engine
+                                                            .orderableLocations[
+                                                            currentPowerName
+                                                        ].length))
+                                        }
+                                        placeholder={
+                                            phaseType === "M" &&
+                                            (!this.state.hasInitialOrders ||
+                                                (this.__get_orders(engine)[
+                                                    currentPowerName
+                                                ] &&
+                                                    Object.keys(
+                                                        this.__get_orders(
                                                             engine
-                                                                .orderableLocations[
-                                                                currentPowerName
-                                                            ].length))
-                                                    ? "You need to set orders for all units before sending messages."
-                                                    : ""
-                                            }
-                                        />
-                                        <Button
-                                            key={"t"}
-                                            pickEvent={true}
-                                            title={"Truth"}
-                                            color={"success"}
-                                            onClick={() => {
-                                                this.sendMessage(
-                                                    engine.client,
-                                                    currentTabId,
-                                                    this.state.message,
-                                                    "Truth",
-                                                    null
-                                                );
-                                                this.setMessageInputValue("");
-                                            }}
-                                        ></Button>
-                                        <Button
-                                            key={"f"}
-                                            pickEvent={true}
-                                            title={"Lie"}
-                                            color={"danger"}
-                                            onClick={() => {
-                                                this.sendMessage(
-                                                    engine.client,
-                                                    currentTabId,
-                                                    this.state.message,
-                                                    "Lie",
-                                                    null
-                                                );
-                                                this.setMessageInputValue("");
-                                            }}
-                                        ></Button>
-                                        <Button
-                                            key={"n"}
-                                            pickEvent={true}
-                                            title={"Neutral"}
-                                            color={"primary"}
-                                            onClick={() => {
-                                                this.sendMessage(
-                                                    engine.client,
-                                                    currentTabId,
-                                                    this.state.message,
-                                                    "Neutral",
-                                                    null
-                                                );
-                                                this.setMessageInputValue("");
-                                            }}
-                                        ></Button>
-                                    </>
-                                )}
+                                                        )[currentPowerName]
+                                                    ).length <
+                                                        engine
+                                                            .orderableLocations[
+                                                            currentPowerName
+                                                        ].length))
+                                                ? "You need to set orders for all units before sending messages."
+                                                : ""
+                                        }
+                                    />
+                                    <Button
+                                        key={"t"}
+                                        pickEvent={true}
+                                        title={"Truth"}
+                                        color={"success"}
+                                        onClick={() => {
+                                            this.sendMessage(
+                                                engine.client,
+                                                currentTabId,
+                                                this.state.message,
+                                                "Truth",
+                                                null
+                                            );
+                                            this.setMessageInputValue("");
+                                        }}
+                                    ></Button>
+                                    <Button
+                                        key={"f"}
+                                        pickEvent={true}
+                                        title={"Lie"}
+                                        color={"danger"}
+                                        onClick={() => {
+                                            this.sendMessage(
+                                                engine.client,
+                                                currentTabId,
+                                                this.state.message,
+                                                "Lie",
+                                                null
+                                            );
+                                            this.setMessageInputValue("");
+                                        }}
+                                    ></Button>
+                                    <Button
+                                        key={"n"}
+                                        pickEvent={true}
+                                        title={"Neutral"}
+                                        color={"primary"}
+                                        onClick={() => {
+                                            this.sendMessage(
+                                                engine.client,
+                                                currentTabId,
+                                                this.state.message,
+                                                "Neutral",
+                                                null
+                                            );
+                                            this.setMessageInputValue("");
+                                        }}
+                                    ></Button>
+                                </Row>
+                            )}
                         </Box>
                     </Grid>
                 </Grid>
