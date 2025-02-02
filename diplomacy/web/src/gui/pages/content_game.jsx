@@ -2960,8 +2960,7 @@ export class ContentGame extends React.Component {
                                         "reject"
                                     );
                                 }}
-                                invisible={!(isCurrent && !isAdmin)}
-                            ></Button>
+                                invisible={!(isCurrent && !isAdmin)}></Button>
                         </div>
                     </div>
                     {fullSuggestionMessages}
@@ -3012,8 +3011,7 @@ export class ContentGame extends React.Component {
                                             `accept ${move}`
                                         );
                                     }}
-                                    invisible={!(isCurrent && !isAdmin)}
-                                ></Button>
+                                    invisible={!(isCurrent && !isAdmin)}></Button>
                             </div>
                         </div>
                     );
@@ -3080,8 +3078,7 @@ export class ContentGame extends React.Component {
                                         "reject"
                                     );
                                 }}
-                                invisible={!(isCurrent && !isAdmin)}
-                            ></Button>
+                                invisible={!(isCurrent && !isAdmin)}></Button>
                         </div>
                     </div>
                     {partialSuggestionMessages}
