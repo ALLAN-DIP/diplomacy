@@ -70,3 +70,26 @@ class SuggestionType(IntFlag):
     MOVE = 2
     COMMENTARY = 4
     OPPONENT_MOVE = 8
+
+    @classmethod
+    def parse(cls, string: str) -> "SuggestionType":
+        """Parse string representation of flags into an enum.
+
+        For example:
+        >>> SuggestionType.parse("MOVE|MESSAGE")
+        <SuggestionType.MOVE|MESSAGE: 3>
+        """
+        names = string.split("|")
+        value = SuggestionType.NONE
+        for name in names:
+            value |= SuggestionType[name]
+        return value
+
+    def to_parsable(self) -> str:
+        """Convert enum to a parseable string representation.
+
+        For example:
+        >>> (SuggestionType.MOVE | SuggestionType.MESSAGE).to_parsable()
+        'MOVE|MESSAGE'
+        """
+        return str(self)[len(self.__class__.__name__)+1:]
