@@ -3103,6 +3103,27 @@ export class ContentGame extends React.Component {
 
         return (
             <div className={"col-2 mb-4"}>
+                <div>Get
+                    <select name={"stance"} id={"stance"}>
+                        <option value={"F"}>friendly</option>
+                        <option value={"H"}>hostile</option>
+                    </select>
+                    advice toward
+                    <select name={"toPower"} id={"toPower"}>
+                        {tabNames.map((tabName) => (
+                            <option value={tabName}>{tabName}</option>
+                        ))}
+                    </select>
+                    <Button 
+                        title={UTILS.html.UNICODE_RIGHT_ARROW}
+                        color={"primary"}
+                        onClick={() => {
+                            console.log(`${document.getElementById("toPower").value} with stance ${document.getElementById("stance").value}`);
+                            this.sendLogData(engine.client, `STANCE:${document.getElementById("stance").value}:${document.getElementById("toPower").value}`);
+                        }}
+                    >
+                    </Button>
+                </div>
                 {suggestionType === null && (
                     <div>
                         No advice for this turn
