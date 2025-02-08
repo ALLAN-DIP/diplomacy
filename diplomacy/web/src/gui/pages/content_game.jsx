@@ -536,6 +536,7 @@ export class ContentGame extends React.Component {
                         hasInitialOrders: false,
                         hoverOrders: [],
                         stances: {},
+                        hoverOrders: [],
                     }).then(() =>
                         this.getPage().info(
                             `Game update (${notification.name}) to ${networkGame.local.phase}.`
@@ -1097,7 +1098,7 @@ export class ContentGame extends React.Component {
             if (!UTILS.javascript.count(orders[powerName]))
                 orders[powerName] = null;
             this.__store_orders(orders);
-            await this.setState({ orders: orders });
+            await this.setState({ orders: orders, hoverOrders: [], });
         }
         this.setOrders();
     }
@@ -1118,7 +1119,7 @@ export class ContentGame extends React.Component {
             this.sendOrderLog(engine.client, "clear", null);
             allOrders[currentPowerName] = null;
             this.__store_orders(allOrders);
-            await this.setState({ orders: allOrders });
+            await this.setState({ orders: allOrders, hoverOrders: [], });
         }
         this.setOrders();
     }
@@ -1132,7 +1133,7 @@ export class ContentGame extends React.Component {
         orders[powerName] = {};
         this.__store_orders(orders);
         this.setOrders();
-        return this.setState({ orders: orders });
+        return this.setState({ orders: orders, hoverOrders: [] });
     }
 
     /**
@@ -1257,6 +1258,7 @@ export class ContentGame extends React.Component {
         return this.setState({
             orderBuildingType: form.order_type,
             orderBuildingPath: [],
+            hoverOrders: [],
         });
     }
 
@@ -1352,6 +1354,7 @@ export class ContentGame extends React.Component {
             historyPhaseIndex: newPhaseIndex,
             historyCurrentLoc: null,
             historyCurrentOrders: null,
+            hoverOrders: [],
         });
     }
 
