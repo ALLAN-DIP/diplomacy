@@ -536,6 +536,7 @@ export class ContentGame extends React.Component {
                         hasInitialOrders: false,
                         hoverOrders: [],
                         stances: {},
+                        hoverOrders: [],
                     }).then(() =>
                         this.getPage().info(
                             `Game update (${notification.name}) to ${networkGame.local.phase}.`
@@ -1097,7 +1098,7 @@ export class ContentGame extends React.Component {
             if (!UTILS.javascript.count(orders[powerName]))
                 orders[powerName] = null;
             this.__store_orders(orders);
-            await this.setState({ orders: orders });
+            await this.setState({ orders: orders, hoverOrders: [], });
         }
         this.setOrders();
     }
@@ -1118,7 +1119,7 @@ export class ContentGame extends React.Component {
             this.sendOrderLog(engine.client, "clear", null);
             allOrders[currentPowerName] = null;
             this.__store_orders(allOrders);
-            await this.setState({ orders: allOrders });
+            await this.setState({ orders: allOrders, hoverOrders: [], });
         }
         this.setOrders();
     }
@@ -1132,7 +1133,7 @@ export class ContentGame extends React.Component {
         orders[powerName] = {};
         this.__store_orders(orders);
         this.setOrders();
-        return this.setState({ orders: orders });
+        return this.setState({ orders: orders, hoverOrders: [] });
     }
 
     /**
@@ -1257,6 +1258,7 @@ export class ContentGame extends React.Component {
         return this.setState({
             orderBuildingType: form.order_type,
             orderBuildingPath: [],
+            hoverOrders: [],
         });
     }
 
@@ -1352,6 +1354,7 @@ export class ContentGame extends React.Component {
             historyPhaseIndex: newPhaseIndex,
             historyCurrentLoc: null,
             historyCurrentOrders: null,
+            hoverOrders: [],
         });
     }
 
@@ -1876,9 +1879,16 @@ export class ContentGame extends React.Component {
             <Conversation
                 style={{ minWidth: "200px" }}
                 info={
-                    isAdmin && protagonist !== "GLOBAL"
-                        ? engine.powers[protagonist].getController()
-                        : ""
+                    isAdmin && protagonist !== "GLOBAL" ? (
+                        engine.powers[protagonist].getController()
+                    ) : (
+                        <div>
+                            friendly?
+                            <Switch color="success" size="small"
+                            onChange={() => {}}
+                            ></Switch>
+                        </div>
+                    )
                 }
                 className={
                     protagonist === currentTabId
@@ -3158,7 +3168,28 @@ export class ContentGame extends React.Component {
         }
 
         return (
-            <div className={"col-4 mb-4"}>
+            <div className={"col-2 mb-4"}>
+                <div>Get
+                    <select name={"stance"} id={"stance"}>
+                        <option value={"F"}>friendly</option>
+                        <option value={"H"}>hostile</option>
+                    </select>
+                    advice toward
+                    <select name={"toPower"} id={"toPower"}>
+                        {tabNames.map((tabName) => (
+                            <option value={tabName}>{tabName}</option>
+                        ))}
+                    </select>
+                    <Button 
+                        title={UTILS.html.UNICODE_RIGHT_ARROW}
+                        color={"primary"}
+                        onClick={() => {
+                            console.log(`${document.getElementById("toPower").value} with stance ${document.getElementById("stance").value}`);
+                            this.sendLogData(engine.client, `STANCE:${document.getElementById("stance").value}:${document.getElementById("toPower").value}`);
+                        }}
+                    >
+                    </Button>
+                </div>
                 {suggestionType === null && (
                     <div>
                         We haven't assigned advisors yet / No advisor for this
