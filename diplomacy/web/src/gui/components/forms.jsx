@@ -127,4 +127,3 @@ export class Forms {
         return components;
     }
 }
-
