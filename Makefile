@@ -22,6 +22,10 @@ endif
 	# They install automatically on Linux as a requirement of PyTorch
 	sed --in-place -e '/^\(nvidia-.*\|triton\)==.*/d' requirements-lock.txt
 
+.PHONY: black
+black:
+	pre-commit run --all-files black
+
 .PHONY: check-npm-build
 check-npm-build:
 	cd diplomacy/web/ && \
@@ -35,6 +39,10 @@ eslint:
 .PHONY: precommit
 precommit:
 	pre-commit run --all-files
+
+.PHONY: prettier
+prettier:
+	pre-commit run --all-files prettier
 
 .PHONY: pylint
 pylint:
