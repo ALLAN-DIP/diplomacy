@@ -4,6 +4,13 @@ default:
 
 SHELL=/usr/bin/env bash
 
+.PHONY: precommit
+precommit:
+	pre-commit run --all-files
+
+.PHONY: check
+check: precommit
+
 TAG ?= latest
 
 .PHONY: build
