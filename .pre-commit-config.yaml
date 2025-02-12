@@ -40,3 +40,11 @@ repos:
       - id: no-commit-to-branch
       - id: requirements-txt-fixer
       - id: trailing-whitespace
+  - repo: https://github.com/psf/black
+    rev: 23.3.0
+    hooks:
+      - id: black
+  - repo: https://github.com/rbubley/mirrors-prettier # Use maintained fork of official mirror
+    rev: v3.3.3
+    hooks:
+      - id: prettier
