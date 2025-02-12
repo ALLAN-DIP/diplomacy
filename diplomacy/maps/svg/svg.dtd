@@ -1,5 +1,5 @@
 <!-- ==============================================================
-     ENTITY DECLARATIONS: Data types 
+     ENTITY DECLARATIONS: Data types
      ============================================================== -->
 
 <!ENTITY % BaselineShiftValue "CDATA">
@@ -163,7 +163,7 @@
 
 
 <!-- ==============================================================
-     ENTITY DECLARATIONS: Collections of common attributes 
+     ENTITY DECLARATIONS: Collections of common attributes
      ============================================================== -->
 
 <!-- All elements have an ID. -->
@@ -186,7 +186,7 @@
         standard XLink attributes other than xlink:href. -->
 <!ENTITY % xlinkRefAttrs
  "xmlns:xlink CDATA #FIXED 'http://www.w3.org/1999/xlink'
-  xlink:type (simple) #FIXED 'simple' 
+  xlink:type (simple) #FIXED 'simple'
   xlink:role %URI; #IMPLIED
   xlink:arcrole %URI; #IMPLIED
   xlink:title CDATA #IMPLIED
@@ -196,7 +196,7 @@
 <!-- Standard XLink attributes for uses of URI referencing where xlink:show is 'embed' -->
 <!ENTITY % xlinkRefAttrsEmbed
  "xmlns:xlink CDATA #FIXED 'http://www.w3.org/1999/xlink'
-  xlink:type (simple) #FIXED 'simple' 
+  xlink:type (simple) #FIXED 'simple'
   xlink:role %URI; #IMPLIED
   xlink:arcrole %URI; #IMPLIED
   xlink:title CDATA #IMPLIED
@@ -237,7 +237,7 @@
 
 
 <!-- ==============================================================
-     ENTITY DECLARATIONS: Collections of presentation attributes 
+     ENTITY DECLARATIONS: Collections of presentation attributes
      ============================================================== -->
 
 <!-- The following presentation attributes have to do with specifying color. -->
@@ -371,17 +371,17 @@
 
 
 <!-- ==============================================================
-     ENTITY DECLARATIONS: DTD extensions 
+     ENTITY DECLARATIONS: DTD extensions
      ============================================================== -->
 
-<!-- Allow for extending the DTD with internal subset for 
+<!-- Allow for extending the DTD with internal subset for
      container and graphics elements -->
 <!ENTITY % ceExt "" >
 <!ENTITY % geExt "" >
 
 
 <!-- ==============================================================
-     DECLARATIONS CORRESPONDING TO: Document Structure 
+     DECLARATIONS CORRESPONDING TO: Document Structure
      ============================================================== -->
 
 <!ENTITY % svgExt "" >
@@ -399,7 +399,7 @@
   %stdAttrs;
   %testAttrs;
   %langSpaceAttrs;
-  externalResourcesRequired %Boolean; #IMPLIED 
+  externalResourcesRequired %Boolean; #IMPLIED
   class %ClassList; #IMPLIED
   style %StyleSheet; #IMPLIED
   %PresentationAttributes-All;
@@ -557,11 +557,11 @@
 
 
 <!-- ==============================================================
-     DECLARATIONS CORRESPONDING TO: Styling 
+     DECLARATIONS CORRESPONDING TO: Styling
      ============================================================== -->
 
 <!ELEMENT style (#PCDATA) >
-<!ATTLIST style 
+<!ATTLIST style
   %stdAttrs;
   xml:space (preserve) #FIXED "preserve"
   type %ContentType; #REQUIRED
@@ -827,7 +827,7 @@
 <!ATTLIST altGlyph
   %stdAttrs;
   %xlinkRefAttrs;
-  xlink:href %URI; #IMPLIED 
+  xlink:href %URI; #IMPLIED
   glyphRef CDATA #IMPLIED
   format CDATA #IMPLIED
   %testAttrs;
@@ -874,7 +874,7 @@
 
 
 <!-- ==============================================================
-     DECLARATIONS CORRESPONDING TO: Painting: Filling, Stroking and Marker Symbols 
+     DECLARATIONS CORRESPONDING TO: Painting: Filling, Stroking and Marker Symbols
      ============================================================== -->
 
 <!ENTITY % markerExt "" >
@@ -904,21 +904,21 @@
 
 
 <!-- ==============================================================
-     DECLARATIONS CORRESPONDING TO: Color 
+     DECLARATIONS CORRESPONDING TO: Color
      ============================================================== -->
 
 <!ELEMENT color-profile (%descTitleMetadata;) >
-<!ATTLIST color-profile 
+<!ATTLIST color-profile
   %stdAttrs;
   %xlinkRefAttrs;
   xlink:href %URI; #IMPLIED
-  local CDATA #IMPLIED  
+  local CDATA #IMPLIED
   name CDATA #REQUIRED
   rendering-intent (auto | perceptual | relative-colorimetric | saturation | absolute-colorimetric) "auto" >
 
 
 <!-- ==============================================================
-     DECLARATIONS CORRESPONDING TO: Gradients and Patterns 
+     DECLARATIONS CORRESPONDING TO: Gradients and Patterns
      ============================================================== -->
 
 <!ENTITY % linearGradientExt "" >
@@ -1006,7 +1006,7 @@
 
 
 <!-- ==============================================================
-     DECLARATIONS CORRESPONDING TO: Clipping, Masking and Compositing 
+     DECLARATIONS CORRESPONDING TO: Clipping, Masking and Compositing
      ============================================================== -->
 
 <!ENTITY % clipPathExt "" >
@@ -1195,8 +1195,8 @@
   bias %Number; #IMPLIED
   targetX %Integer; #IMPLIED
   targetY %Integer; #IMPLIED
-  edgeMode (duplicate|wrap|none) "duplicate" 
-  kernelUnitLength %NumberOptionalNumber; #IMPLIED 
+  edgeMode (duplicate|wrap|none) "duplicate"
+  kernelUnitLength %NumberOptionalNumber; #IMPLIED
   preserveAlpha %Boolean; #IMPLIED >
 
 <!ELEMENT feDiffuseLighting ((feDistantLight|fePointLight|feSpotLight),(animate|set|animateColor)*) >
@@ -1209,7 +1209,7 @@
   %PresentationAttributes-LightingEffects;
   %filter_primitive_attributes_with_in;
   surfaceScale %Number; #IMPLIED
-  diffuseConstant %Number; #IMPLIED 
+  diffuseConstant %Number; #IMPLIED
   kernelUnitLength %NumberOptionalNumber; #IMPLIED >
 
 <!ELEMENT feDisplacementMap (animate|set)* >
@@ -1290,7 +1290,7 @@
   %filter_primitive_attributes_with_in;
   surfaceScale %Number; #IMPLIED
   specularConstant %Number; #IMPLIED
-  specularExponent %Number; #IMPLIED 
+  specularExponent %Number; #IMPLIED
   kernelUnitLength %NumberOptionalNumber; #IMPLIED >
 
 <!ELEMENT feTile (animate|set)* >
@@ -1312,7 +1312,7 @@
 
 
 <!-- ==============================================================
-     DECLARATIONS CORRESPONDING TO: Interactivity 
+     DECLARATIONS CORRESPONDING TO: Interactivity
      ============================================================== -->
 
 <!ELEMENT cursor (%descTitleMetadata;) >
@@ -1342,7 +1342,7 @@
 <!ATTLIST a
   %stdAttrs;
   xmlns:xlink CDATA #FIXED "http://www.w3.org/1999/xlink"
-  xlink:type (simple) #FIXED "simple" 
+  xlink:type (simple) #FIXED "simple"
   xlink:role %URI; #IMPLIED
   xlink:arcrole %URI; #IMPLIED
   xlink:title CDATA #IMPLIED
@@ -1366,12 +1366,12 @@
   externalResourcesRequired %Boolean; #IMPLIED
   viewBox %ViewBoxSpec; #IMPLIED
   preserveAspectRatio %PreserveAspectRatioSpec; 'xMidYMid meet'
-  zoomAndPan (disable | magnify) 'magnify' 
+  zoomAndPan (disable | magnify) 'magnify'
   viewTarget CDATA #IMPLIED >
 
 
 <!-- ==============================================================
-     DECLARATIONS CORRESPONDING TO: Scripting 
+     DECLARATIONS CORRESPONDING TO: Scripting
      ============================================================== -->
 
 <!ELEMENT script (#PCDATA) >
@@ -1384,7 +1384,7 @@
 
 
 <!-- ==============================================================
-     DECLARATIONS CORRESPONDING TO: Animation 
+     DECLARATIONS CORRESPONDING TO: Animation
      ============================================================== -->
 
 <!ENTITY % animElementAttrs
@@ -1396,13 +1396,13 @@
   attributeType  CDATA  #IMPLIED" >
 
 <!ENTITY % animTimingAttrs
- "begin CDATA #IMPLIED 
+ "begin CDATA #IMPLIED
   dur CDATA #IMPLIED
   end CDATA #IMPLIED
   min CDATA #IMPLIED
   max CDATA #IMPLIED
   restart (always | never | whenNotActive) 'always'
-  repeatCount CDATA #IMPLIED 
+  repeatCount CDATA #IMPLIED
   repeatDur CDATA #IMPLIED
   fill (remove | freeze) 'remove'" >
 
@@ -1503,7 +1503,7 @@
 
 
 <!-- ==============================================================
-     DECLARATIONS CORRESPONDING TO: Fonts 
+     DECLARATIONS CORRESPONDING TO: Fonts
      ============================================================== -->
 
 <!ENTITY % fontExt "" >
@@ -1586,7 +1586,7 @@
   k %Number; #REQUIRED >
 
 <!ELEMENT font-face (%descTitleMetadata;,font-face-src?,definition-src?) >
-<!ATTLIST font-face 
+<!ATTLIST font-face
   %stdAttrs;
   font-family CDATA #IMPLIED
   font-style CDATA #IMPLIED
@@ -1623,34 +1623,34 @@
   overline-thickness %Number; #IMPLIED >
 
 <!ELEMENT font-face-src (font-face-uri|font-face-name)+ >
-<!ATTLIST font-face-src 
+<!ATTLIST font-face-src
   %stdAttrs; >
 
 <!ELEMENT font-face-uri (font-face-format*) >
-<!ATTLIST font-face-uri 
+<!ATTLIST font-face-uri
   %stdAttrs;
   %xlinkRefAttrs;
   xlink:href %URI; #REQUIRED >
 
 <!ELEMENT font-face-format EMPTY >
-<!ATTLIST font-face-format 
+<!ATTLIST font-face-format
   %stdAttrs;
   string CDATA #IMPLIED >
 
 <!ELEMENT font-face-name EMPTY >
-<!ATTLIST font-face-name 
+<!ATTLIST font-face-name
   %stdAttrs;
   name CDATA #IMPLIED >
 
 <!ELEMENT definition-src EMPTY >
-<!ATTLIST definition-src 
+<!ATTLIST definition-src
   %stdAttrs;
   %xlinkRefAttrs;
   xlink:href %URI; #REQUIRED >
 
 
 <!-- ==============================================================
-     DECLARATIONS CORRESPONDING TO: Metadata 
+     DECLARATIONS CORRESPONDING TO: Metadata
      ============================================================== -->
 
 <!ENTITY % metadataExt "" >
@@ -1660,7 +1660,7 @@
 
 
 <!-- ==============================================================
-     DECLARATIONS CORRESPONDING TO: Extensibility 
+     DECLARATIONS CORRESPONDING TO: Extensibility
      ============================================================== -->
 
 <!ENTITY % foreignObjectExt "" >
