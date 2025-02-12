@@ -378,7 +378,7 @@ export class Game {
   addCommentaryDurations(powerName, durations) {
     if (!this.commentary_durations.hasOwnProperty(powerName))
       this.commentary_durations[powerName] = [];
-    
+
     this.commentary_durations[powerName].push(durations);
   }
 
