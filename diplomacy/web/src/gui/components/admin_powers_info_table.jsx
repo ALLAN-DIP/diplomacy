@@ -73,7 +73,7 @@ export class AdminPowersInfoTable extends React.Component {
         player
     ) {
         const wrapped = wrapper(row);
-        
+
         return (
             <tr key={rowIndex}>
                 {header.map((headerColumn, colIndex) => (

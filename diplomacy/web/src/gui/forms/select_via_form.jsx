@@ -42,4 +42,3 @@ SelectViaForm.propTypes = {
     onSelect: PropTypes.func.isRequired,
     onClose: PropTypes.func.isRequired
 };
-
