@@ -32,6 +32,10 @@ eslint:
 	cd diplomacy/web/ && \
 	npx eslint --ext js,jsx .
 
+.PHONY: precommit
+precommit:
+	pre-commit run --all-files
+
 .PHONY: pylint
 pylint:
 	find diplomacy -name "*.py" ! -name 'zzz_*.py' ! -name '_*.py' -exec pylint '{}' +
@@ -48,6 +52,7 @@ sphinx:
 
 .PHONY: check
 check:
+	$(MAKE) precommit
 	$(MAKE) pytest
 	# $(MAKE) pylint
 	$(MAKE) sphinx
