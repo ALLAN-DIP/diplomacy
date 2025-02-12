@@ -42,15 +42,12 @@ async def main():
     PARSER = argparse.ArgumentParser(description='Run server.')
     PARSER.add_argument('--port', '-p', type=int, default=default_port,
                         help='run on the given port (default: %s)' % default_port)
-    PARSER.add_argument('--daide-ports', '-d', type=str, default=default_daide_ports,
-                        help='run DAIDE servers on the given port range (default: %s)' % default_daide_ports)
     PARSER.add_argument('--server_dir', '-s', default=None,
                         help='Save game data and game save files in directory (Default CWD)')
     ARGS = PARSER.parse_args()
 
     try:
-        daide_ports = [int(p) for p in ARGS.daide_ports.split(":")]
-        Server(server_dir=ARGS.server_dir, daide_min_port=daide_ports[0], daide_max_port=daide_ports[1]).start(port=ARGS.port)
+        Server(server_dir=ARGS.server_dir).start(port=ARGS.port)
         print('Server started on port %s.' % ARGS.port)
 
         #tornado.ioloop.IOLoop.current().start()
@@ -61,6 +58,5 @@ async def main():
 
 if __name__ == '__main__':
     default_port = int(os.environ.get("SERVER_PORT", constants.DEFAULT_PORT))
-    default_daide_ports = os.environ.get("DAIDE_PORT_RANGE", constants.DEFAULT_DAIDE_PORT_RANGE)
     loop = asyncio.get_event_loop()
     loop.run_until_complete(main())

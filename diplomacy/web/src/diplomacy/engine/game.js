@@ -164,7 +164,6 @@ export class Game {
     this.registration_password = gameData.registration_password;
     this.observer_level = gameData.observer_level;
     this.controlled_powers = gameData.controlled_powers;
-    this.daide_port = gameData.daide_port;
     this.result = gameData.result || null;
     // represents stances from every power to every other power
     this.stances = gameData.stances;

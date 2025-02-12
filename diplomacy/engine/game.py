@@ -100,7 +100,6 @@ class Game(Jsonable):
       - Contains a dictionary of possible paths to reach destination from start or None
       - e.g. {start_loc: {dest_loc_1: [{fleets}, {fleets}, {fleets}], dest_loc_2: [{fleets, fleets}]}
 
-    - **daide_port**: *(for client games only)*. Port when a DAIDE bot can connect, to play with this game.
     - **deadline**: integer: game deadline in seconds.
     - **dislodged**: contains a dictionary of dislodged units (and the site that dislodged them').
       e.g. { 'A PAR': 'MAR' }
@@ -285,7 +284,6 @@ class Game(Jsonable):
         "_phase_wrapper_type",
         "phase_abbr",
         "_unit_owner_cache",
-        "daide_port",
         "fixed_state",
         "log_history",
         "logs",
@@ -307,7 +305,6 @@ class Game(Jsonable):
     rule_cache = ()
     model = {
         strings.CONTROLLED_POWERS: parsing.OptionalValueType(parsing.SequenceType(str)),
-        strings.DAIDE_PORT: parsing.OptionalValueType(int),
         strings.DEADLINE: parsing.DefaultValueType(int, 300),
         strings.ERROR: parsing.DefaultValueType(
             parsing.SequenceType(parsing.StringableType(err.Error)), []
@@ -444,7 +441,6 @@ class Game(Jsonable):
         self.registration_password = None
         self.observer_level = None
         self.controlled_powers = None
-        self.daide_port = None
         self.fixed_state = None
 
         self.stances = {}

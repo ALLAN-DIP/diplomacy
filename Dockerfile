@@ -45,8 +45,6 @@ COPY --from=app-builder /app/build /app/diplomacy/web/build
 EXPOSE 80
 # Agent API
 EXPOSE 8433
-# DAIDE server
-EXPOSE 8434-8600
 
 CMD ["sh", "-c", "python -m http.server 80 --directory diplomacy/web/build/ & python -m diplomacy.server.run"]
 

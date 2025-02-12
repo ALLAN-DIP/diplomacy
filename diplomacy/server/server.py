@@ -76,7 +76,6 @@ import ujson as json
 
 import diplomacy.settings
 from diplomacy.communication import notifications
-from diplomacy.daide.server import Server as DaideServer
 from diplomacy.server.connection_handler import ConnectionHandler
 from diplomacy.server.notifier import Notifier
 from diplomacy.server.scheduler import Scheduler
@@ -168,7 +167,6 @@ class InterruptionHandler():
             :param frame: frame received
         """
         if signum == signal.SIGINT:
-            self.server.stop_daide_server(None)
             self.server.backup_now(force=True)
             if self.previous_handler:
                 self.previous_handler(signum, frame)
@@ -198,8 +196,8 @@ class Server:
     """ Server class. """
     __slots__ = ['data_path', 'games_path', 'available_maps', 'maps_mtime', 'notifications',
                  'games_scheduler', 'allow_registrations', 'max_games', 'remove_canceled_games', 'users', 'games',
-                 'daide_servers', 'backup_server', 'backup_games', 'backup_delay_seconds', 'ping_seconds',
-                 'interruption_handler', 'backend', 'games_with_dummy_powers', 'dispatched_dummy_powers','server_dir', 'daide_min_port', 'daide_max_port']
+                 'backup_server', 'backup_games', 'backup_delay_seconds', 'ping_seconds',
+                 'interruption_handler', 'backend', 'games_with_dummy_powers', 'dispatched_dummy_powers','server_dir']
 
     # Servers cache.
     __cache__ = {}  # {absolute path of working folder => Server}
@@ -213,7 +211,7 @@ class Server:
             server = object.__new__(cls)
         return server
 
-    def __init__(self, server_dir=None, daide_min_port=8000, daide_max_port=8999, **kwargs):
+    def __init__(self, server_dir=None, **kwargs):
         """ Initialize the server.
             Server data is stored in folder ``<working directory>/data``.
 
@@ -235,9 +233,6 @@ class Server:
         self.data_path = os.path.join(server_dir, 'data')
         self.games_path = os.path.join(self.data_path, 'games')
         convoy_paths.set_server_dir(server_dir)
-        # DAIDE port range
-        self.daide_min_port = daide_min_port
-        self.daide_max_port = daide_max_port
 
         # Data in memory (not stored on disk).
         self.notifications = Queue()
@@ -271,9 +266,6 @@ class Server:
         # a couple of associated bot token and time when bot token was associated to this game ID.
         # If there is no bot token associated, couple is (None, None).
         self.dispatched_dummy_powers = {} # type: dict{str, tuple}
-
-        # DAIDE TCP servers listening to a game's dedicated port.
-        self.daide_servers = {}             # {port: daide_server}
 
         # Load data on memory.
         self._load()
@@ -440,10 +432,6 @@ class Server:
         # Send game updates to powers, observers and omniscient observers.
         yield notifier.notify_game_processed(server_game, previous_phase_data, current_phase_data)
 
-        # If game is completed, we must close associated DAIDE port.
-        if server_game.is_game_done:
-            self.stop_daide_server(server_game.game_id)
-
         # Game must be stopped if not active.
         return not server_game.is_game_active
 
@@ -516,7 +504,6 @@ class Server:
         self.backend.port = port
         self.set_tasks(io_loop)
         LOGGER.info('Running on port %d', self.backend.port)
-        LOGGER.info('Serving DAIDE on ports %d:%d', self.daide_min_port, self.daide_max_port)
         LOGGER.info('Writing server data to %s', self.server_dir)
         if not io_loop.asyncio_loop.is_running():
             io_loop.start()
@@ -668,7 +655,7 @@ class Server:
                 # This should be an internal server error.
                 raise exc
 
-    def add_new_game(self, server_game, daide_port=None):
+    def add_new_game(self, server_game):
         """ Add a new game data on server in memory and perform any addition processing.
             This does not save the game on disk.
 
@@ -676,8 +663,6 @@ class Server:
         """
         # Register game on memory.
         self.games[server_game.game_id] = server_game
-        # Start DAIDE server for this game.
-        self.start_new_daide_server(server_game.game_id, port=daide_port)
 
     def get_game(self, game_id):
         """ Return game saved on server matching given game ID.
@@ -696,8 +681,6 @@ class Server:
             self.register_dummy_power_names(server_game)
             # Register game on memory.
             self.games[server_game.game_id] = server_game
-            # Start DAIDE server for this game.
-            self.start_new_daide_server(server_game.game_id)
             # We have just loaded game from disk. Start it if necessary.
             if not server_game.start_master and server_game.has_expected_controls_count():
                 # We may have to start game.
@@ -730,8 +713,6 @@ class Server:
         self.backup_games.pop(server_game.game_id, None)
         self.games_with_dummy_powers.pop(server_game.game_id, None)
         self.dispatched_dummy_powers.pop(server_game.game_id, None)
-        # Stop DAIDE server associated to this game.
-        self.stop_daide_server(server_game.game_id)
 
     @gen.coroutine
     def schedule_game(self, server_game):
@@ -903,48 +884,3 @@ class Server:
     def get_map(self, map_name):
         """ Return map power names for given map name. """
         return self.available_maps.get(map_name, None)
-
-    def start_new_daide_server(self, game_id, port=8431):
-        """ Start a new DAIDE TCP server to handle DAIDE clients connections
-
-            :param game_id: game id to pass to the DAIDE server
-            :param port: the port to use. If None, an available random port will be used
-        """
-        while port in self.daide_servers:
-            port = randint(self.daide_min_port, self.daide_max_port)
-
-        for server in self.daide_servers.values():
-            if server.game_id == game_id:
-                return None
-
-        while port is None or is_port_opened(port):
-            port = randint(self.daide_min_port, self.daide_max_port)
-
-        # Create DAIDE TCP server
-        daide_server = DaideServer(self, game_id)
-        daide_server.listen(port)
-        self.daide_servers[port] = daide_server
-        LOGGER.info('DAIDE server running for game %s on port %d', game_id, port)
-        return port
-
-    def stop_daide_server(self, game_id):
-        """ Stop one or all DAIDE TCP server
-
-            :param game_id: game id of the DAIDE server. If None, all servers will be stopped
-            :type game_id: str
-        """
-        for port in list(self.daide_servers.keys()):
-            server = self.daide_servers[port]
-            if game_id is None or server.game_id == game_id:
-                server.stop()
-                del self.daide_servers[port]
-
-    def get_daide_port(self, game_id):
-        """ Get the DAIDE port opened for a specific game_id
-
-            :param game_id: game id of the DAIDE server.
-        """
-        for port, server in self.daide_servers.items():
-            if server.game_id == game_id:
-                return port
-        return None

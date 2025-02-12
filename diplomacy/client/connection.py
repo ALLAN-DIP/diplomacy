@@ -146,18 +146,6 @@ class Connection:
         request = requests.SignIn(username=username, password=password)
         return (yield self.send(request))
 
-    @gen.coroutine
-    def get_daide_port(self, game_id):
-        """ Send a :class:`.GetDaidePort` request.
-
-            :param game_id: game id for which to retrieve the DAIDE port.
-            :return: the game DAIDE port
-            :type game_id: str
-            :rtype: int
-        """
-        request = requests.GetDaidePort(game_id=game_id)
-        return (yield self.send(request))
-
     # ===================
     # Private Methods
     # ===================
