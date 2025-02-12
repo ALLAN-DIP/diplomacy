@@ -4,14 +4,6 @@ default:
 
 SHELL=/usr/bin/env bash
 
-.PHONY: black
-black:
-	pre-commit run --all-files black
-
-.PHONY: prettier
-prettier:
-	pre-commit run --all-files prettier
-
 .PHONY: precommit
 precommit:
 	pre-commit run --all-files
