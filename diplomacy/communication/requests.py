@@ -177,28 +177,6 @@ class _AbstractGameRequest(_AbstractChannelRequest):
 # Connection requests.
 # ====================
 
-class GetDaidePort(_AbstractRequest):
-    """ Public request to get DAIDE port opened for a game.
-
-        :param game_id: ID of game for which yu want to get DAIDE port
-        :type game_id: str
-        :return:
-
-            - Server: :class:`.DataPort`
-            - Client: int - DAIDE port
-
-        :raise diplomacy.utils.exceptions.DaidePortException: if there is no DAIDE port associated to given game ID.
-    """
-    __slots__ = ['game_id']
-    params = {
-        strings.GAME_ID: str
-    }
-
-    def __init__(self, **kwargs):
-        self.game_id = None
-        super(GetDaidePort, self).__init__(**kwargs)
-
-
 class SignIn(_AbstractRequest):
     """ Connection request. Log in or sign in to server.
 
@@ -258,7 +236,6 @@ class CreateGame(_AbstractChannelRequest):
         :param map_name: (default ``'standard'``) map to play on.
             You can retrieve maps available on server by sending request :class:`GetAvailableMaps`.
         :param rules: list of strings - game rules (for expert users).
-        :param daide_port: explicitly set daide port for a given game, default None -> random port
         :type game_id: str, optional
         :type n_controls: int, optional
         :type deadline: int, optional
@@ -267,7 +244,6 @@ class CreateGame(_AbstractChannelRequest):
         :type state: dict, optional
         :type map_name: str, optional
         :type rules: list, optional
-        :type daide_port: int, optional
         :return:
 
             - Server: :class:`.DataGame`
@@ -275,7 +251,7 @@ class CreateGame(_AbstractChannelRequest):
               game created and joined. Either a power game (if power name given) or an omniscient game.
     """
     __slots__ = ['game_id', 'power_name', 'state', 'map_name', 'rules', 'n_controls', 'deadline',
-                 'registration_password', 'daide_port', 'player_type']
+                 'registration_password', 'player_type']
     params = {
         strings.GAME_ID: parsing.OptionalValueType(str),
         strings.N_CONTROLS: parsing.OptionalValueType(int),
@@ -285,7 +261,6 @@ class CreateGame(_AbstractChannelRequest):
         strings.STATE: parsing.OptionalValueType(dict),
         strings.MAP_NAME: parsing.DefaultValueType(str, 'standard'),
         strings.RULES: parsing.OptionalValueType(parsing.SequenceType(str, sequence_builder=set)),
-        strings.DAIDE_PORT: parsing.OptionalValueType(int),
         strings.PLAYER_TYPE: parsing.OptionalValueType(str)
     }
 
@@ -298,7 +273,6 @@ class CreateGame(_AbstractChannelRequest):
         self.state = {}
         self.map_name = ''
         self.rules = set()
-        self.daide_port = None
         self.player_type = ''
         super(CreateGame, self).__init__(**kwargs)
 

@@ -8,7 +8,6 @@ services:
     ports:
       - 3000:80 # Web UI
       - 8433:8433 # Agent API
-      - 8434-8600:8434-8600 # DAIDE server
     environment:
       MAPS_TO_LOAD: ${MAPS_TO_LOAD}
       SERVER_PORT: 8433

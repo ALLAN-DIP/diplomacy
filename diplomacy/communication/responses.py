@@ -227,13 +227,6 @@ class DataGames(UniqueData):
         strings.DATA: parsing.SequenceType(parsing.JsonableClassType(DataGameInfo))
     }
 
-class DataPort(UniqueData):
-    """ Unique data containing a DAIDE port (integer). """
-    __slots__ = []
-    params = {
-        strings.DATA: int   # DAIDE port
-    }
-
 class DataTimeStamp(UniqueData):
     """ Unique data containing a timestamp (integer). """
     __slots__ = []

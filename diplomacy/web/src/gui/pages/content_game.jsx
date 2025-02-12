@@ -281,7 +281,6 @@ export class ContentGame extends React.Component {
                 ? game.status
                 : `${game.countControlledPowers()} / 7 |`;
         title += players;
-        //if (game.daide_port) title += ` | DAIDE ${game.daide_port}`;
         const remainingTime = game.deadline_timer;
         const remainingHour = Math.floor(remainingTime / 3600);
         const remainingMinute = Math.floor(

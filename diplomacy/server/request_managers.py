@@ -113,7 +113,7 @@ def on_create_game(server, request, connection_handler):
 
     # Check request token.
     verify_request(server, request, connection_handler)
-    game_id, token, power_name, state, daide_port = request.game_id, request.token, request.power_name, request.state, request.daide_port
+    game_id, token, power_name, state = request.game_id, request.token, request.power_name, request.state
     player_type = request.player_type
 
     # Check if server still accepts to create new games.
@@ -162,7 +162,7 @@ def on_create_game(server, request, connection_handler):
         server_game.promote_moderator(username)
 
     # Register game on server.
-    server.add_new_game(server_game, daide_port=daide_port)
+    server.add_new_game(server_game)
 
     # Register game creator, as either power player or omniscient observer.
     if power_name:
@@ -272,24 +272,6 @@ def on_get_available_maps(server, request, connection_handler):
     """
     verify_request(server, request, connection_handler)
     return responses.DataMaps(data=server.available_maps, request_id=request.request_id)
-
-
-def on_get_daide_port(server, request, connection_handler):
-    """ Manage request GetDaidePort.
-
-        :param server: server which receives the request.
-        :param request: request to manage.
-        :param connection_handler: connection handler from which the request was sent.
-        :return: None
-        :type server: diplomacy.Server
-        :type request: diplomacy.communication.requests.GetDaidePort
-    """
-    del connection_handler
-    daide_port = server.get_daide_port(request.game_id)
-    if daide_port is None:
-        raise exceptions.DaidePortException(
-            "Invalid game id %s or game's DAIDE server is not started for that game" % request.game_id)
-    return responses.DataPort(data=daide_port, request_id=request.request_id)
 
 
 def on_get_dummy_waiting_powers(server, request, connection_handler):
@@ -1359,7 +1341,6 @@ MAPPING = {
     requests.DeleteGame: on_delete_game,
     requests.GetAllPossibleOrders: on_get_all_possible_orders,
     requests.GetAvailableMaps: on_get_available_maps,
-    requests.GetDaidePort: on_get_daide_port,
     requests.GetDummyWaitingPowers: on_get_dummy_waiting_powers,
     requests.GetGamesInfo: on_get_games_info,
     requests.GetPhaseHistory: on_get_phase_history,

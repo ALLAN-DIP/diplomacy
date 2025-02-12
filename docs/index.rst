@@ -20,7 +20,6 @@ features:
 
 - Some integration interface to play with other server/client implementations, especially:
 
-  - a DAIDE server to play with DAIDE client bots
   - a webdiplomacy API to play with `webdiplomacy <http://webdiplomacy.net/>`_ server implementation
 
 .. toctree::
@@ -29,7 +28,6 @@ features:
 
    api/diplomacy.client
    api/diplomacy.communication
-   api/diplomacy.daide
    api/diplomacy.engine
    api/diplomacy.integration
    api/diplomacy.utils
