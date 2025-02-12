@@ -193,7 +193,6 @@ class ServerGame(Game):
         game.role = power_name
         game.controlled_powers = self.get_controlled_power_names(for_username)
         game.observer_level = self.get_observer_level(for_username)
-        game.daide_port = self.server.get_daide_port(self.game_id) if self.server else None
         return game
 
     def as_omniscient_game(self, for_username):
@@ -208,7 +207,6 @@ class ServerGame(Game):
         game.role = strings.OMNISCIENT_TYPE
         game.controlled_powers = self.get_controlled_power_names(for_username)
         game.observer_level = self.get_observer_level(for_username)
-        game.daide_port = self.server.get_daide_port(self.game_id) if self.server else None
         return game
 
     def as_observer_game(self, for_username):
@@ -225,7 +223,6 @@ class ServerGame(Game):
         game.role = strings.OBSERVER_TYPE
         game.controlled_powers = self.get_controlled_power_names(for_username)
         game.observer_level = self.get_observer_level(for_username)
-        game.daide_port = self.server.get_daide_port(self.game_id) if self.server else None
         return game
 
     def cast(self, role, for_username):
