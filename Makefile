@@ -24,7 +24,7 @@ endif
 
 .PHONY: pytest
 pytest:
-	pytest -v --forked -n auto diplomacy
+	pytest -v -n auto diplomacy
 
 .PHONY: check
 check:
