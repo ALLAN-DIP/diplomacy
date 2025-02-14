@@ -17,7 +17,7 @@ ENV NODE_OPTIONS=--openssl-legacy-provider
 
 RUN npm run build
 
-FROM python:3.7.17-alpine3.18 AS server
+FROM python:3.11.11-alpine3.21 AS server
 
 RUN apk upgrade --no-cache
 
