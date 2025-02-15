@@ -26,16 +26,18 @@ WORKDIR /app
 RUN pip install --no-cache-dir pip==24.0 \
     && pip uninstall --yes setuptools wheel
 
+# Install required packages
+COPY diplomacy/version.py diplomacy/version.py
+COPY pyproject.toml .
 COPY requirements-lock.txt .
+RUN pip install --no-cache-dir -e . -c requirements-lock.txt
 
-RUN pip install --no-cache-dir -r requirements-lock.txt
-
+# Copy remaining files
 COPY diplomacy/ diplomacy/
 COPY README.md .
-COPY setup.cfg .
-COPY setup.py .
 
-RUN pip install --no-cache-dir .
+# Re-install so `pip` stores all metadata properly
+RUN pip install --no-cache-dir --no-deps -e .
 
 COPY --from=app-builder /app/build /app/diplomacy/web/build
 
