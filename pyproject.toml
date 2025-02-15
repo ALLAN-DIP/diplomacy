@@ -1,0 +1,58 @@
+[build-system]
+requires = ["setuptools>=61.0.0"] # Minimum version that supports `pyproject.toml`
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "diplomacy"
+description = "Diplomacy: DATC-Compliant Game Engine with Web Interface"
+readme = "README.md"
+authors = [
+  { name = "Philip Paquette", email = "pcpaquette@gmail.com" },
+]
+keywords = [
+  "diplomacy",
+  "diplomacy-game",
+  "game",
+  "negotiation",
+]
+classifiers = [
+  "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Topic :: Games/Entertainment",
+  "Topic :: Games/Entertainment :: Board Games",
+]
+requires-python = ">=3.7"
+license = { text = "AGPL-3.0-or-later" }
+dependencies = [
+  "bcrypt",
+  "coloredlogs",
+  "python-dateutil",
+  "pytz",
+  "requests",
+  "setuptools",
+  "tornado>=5.0",
+  "tqdm",
+  "ujson",
+]
+dynamic = ["version"]
+
+[project.optional-dependencies]
+dev = [
+  "pylint>=2.3.0",
+  "pytest>=4.4.0",
+  "pytest-xdist",
+  "sphinx",
+  "sphinx_copybutton",
+  "sphinx_rtd_theme",
+]
+
+[project.urls]
+documentation = "https://diplomacy.readthedocs.io"
+homepage = "https://github.com/diplomacy/diplomacy"
+issues = "https://github.com/diplomacy/diplomacy/issues"
+source = "https://github.com/diplomacy/diplomacy"
+
+[tool.setuptools.dynamic]
+version = {attr = "diplomacy.version.PACKAGE_VERSION"}
