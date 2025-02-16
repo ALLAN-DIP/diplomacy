@@ -20,6 +20,7 @@ import PropTypes from "prop-types";
 
 export class Build extends React.Component {
     render() {
+        const opacity = (this.props?.opacity === undefined ? 1 : this.props?.opacity);
         const Coordinates = this.props.coordinates;
         const SymbolSizes = this.props.symbolSizes;
         const loc = this.props.loc;
@@ -31,7 +32,7 @@ export class Build extends React.Component {
 
         const symbol = unit_type === 'A' ? ARMY : FLEET;
         return (
-            <g>
+            <g opacity={opacity}>
                 <use x={build_loc_x}
                      y={build_loc_y}
                      height={SymbolSizes[build_symbol].height}
@@ -53,5 +54,6 @@ Build.propTypes = {
     loc: PropTypes.string.isRequired,
     powerName: PropTypes.string.isRequired,
     coordinates: PropTypes.object.isRequired,
-    symbolSizes: PropTypes.object.isRequired
+    symbolSizes: PropTypes.object.isRequired,
+    opacity: PropTypes.number
 };

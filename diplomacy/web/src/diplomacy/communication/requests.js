@@ -40,10 +40,12 @@ export const REQUESTS = {
             level: STRINGS.CHANNEL,
             model: {
                 game_id: null, n_controls: null, deadline: 300, registration_password: null,
-                power_name: null, state: null, map_name: 'standard', rules: null, player_type: null
+                power_name: null, state: null, map_name: 'standard', rules: null, player_type: null,
+                distribution_advice: {}
             }
         },
         delete_account: {level: STRINGS.CHANNEL, model: {username: null}},
+        get_order_distribution: {level: STRINGS.GAME, model: {power_name: null, province: null, model: null}},
         get_all_possible_orders: {level: STRINGS.GAME, model: {}},
         get_available_maps: {level: STRINGS.CHANNEL, model: {}},
         get_playable_powers: {level: STRINGS.CHANNEL, model: {game_id: null}},
