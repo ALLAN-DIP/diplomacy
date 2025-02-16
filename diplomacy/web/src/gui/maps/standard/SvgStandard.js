@@ -21,12 +21,12 @@ import React from "react";
 import PropTypes from "prop-types";
 import "./SvgStandard.css";
 import { Coordinates, SymbolSizes, Colors } from "./SvgStandardMetadata";
-import { getClickedID, parseLocation, setInfluence } from "../common/common";
+import { getClickedID, parseLocation, setInfluence, setInfluenceLightBackground } from "../common/common";
 import { Game } from "../../../diplomacy/engine/game";
 import { MapData } from "../../utils/map_data";
 import { UTILS } from "../../../diplomacy/utils/utils";
 import { Diplog } from "../../../diplomacy/utils/diplog";
-import { extendOrderBuilding } from "../../utils/order_building";
+import { extendOrderBuilding, ProvinceCheck, POSSIBLE_ORDERS } from "../../utils/order_building";
 import { Unit } from "../common/unit";
 import { Hold } from "../common/hold";
 import { Move } from "../common/move";
@@ -48,12 +48,97 @@ export class SvgStandard extends React.Component {
     onHover(event) {
         return this.handleHoverID(getClickedID(event));
     }
+
+    /**
+     * Update predictions for displaying the order distribution in the selected province
+     * @param orderBuilding
+     * @param {Province} province - province hovered upon
+     */
+    onPrediction(orderBuilding, province) {
+        const localGame = this.props.game; // Game Object
+        const phaseType = localGame.phase.slice(-1); // 'M'/'A'/'R' - movement/adjustment/retreat
+        const requestedPower = orderBuilding.power;
+        var requestedProvince = "";
+        const COUNTRIES = ["Austria", "England", "France", "Germany", "Italy", "Russia", "Turkey"];
+
+        /* Get correct naming of province*/
+        if (phaseType === "M") {
+            /* MOVEMENT PHASE */
+            for (const power of COUNTRIES) {
+                var occupiedProvince = province.getOccupied(power.toUpperCase());
+                if (occupiedProvince) {
+                    requestedProvince = occupiedProvince.name.toUpperCase();
+                    break;
+                }
+            }
+        } else if (phaseType === "R") {
+            /* RETREAT PHASE */
+            for (const power of COUNTRIES) {
+                var retreatProvince = province.getRetreated(power.toUpperCase());
+                if (retreatProvince) {
+                    requestedProvince = retreatProvince.retreatUnit.split(" ")[1];
+                    break;
+                }
+            }
+        } else {
+            /* ADJUSTMENT PHASE */
+            const orderTypes = POSSIBLE_ORDERS["A"];
+            const possibleOrders = this.props.game.ordersTree;
+            const orderableLocations = new Set();
+
+            for (const type of orderTypes) {
+                // get all possible orderable locations in the game tree
+                const orderTypeLocations = UTILS.javascript.getTreeValue(possibleOrders, type);
+                if (orderTypeLocations !== null) {
+                    orderTypeLocations.forEach((x) => {
+                        if (type === "D") {
+                            // x is a unit
+                            orderableLocations.add(x.split(" ")[1]);
+                        } else {
+                            // x is a province code
+                            orderableLocations.add(x);
+                        }
+                    });
+                }
+            }
+            const provinceNames = ProvinceCheck.any(province, null);
+            for (const n_x of provinceNames) {
+                if (orderableLocations.has(n_x)) {
+                    requestedProvince = n_x;
+                    break;
+                }
+            }
+        }
+        if (requestedProvince === "") {
+            this.props.onError(`No orderable locations at province ${province.name}`);
+            return this.props.onChangeOrderDistribution(requestedPower, null, null);
+        }
+
+        for (var orderDist of this.props.orderDistribution) {
+            if (orderDist.province === requestedProvince) {
+                return false; // advice is already displayed
+            }
+        }
+
+        this.props.onChangeOrderDistribution(
+            requestedPower,
+            requestedProvince,
+            this.props.distributionAdviceSetting?.model,
+        );
+        return true;
+    }
+
     handleClickedID(id) {
-        const orderBuilding = this.props.orderBuilding;
-        if (!orderBuilding.builder) return this.props.onError("No orderable locations.");
         const province = this.props.mapData.getProvince(id);
         if (!province) throw new Error(`Cannot find a province named ${id}`);
 
+        const orderBuilding = this.props.orderBuilding;
+        if (this.props.shiftKeyPressed) {
+            if (this.onPrediction(orderBuilding, province)) {
+                return;
+            }
+        }
+        if (!orderBuilding.builder) return this.props.onError("No orderable locations.");
         const stepLength = orderBuilding.builder.steps.length;
         if (orderBuilding.path.length >= stepLength)
             throw new Error(
@@ -177,6 +262,148 @@ export class SvgStandard extends React.Component {
         const neighbors = possibleNeighbors ? possibleNeighbors.map((neighbor) => parseLocation(neighbor)) : [];
         return neighbors.length ? neighbors : null;
     }
+
+    /**
+     * Copied and modified original logic in render() for rendering orders
+     * to render distribution advice order with specified opacity
+     * @param {string} order - Order string
+     * @param {string} powerName - Name of the power for this order
+     * @param {Game} game - Game object of the current game
+     * @param {float} opacity - The opacity of the current order
+     * @param {string} key - The keycode for react component to have unique key
+     * @returns renderComponents - Json object that stores the order component into the corresponding order rendering list
+     */
+    renderOrderFromDist(order, powerName, game, opacity, key) {
+        var renderComponents = {
+            renderedOrders: [],
+            renderedOrders2: [],
+            renderedHighestOrders: [],
+        };
+
+        const tokens = order.split(/ +/);
+        if (!tokens || tokens.length < 3) return renderComponents;
+
+        const unit_loc = tokens[1];
+        if (tokens[2] === "H") {
+            renderComponents.renderedOrders.push(
+                <Hold
+                    key={`${key}:${order}`}
+                    opacity={opacity}
+                    loc={unit_loc}
+                    powerName={powerName}
+                    coordinates={Coordinates}
+                    symbolSizes={SymbolSizes}
+                    colors={Colors}
+                />,
+            );
+        } else if (tokens[2] === "-") {
+            const destLoc = tokens[tokens.length - (tokens[tokens.length - 1] === "VIA" ? 2 : 1)];
+            renderComponents.renderedOrders.push(
+                <Move
+                    key={`${key}:${order}`}
+                    opacity={opacity}
+                    srcLoc={unit_loc}
+                    dstLoc={destLoc}
+                    powerName={powerName}
+                    phaseType={game.getPhaseType()}
+                    coordinates={Coordinates}
+                    symbolSizes={SymbolSizes}
+                    colors={Colors}
+                />,
+            );
+        } else if (tokens[2] === "S") {
+            const destLoc = tokens[tokens.length - 1];
+            if (tokens.includes("-")) {
+                const srcLoc = tokens[4];
+                renderComponents.renderedOrders2.push(
+                    <SupportMove
+                        key={`${key}:${order}`}
+                        opacity={opacity}
+                        loc={unit_loc}
+                        srcLoc={srcLoc}
+                        dstLoc={destLoc}
+                        powerName={powerName}
+                        coordinates={Coordinates}
+                        symbolSizes={SymbolSizes}
+                        colors={Colors}
+                    />,
+                );
+            } else {
+                renderComponents.renderedOrders2.push(
+                    <SupportHold
+                        key={`${key}:${order}`}
+                        opacity={opacity}
+                        loc={unit_loc}
+                        dstLoc={destLoc}
+                        powerName={powerName}
+                        coordinates={Coordinates}
+                        symbolSizes={SymbolSizes}
+                        colors={Colors}
+                    />,
+                );
+            }
+        } else if (tokens[2] === "C") {
+            const srcLoc = tokens[4];
+            const destLoc = tokens[tokens.length - 1];
+            if (srcLoc !== destLoc && tokens.includes("-")) {
+                renderComponents.renderedOrders2.push(
+                    <Convoy
+                        key={`${key}:${order}`}
+                        opacity={opacity}
+                        loc={unit_loc}
+                        srcLoc={srcLoc}
+                        dstLoc={destLoc}
+                        powerName={powerName}
+                        coordinates={Coordinates}
+                        colors={Colors}
+                        symbolSizes={SymbolSizes}
+                    />,
+                );
+            }
+        } else if (tokens[2] === "B") {
+            renderComponents.renderedHighestOrders.push(
+                <Build
+                    key={`${key}:${order}`}
+                    opacity={opacity}
+                    unitType={tokens[0]}
+                    loc={unit_loc}
+                    powerName={powerName}
+                    coordinates={Coordinates}
+                    symbolSizes={SymbolSizes}
+                />,
+            );
+        } else if (tokens[2] === "D") {
+            renderComponents.renderedHighestOrders.push(
+                <Disband
+                    key={`${key}:${order}`}
+                    opacity={opacity}
+                    loc={unit_loc}
+                    phaseType={game.getPhaseType()}
+                    coordinates={Coordinates}
+                    symbolSizes={SymbolSizes}
+                />,
+            );
+        } else if (tokens[2] === "R") {
+            const destLoc = tokens[3];
+            renderComponents.renderedOrders.push(
+                <Move
+                    key={`${key}:${order}`}
+                    opacity={opacity}
+                    srcLoc={unit_loc}
+                    dstLoc={destLoc}
+                    powerName={powerName}
+                    phaseType={game.getPhaseType()}
+                    coordinates={Coordinates}
+                    symbolSizes={SymbolSizes}
+                    colors={Colors}
+                />,
+            );
+        } else {
+            throw new Error(`Unknown error to render (${order}).`);
+        }
+        return renderComponents;
+    }
+
     render() {
         const classes = {
             _ank: "nopower",
@@ -316,11 +543,25 @@ export class SvgStandard extends React.Component {
                         />,
                     );
                 }
+
+                /* Modify classname to display light background */
+                for (let classKey of Object.keys(classes)) {
+                    if (classes.hasOwnProperty(classKey)) {
+                        if (
+                            classes[classKey] === "nopower" ||
+                            classes[classKey] === "water" ||
+                            classes[classKey] === "neutral"
+                        ) {
+                            classes[classKey] = `${classes[classKey]}light`;
+                        }
+                    }
+                }
+
                 for (let center of power.centers) {
-                    setInfluence(classes, mapData, center, power.name);
+                    setInfluenceLightBackground(classes, mapData, center, power.name);
                 }
                 for (let loc of power.influence) {
-                    if (!mapData.supplyCenters.has(loc)) setInfluence(classes, mapData, loc, power.name);
+                    if (!mapData.supplyCenters.has(loc)) setInfluenceLightBackground(classes, mapData, loc, power.name);
                 }
 
                 if (orders) {
@@ -442,6 +683,59 @@ export class SvgStandard extends React.Component {
                 }
             }
 
+        /* If can display visual distribution advice, push the corresponding advice order components for rendering */
+        if (this.props.orderDistribution && this.props.distributionAdviceSetting?.display_mode === "V") {
+            for (var provinceDistribution of this.props.orderDistribution) {
+                var orderDistribution = provinceDistribution.distribution;
+                var provincePower = provinceDistribution.power;
+                for (var order in orderDistribution) {
+                    if (orderDistribution.hasOwnProperty(order)) {
+                        const component = this.renderOrderFromDist(
+                            order,
+                            provincePower,
+                            game,
+                            orderDistribution[order].opacity,
+                            "P",
+                        );
+                        if (component.renderedOrders.length !== 0) {
+                            renderedOrders.push(component.renderedOrders[0]);
+                        } else if (component.renderedOrders2.length !== 0) {
+                            renderedOrders2.push(component.renderedOrders2[0]);
+                        } else if (component.renderedHighestOrders.length !== 0) {
+                            renderedHighestOrders.push(component.renderedHighestOrders[0]);
+                        }
+                    }
+                }
+            }
+        }
+
+        if (this.props.onShowHoverAdvice) {
+            for (const orderObj of this.props.onShowHoverAdvice) {
+                const component = this.renderOrderFromDist(orderObj.order, orderObj.power, game, 1, "H");
+                if (component.renderedOrders.length !== 0) {
+                    renderedOrders.push(component.renderedOrders[0]);
+                } else if (component.renderedOrders2.length !== 0) {
+                    renderedOrders2.push(component.renderedOrders2[0]);
+                } else if (component.renderedHighestOrders.length !== 0) {
+                    renderedHighestOrders.push(component.renderedHighestOrders[0]);
+                }
+            }
+        }
+
+        /** For textual advice, user is able to show or hide an advice order*/
+        if (this.props.onShowVisibleAdvice) {
+            for (const orderObj of this.props.onShowVisibleAdvice) {
+                const component = this.renderOrderFromDist(orderObj.order, orderObj.power, game, 1, "V");
+                if (component.renderedOrders.length !== 0) {
+                    renderedOrders.push(component.renderedOrders[0]);
+                } else if (component.renderedOrders2.length !== 0) {
+                    renderedOrders2.push(component.renderedOrders2[0]);
+                } else if (component.renderedHighestOrders.length !== 0) {
+                    renderedHighestOrders.push(component.renderedHighestOrders[0]);
+                }
+            }
+        }
+
         if (this.props.orderBuilding && this.props.orderBuilding.path.length) {
             const clicked = parseLocation(this.props.orderBuilding.path[0]);
             const province = this.props.mapData.getProvince(clicked);
@@ -468,7 +762,7 @@ export class SvgStandard extends React.Component {
 
         // prettier-ignore
         return (
-            <svg className="SvgStandard" colorRendering="optimizeQuality" height="680px" preserveAspectRatio="xMinYMin" viewBox="0 0 1835 1360" width="918px" xmlns="http://www.w3.org/2000/svg">
+            <svg className="SvgStandard noselect" colorRendering="optimizeQuality" height="680px" preserveAspectRatio="xMinYMin" viewBox="0 0 1835 1360" width="918px" xmlns="http://www.w3.org/2000/svg">
                 <defs>
                     <symbol id="WaivedBuild" overflow="visible" viewBox="0 0 100 100">
                         <linearGradient gradientUnits="userSpaceOnUse" id="symWBGradient" x1="15" x2="100" y1="100" y2="10">
@@ -933,5 +1227,11 @@ SvgStandard.propTypes = {
     onOrderBuilt: PropTypes.func,
     orderBuilding: PropTypes.object,
     showAbbreviations: PropTypes.bool,
+    onChangeOrderDistribution: PropTypes.func,
+    orderDistribution: PropTypes.array,
+    distributionAdviceSetting: PropTypes.object,
+    shiftKeyPressed: PropTypes.bool,
+    onShowHoverAdvice: PropTypes.array,
+    onShowVisibleAdvice: PropTypes.array,
 };
 // eslint-disable-line semi
