@@ -49,6 +49,9 @@ export const RESPONSE_MANAGERS = {
     delete_game: function (context, response) {
         context.deleteGame();
     },
+    get_order_distribution: function (context, response){
+        return response.data;
+    },
     get_phase_history: function (context, response) {
         for (let phaseData of response.data) {
             context.game.local.extendPhaseHistory(phaseData);

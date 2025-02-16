@@ -174,7 +174,7 @@ export const ORDER_BUILDER = {
     F: {
         name: 'build fleet (F)',
         steps: [ProvinceCheck.any]
-    },
+    }
 };
 
 export const POSSIBLE_ORDERS = {

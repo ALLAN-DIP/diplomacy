@@ -169,6 +169,24 @@ export class ContentGame extends React.Component {
             }
         }
         this.schedule_timeout_id = null;
+
+        // For each power, track type of distribution advice ('N'-none, 'V'-visual, 'T'-textual)
+        // and model name
+        this.distribution_advice = {
+            'AUSTRIA': {}, // { display_mode: 'N'/'V'/'T', model: str }
+            'ENGLAND': {},
+            'FRANCE': {},
+            'GERMANY': {},
+            'ITALY': {},
+            'RUSSIA': {},
+            'TURKEY': {}
+        }
+        for (const power in this.props.data.distribution_advice){
+            if (!this.props.data.distribution_advice.hasOwnProperty(power))
+                continue
+            this.distribution_advice[power] = this.props.data.distribution_advice[power]
+        }
+
         this.state = {
             tabMain: null,
             tabPastMessages: null,
@@ -178,6 +196,10 @@ export class ContentGame extends React.Component {
             historyShowOrders: true,
             historyCurrentLoc: null,
             historyCurrentOrders: null,
+            distributionAdviceSetting: {}, // { display_mode: 'N'/'V'/'T', model: str } where 'N'-none, 'V'-visual, 'T'-textual
+            orderDistribution: [], // [{ power: str, distribution: {order => {opacity: float, rank: int, pred_prob: float},...} },...]
+            hoverDistributionOrder: [], // [ { order: str, power: str },... ]
+            visibleDistributionOrder: [],
             orders: orders, // {power name => {loc => {local: bool, order: str}}}
             power: null,
             orderBuildingType: null,
@@ -214,6 +236,7 @@ export class ContentGame extends React.Component {
         };
 
         // Bind some class methods to this instance.
+        this.onChangeOrderDistribution = this.onChangeOrderDistribution.bind(this);
         this.clearOrderBuildingPath = this.clearOrderBuildingPath.bind(this);
         this.displayFirstPastPhase = this.displayFirstPastPhase.bind(this);
         this.displayLastPastPhase = this.displayLastPastPhase.bind(this);
@@ -516,8 +539,12 @@ export class ContentGame extends React.Component {
                     this.reloadDeadlineTimer(networkGame);
                     return this.setState({
                         orders: null,
+                        hoverOrders: [],
                         messageHighlights: {},
                         orderBuildingPath: [],
+                        orderDistribution: [],
+                        hoverDistributionOrder: [],
+                        visibleDistributionOrder: [],
                         hasInitialOrders: false,
                         hoverOrders: [],
                     }).then(() =>
@@ -662,11 +689,68 @@ export class ContentGame extends React.Component {
 
     // ]
 
+    /**
+     * Handler to retrieve model prediction and update current state distribution advice
+     * @param {string} requestedPower  - power requesting the advice
+     * @param {string} requestedProvince - province to get advice for
+     */
+    onChangeOrderDistribution(requestedPower, requestedProvince, model){
+        if (this.state.distributionAdviceSetting?.display_mode === "N" || this.state.distributionAdviceSetting?.display_mode === undefined){
+            return;
+        }
+        if (requestedProvince === undefined || requestedProvince === null){
+            return;
+        }
+        // communicate with server to get model prediction
+        this.props.data.client.getOrderDistribution({ power_name: requestedPower, province: requestedProvince, model: model }).then(res => {
+            if (res.hasOwnProperty("error")){
+                this.getPage().error(res.error);
+            }
+            else{
+                // successfully retrieves and updates order distribution
+                if (this.state.distributionAdviceSetting?.display_mode === "T"){
+                    this.setState({ orderDistribution: [ { power: res.power, distribution: res.preds, province: requestedProvince } ] });
+                }
+                else{
+                    let prevOrderDistribution = this.state.orderDistribution;
+                    let updatedOrderDistribution = []
+                    for (var orderDist of prevOrderDistribution){
+                        if (orderDist.province !== requestedProvince){
+                            updatedOrderDistribution.push(orderDist)
+                        }
+                    }
+                    updatedOrderDistribution.push({ power: res.power, distribution: res.preds, province: requestedProvince });
+                    this.setState({ orderDistribution: updatedOrderDistribution });
+                }
+
+            }
+        });
+    }
+
+    /**
+     * Search for order in a json object order list
+     * @param {array} orderArr  - [ { order: str, power: str },... ]
+     * @param {string} order - order
+     */
+    includeOrder(orderArr, order){
+        for (var orderObj of orderArr){
+            if (orderObj.order === order){
+                return true;
+            }
+        }
+        return false;
+    }
+
+
     onChangeCurrentPower(event) {
         return this.setState({
             power: event.target.value,
             tabPastMessages: null,
             tabCurrentMessages: null,
+            distributionAdviceSetting: this.distribution_advice.hasOwnProperty(event.target.value) ? this.distribution_advice[event.target.value] : {},
+            orderDistribution: [],
+            hoverDistributionOrder: [],
+            visibleDistributionOrder: []
         });
     }
 
@@ -2144,6 +2228,7 @@ export class ContentGame extends React.Component {
         for (let oo of this.state.hoverOrders) {
             orders[powerName].push(oo);
         }
+
         return (
             <div id="current-map" key="current-map">
                 <Map
@@ -2164,6 +2249,12 @@ export class ContentGame extends React.Component {
                     onOrderBuilding={this.onOrderBuilding}
                     onOrderBuilt={this.onOrderBuilt}
                     orders={orders}
+                    shiftKeyPressed={this.state.shiftKeyPressed}
+                    onChangeOrderDistribution={this.onChangeOrderDistribution}
+                    orderDistribution={this.state.orderDistribution}
+                    distributionAdviceSetting={this.state.distributionAdviceSetting}
+                    onShowVisibleAdvice={this.state.visibleDistributionOrder}
+                    onShowHoverAdvice={this.state.hoverDistributionOrder}
                     onSelectLocation={this.onSelectLocation}
                     onSelectVia={this.onSelectVia}
                 />
@@ -2760,6 +2851,7 @@ export class ContentGame extends React.Component {
 
         let fullSuggestionComponent = null;
         let partialSuggestionComponent = null;
+        let distributionSuggestionComponent = null;
 
         if (latestMoveSuggestionFull) {
             const fullSuggestionMessages = latestMoveSuggestionFull.moves.map(
@@ -3039,7 +3131,101 @@ export class ContentGame extends React.Component {
             );
         }
 
-        if (!this.hasSuggestionType(suggestionType, UTILS.SuggestionType.MOVE)) {
+        if (this.state.distributionAdviceSetting?.display_mode === "T"
+            && this.state.orderDistribution.length > 0){
+            /** render messages that outlines the probability of all possible orders for a selected province*/
+            var orderDistribution = this.state.orderDistribution[0]
+            var distributionMoves = new Array(Object.keys(orderDistribution.distribution).length);
+            for (var order in orderDistribution.distribution){
+                if (! orderDistribution.distribution.hasOwnProperty(order)){
+                    continue;
+                }
+                distributionMoves[orderDistribution.distribution[order].rank] = `${order}: ${(orderDistribution.distribution[order].pred_prob*100.0).toFixed(2)}%`;
+            }
+            const distributionMessages = distributionMoves.map((move) => {
+                return (
+                    /** reused the component structure used by the full suggestion/partial suggestion components*/
+                    <div
+                        style={{
+                            display: "flex",
+                            alignItems: "flex-end",
+                        }}
+                        onMouseEnter={() => {
+                            let newMove = move.split(":")[0];
+                            this.setState( { hoverDistributionOrder: [{ order: newMove, power: this.state.orderDistribution[0].power }] });
+                        }}
+                        onMouseLeave={() => {
+                            this.setState({ hoverDistributionOrder: [] });
+                        }}
+                    >
+                        <ChatMessage
+                            style={{ flexGrow: 1 }}
+                            model={{
+                                message: move,
+                                direction: "incoming",
+                                position: "single",
+                            }}
+                        ></ChatMessage>
+                        <div
+                        style={{
+                            flexGrow: 0,
+                            flexShrink: 0,
+                            display: "flex",
+                            alignItems: "flex-end",
+                            gap: 3
+                        }}
+                        >
+                            <Button
+                                key={"a"}
+                                pickEvent={true}
+                                title={"accept"}
+                                color={"success"}
+                                onClick={() => {
+                                    if (move.indexOf('NOORDER') === -1){
+                                        this.onOrderBuilt(
+                                            currentPowerName,
+                                            move.split(":")[0]
+                                        );
+                                    }
+                                }}
+                                invisible={!(isCurrent && (this.state.orderDistribution[0].power === this.getCurrentPowerName()))}
+                            ></Button>
+
+                            <Button
+                                key={"v"}
+                                pickEvent={true}
+                                title={this.includeOrder(this.state.visibleDistributionOrder, move.split(":")[0]) ? "hide" : "show"}
+                                color={this.includeOrder(this.state.visibleDistributionOrder, move.split(":")[0]) ? "secondary": "info"}
+                                onClick={() => {
+                                    const newMove = move.split(":")[0];
+                                    var prevVisibleDistributionOrder = this.state.visibleDistributionOrder
+                                    var newVisibleDistributionOrder = []
+                                    for (var orderObj of prevVisibleDistributionOrder){
+                                        if (orderObj.order !== newMove){
+                                            newVisibleDistributionOrder.push(orderObj);
+                                        }
+                                    }
+                                    if (!this.includeOrder(prevVisibleDistributionOrder, newMove)){
+                                        newVisibleDistributionOrder.push({ order: newMove, power: this.state.orderDistribution[0].power });
+                                    }
+                                    this.setState({ visibleDistributionOrder: newVisibleDistributionOrder });
+                                }}
+                                invisible={!(isCurrent)}
+                            ></Button>
+                        </div>
+                    </div>
+                );
+            })
+
+            distributionSuggestionComponent = (
+                <div>
+                    {distributionMessages}
+                </div>
+            )
+        }
+
+        if (!(this.hasSuggestionType(suggestionType, UTILS.SuggestionType.MOVE) ||
+                (this.state.distributionAdviceSetting?.display_mode === "T"))) {
             return null;
         }
 
@@ -3080,6 +3266,7 @@ export class ContentGame extends React.Component {
                         <MessageList>
                             {fullSuggestionComponent}
                             {partialSuggestionComponent}
+                            {distributionSuggestionComponent}
                         </MessageList>
                     </ChatContainer>
             </div>
@@ -3352,6 +3539,9 @@ export class ContentGame extends React.Component {
                     allowedPowerOrderTypes,
                     phaseType
                 );
+            }
+            this.state.distributionAdviceSetting = this.distribution_advice[currentPowerName]
+            if (allowedPowerOrderTypes.length) {
                 if (
                     this.state.orderBuildingType &&
                     allowedPowerOrderTypes.includes(
@@ -3622,8 +3812,18 @@ export class ContentGame extends React.Component {
         if (this.props.data.client)
             this.reloadDeadlineTimer(this.props.data.client);
         this.props.data.displayed = true;
-        // Try to prevent scrolling when pressing keys Home and End.
+
         document.onkeydown = (event) => {
+            if (event.key.toLowerCase() === "shift"){
+                this.setState({
+                    shiftKeyPressed: true,
+                    orderDistribution: [],
+                    hoverDistributionOrder: [],
+                    visibleDistributionOrder: []
+                })
+            }
+
+            // Try to prevent scrolling when pressing keys Home and End.
             if (["home", "end"].includes(event.key.toLowerCase())) {
                 // Try to prevent scrolling.
                 if (event.hasOwnProperty("cancelBubble"))
@@ -3639,6 +3839,17 @@ export class ContentGame extends React.Component {
         this.setState({
             lastSwitchPanelTime: Date.now(),
         })
+
+        document.onkeyup = (event) => {
+            if (event.key.toLowerCase() === "shift"){
+                this.setState({
+                    shiftKeyPressed: false,
+                    orderDistribution: [],
+                    hoverDistributionOrder: [],
+                    visibleDistributionOrder: []
+                })
+            }
+        }
     }
 
     componentDidUpdate() {
