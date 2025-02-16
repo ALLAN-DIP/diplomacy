@@ -16,6 +16,7 @@
 # ==============================================================================
 """ Some strings frequently used (to help prevent typos). """
 
+DISTRIBUTION_ADVICE='distribution_advice'
 ABBREV = 'abbrev'
 ACTIVE = 'active'
 ADJUST = 'adjust'

@@ -20,6 +20,7 @@ import PropTypes from "prop-types";
 
 export class SupportMove extends React.Component {
     render() {
+        const opacity = (this.props?.opacity === undefined ? 1 : this.props?.opacity);
         const Coordinates = this.props.coordinates;
         const SymbolSizes = this.props.symbolSizes;
         const Colors = this.props.colors;
@@ -38,7 +39,7 @@ export class SupportMove extends React.Component {
         dest_loc_x = '' + Math.round((parseFloat(src_loc_x) + (vector_length - delta_dec) / vector_length * delta_x) * 100.) / 100.;
         dest_loc_y = '' + Math.round((parseFloat(src_loc_y) + (vector_length - delta_dec) / vector_length * delta_y) * 100.) / 100.;
         return (
-            <g>
+            <g opacity={opacity}>
                 <path className={'shadowdash'}
                       d={`M ${loc_x},${loc_y} C ${src_loc_x},${src_loc_y} ${src_loc_x},${src_loc_y} ${dest_loc_x},${dest_loc_y}`}/>
                 <path className={'supportorder'}
@@ -57,5 +58,6 @@ SupportMove.propTypes = {
     powerName: PropTypes.string.isRequired,
     coordinates: PropTypes.object.isRequired,
     symbolSizes: PropTypes.object.isRequired,
-    colors: PropTypes.object.isRequired
+    colors: PropTypes.object.isRequired,
+    opacity: PropTypes.number
 };

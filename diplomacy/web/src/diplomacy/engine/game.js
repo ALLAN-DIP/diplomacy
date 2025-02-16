@@ -227,6 +227,7 @@ export class Game {
     // {loc => order type}
     this.orderableLocToTypes = null;
     this.client = null; // Used as pointer to a NetworkGame.
+    this.distribution_advice = gameData.distribution_advice ? gameData?.distribution_advice : {};
   }
 
   get n_players() {

@@ -34,6 +34,18 @@ export function setInfluence(classes, mapData, loc, power_name) {
     classes[id] = power_name ? power_name.toLowerCase() : 'nopower';
 }
 
+export function setInfluenceLightBackground(classes, mapData, loc, power_name) {
+    const province = mapData.getProvince(loc);
+    if (!province)
+        throw new Error(`Unable to find province ${loc}`);
+    if (!['LAND', 'COAST'].includes(province.type))
+        return;
+    const id = province.getID(classes);
+    if (!id)
+        throw new Error(`Unable to find SVG path for loc ${id}`);
+    classes[id] = power_name ? `${power_name.toLowerCase()}light` : 'nopowerlight';
+}
+
 export function getClickedID(event) {
     let node = event.target;
     if (!node.id && node.parentNode.id && node.parentNode.tagName === 'g')
