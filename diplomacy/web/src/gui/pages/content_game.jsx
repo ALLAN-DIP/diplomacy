@@ -55,6 +55,7 @@ import { default as Tabs2 } from "@mui/material/Tabs";
 import { default as Tab2 } from "@mui/material/Tab";
 import Box from "@mui/material/Box";
 import Badge from "@mui/material/Badge";
+import Switch from "@mui/material/Switch";
 
 import {
     MainContainer,
@@ -971,7 +972,10 @@ export class ContentGame extends React.Component {
             .then(() => {
                 page.success("Game processed.");
                 this.props.data.clearInitialOrders();
-                return this.setState({ hasInitialOrders: false, hoverOrders: [] });
+                return this.setState({
+                    hasInitialOrders: false,
+                    hoverOrders: [],
+                });
             })
             .catch((err) => {
                 page.error(err.toString());
@@ -1098,7 +1102,7 @@ export class ContentGame extends React.Component {
             if (!UTILS.javascript.count(orders[powerName]))
                 orders[powerName] = null;
             this.__store_orders(orders);
-            await this.setState({ orders: orders, hoverOrders: [], });
+            await this.setState({ orders: orders, hoverOrders: [] });
         }
         this.setOrders();
     }
@@ -1119,7 +1123,7 @@ export class ContentGame extends React.Component {
             this.sendOrderLog(engine.client, "clear", null);
             allOrders[currentPowerName] = null;
             this.__store_orders(allOrders);
-            await this.setState({ orders: allOrders, hoverOrders: [], });
+            await this.setState({ orders: allOrders, hoverOrders: [] });
         }
         this.setOrders();
     }
@@ -3169,7 +3173,8 @@ export class ContentGame extends React.Component {
 
         return (
             <div className={"col-2 mb-4"}>
-                <div>Get
+                <div>
+                    Get
                     <select name={"stance"} id={"stance"}>
                         <option value={"F"}>friendly</option>
                         <option value={"H"}>hostile</option>
@@ -3180,22 +3185,27 @@ export class ContentGame extends React.Component {
                             <option value={tabName}>{tabName}</option>
                         ))}
                     </select>
-                    <Button 
+                    <Button
                         title={UTILS.html.UNICODE_RIGHT_ARROW}
                         color={"primary"}
                         onClick={() => {
-                            console.log(`${document.getElementById("toPower").value} with stance ${document.getElementById("stance").value}`);
-                            this.sendLogData(engine.client, `STANCE:${document.getElementById("stance").value}:${document.getElementById("toPower").value}`);
+                            console.log(
+                                `${
+                                    document.getElementById("toPower").value
+                                } with stance ${
+                                    document.getElementById("stance").value
+                                }`
+                            );
+                            this.sendLogData(
+                                engine.client,
+                                `STANCE:${
+                                    document.getElementById("stance").value
+                                }:${document.getElementById("toPower").value}`
+                            );
                         }}
-                    >
-                    </Button>
+                    ></Button>
                 </div>
-                {suggestionType === null && (
-                    <div>
-                        We haven't assigned advisors yet / No advisor for this
-                        year
-                    </div>
-                )}
+                {suggestionType === null && <div>No advice for this turn</div>}
                 {suggestionType !== null && suggestionType === 0 && (
                     <div>You are on your own this turn.</div>
                 )}
