@@ -384,14 +384,6 @@ def to_json_string(dictionary):
     return json.dumps(dictionary).replace(r'\/', r'/')
 
 
-def minify(code):
-    """ Minifyies a Javascript / CSS file """
-    code = LINES_REGEX.sub(' ', code)
-    code = SPACES_REGEX.sub(' ', code)
-    code = STRING_REGEX.sub(' ', code)
-    return code
-
-
 def main():
     """ Main script function. """
     parser = argparse.ArgumentParser(
@@ -424,7 +416,7 @@ def main():
             style_file.write(LICENSE_TEXT)
             style_file.write('\n')
             style_file.writelines(
-                minify(prepend_css_selectors('.%s' % class_name, '\n'.join(data.style_lines))))
+                prepend_css_selectors('.%s' % class_name, '\n'.join(data.style_lines)))
             style_file.write('\n')
 
     # Metadata
@@ -809,7 +801,7 @@ export class %(classname)s extends React.Component {
     # Adding license and minifying
     map_js_code = LICENSE_TEXT \
                   + '\n/** Generated with parameters: %s **/\n' % args \
-                  + minify(map_js_code) \
+                  + map_js_code \
                   + '// eslint-disable-line semi'
 
     # Writing to disk
