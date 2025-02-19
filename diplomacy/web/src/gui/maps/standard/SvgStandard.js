@@ -348,7 +348,7 @@ export class SvgStandard extends React.Component {
                         throw new Error('Unknown neighbor province ' + neighbor);
                     const neighborID = neighborProvince.getID(classes);
                     if (!neighborID)
-                        throw new Error(`Unknown neoghbor path (${neighborID}) for province (${neighbor}).`);
+                        throw new Error(`Unknown neighbor path (${neighborID}) for province (${neighbor}).`);
                     classes[neighborID] = neighborProvince.isWater() ? 'provinceBlue' : 'provinceGreen';
                 }
             }
