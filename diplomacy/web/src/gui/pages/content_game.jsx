@@ -1960,7 +1960,7 @@ export class ContentGame extends React.Component {
 
             if (dir === "incoming") {
                 // if is a daide proposal
-                if (msg.type && msg.type === "daide") {
+                if (msg.type && msg.type === "daide" && !msg.message.startsWith("REJ") && !msg.message.startsWith("YES")) {
                     renderedMessages.push(
                         <Row style={{}} id={`${messageId}-row`}>
                             <Button
