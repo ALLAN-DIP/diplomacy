@@ -376,6 +376,14 @@ class Notifier:
                                                                      message=game_message))
 
     @gen.coroutine
+    def notify_game_log(self, server_game, log):
+        for game_role, token in server_game.get_omniscient_addresses():
+            yield self._notify(notifications.LogDataReceived(token=token,
+                                                             game_id=server_game.game_id,
+                                                             game_role=game_role,
+                                                             log=log))
+
+    @gen.coroutine
     def notify_game_addresses(self, game_id, addresses, notification_class, **kwargs):
         """ Notify addresses of a game with a notification.
             Game ID is automatically provided to notification.

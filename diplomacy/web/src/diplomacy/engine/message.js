@@ -28,6 +28,7 @@ export class Message {
         this.truth = message.truth;
         this.recipient_annotation = message.recipient_annotation;
         this.type = message.type;
+        this.daide = message.daide;
     }
 
     isGlobal() {
