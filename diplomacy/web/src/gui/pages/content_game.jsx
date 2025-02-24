@@ -536,6 +536,7 @@ export class ContentGame extends React.Component {
                         messageHighlights: {},
                         orderBuildingPath: [],
                         hasInitialOrders: false,
+                        hoverOrders: [],
                         stances: {},
                         hoverOrders: [],
                     }).then(() =>
@@ -1911,6 +1912,14 @@ export class ContentGame extends React.Component {
                     src={POWER_ICONS[protagonist]}
                     name={protagonist}
                     size="sm"
+                    status={
+                        isAdmin && protagonist !== "GLOBAL"
+                            ? engine.powers[protagonist].getCommStatus() ===
+                              STRINGS.READY
+                                ? "available"
+                                : "dnd"
+                            : null
+                    }
                 />
             </Conversation>
         ));
@@ -1965,7 +1974,7 @@ export class ContentGame extends React.Component {
 
             if (dir === "incoming") {
                 // if is a daide proposal
-                if (msg.type && msg.type === "daide") {
+                if (msg.type && msg.type === "daide" && !msg.message.startsWith("REJ") && !msg.message.startsWith("YES")) {
                     renderedMessages.push(
                         <Row style={{}} id={`${messageId}-row`}>
                             <Button
@@ -2685,6 +2694,7 @@ export class ContentGame extends React.Component {
                                                                 )
                                                                     ? "flex"
                                                                     : "none",
+                                                            marginBottom: "2px",
                                                         }}
                                                     >
                                                         <ChatMessage
@@ -2707,6 +2717,7 @@ export class ContentGame extends React.Component {
                                                         ></ChatMessage>
                                                         <div
                                                             style={{
+                                                                flexDirection: "column",
                                                                 flexGrow: 0,
                                                                 flexShrink: 0,
                                                                 display: "flex",
@@ -3177,39 +3188,11 @@ export class ContentGame extends React.Component {
 
         return (
             <div className={"col-2 mb-4"}>
-                <div>
-                    Get
-                    <select name={"stance"} id={"stance"}>
-                        <option value={"F"}>friendly</option>
-                        <option value={"H"}>hostile</option>
-                    </select>
-                    advice toward
-                    <select name={"toPower"} id={"toPower"}>
-                        {tabNames.map((tabName) => (
-                            <option value={tabName}>{tabName}</option>
-                        ))}
-                    </select>
-                    <Button
-                        title={UTILS.html.UNICODE_RIGHT_ARROW}
-                        color={"primary"}
-                        onClick={() => {
-                            console.log(
-                                `${
-                                    document.getElementById("toPower").value
-                                } with stance ${
-                                    document.getElementById("stance").value
-                                }`
-                            );
-                            this.sendLogData(
-                                engine.client,
-                                `STANCE:${
-                                    document.getElementById("stance").value
-                                }:${document.getElementById("toPower").value}`
-                            );
-                        }}
-                    ></Button>
-                </div>
-                {suggestionType === null && <div>No advice for this turn</div>}
+                {suggestionType === null && (
+                    <div>
+                        No advice for this turn
+                    </div>
+                )}
                 {suggestionType !== null && suggestionType === 0 && (
                     <div>You are on your own</div>
                 )}
