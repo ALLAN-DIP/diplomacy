@@ -2337,6 +2337,10 @@ class Game(Jsonable):
             self.zobrist_hash ^= zobrist["unit_type"][unit_type_ix][loc_ix]
             self.zobrist_hash ^= zobrist["units"][power_ix][loc_ix]
 
+    def get_logs(self):
+        """Returns the logs for the current game"""
+        return self.logs
+
     def get_phase_data(self):
         """Return a GamePhaseData object representing current game."""
         # Associate each power name to power orders, or None if order ist not set for the power.

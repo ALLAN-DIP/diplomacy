@@ -784,7 +784,7 @@ class Server:
         """
         if server_game.is_game_active and (
                 server_game.count_controlled_powers() < server_game.get_expected_controls_count()):
-
+            
             stop_game = False
 
             for power in server_game.powers.values():

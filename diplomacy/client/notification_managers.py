@@ -120,6 +120,9 @@ def on_game_message_received(game, notification):
     """
     Game.add_message(game, notification.message)
 
+def on_log_data_received(game, notification):
+    Game.add_log(game, notification.log)
+
 def on_game_processed(game, notification):
     """ Manage notification GamePhaseUpdate (for omniscient and observer games).
 
@@ -261,6 +264,7 @@ MAPPING = {
     notifications.ClearedUnits: on_cleared_units,
     notifications.GameDeleted: on_game_deleted,
     notifications.GameMessageReceived: on_game_message_received,
+    notifications.LogDataReceived: on_log_data_received,
     notifications.GameProcessed: on_game_processed,
     notifications.GamePhaseUpdate: on_game_phase_update,
     notifications.GameStatusUpdate: on_game_status_update,

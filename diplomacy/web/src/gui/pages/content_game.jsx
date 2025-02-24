@@ -55,6 +55,7 @@ import { default as Tabs2 } from "@mui/material/Tabs";
 import { default as Tab2 } from "@mui/material/Tab";
 import Box from "@mui/material/Box";
 import Badge from "@mui/material/Badge";
+import Switch from "@mui/material/Switch";
 
 import {
     MainContainer,
@@ -537,6 +538,7 @@ export class ContentGame extends React.Component {
                         hasInitialOrders: false,
                         hoverOrders: [],
                         stances: {},
+                        hoverOrders: [],
                     }).then(() =>
                         this.getPage().info(
                             `Game update (${notification.name}) to ${networkGame.local.phase}.`
@@ -971,7 +973,10 @@ export class ContentGame extends React.Component {
             .then(() => {
                 page.success("Game processed.");
                 this.props.data.clearInitialOrders();
-                return this.setState({ hasInitialOrders: false, hoverOrders: [] });
+                return this.setState({
+                    hasInitialOrders: false,
+                    hoverOrders: [],
+                });
             })
             .catch((err) => {
                 page.error(err.toString());
@@ -1098,7 +1103,7 @@ export class ContentGame extends React.Component {
             if (!UTILS.javascript.count(orders[powerName]))
                 orders[powerName] = null;
             this.__store_orders(orders);
-            await this.setState({ orders: orders });
+            await this.setState({ orders: orders, hoverOrders: [] });
         }
         this.setOrders();
     }
@@ -1119,7 +1124,7 @@ export class ContentGame extends React.Component {
             this.sendOrderLog(engine.client, "clear", null);
             allOrders[currentPowerName] = null;
             this.__store_orders(allOrders);
-            await this.setState({ orders: allOrders });
+            await this.setState({ orders: allOrders, hoverOrders: [] });
         }
         this.setOrders();
     }
@@ -1133,7 +1138,7 @@ export class ContentGame extends React.Component {
         orders[powerName] = {};
         this.__store_orders(orders);
         this.setOrders();
-        return this.setState({ orders: orders });
+        return this.setState({ orders: orders, hoverOrders: [] });
     }
 
     /**
@@ -1258,6 +1263,7 @@ export class ContentGame extends React.Component {
         return this.setState({
             orderBuildingType: form.order_type,
             orderBuildingPath: [],
+            hoverOrders: [],
         });
     }
 
@@ -1353,6 +1359,7 @@ export class ContentGame extends React.Component {
             historyPhaseIndex: newPhaseIndex,
             historyCurrentLoc: null,
             historyCurrentOrders: null,
+            hoverOrders: [],
         });
     }
 
@@ -1877,9 +1884,16 @@ export class ContentGame extends React.Component {
             <Conversation
                 style={{ minWidth: "200px" }}
                 info={
-                    isAdmin && protagonist !== "GLOBAL"
-                        ? engine.powers[protagonist].getController()
-                        : ""
+                    isAdmin && protagonist !== "GLOBAL" ? (
+                        engine.powers[protagonist].getController()
+                    ) : (
+                        <div>
+                            friendly?
+                            <Switch color="success" size="small"
+                            onChange={() => {}}
+                            ></Switch>
+                        </div>
+                    )
                 }
                 className={
                     protagonist === currentTabId
@@ -1977,7 +1991,7 @@ export class ContentGame extends React.Component {
                                         currentTabId,
                                         "yes",
                                         null,
-                                        "YES (" + msg.daide + ")"
+                                        "YES ( " + msg.daide + " )"
                                     );
                                     this.handleRecipientAnnotation(
                                         msg.time_sent,
@@ -2004,7 +2018,7 @@ export class ContentGame extends React.Component {
                                         currentTabId,
                                         "no",
                                         null,
-                                        "REJ (" + msg.daide + ")"
+                                        "REJ ( " + msg.daide + " )"
                                     );
                                     this.handleRecipientAnnotation(
                                         msg.time_sent,
@@ -2033,7 +2047,7 @@ export class ContentGame extends React.Component {
                                     <input
                                         type="radio"
                                         value="yes"
-                                        name={`${messageId}-radio-yes`}                                    
+                                        name={`${messageId}-radio-yes`}
                                         checked={
                                             this.state.annotatedMessages.hasOwnProperty(
                                                 msg.time_sent
