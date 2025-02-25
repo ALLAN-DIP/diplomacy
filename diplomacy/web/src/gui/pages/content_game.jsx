@@ -191,7 +191,7 @@ export class ContentGame extends React.Component {
                 this.props.data.role
             ),
             annotatedMessages: this.props.data.getAnnotatedMessages(),
-            stances: /* this.props.data.stances[this.props.data.role] || */ {},
+            stances: this.props.data.stances[this.props.data.role] || {},
             isBot: this.props.data.is_bot[this.props.data.role] || {
                 AUSTRIA: false,
                 ENGLAND: false,
@@ -269,6 +269,8 @@ export class ContentGame extends React.Component {
         this.updateDeadlineTimer = this.updateDeadlineTimer.bind(this);
         this.updateTabVal = this.updateTabVal.bind(this);
         this.updateReadCommentary = this.updateReadCommentary.bind(this);
+
+        console.log(this.state.stances);
     }
 
     static prettyRole(role) {
@@ -535,8 +537,6 @@ export class ContentGame extends React.Component {
                         messageHighlights: {},
                         orderBuildingPath: [],
                         hasInitialOrders: false,
-                        hoverOrders: [],
-                        stances: {},
                         hoverOrders: [],
                     }).then(() =>
                         this.getPage().info(
@@ -1889,7 +1889,11 @@ export class ContentGame extends React.Component {
                         <div>
                             friendly?
                             <Switch color="success" size="small"
-                            onChange={() => {}}
+                            onChange={(e) => {
+                                console.log(`friendly value for ${protagonist} is ${e.target.checked}`)
+                                this.handleStance(protagonist, e.target.checked ? 1 : 0)
+                            }}
+                            checked={this.state.stances[protagonist] === 1}
                             ></Switch>
                         </div>
                     )
