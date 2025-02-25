@@ -3160,6 +3160,15 @@ export class ContentGame extends React.Component {
                     </div>
                 )}
                 {suggestionType !== null && (suggestionType & 2) === 2 && (
+                    <div>
+                        <div>
+                        <Button
+                            title={"Get move advice based on friendliness"}
+                            color={"primary"}
+                            onClick={() => {
+                            }}
+                        ></Button>
+                        </div>
                     <div
                         style={{
                             display: "flex",
@@ -3171,6 +3180,7 @@ export class ContentGame extends React.Component {
                     >
                         {fullSuggestionComponent}
                         {partialSuggestionComponent}
+                    </div>
                     </div>
                 )}
             </div>
