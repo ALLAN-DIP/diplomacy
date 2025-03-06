@@ -3166,6 +3166,7 @@ export class ContentGame extends React.Component {
                             display: "flex",
                             border: "1px solid black",
                             boxSizing: "border-box",
+                            marginTop: "10px",
                         }}
                     >
                         <ConversationHeader>
