@@ -926,7 +926,6 @@ export class ContentGame extends React.Component {
             power_name: powerName,
             durations: durations,
         };
-        console.log("Sending", durations);
         networkGame.sendCommentaryDurations({ durations: info });
     }
 
@@ -948,7 +947,6 @@ export class ContentGame extends React.Component {
     };
 
     handleFocus = () => {
-        console.log("updated current time");
         this.setState({ lastSwitchPanelTime: Date.now() });
     };
 
