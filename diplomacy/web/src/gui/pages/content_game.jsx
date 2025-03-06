@@ -3526,6 +3526,7 @@ export class ContentGame extends React.Component {
             suggestionMessages
         );
 
+        // orderable locations and units with no orders
         let numOrderText = "";
 
         if (phaseType === "M" && orderTypeToLocs) {
