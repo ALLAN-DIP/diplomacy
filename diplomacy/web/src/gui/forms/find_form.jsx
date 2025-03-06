@@ -45,19 +45,19 @@ export class FindForm extends React.Component {
                            value={Forms.getValue(this.state, 'game_id')}
                            onChange={onChange}/>
                 )}
-                {Forms.createRow(
+                {/* {Forms.createRow(
                     Forms.createColLabel('status', 'status:'),
                     (<select className={'form-control custom-select'}
                              id={'status'} value={Forms.getValue(this.state, 'status')} onChange={onChange}>
                         {Forms.createSelectOptions(STRINGS.ALL_GAME_STATUSES, true)}
                     </select>)
-                )}
-                <div className={'form-check'}>
+                )} */}
+                {/* <div className={'form-check'}>
                     {Forms.createCheckbox('include_protected', 'include protected games.', Forms.getValue(this.state, 'include_protected'), onChange)}
                 </div>
                 <div className={'form-check mb-4'}>
                     {Forms.createCheckbox('for_omniscience', 'for omniscience.', Forms.getValue(this.state, 'for_omniscience'), onChange)}
-                </div>
+                </div> */}
                 {Forms.createRow('', Forms.createSubmit('find games', true, onSubmit))}
             </form>
         );

@@ -211,6 +211,7 @@ export class ContentGame extends React.Component {
             commentaryTimeSpent:
                 this.props.data.commentary_durations[this.props.data.role] ||
                 [],
+            stanceChanged: false,
         };
 
         // Bind some class methods to this instance.
@@ -269,8 +270,6 @@ export class ContentGame extends React.Component {
         this.updateDeadlineTimer = this.updateDeadlineTimer.bind(this);
         this.updateTabVal = this.updateTabVal.bind(this);
         this.updateReadCommentary = this.updateReadCommentary.bind(this);
-
-        console.log(this.state.stances);
     }
 
     static prettyRole(role) {
@@ -927,7 +926,6 @@ export class ContentGame extends React.Component {
             power_name: powerName,
             durations: durations,
         };
-        console.log("Sending", durations);
         networkGame.sendCommentaryDurations({ durations: info });
     }
 
@@ -949,7 +947,6 @@ export class ContentGame extends React.Component {
     };
 
     handleFocus = () => {
-        console.log("updated current time");
         this.setState({ lastSwitchPanelTime: Date.now() });
     };
 
@@ -1537,7 +1534,7 @@ export class ContentGame extends React.Component {
         const currentTabId = this.state.tabPastMessages || tabNames[0];
 
         const convList = tabNames.map((protagonist) => (
-            <div style={{ minWidth: "200px" }}>
+            <div style={{ minWidth: "220px" }}>
                 <Conversation
                     className={
                         protagonist === currentTabId
@@ -1615,7 +1612,7 @@ export class ContentGame extends React.Component {
             >
                 <MainContainer responsive>
                     <Sidebar
-                        style={{ maxWidth: "200px" }}
+                        style={{ maxWidth: "220px" }}
                         position="left"
                         scrollable={false}
                     >
@@ -1829,7 +1826,6 @@ export class ContentGame extends React.Component {
         const receivedSuggestions = globalMessages.filter(
             (msg) =>
                 msg.type === STRINGS.SUGGESTED_COMMENTARY &&
-                msg.parsed.payload.recipient === protagonist &&
                 (isAdmin ||
                     !this.state.annotatedMessages.hasOwnProperty(msg.time_sent))
         );
@@ -1848,7 +1844,6 @@ export class ContentGame extends React.Component {
             this.setState({
                 numAllCommentary: numCommentary,
                 showBadge: true,
-                commentaryProtagonist: protagonist,
             });
         } // update numAllCommentary and show badge if new commentary is received
 
@@ -1881,20 +1876,26 @@ export class ContentGame extends React.Component {
 
         const convList = tabNames.map((protagonist) => (
             <Conversation
-                style={{ minWidth: "200px" }}
+                style={{ minWidth: "220px" }}
                 info={
                     isAdmin && protagonist !== "GLOBAL" ? (
                         engine.powers[protagonist].getController()
                     ) : (
                         <div>
-                            friendly?
-                            <Switch color="success" size="small"
-                            onChange={(e) => {
-                                console.log(`friendly value for ${protagonist} is ${e.target.checked}`)
-                                this.handleStance(protagonist, e.target.checked ? 1 : 0)
-                            }}
-                            checked={this.state.stances[protagonist] === 1}
+                            non-ally
+                            <Switch
+                                color="success"
+                                size="small"
+                                onChange={(e) => {
+                                    this.handleStance(
+                                        protagonist,
+                                        e.target.checked ? 1 : 0
+                                    );
+                                    this.setState({stanceChanged: true});
+                                }}
+                                checked={this.state.stances[protagonist] === 1}
                             ></Switch>
+                            ally
                         </div>
                     )
                 }
@@ -2055,7 +2056,7 @@ export class ContentGame extends React.Component {
                         <Box sx={{ width: "100%", height: "550px" }}>
                             <MainContainer responsive>
                                 <Sidebar
-                                    style={{ maxWidth: "200px" }}
+                                    style={{ maxWidth: "220px" }}
                                     position="left"
                                     scrollable={true}
                                 >
@@ -2577,9 +2578,6 @@ export class ContentGame extends React.Component {
                                                 onClick={() => {
                                                     if (isCurrent) {
                                                         this.setState({
-                                                            tabCurrentMessages:
-                                                                this.state
-                                                                    .commentaryProtagonist,
                                                             lastSwitchPanelTime:
                                                                 Date.now(),
                                                         });
@@ -2650,7 +2648,8 @@ export class ContentGame extends React.Component {
                                                         ></ChatMessage>
                                                         <div
                                                             style={{
-                                                                flexDirection: "column",
+                                                                flexDirection:
+                                                                    "column",
                                                                 flexGrow: 0,
                                                                 flexShrink: 0,
                                                                 display: "flex",
@@ -3119,40 +3118,12 @@ export class ContentGame extends React.Component {
                 suggestionTypeDisplay.push("commentary");
         }
 
+        if (!fullSuggestionComponent && !partialSuggestionComponent && !suggestionTypeDisplay.includes("move")) {
+            return null;
+        }
+
         return (
             <div className={"col-2 mb-4"}>
-                <div>
-                    Get
-                    <select name={"stance"} id={"stance"}>
-                        <option value={"F"}>friendly</option>
-                        <option value={"H"}>hostile</option>
-                    </select>
-                    advice toward
-                    <select name={"toPower"} id={"toPower"}>
-                        {tabNames.map((tabName) => (
-                            <option value={tabName}>{tabName}</option>
-                        ))}
-                    </select>
-                    <Button
-                        title={UTILS.html.UNICODE_RIGHT_ARROW}
-                        color={"primary"}
-                        onClick={() => {
-                            console.log(
-                                `${
-                                    document.getElementById("toPower").value
-                                } with stance ${
-                                    document.getElementById("stance").value
-                                }`
-                            );
-                            this.sendLogData(
-                                engine.client,
-                                `STANCE:${
-                                    document.getElementById("stance").value
-                                }:${document.getElementById("toPower").value}`
-                            );
-                        }}
-                    ></Button>
-                </div>
                 {suggestionType === null && <div>No advice for this turn</div>}
                 {suggestionType !== null && suggestionType === 0 && (
                     <div>You are on your own</div>
@@ -3166,25 +3137,41 @@ export class ContentGame extends React.Component {
                 {suggestionType !== null && (suggestionType & 2) === 2 && (
                     <div>
                         <div>
-                        <Button
-                            title={"Get move advice based on friendliness"}
-                            color={"primary"}
-                            onClick={() => {
-                            }}
-                        ></Button>
+                            <Button
+                                title={"Get ally-based advice"}
+                                color={"primary"}
+                                onClick={() => {
+                                    this.sendMessage(
+                                        engine.client,
+                                        "GLOBAL",
+                                        `${JSON.stringify(this.state.stances)}`,
+                                        null,
+                                        null
+                                    );
+                                    this.setState({stanceChanged: false});
+                                }}
+                                disabled={!this.state.hasInitialOrders && !this.state.stanceChanged}
+                            ></Button>
                         </div>
-                    <div
-                        style={{
-                            display: "flex",
-                            flexDirection: "column",
-                            border: "1px solid black",
-                            boxSizing: "border-box",
-                            marginTop: "10px",
-                        }}
-                    >
-                        {fullSuggestionComponent}
-                        {partialSuggestionComponent}
-                    </div>
+                        {!this.state.hasInitialOrders && (<span>
+                                Enabled after drafting order and decide allies.
+                            </span>)}
+                        
+                        {latestMoveSuggestionFull || latestMoveSuggestionPartial ? (
+                            <div
+                            style={{
+                                display: "flex",
+                                flexDirection: "column",
+                                border: "1px solid black",
+                                boxSizing: "border-box",
+                                marginTop: "10px",
+                            }}
+                        >
+                            {fullSuggestionComponent}
+                            {partialSuggestionComponent}
+                            </div>
+                        ) : null}
+                        
                     </div>
                 )}
             </div>
@@ -3428,9 +3415,6 @@ export class ContentGame extends React.Component {
             (controllablePowers.length && controllablePowers[0]);
         const serverOrders = this.__get_orders(engine);
         const powerOrders = serverOrders[currentPowerName] || [];
-        let numOrderText = `[${Object.keys(powerOrders).length}/${
-            engine.orderableLocations[currentPowerName].length
-        }] moves have been set.`;
 
         this.props.data.displayed = true;
         const page = this.context;
@@ -3516,6 +3500,26 @@ export class ContentGame extends React.Component {
                 else orderBuildingType = allowedPowerOrderTypes[0];
             }
             buildCount = engine.getBuildsCount(currentPowerName);
+        }
+
+        // orderable locations and units with no orders
+        let numOrderText = "";
+
+        if (phaseType === "M" && orderTypeToLocs) {
+            const merged = new Set(Object.values(orderTypeToLocs).flat());
+            const unitsWithoutOrders = new Set(
+                [...merged].filter((x) => !Object.keys(powerOrders).includes(x))
+            );
+            if (unitsWithoutOrders.size === 0 || merged.size === unitsWithoutOrders.size) {
+                numOrderText = `[${Object.keys(powerOrders).length}/${
+                          engine.orderableLocations[currentPowerName].length
+                      }] set.`;
+            } else {
+                const unitsWithoutOrdersArray = Array.from(unitsWithoutOrders);
+                numOrderText = `[${Object.keys(powerOrders).length}/${
+                          engine.orderableLocations[currentPowerName].length
+                      }] set. Need: ${unitsWithoutOrdersArray.join(", ")}`;
+            }
         }
 
         const navAfterTitle = (
@@ -3725,7 +3729,7 @@ export class ContentGame extends React.Component {
         //window.addEventListener("visibilitychange", this.handleVisibilityChange);
         window.addEventListener("blur", this.handleBlur);
         window.addEventListener("focus", this.handleFocus);
-        this.state.lastSwitchPanelTime = Date.now();
+        this.setState({ lastSwitchPanelTime: Date.now() });
     }
 
     componentDidUpdate() {
