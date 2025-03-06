@@ -2704,14 +2704,6 @@ export class ContentGame extends React.Component {
                             {this.state.tabVal === "commentary" && (
                                 <MainContainer responsive>
                                     <ChatContainer>
-                                        <ConversationHeader>
-                                            <ConversationHeader.Content
-                                                userName={
-                                                    "Commentary about " +
-                                                    protagonist
-                                                }
-                                            />
-                                        </ConversationHeader>
                                         <MessageList>
                                             {suggestedCommentaryForCurrentPower.map(
                                                 (com, i) => {
@@ -2804,7 +2796,6 @@ export class ContentGame extends React.Component {
                                                             engine.client,
                                                             this.state.logData
                                                         );
-                                                    //this.setLogs([...this.state.logs, message])
                                                 }}
                                             />
                                         )}
