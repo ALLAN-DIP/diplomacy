@@ -866,7 +866,8 @@ class Game(Jsonable):
         all_orderable_locations = self.get_orderable_locations()
         return all(
             power.is_eliminated()
-            or (not all_orderable_locations[power.name] or power.does_not_wait())
+            or power.does_not_wait()
+            or not all_orderable_locations[power.name]
             for power in self.powers.values()
         )
 
