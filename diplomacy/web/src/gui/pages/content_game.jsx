@@ -30,7 +30,6 @@ import { Message } from "../../diplomacy/engine/message";
 import { PowerOrders } from "../components/power_orders";
 import { STRINGS } from "../../diplomacy/utils/strings";
 import { Diplog } from "../../diplomacy/utils/diplog";
-import { Table } from "../components/table";
 import { AdminPowersInfoTable } from "../components/admin_powers_info_table";
 import { PowerView } from "../utils/power_view";
 import { DipStorage } from "../utils/dipStorage";
@@ -78,7 +77,6 @@ import ITA from "../assets/ITA.png";
 import RUS from "../assets/RUS.png";
 import TUR from "../assets/TUR.png";
 import GLOBAL from "../assets/GLOBAL.png";
-import { Forms } from "../components/forms";
 import Grid from "@mui/material/Grid";
 
 const POWER_ICONS = {
@@ -202,10 +200,7 @@ export class ContentGame extends React.Component {
                 TURKEY: false,
             },
             hoverOrders: [],
-            tabVal: "messages",
-            numAllCommentary: 0,
-            numReadCommentary: 0,
-            showBadge: false,
+            tabVal: "commentary",
             commentaryProtagonist: null,
             lastSwitchPanelTime: Date.now(),
             commentaryTimeSpent:
@@ -269,7 +264,6 @@ export class ContentGame extends React.Component {
         this.vote = this.vote.bind(this);
         this.updateDeadlineTimer = this.updateDeadlineTimer.bind(this);
         this.updateTabVal = this.updateTabVal.bind(this);
-        this.updateReadCommentary = this.updateReadCommentary.bind(this);
     }
 
     static prettyRole(role) {
@@ -804,14 +798,6 @@ export class ContentGame extends React.Component {
             });
         }
         return this.setState({ tabVal: value, lastSwitchPanelTime: now });
-    }
-
-    updateReadCommentary(event) {
-        const numAllCommentary = this.state.numAllCommentary;
-        return this.setState({
-            numReadCommentary: numAllCommentary,
-            showBadge: false,
-        }); // sync numReadCommentary with numAllCommentary and hide badge
     }
 
     sendRecipientAnnotation(networkGame, time_sent, annotation) {
@@ -1768,7 +1754,7 @@ export class ContentGame extends React.Component {
             const sent_time = latestMoveSuggestion.time_sent;
             if (
                 this.state.annotatedMessages.hasOwnProperty(sent_time) &&
-                this.state.annotatedMessages[sent_time] === "reject"
+                (this.state.annotatedMessages[sent_time] === "reject" || this.state.annotatedMessages[sent_time] === "replace")
             ) {
                 latestMoveSuggestion = null;
             }
@@ -1837,15 +1823,6 @@ export class ContentGame extends React.Component {
                 time_sent: msg.time_sent,
             };
         });
-
-        const numCommentary = suggestedCommentary.length;
-
-        if (numCommentary > this.state.numAllCommentary) {
-            this.setState({
-                numAllCommentary: numCommentary,
-                showBadge: true,
-            });
-        } // update numAllCommentary and show badge if new commentary is received
 
         return suggestedCommentary;
     }
@@ -2450,7 +2427,7 @@ export class ContentGame extends React.Component {
         );
     }
 
-    renderCentaurMessages(engine, role, isCurrent, isWide) {
+    renderCentaurMessages(engine, role, isCurrent) {
         const isAdmin =
             engine.role === "omniscient_type" ||
             engine.role === "master_type" ||
@@ -2550,29 +2527,24 @@ export class ContentGame extends React.Component {
                                     onChange={this.updateTabVal}
                                     aria-label="basic tabs example"
                                 >
-                                    <Tab2
+                                    {suggestionType !== null &&
+                                        (suggestionType & 1) === 1 && (<Tab2
                                         label="Message Advice"
                                         value="messages"
-                                    />
+                                    />)}
                                     {suggestionType !== null &&
                                         (suggestionType & 4) === 4 && (
                                             <Tab2
                                                 label={
-                                                    this.state.showBadge ? (
-                                                        <Badge
-                                                            variant="dot"
-                                                            color="warning"
-                                                        ></Badge>
-                                                    ) : (
-                                                        <span
-                                                            sx={{
-                                                                marginRight:
-                                                                    "8px",
-                                                            }}
-                                                        >
-                                                            Commentary
-                                                        </span>
-                                                    )
+                                                    <span
+                                                        sx={{
+                                                            marginRight:
+                                                                "8px",
+                                                        }}
+                                                    >
+                                                        Commentary
+                                                    </span>
+                                                    
                                                 }
                                                 value="commentary"
                                                 onClick={() => {
@@ -2582,7 +2554,6 @@ export class ContentGame extends React.Component {
                                                                 Date.now(),
                                                         });
                                                     } // make sure commentary tab is selected for the correct conversation
-                                                    this.updateReadCommentary();
                                                 }}
                                             />
                                         )}
@@ -2857,10 +2828,6 @@ export class ContentGame extends React.Component {
             STRINGS.SUGGESTED_MOVE_PARTIAL
         );
 
-        if (!latestMoveSuggestionFull && !latestMoveSuggestionPartial) {
-            return null;
-        }
-
         let fullSuggestionComponent = null;
         let partialSuggestionComponent = null;
 
@@ -3132,6 +3099,14 @@ export class ContentGame extends React.Component {
                                 title={"Get ally-based advice"}
                                 color={"primary"}
                                 onClick={() => {
+
+                                    if (latestMoveSuggestionFull) {
+                                        this.handleRecipientAnnotation(
+                                            latestMoveSuggestionFull.time_sent,
+                                            "replace"
+                                        );
+                                    }
+
                                     this.sendMessage(
                                         engine.client,
                                         "GLOBAL",
@@ -3386,7 +3361,7 @@ export class ContentGame extends React.Component {
         );
     }
 
-    renderTabCentaurMessages(toDisplay, initialEngine, role, isWide) {
+    renderTabCentaurMessages(toDisplay, initialEngine, role) {
         const { engine, pastPhases, phaseIndex } =
             this.__get_engine_to_display(initialEngine);
 
@@ -3394,7 +3369,6 @@ export class ContentGame extends React.Component {
             engine,
             role,
             pastPhases[phaseIndex] === initialEngine.phase,
-            isWide
         );
     }
 
@@ -3672,7 +3646,6 @@ export class ContentGame extends React.Component {
                             true,
                             engine,
                             currentPowerName,
-                            false
                         )}
                 </Row>
                 <Row>
