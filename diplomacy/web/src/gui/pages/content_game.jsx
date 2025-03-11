@@ -211,6 +211,7 @@ export class ContentGame extends React.Component {
             commentaryTimeSpent:
                 this.props.data.commentary_durations[this.props.data.role] ||
                 [],
+            stanceChanged: true,
         };
 
         // Bind some class methods to this instance.
@@ -3203,7 +3204,7 @@ export class ContentGame extends React.Component {
                                     );
                                     this.setState({stanceChanged: false});
                                 }}
-                                disabled={!this.state.hasInitialOrders && !this.state.stanceChanged}
+                                disabled={!this.state.hasInitialOrders || !this.state.stanceChanged}
                             ></Button>
                         </div>
                         {!this.state.hasInitialOrders && (<span>
