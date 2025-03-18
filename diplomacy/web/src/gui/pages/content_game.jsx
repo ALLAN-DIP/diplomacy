@@ -2619,8 +2619,7 @@ export class ContentGame extends React.Component {
                                                         ></ChatMessage>
                                                         <div
                                                             style={{
-                                                                flexDirection:
-                                                                    "column",
+                                                                flexDirection: "column",
                                                                 flexGrow: 0,
                                                                 flexShrink: 0,
                                                                 display: "flex",
