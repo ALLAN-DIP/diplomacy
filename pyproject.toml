@@ -47,6 +47,9 @@ dev = [
   "sphinx_copybutton",
   "sphinx_rtd_theme",
 ]
+baseline-lr = [
+  "baseline-models @ git+https://git@github.com/ALLAN-DIP/baseline-models.git@ffe3eeb6c4046a650f11353572d8d3457d7a0896",
+]
 
 [project.urls]
 documentation = "https://diplomacy.readthedocs.io"

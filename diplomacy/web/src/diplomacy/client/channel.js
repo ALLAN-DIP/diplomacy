@@ -160,6 +160,10 @@ export class Channel {
 
     //// Public game API.
 
+    getOrderDistribution(parameters, game){
+        return this._req('get_order_distribution', undefined, undefined, parameters, game);
+    }
+    
     getAllPossibleOrders(parameters, game) {
         return this._req('get_all_possible_orders', undefined, undefined, parameters, game);
     }

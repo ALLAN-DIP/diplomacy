@@ -30,6 +30,27 @@ const DEADLINES = [
     [60 * 60 * 24, '24 hrs'],
 ];
 
+const DISTRIBUTION_ADVICE_DISPLAY = [
+    ['N', '(no advice)'],
+    ['V', 'visual'],
+    ['T', 'textual'],
+];
+
+const DISTRIBUTION_ADVICE_MODEL = [
+    'standard_lr',
+    // 'dipnet',
+]
+
+const POWERS = [
+    'AUSTRIA', 
+    'ENGLAND', 
+    'FRANCE', 
+    'GERMANY', 
+    'ITALY', 
+    'RUSSIA', 
+    'TURKEY'
+]
+
 export class PanelChooseSettings extends React.Component {
     constructor(props) {
         super(props);
@@ -37,6 +58,7 @@ export class PanelChooseSettings extends React.Component {
         this.onSelectDeadline = this.onSelectDeadline.bind(this);
         this.onSetRegistrationPassword = this.onSetRegistrationPassword.bind(this);
         this.onSetGameID = this.onSetGameID.bind(this);
+        this.onSelectDistributionAdvice = this.onSelectDistributionAdvice.bind(this)
     }
 
     onCheckNoPress(event) {
@@ -56,6 +78,18 @@ export class PanelChooseSettings extends React.Component {
         if (!gameID)
             gameID = UTILS.createGameID(this.props.username);
         this.props.onUpdateParams({game_id: gameID});
+    }
+
+    onSelectDistributionAdvice(event){
+        let power = event.target.id.split("-")[0];
+        let prev_setting = this.props.params.distribution_advice
+        prev_setting[power] = {}
+        if (event.target.value !== "N"){
+            var [display_mode, model] = event.target.value.split("-")
+            prev_setting[power].display_mode = display_mode
+            prev_setting[power].model = model
+        }
+        this.props.onUpdateParams({distribution_advice: prev_setting});
     }
 
     render() {
@@ -93,6 +127,29 @@ export class PanelChooseSettings extends React.Component {
                                        value={this.props.params.game_id}
                                        onChange={this.onSetGameID}/>
                             </div>
+                        </div>
+                        <div className="form-group row mb-2">
+                            <label className="col-md col-form-label">Distribution advice</label>
+                            {
+                                POWERS.map((power, index) => (
+                                    <div key={index} className="col-md">
+                                        <label className="col-md col-form-label" htmlFor={`${power}-distribution-advice`}>{`${power}`}</label>
+                                        <select id={`${power}-distribution-advice`} className="custom-select custom-select-sm"
+                                            onChange={this.onSelectDistributionAdvice}>
+                                            {DISTRIBUTION_ADVICE_DISPLAY.map((setting, index) => (
+                                                setting[1] === "(no advice)" 
+                                                ? (<option key={`${power}-${index}`} value={setting[0]}>{setting[1]}</option>)
+                                                : (<optgroup key={`${power}-${index}`} label={`${setting[1]}`}>
+                                                    {DISTRIBUTION_ADVICE_MODEL.map((model, index) => (
+                                                        <option key={`${power}-${setting[0]}-${index}`} value={`${setting[0]}-${model}`}>{`[${setting[0]}] ${model}`}</option>
+                                                    ))}
+                                                    </optgroup>)
+                                            ))}
+                                        </select>
+                                    </div>
+                                ))
+                            }
+                            
                         </div>
                         <div className="custom-control custom-checkbox mb-5">
                             <input type="checkbox" className="custom-control-input" id="no-press"
