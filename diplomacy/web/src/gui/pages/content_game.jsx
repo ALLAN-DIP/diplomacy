@@ -3948,7 +3948,7 @@ export class ContentGame extends React.Component {
         this.props.data.displayed = true;
 
         document.onkeydown = (event) => {
-            if (event.key.toLowerCase() === "shift"){
+            if (event.key === "Shift"){
                 this.setState({
                     shiftKeyPressed: true,
                     orderDistribution: [],
@@ -3968,7 +3968,7 @@ export class ContentGame extends React.Component {
         };
         
         document.onkeyup = (event) => {
-            if (event.key.toLowerCase() === "shift"){
+            if (event.key === "Shift"){
                 this.setState({
                     shiftKeyPressed: false,
                     orderDistribution: [],
