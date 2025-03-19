@@ -3834,13 +3834,6 @@ export class ContentGame extends React.Component {
             }
         };
 
-        window.addEventListener("beforeunload", this.handleExit);
-        window.addEventListener("blur", this.handleBlur);
-        window.addEventListener("focus", this.handleFocus);
-        this.setState({
-            lastSwitchPanelTime: Date.now(),
-        })
-
         document.onkeyup = (event) => {
             if (event.key.toLowerCase() === "shift"){
                 this.setState({
@@ -3851,6 +3844,13 @@ export class ContentGame extends React.Component {
                 })
             }
         }
+
+        window.addEventListener("beforeunload", this.handleExit);
+        window.addEventListener("blur", this.handleBlur);
+        window.addEventListener("focus", this.handleFocus);
+        this.setState({
+            lastSwitchPanelTime: Date.now(),
+        })
     }
 
     componentDidUpdate() {
