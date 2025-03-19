@@ -158,7 +158,7 @@ export class InlineGameView {
             return <div>
                 <div><strong>{this.game.game_id}</strong></div>
                 <div>({dateString})</div>
-                <div><em>{this.game.map_name}</em></div>
+                {/* <div><em>{this.game.map_name}</em></div> */}
             </div>;
         }
         return this.game[name];
