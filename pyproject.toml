@@ -27,11 +27,8 @@ requires-python = ">=3.7"
 license = { text = "AGPL-3.0-or-later" }
 dependencies = [
   "bcrypt",
-  "coloredlogs",
-  "python-dateutil",
   "pytz",
   "requests",
-  "setuptools",
   "tornado>=5.0",
   "tqdm",
   "ujson",
