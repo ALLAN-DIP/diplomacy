@@ -554,7 +554,6 @@ export class ContentGame extends React.Component {
                     this.reloadDeadlineTimer(networkGame);
                     return this.setState({
                         orders: null,
-                        hoverOrders: [],
                         messageHighlights: {},
                         orderBuildingPath: [],
                         orderDistribution: [],
