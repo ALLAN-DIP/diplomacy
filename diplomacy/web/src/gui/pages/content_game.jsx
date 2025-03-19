@@ -30,7 +30,6 @@ import { Message } from "../../diplomacy/engine/message";
 import { PowerOrders } from "../components/power_orders";
 import { STRINGS } from "../../diplomacy/utils/strings";
 import { Diplog } from "../../diplomacy/utils/diplog";
-import { Table } from "../components/table";
 import { AdminPowersInfoTable } from "../components/admin_powers_info_table";
 import { PowerView } from "../utils/power_view";
 import { DipStorage } from "../utils/dipStorage";
@@ -55,6 +54,7 @@ import { default as Tabs2 } from "@mui/material/Tabs";
 import { default as Tab2 } from "@mui/material/Tab";
 import Box from "@mui/material/Box";
 import Badge from "@mui/material/Badge";
+import Switch from "@mui/material/Switch";
 
 import {
     MainContainer,
@@ -77,7 +77,6 @@ import ITA from "../assets/ITA.png";
 import RUS from "../assets/RUS.png";
 import TUR from "../assets/TUR.png";
 import GLOBAL from "../assets/GLOBAL.png";
-import { Forms } from "../components/forms";
 import Grid from "@mui/material/Grid";
 
 const POWER_ICONS = {
@@ -190,7 +189,7 @@ export class ContentGame extends React.Component {
                 this.props.data.role
             ),
             annotatedMessages: this.props.data.getAnnotatedMessages(),
-            stances: /* this.props.data.stances[this.props.data.role] || */ {},
+            stances: this.props.data.stances[this.props.data.role] || {},
             isBot: this.props.data.is_bot[this.props.data.role] || {
                 AUSTRIA: false,
                 ENGLAND: false,
@@ -201,15 +200,13 @@ export class ContentGame extends React.Component {
                 TURKEY: false,
             },
             hoverOrders: [],
-            tabVal: "messages",
-            numAllCommentary: 0,
-            numReadCommentary: 0,
-            showBadge: false,
+            tabVal: "commentary",
             commentaryProtagonist: null,
             lastSwitchPanelTime: Date.now(),
             commentaryTimeSpent:
                 this.props.data.commentary_durations[this.props.data.role] ||
                 [],
+            stanceChanged: true,
         };
 
         // Bind some class methods to this instance.
@@ -267,7 +264,6 @@ export class ContentGame extends React.Component {
         this.vote = this.vote.bind(this);
         this.updateDeadlineTimer = this.updateDeadlineTimer.bind(this);
         this.updateTabVal = this.updateTabVal.bind(this);
-        this.updateReadCommentary = this.updateReadCommentary.bind(this);
     }
 
     static prettyRole(role) {
@@ -535,7 +531,6 @@ export class ContentGame extends React.Component {
                         orderBuildingPath: [],
                         hasInitialOrders: false,
                         hoverOrders: [],
-                        stances: {},
                     }).then(() =>
                         this.getPage().info(
                             `Game update (${notification.name}) to ${networkGame.local.phase}.`
@@ -805,14 +800,6 @@ export class ContentGame extends React.Component {
         return this.setState({ tabVal: value, lastSwitchPanelTime: now });
     }
 
-    updateReadCommentary(event) {
-        const numAllCommentary = this.state.numAllCommentary;
-        return this.setState({
-            numReadCommentary: numAllCommentary,
-            showBadge: false,
-        }); // sync numReadCommentary with numAllCommentary and hide badge
-    }
-
     sendRecipientAnnotation(networkGame, time_sent, annotation) {
         const page = this.getPage();
         const info = { time_sent: time_sent, annotation: annotation };
@@ -925,7 +912,6 @@ export class ContentGame extends React.Component {
             power_name: powerName,
             durations: durations,
         };
-        console.log("Sending", durations);
         networkGame.sendCommentaryDurations({ durations: info });
     }
 
@@ -947,7 +933,6 @@ export class ContentGame extends React.Component {
     };
 
     handleFocus = () => {
-        console.log("updated current time");
         this.setState({ lastSwitchPanelTime: Date.now() });
     };
 
@@ -970,7 +955,10 @@ export class ContentGame extends React.Component {
             .then(() => {
                 page.success("Game processed.");
                 this.props.data.clearInitialOrders();
-                return this.setState({ hasInitialOrders: false, hoverOrders: [] });
+                return this.setState({
+                    hasInitialOrders: false,
+                    hoverOrders: [],
+                });
             })
             .catch((err) => {
                 page.error(err.toString());
@@ -1097,7 +1085,7 @@ export class ContentGame extends React.Component {
             if (!UTILS.javascript.count(orders[powerName]))
                 orders[powerName] = null;
             this.__store_orders(orders);
-            await this.setState({ orders: orders });
+            await this.setState({ orders: orders, hoverOrders: [] });
         }
         this.setOrders();
     }
@@ -1118,7 +1106,7 @@ export class ContentGame extends React.Component {
             this.sendOrderLog(engine.client, "clear", null);
             allOrders[currentPowerName] = null;
             this.__store_orders(allOrders);
-            await this.setState({ orders: allOrders });
+            await this.setState({ orders: allOrders, hoverOrders: [] });
         }
         this.setOrders();
     }
@@ -1132,7 +1120,7 @@ export class ContentGame extends React.Component {
         orders[powerName] = {};
         this.__store_orders(orders);
         this.setOrders();
-        return this.setState({ orders: orders });
+        return this.setState({ orders: orders, hoverOrders: [] });
     }
 
     /**
@@ -1257,6 +1245,7 @@ export class ContentGame extends React.Component {
         return this.setState({
             orderBuildingType: form.order_type,
             orderBuildingPath: [],
+            hoverOrders: [],
         });
     }
 
@@ -1352,6 +1341,7 @@ export class ContentGame extends React.Component {
             historyPhaseIndex: newPhaseIndex,
             historyCurrentLoc: null,
             historyCurrentOrders: null,
+            hoverOrders: [],
         });
     }
 
@@ -1530,7 +1520,7 @@ export class ContentGame extends React.Component {
         const currentTabId = this.state.tabPastMessages || tabNames[0];
 
         const convList = tabNames.map((protagonist) => (
-            <div style={{ minWidth: "200px" }}>
+            <div style={{ minWidth: "220px" }}>
                 <Conversation
                     className={
                         protagonist === currentTabId
@@ -1603,12 +1593,12 @@ export class ContentGame extends React.Component {
 
         return (
             <div
-                className={isWide ? "col-6" : "col-4"}
+                className={isWide ? "col-12" : "col-6"}
                 style={{ height: "500px" }}
             >
                 <MainContainer responsive>
                     <Sidebar
-                        style={{ maxWidth: "200px" }}
+                        style={{ maxWidth: "220px" }}
                         position="left"
                         scrollable={false}
                     >
@@ -1764,7 +1754,7 @@ export class ContentGame extends React.Component {
             const sent_time = latestMoveSuggestion.time_sent;
             if (
                 this.state.annotatedMessages.hasOwnProperty(sent_time) &&
-                this.state.annotatedMessages[sent_time] === "reject"
+                (this.state.annotatedMessages[sent_time] === "reject" || this.state.annotatedMessages[sent_time] === "replace")
             ) {
                 latestMoveSuggestion = null;
             }
@@ -1822,7 +1812,6 @@ export class ContentGame extends React.Component {
         const receivedSuggestions = globalMessages.filter(
             (msg) =>
                 msg.type === STRINGS.SUGGESTED_COMMENTARY &&
-                msg.parsed.payload.recipient === protagonist &&
                 (isAdmin ||
                     !this.state.annotatedMessages.hasOwnProperty(msg.time_sent))
         );
@@ -1834,16 +1823,6 @@ export class ContentGame extends React.Component {
                 time_sent: msg.time_sent,
             };
         });
-
-        const numCommentary = suggestedCommentary.length;
-
-        if (numCommentary > this.state.numAllCommentary) {
-            this.setState({
-                numAllCommentary: numCommentary,
-                showBadge: true,
-                commentaryProtagonist: protagonist,
-            });
-        } // update numAllCommentary and show badge if new commentary is received
 
         return suggestedCommentary;
     }
@@ -1874,11 +1853,28 @@ export class ContentGame extends React.Component {
 
         const convList = tabNames.map((protagonist) => (
             <Conversation
-                style={{ minWidth: "200px" }}
+                style={{ minWidth: "220px" }}
                 info={
-                    isAdmin && protagonist !== "GLOBAL"
-                        ? engine.powers[protagonist].getController()
-                        : ""
+                    isAdmin && protagonist !== "GLOBAL" ? (
+                        engine.powers[protagonist].getController()
+                    ) : (
+                        <div>
+                            non-ally
+                            <Switch
+                                color="success"
+                                size="small"
+                                onChange={(e) => {
+                                    this.handleStance(
+                                        protagonist,
+                                        e.target.checked ? 1 : 0
+                                    );
+                                    this.setState({stanceChanged: true});
+                                }}
+                                checked={this.state.stances[protagonist] === 1}
+                            ></Switch>
+                            ally
+                        </div>
+                    )
                 }
                 className={
                     protagonist === currentTabId
@@ -1897,14 +1893,6 @@ export class ContentGame extends React.Component {
                     src={POWER_ICONS[protagonist]}
                     name={protagonist}
                     size="sm"
-                    status={
-                        isAdmin && protagonist !== "GLOBAL"
-                            ? engine.powers[protagonist].getCommStatus() ===
-                              STRINGS.READY
-                                ? "available"
-                                : "dnd"
-                            : null
-                    }
                 />
             </Conversation>
         ));
@@ -2037,14 +2025,18 @@ export class ContentGame extends React.Component {
 
         return (
             <Box
-                className={isWide ? "col-6 mb-4" : "col-4 mb-4"}
+                className={isWide ? "col-12 mb-4" : "col-6 mb-4"}
                 style={{ height: "500px" }}
             >
                 <Grid container spacing={2}>
                     <Grid item xs={12} sx={{ height: "100%" }}>
                         <Box sx={{ width: "100%", height: "550px" }}>
                             <MainContainer responsive>
-                                <Sidebar position="left" scrollable={true}>
+                                <Sidebar
+                                    style={{ maxWidth: "220px" }}
+                                    position="left"
+                                    scrollable={true}
+                                >
                                     <ConversationList>
                                         {convList}
                                     </ConversationList>
@@ -2056,9 +2048,10 @@ export class ContentGame extends React.Component {
                                 </ChatContainer>
                             </MainContainer>
                             {engine.isPlayerGame() && (
-                                <>
+                                <Row>
                                     <textarea
-                                        style={{ flex: 1 }}
+                                        style={{ resize: "both" }}
+                                        cols={30}
                                         onChange={(val) =>
                                             this.setMessageInputValue(
                                                 val.target.value
@@ -2110,7 +2103,8 @@ export class ContentGame extends React.Component {
                                                 engine.client,
                                                 currentTabId,
                                                 this.state.message,
-                                                "Truth"
+                                                "Truth",
+                                                null
                                             );
                                             this.setMessageInputValue("");
                                         }}
@@ -2125,7 +2119,8 @@ export class ContentGame extends React.Component {
                                                 engine.client,
                                                 currentTabId,
                                                 this.state.message,
-                                                "Lie"
+                                                "Lie",
+                                                null
                                             );
                                             this.setMessageInputValue("");
                                         }}
@@ -2140,12 +2135,13 @@ export class ContentGame extends React.Component {
                                                 engine.client,
                                                 currentTabId,
                                                 this.state.message,
-                                                "Neutral"
+                                                "Neutral",
+                                                null
                                             );
                                             this.setMessageInputValue("");
                                         }}
                                     ></Button>
-                                </>
+                                </Row>
                             )}
                         </Box>
                     </Grid>
@@ -2390,7 +2386,7 @@ export class ContentGame extends React.Component {
         return (
             <Tab id={"tab-phase-history"} display={toDisplay}>
                 <Row>
-                    <div className={"col-xl"}>
+                    <div className={"col-6"}>
                         {this.state.historyCurrentOrders && (
                             <div className={"history-current-orders"}>
                                 {this.state.historyCurrentOrders.join(", ")}
@@ -2431,7 +2427,7 @@ export class ContentGame extends React.Component {
         );
     }
 
-    renderCentaurMessages(engine, role, isCurrent, isWide) {
+    renderCentaurMessages(engine, role, isCurrent) {
         const isAdmin =
             engine.role === "omniscient_type" ||
             engine.role === "master_type" ||
@@ -2519,7 +2515,7 @@ export class ContentGame extends React.Component {
         const curController = engine.powers[role].getController();
 
         return (
-            <Box className={isWide ? "col-6 mb-4" : "col-4 mb-4"}>
+            <Box className={"col-6 mb-4"}>
                 <Grid container spacing={2}>
                     <Grid item xs={12} sx={{ height: "100%" }}>
                         <Box sx={{ width: "100%", height: "550px" }}>
@@ -2531,42 +2527,33 @@ export class ContentGame extends React.Component {
                                     onChange={this.updateTabVal}
                                     aria-label="basic tabs example"
                                 >
-                                    <Tab2
+                                    {suggestionType !== null &&
+                                        (suggestionType & 1) === 1 && (<Tab2
                                         label="Message Advice"
                                         value="messages"
-                                    />
+                                    />)}
                                     {suggestionType !== null &&
                                         (suggestionType & 4) === 4 && (
                                             <Tab2
                                                 label={
-                                                    this.state.showBadge ? (
-                                                        <Badge
-                                                            variant="dot"
-                                                            color="warning"
-                                                        ></Badge>
-                                                    ) : (
-                                                        <span
-                                                            sx={{
-                                                                marginRight:
-                                                                    "8px",
-                                                            }}
-                                                        >
-                                                            Commentary
-                                                        </span>
-                                                    )
+                                                    <span
+                                                        sx={{
+                                                            marginRight:
+                                                                "8px",
+                                                        }}
+                                                    >
+                                                        Commentary
+                                                    </span>
+                                                    
                                                 }
                                                 value="commentary"
                                                 onClick={() => {
                                                     if (isCurrent) {
                                                         this.setState({
-                                                            tabCurrentMessages:
-                                                                this.state
-                                                                    .commentaryProtagonist,
                                                             lastSwitchPanelTime:
                                                                 Date.now(),
                                                         });
                                                     } // make sure commentary tab is selected for the correct conversation
-                                                    this.updateReadCommentary();
                                                 }}
                                             />
                                         )}
@@ -2704,14 +2691,6 @@ export class ContentGame extends React.Component {
                             {this.state.tabVal === "commentary" && (
                                 <MainContainer responsive>
                                     <ChatContainer>
-                                        <ConversationHeader>
-                                            <ConversationHeader.Content
-                                                userName={
-                                                    "Commentary about " +
-                                                    protagonist
-                                                }
-                                            />
-                                        </ConversationHeader>
                                         <MessageList>
                                             {suggestedCommentaryForCurrentPower.map(
                                                 (com, i) => {
@@ -2751,24 +2730,6 @@ export class ContentGame extends React.Component {
                                                 }
                                             )}
                                         </MessageList>
-                                        {/* {engine.isPlayerGame() && (
-                                            <MessageInput
-                                                attachButton={false}
-                                                onChange={(val) =>
-                                                    this.setlogDataInputValue(
-                                                        val
-                                                    )
-                                                }
-                                                onSend={() => {
-                                                    const message =
-                                                        this.sendLogData(
-                                                            engine.client,
-                                                            this.state.logData
-                                                        );
-                                                    //this.setLogs([...this.state.logs, message])
-                                                }}
-                                            />
-                                        )} */}
                                     </ChatContainer>
                                 </MainContainer>
                             )}
@@ -2804,7 +2765,6 @@ export class ContentGame extends React.Component {
                                                             engine.client,
                                                             this.state.logData
                                                         );
-                                                    //this.setLogs([...this.state.logs, message])
                                                 }}
                                             />
                                         )}
@@ -2886,18 +2846,11 @@ export class ContentGame extends React.Component {
                             onMouseLeave={() => {
                                 this.setState({ hoverOrders: [] });
                             }}
+                            key={index}
                         >
-                            <ChatMessage
-                                style={{ flexGrow: 1 }}
-                                model={{
-                                    message: move,
-                                    sent: latestMoveSuggestionFull.time_sent,
-                                    sender: latestMoveSuggestionFull.sender,
-                                    direction: "incoming",
-                                    position: "single",
-                                }}
-                                avatarPosition={"tl"}
-                            ></ChatMessage>
+                            <div className={"col align-self-center order"}>
+                                <span className={"order-string"}>{move}</span>
+                            </div>
                             <div
                                 style={{
                                     flexGrow: 0,
@@ -2907,12 +2860,10 @@ export class ContentGame extends React.Component {
                                 }}
                             >
                                 <Button
-                                    key={"a"}
-                                    pickEvent={true}
-                                    title={"accept"}
+                                    title={"+"}
                                     color={"success"}
-                                    onClick={() => {
-                                        this.onOrderBuilt(
+                                    onClick={async () => {
+                                        await this.onOrderBuilt(
                                             currentPowerName,
                                             move
                                         );
@@ -2923,9 +2874,6 @@ export class ContentGame extends React.Component {
                                         );
                                     }}
                                     invisible={!(isCurrent && !isAdmin)}
-                                    //disabled={this.state.annotatedMessages.hasOwnProperty(
-                                    //  latestMoveSuggestionFull.time_sent,
-                                    //)}
                                 ></Button>
                             </div>
                         </div>
@@ -2951,17 +2899,9 @@ export class ContentGame extends React.Component {
                             this.setState({ hoverOrders: [] });
                         }}
                     >
-                        <ChatMessage
-                            style={{ flexGrow: 1 }}
-                            model={{
-                                message: "Full Suggestions:",
-                                sent: latestMoveSuggestionFull.time_sent,
-                                sender: latestMoveSuggestionFull.sender,
-                                direction: "incoming",
-                                position: "single",
-                            }}
-                            avatarPosition={"tl"}
-                        ></ChatMessage>
+                        <div className={"col align-self-center order"}>
+                            <span className={"order-string"}>Full:</span>
+                        </div>
                         <div
                             style={{
                                 flexGrow: 0,
@@ -2971,9 +2911,7 @@ export class ContentGame extends React.Component {
                             }}
                         >
                             <Button
-                                key={"a"}
-                                pickEvent={true}
-                                title={"accept all"}
+                                title={"+all"}
                                 color={"success"}
                                 onClick={async () => {
                                     for (let move of latestMoveSuggestionFull.moves) {
@@ -2989,11 +2927,9 @@ export class ContentGame extends React.Component {
                                     );
                                 }}
                                 invisible={!(isCurrent && !isAdmin)}
-                            ></Button>
+                            />
                             <Button
-                                key={"r"}
-                                pickEvent={true}
-                                title={"dismiss"}
+                                title={String.fromCharCode(0x2715)}
                                 color={"danger"}
                                 onClick={() => {
                                     this.handleRecipientAnnotation(
@@ -3026,18 +2962,11 @@ export class ContentGame extends React.Component {
                             onMouseLeave={() => {
                                 this.setState({ hoverOrders: [] });
                             }}
+                            key={index}
                         >
-                            <ChatMessage
-                                style={{ flexGrow: 1 }}
-                                model={{
-                                    message: move,
-                                    sent: latestMoveSuggestionPartial.time_sent,
-                                    sender: latestMoveSuggestionPartial.sender,
-                                    direction: "incoming",
-                                    position: "single",
-                                }}
-                                avatarPosition={"tl"}
-                            ></ChatMessage>
+                            <div className={"col align-self-center order"}>
+                                <span className={"order-string"}>{move}</span>
+                            </div>
                             <div
                                 style={{
                                     flexGrow: 0,
@@ -3047,12 +2976,10 @@ export class ContentGame extends React.Component {
                                 }}
                             >
                                 <Button
-                                    key={"a"}
-                                    pickEvent={true}
-                                    title={"accept"}
+                                    title={"+"}
                                     color={"success"}
-                                    onClick={() => {
-                                        this.onOrderBuilt(
+                                    onClick={async () => {
+                                        await this.onOrderBuilt(
                                             currentPowerName,
                                             move
                                         );
@@ -3087,19 +3014,14 @@ export class ContentGame extends React.Component {
                             this.setState({ hoverOrders: [] });
                         }}
                     >
-                        <ChatMessage
-                            style={{ flexGrow: 1 }}
-                            model={{
-                                message: `Suggestions based on ${latestMoveSuggestionPartial.givenMoves.join(
+                        <div className={"col align-self-center order"}>
+                            <span className={"order-string"}>
+                                Based on{" "}
+                                {latestMoveSuggestionPartial.givenMoves.join(
                                     ", "
-                                )}:`,
-                                sent: latestMoveSuggestionPartial.time_sent,
-                                sender: latestMoveSuggestionPartial.sender,
-                                direction: "incoming",
-                                position: "single",
-                            }}
-                            avatarPosition={"tl"}
-                        ></ChatMessage>
+                                )}
+                            </span>
+                        </div>
                         <div
                             style={{
                                 flexGrow: 0,
@@ -3109,9 +3031,7 @@ export class ContentGame extends React.Component {
                             }}
                         >
                             <Button
-                                key={"a"}
-                                pickEvent={true}
-                                title={"accept all"}
+                                title={"+all"}
                                 color={"success"}
                                 onClick={async () => {
                                     for (let move of latestMoveSuggestionPartial.moves) {
@@ -3127,11 +3047,9 @@ export class ContentGame extends React.Component {
                                     );
                                 }}
                                 invisible={!(isCurrent && !isAdmin)}
-                            ></Button>
+                            />
                             <Button
-                                key={"r"}
-                                pickEvent={true}
-                                title={"dismiss"}
+                                title={String.fromCharCode(0x2715)}
                                 color={"danger"}
                                 onClick={() => {
                                     this.handleRecipientAnnotation(
@@ -3157,42 +3075,69 @@ export class ContentGame extends React.Component {
                 suggestionTypeDisplay.push("commentary");
         }
 
+        if (!fullSuggestionComponent && !partialSuggestionComponent && !suggestionTypeDisplay.includes("move")) {
+            return null;
+        }
+
         return (
-            <div className={"col-4 mb-4"}>
-                {suggestionType === null && (
-                    <div>
-                        We haven't assigned advisors yet / No advisor for this
-                        year
-                    </div>
-                )}
+            <div className={"col-2 mb-4"}>
+                {suggestionType === null && <div>No advice for this turn</div>}
                 {suggestionType !== null && suggestionType === 0 && (
-                    <div>You are on your own this turn.</div>
+                    <div>You are on your own</div>
                 )}
                 {suggestionType !== null && suggestionType >= 1 && (
                     <div>
-                        You are getting advice this turn:{" "}
+                        You are getting advice:{" "}
                         {suggestionTypeDisplay.join(", ")}.
                     </div>
                 )}
                 {suggestionType !== null && (suggestionType & 2) === 2 && (
-                    <ChatContainer
-                        style={{
-                            display: "flex",
-                            border: "1px solid black",
-                            boxSizing: "border-box",
-                        }}
-                    >
-                        <ConversationHeader>
-                            <ConversationHeader.Content
-                                userName={`Moves Advice for ${engine.phase}`}
-                            />
-                        </ConversationHeader>
+                    <div>
+                        <div>
+                            <Button
+                                title={"Get ally-based advice"}
+                                color={"primary"}
+                                onClick={() => {
 
-                        <MessageList>
+                                    if (latestMoveSuggestionFull) {
+                                        this.handleRecipientAnnotation(
+                                            latestMoveSuggestionFull.time_sent,
+                                            "replace"
+                                        );
+                                    }
+
+                                    this.sendMessage(
+                                        engine.client,
+                                        "GLOBAL",
+                                        `${JSON.stringify(this.state.stances)}`,
+                                        null,
+                                        null
+                                    );
+                                    this.setState({stanceChanged: false});
+                                }}
+                                disabled={!this.state.hasInitialOrders || !this.state.stanceChanged}
+                            ></Button>
+                        </div>
+                        {!this.state.hasInitialOrders && (<span>
+                                Enabled after drafting order and decide allies.
+                            </span>)}
+                        
+                        {latestMoveSuggestionFull || latestMoveSuggestionPartial ? (
+                            <div
+                            style={{
+                                display: "flex",
+                                flexDirection: "column",
+                                border: "1px solid black",
+                                boxSizing: "border-box",
+                                marginTop: "10px",
+                            }}
+                        >
                             {fullSuggestionComponent}
                             {partialSuggestionComponent}
-                        </MessageList>
-                    </ChatContainer>
+                            </div>
+                        ) : null}
+                        
+                    </div>
                 )}
             </div>
         );
@@ -3230,10 +3175,7 @@ export class ContentGame extends React.Component {
                         data={filteredPowers}
                         wrapper={PowerView.wrap}
                         countries={filteredPowerNames}
-                        //stances={engine.getPower(currentPowerName).getStances()}
                         player={currentPowerName}
-                        //isBot={engine.getPower(currentPowerName).getIsBot()}
-                        //stanceUpdated={this.state.stances}
                     />
                 </div>
             </div>
@@ -3319,7 +3261,8 @@ export class ContentGame extends React.Component {
         orderType,
         orderPath,
         currentPowerName,
-        currentTabOrderCreation
+        currentTabOrderCreation,
+        moveAdvicePanel
     ) {
         const powerNames = Object.keys(engine.powers);
         powerNames.sort();
@@ -3335,7 +3278,7 @@ export class ContentGame extends React.Component {
         return (
             <Tab id={"tab-current-phase"} display={toDisplay}>
                 <Row>
-                    <div className={"col-xl"}>
+                    <div className={"col-6"}>
                         {this.renderMapForCurrent(
                             engine,
                             powerName,
@@ -3343,7 +3286,7 @@ export class ContentGame extends React.Component {
                             orderPath
                         )}
                     </div>
-                    <div className={"col-xl"}>
+                    <div className={moveAdvicePanel ? "col-4" : "col-6"}>
                         {/* Orders. */}
                         <div
                             className={"panel-orders mb-4"}
@@ -3373,6 +3316,7 @@ export class ContentGame extends React.Component {
                             </div>
                         </div>
                     </div>
+                    {moveAdvicePanel}
                 </Row>
             </Tab>
         );
@@ -3416,7 +3360,7 @@ export class ContentGame extends React.Component {
         );
     }
 
-    renderTabCentaurMessages(toDisplay, initialEngine, role, isWide) {
+    renderTabCentaurMessages(toDisplay, initialEngine, role) {
         const { engine, pastPhases, phaseIndex } =
             this.__get_engine_to_display(initialEngine);
 
@@ -3424,7 +3368,6 @@ export class ContentGame extends React.Component {
             engine,
             role,
             pastPhases[phaseIndex] === initialEngine.phase,
-            isWide
         );
     }
 
@@ -3436,9 +3379,6 @@ export class ContentGame extends React.Component {
             (controllablePowers.length && controllablePowers[0]);
         const serverOrders = this.__get_orders(engine);
         const powerOrders = serverOrders[currentPowerName] || [];
-        let numOrderText = `[${Object.keys(powerOrders).length}/${
-            engine.orderableLocations[currentPowerName].length
-        }] moves have been set.`;
 
         this.props.data.displayed = true;
         const page = this.context;
@@ -3526,6 +3466,26 @@ export class ContentGame extends React.Component {
             buildCount = engine.getBuildsCount(currentPowerName);
         }
 
+        // orderable locations and units with no orders
+        let numOrderText = "";
+
+        if (phaseType === "M" && orderTypeToLocs) {
+            const merged = new Set(Object.values(orderTypeToLocs).flat());
+            const unitsWithoutOrders = new Set(
+                [...merged].filter((x) => !Object.keys(powerOrders).includes(x))
+            );
+            if (unitsWithoutOrders.size === 0 || merged.size === unitsWithoutOrders.size) {
+                numOrderText = `[${Object.keys(powerOrders).length}/${
+                          engine.orderableLocations[currentPowerName].length
+                      }] set.`;
+            } else {
+                const unitsWithoutOrdersArray = Array.from(unitsWithoutOrders);
+                numOrderText = `[${Object.keys(powerOrders).length}/${
+                          engine.orderableLocations[currentPowerName].length
+                      }] set. Need: ${unitsWithoutOrdersArray.join(", ")}`;
+            }
+        }
+
         const navAfterTitle = (
             <form className="form-inline form-current-power">
                 {(controllablePowers.length === 1 && (
@@ -3606,6 +3566,12 @@ export class ContentGame extends React.Component {
             </div>
         );
 
+        const moveAdvicePanel = this.renderTabCentaur(
+            true,
+            engine,
+            currentPowerName
+        );
+
         const { engineCur, pastPhases, phaseIndex } =
             this.__get_engine_to_display(engine);
         let phasePanel;
@@ -3618,7 +3584,8 @@ export class ContentGame extends React.Component {
                     orderBuildingType,
                     this.state.orderBuildingPath,
                     currentPowerName,
-                    currentTabOrderCreation
+                    currentTabOrderCreation,
+                    moveAdvicePanel
                 );
             } else if (hasTabPhaseHistory) {
                 phasePanel = this.renderTabResults(true, engine);
@@ -3631,113 +3598,62 @@ export class ContentGame extends React.Component {
             currentPowerName,
             true
         );
-        const suggestionMessages = this.getSuggestionMessages(
+
+        const advice = this.getSuggestionMessages(
             currentPowerName,
             messageChannels,
             engine
         );
 
+        const isAdmin =
+            engine.role === "omniscient_type" ||
+            engine.role === "master_type" ||
+            engine.role === "observer_type";
+
+        const receivedSuggestions = advice.filter(
+            (msg) =>
+                msg.type &&
+                (msg.type === STRINGS.SUGGESTED_COMMENTARY ||
+                    msg.type === STRINGS.SUGGESTED_MESSAGE) &&
+                (isAdmin ||
+                    !this.state.annotatedMessages.hasOwnProperty(msg.time_sent))
+        );
+
         const suggestionType = this.getSuggestionType(
             currentPowerName,
             engine,
-            suggestionMessages
+            advice
         );
 
-        const hasMoveSuggestion =
-            suggestionType !== null && (suggestionType & 2) === 2;
+        const showMessageAdviceTab =
+            suggestionType !== null &&
+            (suggestionType === 1 || suggestionType > 2) &&
+            receivedSuggestions.length > 0;
 
-        let gameContent;
-
-        if (pastPhases[phaseIndex] === engine.phase) {
-            if (hasMoveSuggestion) {
-                gameContent = (
-                    <div>
-                        <Row>
-                            {phasePanel}
-                            {this.renderTabCentaur(
-                                true,
-                                engine,
-                                currentPowerName
-                            )}
-                        </Row>
-                        <Row className={"mb-4"}>
-                            {this.renderTabChat(
-                                true,
-                                engine,
-                                currentPowerName,
-                                false
-                            )}
-                            {this.renderTabCentaurMessages(
-                                true,
-                                engine,
-                                currentPowerName,
-                                false
-                            )}
-                        </Row>
-                        <Row>
-                            {!engine.isPlayerGame() &&
-                                this.renderPowerInfo(engine)}
-                            {localStorage.getItem("username") === "admin" &&
-                                this.renderLogs(engine, currentPowerName)}
-                        </Row>
-                    </div>
-                );
-            } else {
-                gameContent = (
-                    <div>
-                        <Row>
-                            {phasePanel}
-                            <div className={"col-4"}>{/* Orders. */}</div>
-                        </Row>
-                        <Row>
-                            {this.renderTabChat(
-                                true,
-                                engine,
-                                currentPowerName,
-                                true
-                            )}
-                            {this.renderTabCentaurMessages(
-                                true,
-                                engine,
-                                currentPowerName,
-                                true
-                            )}
-                        </Row>
-                        <Row>
-                            {!engine.isPlayerGame() &&
-                                this.renderPowerInfo(engine)}
-                            {localStorage.getItem("username") === "admin" &&
-                                this.renderLogs(engine, currentPowerName)}
-                        </Row>
-                    </div>
-                );
-            }
-        } else {
-            gameContent = (
-                <div>
-                    {phasePanel}
-                    <Row>
-                        {this.renderTabChat(
+        const gameContent = (
+            <div>
+                {phasePanel}
+                <Row className={"mb-4"}>
+                    {this.renderTabChat(
+                        true,
+                        engine,
+                        currentPowerName,
+                        showMessageAdviceTab ? false : true
+                    )}
+                    {showMessageAdviceTab &&
+                        this.renderTabCentaurMessages(
                             true,
                             engine,
                             currentPowerName,
-                            true
                         )}
-                        {this.renderTabCentaurMessages(
-                            true,
-                            engine,
-                            currentPowerName,
-                            true
-                        )}
-                    </Row>
-                    <Row>
-                        {!engine.isPlayerGame() && this.renderPowerInfo(engine)}
-                        {localStorage.getItem("username") === "admin" &&
-                            this.renderLogs(engine, currentPowerName)}
-                    </Row>
-                </div>
-            );
-        }
+                </Row>
+                <Row>
+                    {!engine.isPlayerGame() && this.renderPowerInfo(engine)}
+                    {localStorage.getItem("username") === "admin" &&
+                        this.renderLogs(engine, currentPowerName)}
+                </Row>
+            </div>
+        );
 
         return (
             <main>
@@ -3776,7 +3692,7 @@ export class ContentGame extends React.Component {
         //window.addEventListener("visibilitychange", this.handleVisibilityChange);
         window.addEventListener("blur", this.handleBlur);
         window.addEventListener("focus", this.handleFocus);
-        this.state.lastSwitchPanelTime = Date.now();
+        this.setState({ lastSwitchPanelTime: Date.now() });
     }
 
     componentDidUpdate() {
