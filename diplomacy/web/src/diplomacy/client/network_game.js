@@ -63,10 +63,6 @@ export class NetworkGame {
 
     //// Game requests API.
 
-    getOrderDistribution(parameters){
-        return this._req(Channel.prototype.getOrderDistribution, parameters);
-    }
-
     getAllPossibleOrders(parameters) {
         return this._req(Channel.prototype.getAllPossibleOrders, parameters);
     }

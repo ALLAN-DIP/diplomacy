@@ -241,7 +241,6 @@ class Game(Jsonable):
 
     # pylint: disable=too-many-instance-attributes
     __slots__ = [
-        "distribution_advice",
         "victory",
         "no_rules",
         "meta_rules",
@@ -307,7 +306,6 @@ class Game(Jsonable):
     zobrist_tables = {}
     rule_cache = ()
     model = {
-        strings.DISTRIBUTION_ADVICE: parsing.DefaultValueType(dict, {}),
         strings.CONTROLLED_POWERS: parsing.OptionalValueType(parsing.SequenceType(str)),
         strings.DAIDE_PORT: parsing.OptionalValueType(int),
         strings.DEADLINE: parsing.DefaultValueType(int, 300),
@@ -407,7 +405,6 @@ class Game(Jsonable):
 
     def __init__(self, game_id=None, **kwargs):
         """Constructor"""
-        self.distribution_advice = {}
         self.victory = None
         self.no_rules = set()
         self.meta_rules = []
