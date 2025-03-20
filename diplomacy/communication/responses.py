@@ -126,7 +126,7 @@ class DataGameInfo(_AbstractResponse):
     """
     __slots__ = ['game_id', 'phase', 'timestamp', 'map_name', 'rules', 'status', 'n_players',
                  'n_controls', 'deadline', 'registration_password', 'observer_level',
-                 'controlled_powers', 'timestamp_created', 'distribution_advice']
+                 'controlled_powers', 'timestamp_created']
     params = {
         strings.GAME_ID: str,
         strings.PHASE: str,
@@ -141,8 +141,7 @@ class DataGameInfo(_AbstractResponse):
         strings.N_PLAYERS: parsing.OptionalValueType(int),
         strings.N_CONTROLS: parsing.OptionalValueType(int),
         strings.DEADLINE: parsing.OptionalValueType(int),
-        strings.REGISTRATION_PASSWORD: parsing.OptionalValueType(bool),
-        strings.DISTRIBUTION_ADVICE: parsing.DefaultValueType(dict, {})
+        strings.REGISTRATION_PASSWORD: parsing.OptionalValueType(bool)
     }
 
     def __init__(self, **kwargs):
@@ -159,7 +158,6 @@ class DataGameInfo(_AbstractResponse):
         self.n_controls = None                  # type: int
         self.deadline = None                    # type: int
         self.registration_password = None       # type: bool
-        self.distribution_advice = {}           # type: dict
         super(DataGameInfo, self).__init__(**kwargs)
 
 class DataPossibleOrders(_AbstractResponse):
