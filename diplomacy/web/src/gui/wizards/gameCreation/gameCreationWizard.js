@@ -35,7 +35,6 @@ export class GameCreationWizard extends React.Component {
             n_controls: -1,
             deadline: 0,
             registration_password: '',
-            distribution_advice: {},
 
             map: Maps[0],
             no_press: false,
@@ -69,8 +68,7 @@ export class GameCreationWizard extends React.Component {
                 deadline: this.state.deadline,
                 registration_password: this.state.registration_password || null,
                 rules: rules,
-                player_type: this.state.player_type,
-                distribution_advice: this.state.distribution_advice
+                player_type: this.state.player_type
             });
         } else
             this.setState({panel: panelID, registration_password: ''});
