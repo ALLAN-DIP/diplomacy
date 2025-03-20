@@ -70,6 +70,8 @@ class SuggestionType(IntFlag):
     MOVE = 2
     COMMENTARY = 4
     OPPONENT_MOVE = 8
+    MOVE_DISTRIBUTION_TEXTUAL = 16
+    MOVE_DISTRIBUTION_VISUAL = 32
 
     @classmethod
     def parse(cls, string: str) -> "SuggestionType":
