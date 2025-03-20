@@ -39,7 +39,6 @@ from diplomacy.utils import exceptions, strings, constants, export
 from diplomacy.utils.common import hash_password
 from diplomacy.utils.constants import OrderSettings
 from diplomacy.utils.game_phase_data import GamePhaseData
-from diplomacy.utils.models import LogisticRegression
 
 LOGGER = logging.getLogger(__name__)
 
@@ -49,21 +48,6 @@ LOGGER = logging.getLogger(__name__)
 
 SERVER_GAME_RULES = ['NO_PRESS', 'IGNORE_ERRORS', 'POWER_CHOICE']
 
-DISTRIBUTION_MODELS = {
-    "standard_lr": LogisticRegression,
-}
-
-def on_get_order_distribution(server, request, connection_handler):
-    """Manage request GetOrderDistribution.
-    """
-    preds = {}
-    level = verify_request(server, request, connection_handler, require_master=False)
-    game_state = level.game.get_state()
-    requested_province = request.province
-    model = DISTRIBUTION_MODELS.get(request.model)
-    if model:
-        preds = model(game_state, requested_province).predict(top_k=10)
-    return responses.DataSavedGame(data=preds, request_id=request.request_id)
 
 def on_clear_centers(server, request, connection_handler):
     """ Manage request ClearCenters.
@@ -171,9 +155,7 @@ def on_create_game(server, request, connection_handler):
                              n_controls=request.n_controls,
                              deadline=request.deadline,
                              registration_password=password,
-                             server=server,
-                             distribution_advice=request.distribution_advice
-                             )
+                             server=server)
 
     # Make sure game creator will be a game master (set him as moderator if he's not an admin).
     if not server.users.has_admin(username):
@@ -741,8 +723,7 @@ def on_list_games(server, request, connection_handler):
             n_players=server_game.count_controlled_powers(),
             n_controls=server_game.get_expected_controls_count(),
             deadline=server_game.deadline,
-            registration_password=bool(server_game.registration_password),
-            distribution_advice=server_game.distribution_advice
+            registration_password=bool(server_game.registration_password)
         ))
     return responses.DataGames(data=selected_game_indices, request_id=request.request_id)
 
@@ -1370,7 +1351,6 @@ def on_vote(server, request, connection_handler):
 
 # Mapping dictionary from request class to request handler function.
 MAPPING = {
-    requests.GetOrderDistribution: on_get_order_distribution,
     requests.ClearCenters: on_clear_centers,
     requests.ClearOrders: on_clear_orders,
     requests.ClearUnits: on_clear_units,
