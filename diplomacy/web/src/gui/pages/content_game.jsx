@@ -1715,13 +1715,7 @@ export class ContentGame extends React.Component {
     }
 
     getSuggestionType(currentPowerName, engine, globalMessages) {
-        /*
-         0: NONE
-         1: MESSAGE
-         2: MOVE
-         4: COMMENTARY
-        */
-        let suggestionType = 0;
+        let suggestionType = UTILS.SuggestionType.NONE;
 
         const powerSuggestions = globalMessages.filter(
             (msg) => msg.type === STRINGS.HAS_SUGGESTIONS
@@ -2536,7 +2530,7 @@ export class ContentGame extends React.Component {
                                         value="messages"
                                     />
                                     {suggestionType !== null &&
-                                        (suggestionType & 4) === 4 && (
+                                        (suggestionType & UTILS.SuggestionType.COMMENTARY) === UTILS.SuggestionType.COMMENTARY && (
                                             <Tab2
                                                 label={
                                                     this.state.showBadge ? (
@@ -3150,10 +3144,10 @@ export class ContentGame extends React.Component {
 
         const suggestionTypeDisplay = [];
         if (suggestionType !== null) {
-            if ((suggestionType & 1) === 1)
+            if ((suggestionType & UTILS.SuggestionType.MESSAGE) === UTILS.SuggestionType.MESSAGE)
                 suggestionTypeDisplay.push("message");
-            if ((suggestionType & 2) === 2) suggestionTypeDisplay.push("move");
-            if ((suggestionType & 4) === 4)
+            if ((suggestionType & UTILS.SuggestionType.MOVE) === UTILS.SuggestionType.MOVE) suggestionTypeDisplay.push("move");
+            if ((suggestionType & UTILS.SuggestionType.COMMENTARY) === UTILS.SuggestionType.COMMENTARY)
                 suggestionTypeDisplay.push("commentary");
         }
 
@@ -3165,16 +3159,16 @@ export class ContentGame extends React.Component {
                         year
                     </div>
                 )}
-                {suggestionType !== null && suggestionType === 0 && (
+                {suggestionType !== null && suggestionType === UTILS.SuggestionType.NONE && (
                     <div>You are on your own this turn.</div>
                 )}
-                {suggestionType !== null && suggestionType >= 1 && (
+                {suggestionType !== null && suggestionType !== UTILS.SuggestionType.NONE && (
                     <div>
                         You are getting advice this turn:{" "}
                         {suggestionTypeDisplay.join(", ")}.
                     </div>
                 )}
-                {suggestionType !== null && (suggestionType & 2) === 2 && (
+                {suggestionType !== null && (suggestionType & UTILS.SuggestionType.MOVE) === UTILS.SuggestionType.MOVE && (
                     <ChatContainer
                         style={{
                             display: "flex",
@@ -3644,7 +3638,7 @@ export class ContentGame extends React.Component {
         );
 
         const hasMoveSuggestion =
-            suggestionType !== null && (suggestionType & 2) === 2;
+            suggestionType !== null && (suggestionType & UTILS.SuggestionType.MOVE) === UTILS.SuggestionType.MOVE;
 
         let gameContent;
 
