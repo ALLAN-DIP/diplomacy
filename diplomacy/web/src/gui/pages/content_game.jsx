@@ -730,7 +730,7 @@ export class ContentGame extends React.Component {
                     updatedOrderDistribution.push(orderDist)
                 }
             }
-            updatedOrderDistribution.push({ power: requestedPower, distribution: res.preds, province: requestedProvince });
+            updatedOrderDistribution.push({ power: requestedPower, distribution: provinceOrderDistribution.predicted_orders, province: requestedProvince });
             this.setState({ orderDistribution: updatedOrderDistribution });
         }
     }
