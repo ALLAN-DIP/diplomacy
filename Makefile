@@ -22,8 +22,13 @@ endif
 	# They install automatically on Linux as a requirement of PyTorch
 	sed --in-place -e '/^\(nvidia-.*\|triton\)==.*/d' requirements-lock.txt
 
+.PHONY: pytest
+pytest:
+	pytest -v --forked -n auto diplomacy
+
 .PHONY: check
 check:
+	$(MAKE) pytest
 	./run_tests.sh
 
 .PHONY: update-npm
