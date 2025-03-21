@@ -111,7 +111,7 @@ export class SvgStandard extends React.Component {
         }
         if (requestedProvince === "") {
             this.props.onError(`No orderable locations at province ${province.name}`);
-            return this.props.onChangeOrderDistribution(requestedPower, null, null);
+            return this.props.onChangeOrderDistribution(requestedPower, null);
         }
 
         for (var orderDist of this.props.orderDistribution) {
@@ -120,11 +120,7 @@ export class SvgStandard extends React.Component {
             }
         }
 
-        this.props.onChangeOrderDistribution(
-            requestedPower,
-            requestedProvince,
-            this.props.distributionAdviceSetting?.model,
-        );
+        this.props.onChangeOrderDistribution(requestedPower, requestedProvince);
         return true;
     }
 
@@ -684,7 +680,7 @@ export class SvgStandard extends React.Component {
             }
 
         /* If can display visual distribution advice, push the corresponding advice order components for rendering */
-        if (this.props.orderDistribution && this.props.distributionAdviceSetting?.display_mode === "V") {
+        if (this.props.orderDistribution && this.props.displayVisualAdvice) {
             for (var provinceDistribution of this.props.orderDistribution) {
                 var orderDistribution = provinceDistribution.distribution;
                 var provincePower = provinceDistribution.power;
@@ -1229,7 +1225,7 @@ SvgStandard.propTypes = {
     showAbbreviations: PropTypes.bool,
     onChangeOrderDistribution: PropTypes.func,
     orderDistribution: PropTypes.array,
-    distributionAdviceSetting: PropTypes.object,
+    displayVisualAdvice: PropTypes.bool,
     shiftKeyPressed: PropTypes.bool,
     onShowHoverAdvice: PropTypes.array,
     onShowVisibleAdvice: PropTypes.array,
