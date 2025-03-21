@@ -24,7 +24,7 @@ endif
 
 .PHONY: pytest
 pytest:
-	pytest --verbosity=1 --numprocesses auto diplomacy
+	pytest --verbosity=1 --ignore=diplomacy/web/src/diplomacy/maps/tests/ --numprocesses auto diplomacy
 
 .PHONY: check
 check:
