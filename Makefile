@@ -25,7 +25,7 @@ endif
 .PHONY: check-npm-build
 check-npm-build:
 	cd diplomacy/web/ && \
-	npm run build
+	NODE_OPTIONS=--openssl-legacy-provider npm run build
 
 .PHONY: eslint
 eslint:
