@@ -61,4 +61,4 @@ packages = ["diplomacy"]
 version = {attr = "diplomacy.version.PACKAGE_VERSION"}
 
 [tool.pytest.ini_options]
-addopts = "--verbosity=1 --ignore=diplomacy/web/src/diplomacy/maps/tests/ --numprocesses auto"
+addopts = "--verbosity=1 --strict-config --strict-markers --ignore=diplomacy/web/src/diplomacy/maps/tests/ --numprocesses auto"
