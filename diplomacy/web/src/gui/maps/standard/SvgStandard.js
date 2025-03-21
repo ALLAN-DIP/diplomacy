@@ -132,7 +132,7 @@ export class SvgStandard extends React.Component {
     }
     if (requestedProvince === "") {
       this.props.onError(`No orderable locations at province ${province.name}`);
-      return this.props.onChangeOrderDistribution(requestedPower, null, null);
+      return this.props.onChangeOrderDistribution(requestedPower, null);
     }
 
     for (var orderDist of this.props.orderDistribution) {
