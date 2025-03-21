@@ -22,6 +22,10 @@ endif
 	# They install automatically on Linux as a requirement of PyTorch
 	sed --in-place -e '/^\(nvidia-.*\|triton\)==.*/d' requirements-lock.txt
 
+.PHONY: pylint
+pylint:
+	find diplomacy -name "*.py" ! -name 'zzz_*.py' ! -name '_*.py' -exec pylint '{}' +
+
 .PHONY: pytest
 pytest:
 	pytest
@@ -29,6 +33,7 @@ pytest:
 .PHONY: check
 check:
 	$(MAKE) pytest
+	$(MAKE) pylint
 	./run_tests.sh
 
 .PHONY: update-npm
