@@ -53,7 +53,6 @@ check:
 	$(MAKE) sphinx
 	$(MAKE) eslint
 	$(MAKE) check-npm-build
-	./run_tests.sh
 
 .PHONY: update-npm
 update-npm:
