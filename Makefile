@@ -22,11 +22,15 @@ endif
 	# They install automatically on Linux as a requirement of PyTorch
 	sed --in-place -e '/^\(nvidia-.*\|triton\)==.*/d' requirements-lock.txt
 
+.PHONY: check-npm-build
+check-npm-build:
+	cd diplomacy/web/ && \
+	npm run build
+
 .PHONY: eslint
 eslint:
 	cd diplomacy/web/ && \
-	node_modules/.bin/eslint --ext js,jsx . && \
-	npm run build
+	node_modules/.bin/eslint --ext js,jsx .
 
 .PHONY: pylint
 pylint:
@@ -48,6 +52,7 @@ check:
 	$(MAKE) pylint
 	$(MAKE) sphinx
 	$(MAKE) eslint
+	$(MAKE) check-npm-build
 	./run_tests.sh
 
 .PHONY: update-npm
