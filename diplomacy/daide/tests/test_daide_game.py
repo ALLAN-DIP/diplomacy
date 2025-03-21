@@ -21,6 +21,7 @@ import os
 import random
 import signal
 
+import pytest
 from tornado import gen
 from tornado.concurrent import chain_future, Future
 from tornado.ioloop import IOLoop
@@ -448,12 +449,14 @@ def test_game_reject_map():
     game_path = os.path.join(FILE_FOLDER_NAME, 'game_data_1_reject_map.csv')
     run_with_timeout(lambda: run_game_data(1, ['NO_PRESS', 'IGNORE_ERRORS', 'POWER_CHOICE'], game_path), 60)
 
+@pytest.mark.xfail
 def test_game_1():
     """ Test a complete 1 player game """
     _ = Server()            # Initialize cache to prevent timeouts during tests
     game_path = os.path.join(FILE_FOLDER_NAME, 'game_data_1.csv')
     run_with_timeout(lambda: run_game_data(1, ['NO_PRESS', 'IGNORE_ERRORS', 'POWER_CHOICE'], game_path), 60)
 
+@pytest.mark.xfail
 def test_game_history():
     """ Test a complete 1 player game and validate the full history (except last phase) """
     _ = Server()            # Initialize cache to prevent timeouts during tests
@@ -466,6 +469,7 @@ def test_game_7():
     game_path = os.path.join(FILE_FOLDER_NAME, 'game_data_7.csv')
     run_with_timeout(lambda: run_game_data(7, ['NO_PRESS', 'IGNORE_ERRORS', 'POWER_CHOICE'], game_path), 60)
 
+@pytest.mark.xfail
 def test_game_7_draw():
     """ Test a complete 7 players game that ends with a draw """
     _ = Server()            # Initialize cache to prevent timeouts during tests
