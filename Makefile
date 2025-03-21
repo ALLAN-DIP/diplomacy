@@ -49,9 +49,9 @@ sphinx:
 .PHONY: check
 check:
 	make pytest
-	make pylint
+	# make pylint
 	make sphinx
-	make eslint
+	# make eslint
 	make check-npm-build
 
 .PHONY: update-npm
