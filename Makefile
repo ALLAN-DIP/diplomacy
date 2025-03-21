@@ -30,7 +30,7 @@ check-npm-build:
 .PHONY: eslint
 eslint:
 	cd diplomacy/web/ && \
-	node_modules/.bin/eslint --ext js,jsx .
+	npx eslint --ext js,jsx .
 
 .PHONY: pylint
 pylint:
