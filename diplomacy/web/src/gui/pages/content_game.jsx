@@ -1819,7 +1819,8 @@ export class ContentGame extends React.Component {
         const receivedSuggestions = globalMessages.filter(
             (msg) =>
                 msg.type === STRINGS.SUGGESTED_MOVE_FULL ||
-                msg.type === STRINGS.SUGGESTED_MOVE_PARTIAL
+                msg.type === STRINGS.SUGGESTED_MOVE_PARTIAL ||
+                msg.type === STRINGS.SUGGESTED_MOVE_DISTRIBUTION
         );
 
         return receivedSuggestions;
