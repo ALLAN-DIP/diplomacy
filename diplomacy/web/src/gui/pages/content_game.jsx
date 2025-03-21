@@ -3235,7 +3235,7 @@ export class ContentGame extends React.Component {
             );
         }
 
-        if (this.state.distributionAdviceSetting?.display_mode === "T"
+        if ((suggestionType & UTILS.SuggestionType.MOVE_DISTRIBUTION_TEXTUAL) === UTILS.SuggestionType.MOVE_DISTRIBUTION_TEXTUAL
             && this.state.orderDistribution.length > 0){
             /** render messages that outlines the probability of all possible orders for a selected province*/
             var orderDistribution = this.state.orderDistribution[0]
@@ -3354,8 +3354,9 @@ export class ContentGame extends React.Component {
                         {suggestionTypeDisplay.join(", ")}.
                     </div>
                 )}
-                {(suggestionType !== null && (suggestionType & UTILS.SuggestionType.MOVE) === UTILS.SuggestionType.MOVE) || 
-                (this.state.distributionAdviceSetting?.display_mode === "T") && (
+                {(suggestionType !== null && ((suggestionType & UTILS.SuggestionType.MOVE) === UTILS.SuggestionType.MOVE) ||
+                    (suggestionType & UTILS.SuggestionType.MOVE_DISTRIBUTION_TEXTUAL) === UTILS.SuggestionType.MOVE_DISTRIBUTION_TEXTUAL)
+                    && (
                     <ChatContainer
                         style={{
                             display: "flex",
@@ -3829,7 +3830,7 @@ export class ContentGame extends React.Component {
         );
 
         const hasMoveSuggestion =
-            ((suggestionType !== null && (suggestionType & UTILS.SuggestionType.MOVE) === UTILS.SuggestionType.MOVE) || (this.state.distributionAdviceSetting?.display_mode === "T"));
+            ((suggestionType !== null && (suggestionType & UTILS.SuggestionType.MOVE) === UTILS.SuggestionType.MOVE) || (suggestionType & UTILS.SuggestionType.MOVE_DISTRIBUTION_TEXTUAL) === UTILS.SuggestionType.MOVE_DISTRIBUTION_TEXTUAL)
 
         let gameContent;
 
