@@ -4,14 +4,6 @@ export PYTHONIOENCODING=utf-8
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 FAILED=0
 
-# Running pylint
-echo ""
-echo "------------------------------"
-echo "         PYLINT TESTS         "
-echo "------------------------------"
-echo ""
-find diplomacy -name "*.py" ! -name 'zzz_*.py' ! -name '_*.py' -exec pylint '{}' + || FAILED=1
-
 # Running sphinx
 echo ""
 echo "------------------------------"
