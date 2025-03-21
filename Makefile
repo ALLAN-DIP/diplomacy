@@ -24,7 +24,7 @@ endif
 
 .PHONY: pytest
 pytest:
-	pytest diplomacy
+	pytest
 
 .PHONY: check
 check:
