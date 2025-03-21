@@ -711,7 +711,7 @@ export class ContentGame extends React.Component {
             engine
         );
         const provinceOrderDistributions = suggestionMessages.filter(
-            (msg) => msg.type === STRINGS.HAS_SUGGESTIONS && msg.parsed.payload.province === requestedProvince
+            (msg) => msg.type === STRINGS.SUGGESTED_MOVE_DISTRIBUTION && msg.parsed.payload.province === requestedProvince
         );
         if (provinceOrderDistributions.length === 0) {
             return
