@@ -24,7 +24,7 @@ endif
 
 .PHONY: pytest
 pytest:
-	pytest -v -n auto diplomacy
+	pytest --verbosity=1 --numprocesses auto diplomacy
 
 .PHONY: check
 check:
