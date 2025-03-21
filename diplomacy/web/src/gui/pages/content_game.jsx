@@ -169,23 +169,6 @@ export class ContentGame extends React.Component {
         }
         this.schedule_timeout_id = null;
 
-        // For each power, track type of distribution advice ('N'-none, 'V'-visual, 'T'-textual)
-        // and model name
-        this.distribution_advice = {
-            'AUSTRIA': {}, // { display_mode: 'N'/'V'/'T', model: str }
-            'ENGLAND': {},
-            'FRANCE': {},
-            'GERMANY': {},
-            'ITALY': {},
-            'RUSSIA': {},
-            'TURKEY': {}
-        }
-        for (const power in this.props.data.distribution_advice){
-            if (!this.props.data.distribution_advice.hasOwnProperty(power))
-                continue
-            this.distribution_advice[power] = this.props.data.distribution_advice[power]
-        }
-
         this.state = {
             tabMain: null,
             tabPastMessages: null,
@@ -195,7 +178,7 @@ export class ContentGame extends React.Component {
             historyShowOrders: true,
             historyCurrentLoc: null,
             historyCurrentOrders: null,
-            distributionAdviceSetting: {}, // { display_mode: 'N'/'V'/'T', model: str } where 'N'-none, 'V'-visual, 'T'-textual
+            displayVisualAdvice: null,
             orderDistribution: [], // [{ power: str, distribution: {order => {opacity: float, rank: int, pred_prob: float},...} },...]
             hoverDistributionOrder: [], // [ { order: str, power: str },... ]
             visibleDistributionOrder: [],
@@ -708,21 +691,21 @@ export class ContentGame extends React.Component {
      * @param {string} requestedPower  - power requesting the advice
      * @param {string} requestedProvince - province to get advice for
      */
-    onChangeOrderDistribution(requestedPower, requestedProvince, model){
-        if (this.state.distributionAdviceSetting?.display_mode === "N" || this.state.distributionAdviceSetting?.display_mode === undefined){
+    onChangeOrderDistribution(requestedPower, requestedProvince){
+        if (this.state.displayVisualAdvice === null || this.state.displayVisualAdvice === undefined){
             return;
         }
         if (requestedProvince === undefined || requestedProvince === null){
             return;
         }
         // communicate with server to get model prediction
-        this.props.data.client.getOrderDistribution({ power_name: requestedPower, province: requestedProvince, model: model }).then(res => {
+        this.props.data.client.getOrderDistribution({ power_name: requestedPower, province: requestedProvince, model: "" }).then(res => {
             if (res.hasOwnProperty("error")){
                 this.getPage().error(res.error);
             }
             else{
                 // successfully retrieves and updates order distribution
-                if (this.state.distributionAdviceSetting?.display_mode === "T"){
+                if (!this.state.displayVisualAdvice){
                     this.setState({ orderDistribution: [ { power: res.power, distribution: res.preds, province: requestedProvince } ] });
                 }
                 else{
@@ -761,7 +744,7 @@ export class ContentGame extends React.Component {
             power: event.target.value,
             tabPastMessages: null,
             tabCurrentMessages: null,
-            distributionAdviceSetting: this.distribution_advice.hasOwnProperty(event.target.value) ? this.distribution_advice[event.target.value] : {},
+            distributionAdviceSetting: null,
             orderDistribution: [],
             hoverDistributionOrder: [],
             visibleDistributionOrder: []
@@ -2296,7 +2279,7 @@ export class ContentGame extends React.Component {
                     shiftKeyPressed={this.state.shiftKeyPressed}
                     onChangeOrderDistribution={this.onChangeOrderDistribution}
                     orderDistribution={this.state.orderDistribution}
-                    distributionAdviceSetting={this.state.distributionAdviceSetting}
+                    displayVisualAdvice={this.state.displayVisualAdvice}
                     onShowVisibleAdvice={this.state.visibleDistributionOrder}
                     onShowHoverAdvice={this.state.hoverDistributionOrder}
                     onSelectLocation={this.onSelectLocation}
@@ -3201,7 +3184,7 @@ export class ContentGame extends React.Component {
             );
         }
 
-        if (this.state.distributionAdviceSetting?.display_mode === "T"
+        if ((suggestionType & UTILS.SuggestionType.MOVE_DISTRIBUTION_TEXTUAL) === UTILS.SuggestionType.MOVE_DISTRIBUTION_TEXTUAL
             && this.state.orderDistribution.length > 0){
             /** render messages that outlines the probability of all possible orders for a selected province*/
             var orderDistribution = this.state.orderDistribution[0]
@@ -3296,8 +3279,9 @@ export class ContentGame extends React.Component {
 
         return (
             <div className={"col-4 mb-4"}>
-                {suggestionType !== null && (suggestionType & UTILS.SuggestionType.MOVE) === UTILS.SuggestionType.MOVE ||
-                (this.state.distributionAdviceSetting?.display_mode === "T") && (
+                {suggestionType !== null && ((suggestionType & UTILS.SuggestionType.MOVE) === UTILS.SuggestionType.MOVE ||
+                    (suggestionType & UTILS.SuggestionType.MOVE_DISTRIBUTION_TEXTUAL) === UTILS.SuggestionType.MOVE_DISTRIBUTION_TEXTUAL)
+                    && (
                     <ChatContainer
                         style={{
                             display: "flex",
@@ -3628,7 +3612,22 @@ export class ContentGame extends React.Component {
                     phaseType
                 );
             }
-            this.state.distributionAdviceSetting = this.distribution_advice[currentPowerName]
+
+            const messageChannels = engine.getMessageChannels(
+                currentPowerName,
+                true
+            );
+            const suggestionMessages = this.getSuggestionMessages(
+                currentPowerName,
+                messageChannels,
+                engine
+            );
+            const suggestionType = this.getSuggestionType(
+                currentPowerName,
+                engine,
+                suggestionMessages
+            );
+            this.state.displayVisualAdvice = (suggestionType & UTILS.SuggestionType.MOVE_DISTRIBUTION_VISUAL) === UTILS.SuggestionType.MOVE_DISTRIBUTION_VISUAL
             if (allowedPowerOrderTypes.length) {
                 if (
                     this.state.orderBuildingType &&
@@ -3832,7 +3831,7 @@ export class ContentGame extends React.Component {
         }
 
         const hasMoveSuggestion =
-            suggestionType !== null && (suggestionType & UTILS.SuggestionType.MOVE) === UTILS.SuggestionType.MOVE || (this.state.distributionAdviceSetting?.display_mode === "T");
+            suggestionType !== null && ((suggestionType & UTILS.SuggestionType.MOVE) === UTILS.SuggestionType.MOVE || (suggestionType & UTILS.SuggestionType.MOVE_DISTRIBUTION_TEXTUAL) === UTILS.SuggestionType.MOVE_DISTRIBUTION_TEXTUAL)
 
         let gameContent;
 
