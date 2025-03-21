@@ -22,6 +22,10 @@ endif
 	# They install automatically on Linux as a requirement of PyTorch
 	sed --in-place -e '/^\(nvidia-.*\|triton\)==.*/d' requirements-lock.txt
 
+.PHONY: check
+check:
+	./run_tests.sh
+
 .PHONY: update-npm
 update-npm:
 	cd diplomacy/web/ && \
