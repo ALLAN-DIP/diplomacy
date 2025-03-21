@@ -30,10 +30,17 @@ pylint:
 pytest:
 	pytest
 
+.PHONY: sphinx
+sphinx:
+	cd docs && \
+	make clean && \
+	make html
+
 .PHONY: check
 check:
 	make pytest
 	make pylint
+	make sphinx
 	./run_tests.sh
 
 .PHONY: update-npm
