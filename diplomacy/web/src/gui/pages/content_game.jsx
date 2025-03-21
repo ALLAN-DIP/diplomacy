@@ -197,7 +197,7 @@ export class ContentGame extends React.Component {
             historyShowOrders: true,
             historyCurrentLoc: null,
             historyCurrentOrders: null,
-            distributionAdviceSetting: {}, // { display_mode: 'N'/'V'/'T', model: str } where 'N'-none, 'V'-visual, 'T'-textual
+            displayVisualAdvice: null,
             orderDistribution: [], // [{ power: str, distribution: {order => {opacity: float, rank: int, pred_prob: float},...} },...]
             hoverDistributionOrder: [], // [ { order: str, power: str },... ]
             visibleDistributionOrder: [], 
@@ -709,21 +709,21 @@ export class ContentGame extends React.Component {
      * @param {string} requestedPower  - power requesting the advice
      * @param {string} requestedProvince - province to get advice for
      */
-    onChangeOrderDistribution(requestedPower, requestedProvince, model){
-        if (this.state.distributionAdviceSetting?.display_mode === "N" || this.state.distributionAdviceSetting?.display_mode === undefined){
+    onChangeOrderDistribution(requestedPower, requestedProvince){
+        if (this.state.displayVisualAdvice === null || this.state.displayVisualAdvice === undefined){
             return;
         }
         if (requestedProvince === undefined || requestedProvince === null){
             return;
         }
         // communicate with server to get model prediction
-        this.props.data.client.getOrderDistribution({ power_name: requestedPower, province: requestedProvince, model: model }).then(res => {
+        this.props.data.client.getOrderDistribution({ power_name: requestedPower, province: requestedProvince, model: "" }).then(res => {
             if (res.hasOwnProperty("error")){
                 this.getPage().error(res.error);
             }
             else{
                 // successfully retrieves and updates order distribution
-                if (this.state.distributionAdviceSetting?.display_mode === "T"){
+                if (!this.state.displayVisualAdvice){
                     this.setState({ orderDistribution: [ { power: res.power, distribution: res.preds, province: requestedProvince } ] }); 
                 }
                 else{
@@ -2329,7 +2329,7 @@ export class ContentGame extends React.Component {
                     shiftKeyPressed={this.state.shiftKeyPressed}
                     onChangeOrderDistribution={this.onChangeOrderDistribution}
                     orderDistribution={this.state.orderDistribution}
-                    distributionAdviceSetting={this.state.distributionAdviceSetting}
+                    displayVisualAdvice={this.state.displayVisualAdvice}
                     onShowVisibleAdvice={this.state.visibleDistributionOrder}
                     onShowHoverAdvice={this.state.hoverDistributionOrder}
                     onSelectLocation={this.onSelectLocation}
@@ -3698,7 +3698,7 @@ export class ContentGame extends React.Component {
                     phaseType
                 );
             }
-            this.state.distributionAdviceSetting = this.distribution_advice[currentPowerName] 
+            this.state.displayVisualAdvice = this.distribution_advice[currentPowerName] 
             if (allowedPowerOrderTypes.length) {
                 if (
                     this.state.orderBuildingType &&
