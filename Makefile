@@ -30,10 +30,17 @@ pylint:
 pytest:
 	pytest
 
+.PHONY: sphinx
+sphinx:
+	cd docs && \
+	$(MAKE) clean && \
+	$(MAKE) html
+
 .PHONY: check
 check:
 	$(MAKE) pytest
 	$(MAKE) pylint
+	$(MAKE) sphinx
 	./run_tests.sh
 
 .PHONY: update-npm

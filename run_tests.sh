@@ -4,17 +4,6 @@ export PYTHONIOENCODING=utf-8
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 FAILED=0
 
-# Running sphinx
-echo ""
-echo "------------------------------"
-echo "         SPHINX TESTS         "
-echo "------------------------------"
-echo ""
-cd $DIR/docs
-make clean || FAILED=1
-make html || FAILED=1
-cd -
-
 # Running eslint
 echo ""
 echo "------------------------------"
