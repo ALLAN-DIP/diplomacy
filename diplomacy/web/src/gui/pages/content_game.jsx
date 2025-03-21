@@ -171,23 +171,6 @@ export class ContentGame extends React.Component {
         }
         this.schedule_timeout_id = null;
 
-        // For each power, track type of distribution advice ('N'-none, 'V'-visual, 'T'-textual) 
-        // and model name
-        this.distribution_advice = {
-            'AUSTRIA': {}, // { display_mode: 'N'/'V'/'T', model: str }
-            'ENGLAND': {},
-            'FRANCE': {},
-            'GERMANY': {}, 
-            'ITALY': {}, 
-            'RUSSIA': {}, 
-            'TURKEY': {}
-        }
-        for (const power in this.props.data.distribution_advice){
-            if (!this.props.data.distribution_advice.hasOwnProperty(power))
-                continue
-            this.distribution_advice[power] = this.props.data.distribution_advice[power]
-        }
-
         this.state = {
             tabMain: null,
             tabPastMessages: null,
@@ -762,7 +745,7 @@ export class ContentGame extends React.Component {
             power: event.target.value,
             tabPastMessages: null,
             tabCurrentMessages: null,
-            distributionAdviceSetting: this.distribution_advice.hasOwnProperty(event.target.value) ? this.distribution_advice[event.target.value] : {},
+            distributionAdviceSetting: null,
             orderDistribution: [],
             hoverDistributionOrder: [],
             visibleDistributionOrder: []
@@ -3698,7 +3681,22 @@ export class ContentGame extends React.Component {
                     phaseType
                 );
             }
-            this.state.displayVisualAdvice = this.distribution_advice[currentPowerName] 
+
+            const messageChannels = engine.getMessageChannels(
+                currentPowerName,
+                true
+            );
+            const suggestionMessages = this.getSuggestionMessages(
+                currentPowerName,
+                messageChannels,
+                engine
+            );
+            const suggestionType = this.getSuggestionType(
+                currentPowerName,
+                engine,
+                suggestionMessages
+            );
+            this.state.displayVisualAdvice = (suggestionType & UTILS.SuggestionType.MOVE_DISTRIBUTION_VISUAL) === UTILS.SuggestionType.MOVE_DISTRIBUTION_VISUAL
             if (allowedPowerOrderTypes.length) {
                 if (
                     this.state.orderBuildingType &&
