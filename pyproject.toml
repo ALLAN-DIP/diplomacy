@@ -54,5 +54,8 @@ homepage = "https://github.com/diplomacy/diplomacy"
 issues = "https://github.com/diplomacy/diplomacy/issues"
 source = "https://github.com/diplomacy/diplomacy"
 
+[tool.setuptools]
+packages = ["diplomacy"]
+
 [tool.setuptools.dynamic]
 version = {attr = "diplomacy.version.PACKAGE_VERSION"}
