@@ -713,7 +713,6 @@ export class ContentGame extends React.Component {
         const provinceOrderDistributions = suggestionMessages.filter(
             (msg) => msg.type === STRINGS.SUGGESTED_MOVE_DISTRIBUTION && msg.parsed.payload.province === requestedProvince
         );
-        console.debug(`Found relevant messages ${provinceOrderDistributions}`);
         if (provinceOrderDistributions.length === 0) {
             return
         }
