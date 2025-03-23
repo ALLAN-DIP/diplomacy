@@ -82,7 +82,7 @@ function getWaitFlag(power) {
 function getCommStatusFlag(power) {
     if (power.isEliminated())
         return <span className="dummy"><em>N/A</em></span>;
-    return <span className={power.comm_status === STRINGS.BUSY ? 'busy' : 'ready'}>{power.comm_status === STRINGS.BUSY ? 'busy' : 'ready'}</span>;
+    return <span className={power.comm_status === 'ready'}>{power.comm_status === 'ready'}</span>;
 
 }
 

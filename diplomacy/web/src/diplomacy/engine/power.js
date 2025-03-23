@@ -47,7 +47,7 @@ export class Power {
             RUSSIA: false,
             TURKEY: false
         };
-        this.comm_status = STRINGS.BUSY;
+        this.comm_status = STRINGS.READY;
         this.player_type = null;
     }
 
@@ -168,7 +168,7 @@ export class Power {
         this.orders = [];
         this.order_is_set = 0;
         this.wait = !this.game.isRealTime();
-        this.comm_status = STRINGS.BUSY;
+        this.comm_status = STRINGS.READY;
     }
 
     clearUnits() {

@@ -80,7 +80,7 @@ class Power(Jsonable):
         strings.UNITS: parsing.DefaultValueType(parsing.SequenceType(str), []),
         strings.VOTE: parsing.DefaultValueType(parsing.EnumerationType(strings.ALL_VOTE_DECISIONS), strings.NEUTRAL),
         strings.WAIT: parsing.DefaultValueType(bool, True),
-        strings.COMM_STATUS: parsing.DefaultValueType(str, strings.BUSY),
+        strings.COMM_STATUS: parsing.DefaultValueType(str, strings.READY),
         strings.PLAYER_TYPE: parsing.DefaultValueType(parsing.EnumerationType(strings.ALL_PLAYER_TYPES), strings.NONE)
     }
 
@@ -100,7 +100,7 @@ class Power(Jsonable):
         self.vote = ''
         self.order_is_set = 0
         self.wait = False
-        self.comm_status = strings.BUSY
+        self.comm_status = strings.READY
         self.player_type = strings.NONE
         self.tokens = set()
         super(Power, self).__init__(name=name, **kwargs)
@@ -186,11 +186,11 @@ class Power(Jsonable):
             if self.is_eliminated():
                 self.order_is_set = OrderSettings.ORDER_SET_EMPTY
                 self.wait = False
-                self.comm_status = strings.BUSY
+                self.comm_status = strings.READY
             else:
                 self.order_is_set = OrderSettings.ORDER_NOT_SET
                 self.wait = True if self.is_dummy() else (not self.game.real_time)
-                self.comm_status = strings.BUSY
+                self.comm_status = strings.READY
         self.goner = 0
 
     @staticmethod
@@ -220,7 +220,7 @@ class Power(Jsonable):
         self.game = game
         self.order_is_set = OrderSettings.ORDER_NOT_SET
         self.wait = True if self.is_dummy() else (not self.game.real_time)
-        self.comm_status = strings.BUSY
+        self.comm_status = strings.READY
 
         # Get power abbreviation.
         self.abbrev = self.game.map.abbrev.get(self.name, self.name[0])
@@ -373,7 +373,7 @@ class Power(Jsonable):
                 self.controller.put(common.timestamp_microseconds(), strings.DUMMY)
                 self.tokens.clear()
                 self.wait = True
-                self.comm_status = strings.BUSY
+                self.comm_status = strings.READY
                 self.vote = strings.NEUTRAL
         elif self.controller.last_value() == strings.DUMMY:
             self.controller.put(common.timestamp_microseconds(), username)
