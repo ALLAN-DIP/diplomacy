@@ -187,6 +187,14 @@ export const UTILS = {
             return UTILS.html.isInput(element) && element.type === 'password';
         }
 
-    }
+    },
+
+    SuggestionType: {
+        NONE: 0,
+        MESSAGE: 1,
+        MOVE: 2,
+        COMMENTARY: 4,
+        OPPONENT_MOVE: 8,
+    },
 
 };

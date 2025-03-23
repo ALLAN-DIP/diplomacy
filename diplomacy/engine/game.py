@@ -299,6 +299,7 @@ class Game(Jsonable):
         "deceiving",
         "is_bot_history",
         "deceiving_history",
+        "commentary_durations",
         "order_suggestions",
     ]
 
@@ -376,6 +377,9 @@ class Game(Jsonable):
         "is_bot_history": parsing.DefaultValueType(
             parsing.DictType(str, parsing.DictType(str, parsing.DictType(str, bool))),
             {},
+        ),
+        "commentary_durations": parsing.DefaultValueType(
+            parsing.DictType(str, parsing.SequenceType(int)), {}
         ),
         "deceiving": parsing.DefaultValueType(
             parsing.DictType(str, parsing.DictType(str, bool)), {}
@@ -526,6 +530,8 @@ class Game(Jsonable):
             "FRA": [],
             "GER": [],
         }
+
+        self.commentary_durations = {}
 
         # Caches
         self._unit_owner_cache = None  # {(unit, coast_required): owner}
@@ -1472,6 +1478,13 @@ class Game(Jsonable):
         is_bot = info["is_bot"]
         self.is_bot[power] = is_bot
 
+    def add_commentary_durations(self, durations):
+        power = durations["power_name"]
+        durations = durations["durations"]
+        if power not in self.commentary_durations:
+            self.commentary_durations[power] = []
+        self.commentary_durations[power].append(durations)
+        
     def add_deceiving(self, info):
         controlled_power = info["controlled_power"]
         target_power = info["target_power"]

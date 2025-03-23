@@ -843,6 +843,13 @@ def on_send_deceiving(server, request, connection_handler):
     level.game.add_deceiving(info)
     server.save_game(level.game)
 
+def on_send_commentary_durations(server,request, connection_handler):
+    level = verify_request(server, request, connection_handler, observer_role=False, omniscient_role=False)
+    token, durations = request.token, request.durations
+    assert_game_not_finished(level.game)
+    level.game.add_commentary_durations(durations)
+    server.save_game(level.game)
+
 def on_send_order_log(server, request, connection_handler):
     level = verify_request(server, request, connection_handler, observer_role=False, omniscient_role=True)
     token, log = request.token, request.log
@@ -1031,7 +1038,7 @@ def on_set_grade(server, request, connection_handler):
             if not server.users.has_admin(username):
                 server.users.add_admin(username)
                 to_save = True
-        elif server.users.has_admin(username):
+        elif server.users.has_admin(username): 
             server.users.remove_admin(username)
             to_save = True
 
@@ -1378,6 +1385,7 @@ MAPPING = {
     requests.SetGrade: on_set_grade,
     requests.SetOrders: on_set_orders,
     requests.SendLogData: on_send_log_data,
+    requests.SendCommentaryDurations: on_send_commentary_durations,
     requests.SetWaitFlag: on_set_wait_flag,
     requests.SignIn: on_sign_in,
     requests.Synchronize: on_synchronize,

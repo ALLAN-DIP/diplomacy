@@ -206,6 +206,10 @@ export class ContentGame extends React.Component {
             numReadCommentary: 0,
             showBadge: false,
             commentaryProtagonist: null,
+            lastSwitchPanelTime: Date.now(),
+            commentaryTimeSpent:
+                this.props.data.commentary_durations[this.props.data.role] ||
+                [],
         };
 
         // Bind some class methods to this instance.
@@ -530,6 +534,7 @@ export class ContentGame extends React.Component {
                         messageHighlights: {},
                         orderBuildingPath: [],
                         hasInitialOrders: false,
+                        hoverOrders: [],
                         stances: {},
                     }).then(() =>
                         this.getPage().info(
@@ -775,7 +780,29 @@ export class ContentGame extends React.Component {
     }
 
     updateTabVal(event, value) {
-        return this.setState({ tabVal: value });
+        const now = Date.now();
+
+        if (value === "messages") {
+            // track time spent on commentary
+            const timeDiff = now - this.state.lastSwitchPanelTime;
+
+            const newTimeSpent = [...this.state.commentaryTimeSpent, timeDiff];
+            this.setState({
+                commentaryTimeSpent: newTimeSpent,
+            });
+
+            this.sendCommentaryDurations(
+                this.props.data.client,
+                this.props.data.role,
+                timeDiff
+            );
+
+            return this.setState({
+                tabVal: value,
+                commentaryTimeSpent: newTimeSpent,
+            });
+        }
+        return this.setState({ tabVal: value, lastSwitchPanelTime: now });
     }
 
     updateReadCommentary(event) {
@@ -885,6 +912,57 @@ export class ContentGame extends React.Component {
             });
     }
 
+    sendCommentaryDurations(networkGame, powerName, durations) {
+        if (
+            this.props.data.role === "omniscient_type" ||
+            this.props.data.role === "observer_type" ||
+            this.props.data.role === "master_type"
+        ) {
+            return;
+        }
+
+        const info = {
+            power_name: powerName,
+            durations: durations,
+        };
+        console.log("Sending", durations);
+        networkGame.sendCommentaryDurations({ durations: info });
+    }
+
+    handleExit = () => {
+        // Send the commentary durations to the server on exit
+        if (this.state.tabVal === "messages") {
+            return;
+        }
+        const now = Date.now();
+        const timeSpent = now - this.state.lastSwitchPanelTime;
+        const newTimeSpent = [...this.state.commentaryTimeSpent, timeSpent];
+        this.setState({
+            lastSwitchPanelTime: now,
+            commentaryTimeSpent: newTimeSpent,
+        });
+        const engine = this.props.data;
+
+        this.sendCommentaryDurations(engine.client, engine.role, timeSpent);
+    };
+
+    handleFocus = () => {
+        console.log("updated current time");
+        this.setState({ lastSwitchPanelTime: Date.now() });
+    };
+
+    handleBlur = () => {
+        this.handleExit();
+    };
+
+    handleVisibilityChange = () => {
+        if (document.hidden) {
+            this.handleBlur();
+        } else {
+            this.handleFocus();
+        }
+    };
+
     onProcessGame() {
         const page = this.getPage();
         this.props.data.client
@@ -892,7 +970,7 @@ export class ContentGame extends React.Component {
             .then(() => {
                 page.success("Game processed.");
                 this.props.data.clearInitialOrders();
-                return this.setState({ hasInitialOrders: false });
+                return this.setState({ hasInitialOrders: false, hoverOrders: [] });
             })
             .catch((err) => {
                 page.error(err.toString());
@@ -1379,7 +1457,7 @@ export class ContentGame extends React.Component {
     }
 
     blurMessages(engine, messageChannels) {
-        /* add a *show* key to decide whether to blur a message */
+        /* add a *hide* key to decide whether to blur a message */
         if (
             engine.role === "omniscient_type" ||
             engine.role === "observer_type" ||
@@ -1395,23 +1473,43 @@ export class ContentGame extends React.Component {
                 blurredMessageChannels[powerName] = messages;
             } else {
                 let blurredMessages = [];
-                let showMessage = true;
+                let hideMessage = false;
 
                 for (let idx in messages) {
                     const currentMessage = messages[idx];
-                    const toShow = { show: showMessage };
-                    const newMessage = Object.assign(toShow, currentMessage);
-                    blurredMessages.push(newMessage);
 
+                    // if the message is from self or is annotated, don't blur
                     if (
-                        currentMessage.sender !== controlledPower &&
-                        !this.state.annotatedMessages.hasOwnProperty(
+                        currentMessage.sender === controlledPower ||
+                        this.state.annotatedMessages.hasOwnProperty(
                             currentMessage.time_sent
                         )
                     ) {
-                        showMessage = false;
+                        blurredMessages.push(currentMessage);
+                    } else {
+                        // show only the first unannotated message
+                        if (!hideMessage) {
+                            blurredMessages.push(currentMessage);
+                        } else {
+                            const toShow = { hide: hideMessage };
+                            const newMessage = Object.assign(
+                                toShow,
+                                currentMessage
+                            );
+                            blurredMessages.push(newMessage);
+                        }
+
+                        if (
+                            currentMessage.sender !== controlledPower &&
+                            !this.state.annotatedMessages.hasOwnProperty(
+                                currentMessage.time_sent
+                            )
+                        ) {
+                            hideMessage = true;
+                        }
                     }
                 }
+                // reconstruct message channels with unannotated "hide" key
                 blurredMessageChannels[powerName] = blurredMessages;
             }
         }
@@ -1484,9 +1582,9 @@ export class ContentGame extends React.Component {
 
             if (role === sender) dir = "outgoing";
             if (role === rec) dir = "incoming";
-            const html = msg.show
-                ? msg.message
-                : `<div style='color: transparent; text-shadow: 0 0 5px rgba(0, 0, 0, 0.5)'>${msg.message}</div>`;
+            const html = msg.hide
+                ? `<div style='color: transparent; text-shadow: 0 0 5px rgba(0, 0, 0, 0.5)'; user-select: none>${msg.message}</div>`
+                : msg.message;
             renderedMessages.push(
                 <ChatMessage
                     model={{
@@ -1617,13 +1715,7 @@ export class ContentGame extends React.Component {
     }
 
     getSuggestionType(currentPowerName, engine, globalMessages) {
-        /*
-         0: NONE
-         1: MESSAGE
-         2: MOVE
-         4: COMMENTARY
-        */
-        let suggestionType = 0;
+        let suggestionType = UTILS.SuggestionType.NONE;
 
         const powerSuggestions = globalMessages.filter(
             (msg) => msg.type === STRINGS.HAS_SUGGESTIONS
@@ -1682,7 +1774,8 @@ export class ContentGame extends React.Component {
             time_sent: latestMoveSuggestion.time_sent,
         };
         if (suggestionType === STRINGS.SUGGESTED_MOVE_PARTIAL) {
-            suggestion.givenMoves = latestMoveSuggestion.parsed.payload.player_orders
+            suggestion.givenMoves =
+                latestMoveSuggestion.parsed.payload.player_orders;
         }
         return suggestion;
     }
@@ -1739,7 +1832,11 @@ export class ContentGame extends React.Component {
         const numCommentary = suggestedCommentary.length;
 
         if (numCommentary > this.state.numAllCommentary) {
-            this.setState({ numAllCommentary: numCommentary, showBadge: true, commentaryProtagonist: protagonist });
+            this.setState({
+                numAllCommentary: numCommentary,
+                showBadge: true,
+                commentaryProtagonist: protagonist,
+            });
         } // update numAllCommentary and show badge if new commentary is received
 
         return suggestedCommentary;
@@ -1813,9 +1910,9 @@ export class ContentGame extends React.Component {
             sender = msg.sender;
             rec = msg.recipient;
             curPhase = msg.phase;
-            const html = msg.show
-                ? msg.message
-                : `<div style='color: transparent; text-shadow: 0 0 5px rgba(0, 0, 0, 0.5)'>${msg.message}</div>`;
+            const html = msg.hide
+                ? `<div style='color: transparent; text-shadow: 0 0 5px rgba(0, 0, 0, 0.5); user-select: none'>${msg.message}</div>`
+                : msg.message;
 
             if (curPhase !== prevPhase) {
                 renderedMessages.push(
@@ -1932,112 +2029,110 @@ export class ContentGame extends React.Component {
                 <Grid container spacing={2}>
                     <Grid item xs={12} sx={{ height: "100%" }}>
                         <Box sx={{ width: "100%", height: "550px" }}>
-                            <div>
-                                <MainContainer responsive>
-                                    <Sidebar position="left" scrollable={true}>
-                                        <ConversationList>
-                                            {convList}
-                                        </ConversationList>
-                                    </Sidebar>
-                                    <ChatContainer>
-                                        <MessageList>
-                                            {renderedMessages}
-                                        </MessageList>
-                                    </ChatContainer>
-                                </MainContainer>
-                                {engine.isPlayerGame() && (
-                                    <>
-                                        <textarea
-                                            style={{ flex: 1 }}
-                                            onChange={(val) =>
-                                                this.setMessageInputValue(
-                                                    val.target.value
-                                                )
-                                            }
-                                            value={this.state.message}
-                                            disabled={
-                                                phaseType === "M" &&
-                                                (!this.state.hasInitialOrders ||
-                                                    (this.__get_orders(engine)[
-                                                        currentPowerName
-                                                    ] &&
-                                                        Object.keys(
-                                                            this.__get_orders(
-                                                                engine
-                                                            )[currentPowerName]
-                                                        ).length <
+                            <MainContainer responsive>
+                                <Sidebar position="left" scrollable={true}>
+                                    <ConversationList>
+                                        {convList}
+                                    </ConversationList>
+                                </Sidebar>
+                                <ChatContainer>
+                                    <MessageList>
+                                        {renderedMessages}
+                                    </MessageList>
+                                </ChatContainer>
+                            </MainContainer>
+                            {engine.isPlayerGame() && (
+                                <>
+                                    <textarea
+                                        style={{ flex: 1 }}
+                                        onChange={(val) =>
+                                            this.setMessageInputValue(
+                                                val.target.value
+                                            )
+                                        }
+                                        value={this.state.message}
+                                        disabled={
+                                            phaseType === "M" &&
+                                            (!this.state.hasInitialOrders ||
+                                                (this.__get_orders(engine)[
+                                                    currentPowerName
+                                                ] &&
+                                                    Object.keys(
+                                                        this.__get_orders(
                                                             engine
-                                                                .orderableLocations[
-                                                                currentPowerName
-                                                            ].length))
-                                            }
-                                            placeholder={
-                                                phaseType === "M" &&
-                                                (!this.state.hasInitialOrders ||
-                                                    (this.__get_orders(engine)[
-                                                        currentPowerName
-                                                    ] &&
-                                                        Object.keys(
-                                                            this.__get_orders(
-                                                                engine
-                                                            )[currentPowerName]
-                                                        ).length <
+                                                        )[currentPowerName]
+                                                    ).length <
+                                                        engine
+                                                            .orderableLocations[
+                                                            currentPowerName
+                                                        ].length))
+                                        }
+                                        placeholder={
+                                            phaseType === "M" &&
+                                            (!this.state.hasInitialOrders ||
+                                                (this.__get_orders(engine)[
+                                                    currentPowerName
+                                                ] &&
+                                                    Object.keys(
+                                                        this.__get_orders(
                                                             engine
-                                                                .orderableLocations[
-                                                                currentPowerName
-                                                            ].length))
-                                                    ? "You need to set orders for all units before sending messages."
-                                                    : ""
-                                            }
-                                        />
-                                        <Button
-                                            key={"t"}
-                                            pickEvent={true}
-                                            title={"Truth"}
-                                            color={"success"}
-                                            onClick={() => {
-                                                this.sendMessage(
-                                                    engine.client,
-                                                    currentTabId,
-                                                    this.state.message,
-                                                    "Truth"
-                                                );
-                                                this.setMessageInputValue("");
-                                            }}
-                                        ></Button>
-                                        <Button
-                                            key={"f"}
-                                            pickEvent={true}
-                                            title={"Lie"}
-                                            color={"danger"}
-                                            onClick={() => {
-                                                this.sendMessage(
-                                                    engine.client,
-                                                    currentTabId,
-                                                    this.state.message,
-                                                    "Lie"
-                                                );
-                                                this.setMessageInputValue("");
-                                            }}
-                                        ></Button>
-                                        <Button
-                                            key={"n"}
-                                            pickEvent={true}
-                                            title={"Neutral"}
-                                            color={"primary"}
-                                            onClick={() => {
-                                                this.sendMessage(
-                                                    engine.client,
-                                                    currentTabId,
-                                                    this.state.message,
-                                                    "Neutral"
-                                                );
-                                                this.setMessageInputValue("");
-                                            }}
-                                        ></Button>
-                                    </>
-                                )}
-                            </div>
+                                                        )[currentPowerName]
+                                                    ).length <
+                                                        engine
+                                                            .orderableLocations[
+                                                            currentPowerName
+                                                        ].length))
+                                                ? "You need to set orders for all units before sending messages."
+                                                : ""
+                                        }
+                                    />
+                                    <Button
+                                        key={"t"}
+                                        pickEvent={true}
+                                        title={"Truth"}
+                                        color={"success"}
+                                        onClick={() => {
+                                            this.sendMessage(
+                                                engine.client,
+                                                currentTabId,
+                                                this.state.message,
+                                                "Truth"
+                                            );
+                                            this.setMessageInputValue("");
+                                        }}
+                                    ></Button>
+                                    <Button
+                                        key={"f"}
+                                        pickEvent={true}
+                                        title={"Lie"}
+                                        color={"danger"}
+                                        onClick={() => {
+                                            this.sendMessage(
+                                                engine.client,
+                                                currentTabId,
+                                                this.state.message,
+                                                "Lie"
+                                            );
+                                            this.setMessageInputValue("");
+                                        }}
+                                    ></Button>
+                                    <Button
+                                        key={"n"}
+                                        pickEvent={true}
+                                        title={"Neutral"}
+                                        color={"primary"}
+                                        onClick={() => {
+                                            this.sendMessage(
+                                                engine.client,
+                                                currentTabId,
+                                                this.state.message,
+                                                "Neutral"
+                                            );
+                                            this.setMessageInputValue("");
+                                        }}
+                                    ></Button>
+                                </>
+                            )}
                         </Box>
                     </Grid>
                 </Grid>
@@ -2427,15 +2522,14 @@ export class ContentGame extends React.Component {
                                         value="messages"
                                     />
                                     {suggestionType !== null &&
-                                        (suggestionType & 4) === 4 && (
+                                        (suggestionType & UTILS.SuggestionType.COMMENTARY) === UTILS.SuggestionType.COMMENTARY && (
                                             <Tab2
                                                 label={
                                                     this.state.showBadge ? (
                                                         <Badge
                                                             variant="dot"
                                                             color="warning"
-                                                        >
-                                                        </Badge>
+                                                        ></Badge>
                                                     ) : (
                                                         <span
                                                             sx={{
@@ -2451,7 +2545,11 @@ export class ContentGame extends React.Component {
                                                 onClick={() => {
                                                     if (isCurrent) {
                                                         this.setState({
-                                                            tabCurrentMessages: this.state.commentaryProtagonist,
+                                                            tabCurrentMessages:
+                                                                this.state
+                                                                    .commentaryProtagonist,
+                                                            lastSwitchPanelTime:
+                                                                Date.now(),
                                                         });
                                                     } // make sure commentary tab is selected for the correct conversation
                                                     this.updateReadCommentary();
@@ -2497,6 +2595,7 @@ export class ContentGame extends React.Component {
                                                                 )
                                                                     ? "flex"
                                                                     : "none",
+                                                            marginBottom: "2px",
                                                         }}
                                                     >
                                                         <ChatMessage
@@ -2519,6 +2618,7 @@ export class ContentGame extends React.Component {
                                                         ></ChatMessage>
                                                         <div
                                                             style={{
+                                                                flexDirection: "column",
                                                                 flexGrow: 0,
                                                                 flexShrink: 0,
                                                                 display: "flex",
@@ -3036,10 +3136,10 @@ export class ContentGame extends React.Component {
 
         const suggestionTypeDisplay = [];
         if (suggestionType !== null) {
-            if ((suggestionType & 1) === 1)
+            if ((suggestionType & UTILS.SuggestionType.MESSAGE) === UTILS.SuggestionType.MESSAGE)
                 suggestionTypeDisplay.push("message");
-            if ((suggestionType & 2) === 2) suggestionTypeDisplay.push("move");
-            if ((suggestionType & 4) === 4)
+            if ((suggestionType & UTILS.SuggestionType.MOVE) === UTILS.SuggestionType.MOVE) suggestionTypeDisplay.push("move");
+            if ((suggestionType & UTILS.SuggestionType.COMMENTARY) === UTILS.SuggestionType.COMMENTARY)
                 suggestionTypeDisplay.push("commentary");
         }
 
@@ -3051,16 +3151,16 @@ export class ContentGame extends React.Component {
                         year
                     </div>
                 )}
-                {suggestionType !== null && suggestionType === 0 && (
+                {suggestionType !== null && suggestionType === UTILS.SuggestionType.NONE && (
                     <div>You are on your own this turn.</div>
                 )}
-                {suggestionType !== null && suggestionType >= 1 && (
+                {suggestionType !== null && suggestionType !== UTILS.SuggestionType.NONE && (
                     <div>
                         You are getting advice this turn:{" "}
                         {suggestionTypeDisplay.join(", ")}.
                     </div>
                 )}
-                {suggestionType !== null && (suggestionType & 2) === 2 && (
+                {suggestionType !== null && (suggestionType & UTILS.SuggestionType.MOVE) === UTILS.SuggestionType.MOVE && (
                     <ChatContainer
                         style={{
                             display: "flex",
@@ -3530,7 +3630,7 @@ export class ContentGame extends React.Component {
         );
 
         const hasMoveSuggestion =
-            suggestionType !== null && (suggestionType & 2) === 2;
+            suggestionType !== null && (suggestionType & UTILS.SuggestionType.MOVE) === UTILS.SuggestionType.MOVE;
 
         let gameContent;
 
@@ -3657,6 +3757,12 @@ export class ContentGame extends React.Component {
                 if (event.preventDefault) event.preventDefault();
             }
         };
+
+        window.addEventListener("beforeunload", this.handleExit);
+        //window.addEventListener("visibilitychange", this.handleVisibilityChange);
+        window.addEventListener("blur", this.handleBlur);
+        window.addEventListener("focus", this.handleFocus);
+        this.state.lastSwitchPanelTime = Date.now();
     }
 
     componentDidUpdate() {
@@ -3667,6 +3773,15 @@ export class ContentGame extends React.Component {
         this.clearScheduleTimeout();
         this.props.data.displayed = false;
         document.onkeydown = null;
+
+        this.handleExit();
+        window.removeEventListener("beforeunload", this.handleExit);
+        //window.removeEventListener(
+        //    "visibilitychange",
+        //    this.handleVisibilityChange
+        //);
+        window.removeEventListener("blur", this.handleBlur);
+        window.removeEventListener("focus", this.handleFocus);
     }
 
     // ]

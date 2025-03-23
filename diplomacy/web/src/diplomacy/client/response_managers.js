@@ -78,6 +78,10 @@ export const RESPONSE_MANAGERS = {
         const isBot = context.request.is_bot;
         context.game.local.addIsBot(powerName, isBot);
     },
+    send_commentary_durations: function (context, response) {
+        const durations = context.request.durations;
+        context.game.local.addCommentaryDurations(durations);
+    },
     send_deceiving: function (context, response) {
         const controlledPower = context.request.controlled_power;
         const targetPower = context.request.target_power;

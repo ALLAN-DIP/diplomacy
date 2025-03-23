@@ -57,6 +57,7 @@ export function loadGameFromDisk() {
                     "FRA": [],
                     "GER": [],
                 };
+                gameObject.commentary_durations = savedData.commentary_durations || {};
 
                 // Load all saved phases (expect the latest one) to history fields.
                 for (let i = 0; i < savedData.phases.length - 1; ++i) {
