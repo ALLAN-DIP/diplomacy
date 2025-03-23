@@ -101,7 +101,7 @@ export class Game {
       ? gameData.order_suggestions
       : {};
     this.is_bot = gameData.is_bot ? gameData.is_bot : {};
-    this.commentary_durations = gameData.commentary_durations
+    this.commentary_durations = gameData.commentary_durations ? gameData.commentary_durations : {};
     this.deceiving = gameData.deceiving ? gameData.deceiving : {};
 
     // {short phase name => state}
@@ -376,7 +376,10 @@ export class Game {
   }
 
   addCommentaryDurations(powerName, durations) {
-    this.commentary_durations[powerName] = durations;
+    if (!this.commentary_durations.hasOwnProperty(powerName))
+      this.commentary_durations[powerName] = [];
+    
+    this.commentary_durations[powerName].push(durations);
   }
 
   addDeceiving(controlledPower, targetPower, deceiving) {
