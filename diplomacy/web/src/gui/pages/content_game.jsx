@@ -970,7 +970,7 @@ export class ContentGame extends React.Component {
             .then(() => {
                 page.success("Game processed.");
                 this.props.data.clearInitialOrders();
-                return this.setState({ hasInitialOrders: false, hoverOrders: [] });
+                this.setState({ hasInitialOrders: false });
             })
             .catch((err) => {
                 page.error(err.toString());
@@ -1118,7 +1118,7 @@ export class ContentGame extends React.Component {
             this.sendOrderLog(engine.client, "clear", null);
             allOrders[currentPowerName] = null;
             this.__store_orders(allOrders);
-            await this.setState({ orders: allOrders });
+            this.setState({ orders: allOrders });
         }
         this.setOrders();
     }
@@ -1870,9 +1870,9 @@ export class ContentGame extends React.Component {
             <Conversation
                 style={{ minWidth: "200px" }}
                 info={
-                    isAdmin && protagonist !== "GLOBAL"
-                        ? engine.powers[protagonist].getController()
-                        : ""
+                    isAdmin && protagonist !== "GLOBAL" ? (
+                        engine.powers[protagonist].getController()
+                    ) : ""
                 }
                 className={
                     protagonist === currentTabId
@@ -2528,6 +2528,19 @@ export class ContentGame extends React.Component {
                                     <Tab2
                                         label="Message Advice"
                                         value="messages"
+                                        onClick={() => {
+                                            // track time spent on commentary
+                                            const now = Date.now();
+                                            const timeDiff =
+                                                now -
+                                                this.state.commentaryStartTime;
+                                            this.setState({
+                                                commentaryTimeSpent:
+                                                    this.state
+                                                        .commentaryTimeSpent +
+                                                    timeDiff,
+                                            });
+                                        }}
                                     />
                                     {suggestionType !== null &&
                                         (suggestionType & UTILS.SuggestionType.COMMENTARY) === UTILS.SuggestionType.COMMENTARY && (

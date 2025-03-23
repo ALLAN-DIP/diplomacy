@@ -621,6 +621,9 @@ export class Game {
         }
       }
     }
+    if (state.commentary_durations) {
+      this.commentary_durations = state.commentary_durations;
+    }
   }
 
   setStatus(status) {
