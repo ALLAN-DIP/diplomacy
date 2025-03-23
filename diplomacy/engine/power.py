@@ -99,7 +99,7 @@ class Power(Jsonable):
         self.controller = SortedDict(int, str)
         self.vote = ''
         self.order_is_set = 0
-        self.wait = False
+        self.wait = True
         self.comm_status = strings.READY
         self.player_type = strings.NONE
         self.tokens = set()
