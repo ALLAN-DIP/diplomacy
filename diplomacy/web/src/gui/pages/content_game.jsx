@@ -1966,7 +1966,7 @@ export class ContentGame extends React.Component {
                                     type="radio"
                                     value="yes"
                                     name={messageId}
-                                    defaultChecked={
+                                    checked={
                                         this.state.annotatedMessages.hasOwnProperty(
                                             msg.time_sent
                                         ) &&
@@ -1974,7 +1974,7 @@ export class ContentGame extends React.Component {
                                             msg.time_sent
                                         ] === "yes"
                                     }
-                                    onClick={() => {
+                                    onChange={() => {
                                         this.handleRecipientAnnotation(
                                             msg.time_sent,
                                             "yes"
@@ -1991,7 +1991,7 @@ export class ContentGame extends React.Component {
                                     type="radio"
                                     value="none"
                                     name={messageId}
-                                    defaultChecked={
+                                    checked={
                                         this.state.annotatedMessages.hasOwnProperty(
                                             msg.time_sent
                                         ) &&
@@ -1999,7 +1999,7 @@ export class ContentGame extends React.Component {
                                             msg.time_sent
                                         ] === "None"
                                     }
-                                    onClick={() =>
+                                    onChange={() =>
                                         this.handleRecipientAnnotation(
                                             msg.time_sent,
                                             "None"
