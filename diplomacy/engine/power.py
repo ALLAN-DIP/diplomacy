@@ -360,7 +360,7 @@ class Power(Jsonable):
         """ (Network Method) Return True if this power does not wait
             (ie. if we could already process orders of this power).
         """
-        return self.order_is_set and not self.wait
+        return not self.wait
 
     def update_controller(self, username, timestamp):
         """ (Network Method) Update controller with given username and timestamp. """
