@@ -99,7 +99,7 @@ class Power(Jsonable):
         self.controller = SortedDict(int, str)
         self.vote = ''
         self.order_is_set = 0
-        self.wait = False
+        self.wait = True
         self.comm_status = strings.READY
         self.player_type = strings.NONE
         self.tokens = set()
@@ -189,7 +189,7 @@ class Power(Jsonable):
                 self.comm_status = strings.READY
             else:
                 self.order_is_set = OrderSettings.ORDER_NOT_SET
-                self.wait = True if self.is_dummy() else (not self.game.real_time)
+                self.wait = True
                 self.comm_status = strings.READY
         self.goner = 0
 
@@ -219,7 +219,7 @@ class Power(Jsonable):
 
         self.game = game
         self.order_is_set = OrderSettings.ORDER_NOT_SET
-        self.wait = True if self.is_dummy() else (not self.game.real_time)
+        self.wait = True
         self.comm_status = strings.READY
 
         # Get power abbreviation.
@@ -377,7 +377,6 @@ class Power(Jsonable):
                 self.vote = strings.NEUTRAL
         elif self.controller.last_value() == strings.DUMMY:
             self.controller.put(common.timestamp_microseconds(), username)
-            self.wait = not self.game.real_time
             if player_type is not None:
                 self.player_type = player_type
         elif self.controller.last_value() != username:

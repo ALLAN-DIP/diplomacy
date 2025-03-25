@@ -29,7 +29,7 @@ export class Power {
         this.controller = new SortedDict();
         this.vote = null;
         this.order_is_set = 0;
-        this.wait = !this.game.isRealTime();
+        this.wait = true;
         this.centers = [];
         this.homes = [];
         this.units = [];
@@ -167,7 +167,7 @@ export class Power {
     clearOrders() {
         this.orders = [];
         this.order_is_set = 0;
-        this.wait = !this.game.isRealTime();
+        this.wait = true;
         this.comm_status = STRINGS.READY;
     }
 
