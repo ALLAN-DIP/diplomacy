@@ -75,7 +75,7 @@ class ConnectionHandler(WebSocketHandler):
 
         # Split host with ':' and keep only first piece to ignore eventual port.
         host = self.request.headers.get("Host").split(':')[0]
-        
+
         # Allow connections from self-hosted webui clients
         if diplomacy.settings.PERMISSIVE_CLIENT_ORIGIN:
             hosts = (host, 'localhost', '0.0.0.0', '127.0.0.1')
