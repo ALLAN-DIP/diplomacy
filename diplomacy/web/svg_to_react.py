@@ -425,6 +425,7 @@ def main():
             style_file.write('\n')
             style_file.writelines(
                 minify(prepend_css_selectors('.%s' % class_name, '\n'.join(data.style_lines))))
+            style_file.write('\n')
 
     # Metadata
     if data.extra:
@@ -814,6 +815,7 @@ export class %(classname)s extends React.Component {
     # Writing to disk
     with open(output_file_name, 'w') as file:
         file.write(map_js_code)
+        file.write('\n')
 
 
 if __name__ == '__main__':
