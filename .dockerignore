@@ -1,3 +1,7 @@
-__pycache__/
-diplomacy/web/build/
-node_modules/
+# NodeJS
+**/node_modules/
+/diplomacy/web/build/
+
+# Python
+**/*.egg*/
+**/__pycache__/
