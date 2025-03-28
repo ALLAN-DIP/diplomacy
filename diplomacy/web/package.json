@@ -26,9 +26,9 @@
   },
   "scripts": {
     "start": "export NODE_OPTIONS=--openssl-legacy-provider && react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test --env=jsdom",
-    "eject": "react-scripts eject"
+    "build": "export NODE_OPTIONS=--openssl-legacy-provider && react-scripts build",
+    "test": "export NODE_OPTIONS=--openssl-legacy-provider && react-scripts test --env=jsdom",
+    "eject": "export NODE_OPTIONS=--openssl-legacy-provider && react-scripts eject"
   },
   "devDependencies": {
     "eslint-plugin-react": "^7.14.2"
