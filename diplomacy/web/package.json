@@ -27,7 +27,7 @@
   "scripts": {
     "start": "export NODE_OPTIONS=--openssl-legacy-provider && react-scripts start",
     "build": "export NODE_OPTIONS=--openssl-legacy-provider && react-scripts build",
-    "test": "export NODE_OPTIONS=--openssl-legacy-provider && react-scripts test --env=jsdom",
+    "test": "export CI=true NODE_OPTIONS=--openssl-legacy-provider && react-scripts test --env=jsdom --passWithNoTests",
     "eject": "export NODE_OPTIONS=--openssl-legacy-provider && react-scripts eject"
   },
   "devDependencies": {

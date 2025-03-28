@@ -32,6 +32,11 @@ eslint:
 	cd diplomacy/web/ && \
 	npx eslint --ext js,jsx .
 
+.PHONY: npm-test
+npm-test:
+	cd diplomacy/web/ && \
+	npm run test
+
 .PHONY: precommit
 precommit:
 	pre-commit run --all-files
@@ -58,6 +63,7 @@ check:
 	$(MAKE) sphinx
 	# $(MAKE) eslint
 	$(MAKE) check-npm-build
+	$(MAKE) npm-test
 
 .PHONY: update-npm
 update-npm:
