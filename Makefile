@@ -78,7 +78,7 @@ TAG ?= latest
 
 .PHONY: build
 build:
-	docker build \
+	docker buildx build \
 		--platform linux/amd64 \
 		--tag ghcr.io/allan-dip/diplomacy:$(TAG) \
 		.
