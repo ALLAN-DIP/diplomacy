@@ -191,7 +191,7 @@ export class ContentGame extends React.Component {
                 this.props.data.role
             ),
             annotatedMessages: this.props.data.getAnnotatedMessages(),
-            stances: /* this.props.data.stances[this.props.data.role] || */ {},
+            stances: this.props.data.stances[this.props.data.role] || {},
             isBot: this.props.data.is_bot[this.props.data.role] || {
                 AUSTRIA: false,
                 ENGLAND: false,
@@ -536,8 +536,6 @@ export class ContentGame extends React.Component {
                         messageHighlights: {},
                         orderBuildingPath: [],
                         hasInitialOrders: false,
-                        hoverOrders: [],
-                        stances: {},
                         hoverOrders: [],
                     }).then(() =>
                         this.getPage().info(
@@ -1770,7 +1768,7 @@ export class ContentGame extends React.Component {
             const sent_time = latestMoveSuggestion.time_sent;
             if (
                 this.state.annotatedMessages.hasOwnProperty(sent_time) &&
-                this.state.annotatedMessages[sent_time] === "reject"
+                (this.state.annotatedMessages[sent_time] === "reject" || this.state.annotatedMessages[sent_time] === "reject")
             ) {
                 latestMoveSuggestion = null;
             }
@@ -3199,6 +3197,10 @@ export class ContentGame extends React.Component {
                                 title={"Get ally-based advice"}
                                 color={"primary"}
                                 onClick={() => {
+                                    if (latestMoveSuggestionFull) {
+                                        this.handleRecipientAnnotation(latestMoveSuggestionFull.time_sent, "replace");
+                                    }
+                                    
                                     this.sendMessage(
                                         engine.client,
                                         "GLOBAL",
