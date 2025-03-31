@@ -40,6 +40,7 @@ dynamic = ["version"]
 
 [project.optional-dependencies]
 dev = [
+  "pre-commit",
   "pylint>=2.3.0",
   "pytest>=4.4.0",
   "pytest-xdist",
@@ -54,5 +55,15 @@ homepage = "https://github.com/diplomacy/diplomacy"
 issues = "https://github.com/diplomacy/diplomacy/issues"
 source = "https://github.com/diplomacy/diplomacy"
 
+[tool.setuptools]
+packages = ["diplomacy"]
+
 [tool.setuptools.dynamic]
 version = {attr = "diplomacy.version.PACKAGE_VERSION"}
+
+[tool.pytest.ini_options]
+addopts = "--verbosity=1 --strict-config --strict-markers --ignore=diplomacy/web/src/diplomacy/maps/tests/ --numprocesses auto"
+filterwarnings = [
+  "ignore::DeprecationWarning",
+]
+minversion = "4.4.0"

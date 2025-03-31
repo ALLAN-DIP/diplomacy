@@ -140,7 +140,7 @@ def on_create_game(server, request, connection_handler):
         game_id = server.create_game_id()
     elif server.has_game_id(game_id):
         raise exceptions.GameIdException('Game ID already used (%s).' % game_id)
-    
+
     #JAD: added code to hash registration_password. It was bombinb on utils.common.is_password_valid()
     #when users tried to join password-protected games
     password = None
@@ -863,7 +863,7 @@ def on_send_order_suggestions(server, request, connection_handler):
     token, power, suggestions = request.token, request.power, request.suggestions
     assert_game_not_finished(level.game)
     level.game.add_order_suggestions(power, suggestions)
-    server.save_game(level.game)    
+    server.save_game(level.game)
 
 
 def on_send_game_message(server, request, connection_handler):
@@ -1038,7 +1038,7 @@ def on_set_grade(server, request, connection_handler):
             if not server.users.has_admin(username):
                 server.users.add_admin(username)
                 to_save = True
-        elif server.users.has_admin(username): 
+        elif server.users.has_admin(username):
             server.users.remove_admin(username)
             to_save = True
 

@@ -768,7 +768,7 @@ class SendOrderLog(_AbstractGameRequest):
 
 class SendOrderSuggestions(_AbstractGameRequest):
     __slots__ = ['suggestions', 'power']
-    
+
     params = {
         "suggestions": parsing.SequenceType(str),
         "power": parsing.OptionalValueType(str)
