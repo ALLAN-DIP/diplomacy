@@ -784,9 +784,17 @@ class Server:
         """
         if server_game.is_game_active and (
                 server_game.count_controlled_powers() < server_game.get_expected_controls_count()):
-            server_game.set_status(strings.FORMING)
-            self.unschedule_game(server_game)
-            Notifier(self).notify_game_status(server_game)
+
+            stop_game = False
+
+            for power in server_game.powers.values():
+                if not power.is_eliminated() and not power.is_controlled():
+                    stop_game = True
+                    break
+            if stop_game:
+                server_game.set_status(strings.FORMING)
+                self.unschedule_game(server_game)
+                Notifier(self).notify_game_status(server_game)
 
     def user_is_master(self, username, server_game):
         """ Return True if given username is a game master for given game data.

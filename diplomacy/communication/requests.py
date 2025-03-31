@@ -734,6 +734,17 @@ class SendIsBot(_AbstractGameRequest):
         self.is_bot = {}
         super(SendIsBot, self).__init__(**kwargs)
 
+class SendCommentaryDurations(_AbstractGameRequest):
+    __slots__ = ['durations']
+
+    params = {
+        'durations': parsing.OptionalValueType(dict),
+    }
+
+    def __init__(self, **kwargs):
+        self.durations = {}
+        super(SendCommentaryDurations, self).__init__(**kwargs)
+
 class SendDeceiving(_AbstractGameRequest):
     __slots__ = ['info']
 
@@ -757,7 +768,7 @@ class SendOrderLog(_AbstractGameRequest):
 
 class SendOrderSuggestions(_AbstractGameRequest):
     __slots__ = ['suggestions', 'power']
-    
+
     params = {
         "suggestions": parsing.SequenceType(str),
         "power": parsing.OptionalValueType(str)

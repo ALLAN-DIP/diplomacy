@@ -160,6 +160,7 @@ class Channel:
     _leave_game = _req_fn(requests.LeaveGame)
     _send_stance = _req_fn(requests.SendStance)
     _send_is_bot = _req_fn(requests.SendIsBot)
+    _send_commentary_durations = _req_fn(requests.SendCommentaryDurations)
     _send_deceiving = _req_fn(requests.SendDeceiving)
     _send_recipient_annotation = _req_fn(requests.SendRecipientAnnotation)
     _send_game_message = _req_fn(requests.SendGameMessage)

@@ -29,7 +29,7 @@ export class Power {
         this.controller = new SortedDict();
         this.vote = null;
         this.order_is_set = 0;
-        this.wait = !this.game.isRealTime();
+        this.wait = true;
         this.centers = [];
         this.homes = [];
         this.units = [];
@@ -47,7 +47,7 @@ export class Power {
             RUSSIA: false,
             TURKEY: false
         };
-        this.comm_status = STRINGS.BUSY;
+        this.comm_status = STRINGS.READY;
         this.player_type = null;
     }
 
@@ -167,8 +167,8 @@ export class Power {
     clearOrders() {
         this.orders = [];
         this.order_is_set = 0;
-        this.wait = !this.game.isRealTime();
-        this.comm_status = STRINGS.BUSY;
+        this.wait = true;
+        this.comm_status = STRINGS.READY;
     }
 
     clearUnits() {

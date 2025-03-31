@@ -140,7 +140,7 @@ def on_create_game(server, request, connection_handler):
         game_id = server.create_game_id()
     elif server.has_game_id(game_id):
         raise exceptions.GameIdException('Game ID already used (%s).' % game_id)
-    
+
     #JAD: added code to hash registration_password. It was bombinb on utils.common.is_password_valid()
     #when users tried to join password-protected games
     password = None
@@ -843,6 +843,13 @@ def on_send_deceiving(server, request, connection_handler):
     level.game.add_deceiving(info)
     server.save_game(level.game)
 
+def on_send_commentary_durations(server,request, connection_handler):
+    level = verify_request(server, request, connection_handler, observer_role=False, omniscient_role=False)
+    token, durations = request.token, request.durations
+    assert_game_not_finished(level.game)
+    level.game.add_commentary_durations(durations)
+    server.save_game(level.game)
+
 def on_send_order_log(server, request, connection_handler):
     level = verify_request(server, request, connection_handler, observer_role=False, omniscient_role=True)
     token, log = request.token, request.log
@@ -856,7 +863,7 @@ def on_send_order_suggestions(server, request, connection_handler):
     token, power, suggestions = request.token, request.power, request.suggestions
     assert_game_not_finished(level.game)
     level.game.add_order_suggestions(power, suggestions)
-    server.save_game(level.game)    
+    server.save_game(level.game)
 
 
 def on_send_game_message(server, request, connection_handler):
@@ -1378,6 +1385,7 @@ MAPPING = {
     requests.SetGrade: on_set_grade,
     requests.SetOrders: on_set_orders,
     requests.SendLogData: on_send_log_data,
+    requests.SendCommentaryDurations: on_send_commentary_durations,
     requests.SetWaitFlag: on_set_wait_flag,
     requests.SignIn: on_sign_in,
     requests.Synchronize: on_synchronize,
