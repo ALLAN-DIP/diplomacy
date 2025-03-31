@@ -2124,21 +2124,6 @@ export class ContentGame extends React.Component {
                                             this.setMessageInputValue("");
                                         }}
                                     ></Button>
-                                    <Button
-                                        key={"n"}
-                                        pickEvent={true}
-                                        title={"Neutral"}
-                                        color={"primary"}
-                                        onClick={() => {
-                                            this.sendMessage(
-                                                engine.client,
-                                                currentTabId,
-                                                this.state.message,
-                                                "Neutral"
-                                            );
-                                            this.setMessageInputValue("");
-                                        }}
-                                    ></Button>
                                 </>
                             )}
                         </Box>
