@@ -2859,6 +2859,7 @@ export class ContentGame extends React.Component {
                             style={{
                                 display: "flex",
                                 alignItems: "flex-end",
+                                backgroundColor: index % 2 === 0 ? "rgb(248, 248, 248)" : "transparent",
                             }}
                             onMouseEnter={() => {
                                 let newMoves = [move];
@@ -2870,7 +2871,7 @@ export class ContentGame extends React.Component {
                             key={index}
                         >
                             <div className={"col align-self-center order"}>
-                                <span className={"order-string"}>{move}</span>
+                                <span style={{textDecoration: "underline"}} className={"order-string"}>{move}</span>
                             </div>
                             <div
                                 style={{
