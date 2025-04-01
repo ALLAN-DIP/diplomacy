@@ -184,6 +184,7 @@ export class ContentGame extends React.Component {
             orderBuildingType: null,
             orderBuildingPath: [],
             showAbbreviations: true,
+            mapSize: 6,
             message: "",
             logData: "",
             hasInitialOrders: this.props.data.getInitialOrders(
@@ -3329,7 +3330,7 @@ export class ContentGame extends React.Component {
         return (
             <Tab id={"tab-current-phase"} display={toDisplay}>
                 <Row>
-                    <div className={"col-xl"}>
+                    <div className={`col-${this.state.mapSize}`}>
                         {this.renderMapForCurrent(
                             engine,
                             powerName,
@@ -3520,8 +3521,37 @@ export class ContentGame extends React.Component {
             buildCount = engine.getBuildsCount(currentPowerName);
         }
 
+        const possibleMapSizes = {
+            half: 6,
+            large: 8,
+            full: 12,
+        }
+
         const navAfterTitle = (
             <form className="form-inline form-current-power">
+                <div className="custom-control custom-control-inline">
+                    Map size:
+                    <label className="sr-only" htmlFor="map-size">
+                        map size
+                    </label>
+                    <select
+                        className="form-control custom-select custom-control-inline"
+                        id="map-size"
+                        value={Object.keys(possibleMapSizes).find(key => possibleMapSizes[key] === this.state.mapSize)}
+                        onChange={(event) => {
+                            this.setState({
+                                mapSize: possibleMapSizes[event.target.value],
+                            });
+                        }}
+                    >
+                        {Object.keys(possibleMapSizes).map((key) => (
+                            <option key={key} value={key}>
+                                {key.charAt(0).toUpperCase() + key.slice(1)}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+                    
                 {(controllablePowers.length === 1 && (
                     <span className="power-name">{controllablePowers[0]}</span>
                 )) || (
