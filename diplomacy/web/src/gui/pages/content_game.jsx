@@ -55,6 +55,7 @@ import { default as Tabs2 } from "@mui/material/Tabs";
 import { default as Tab2 } from "@mui/material/Tab";
 import Box from "@mui/material/Box";
 import Badge from "@mui/material/Badge";
+import Switch from "@mui/material/Switch";
 
 import {
     MainContainer,
@@ -191,7 +192,7 @@ export class ContentGame extends React.Component {
                 this.props.data.role
             ),
             annotatedMessages: this.props.data.getAnnotatedMessages(),
-            stances: /* this.props.data.stances[this.props.data.role] || */ {},
+            stances: this.props.data.stances[this.props.data.role] || {},
             isBot: this.props.data.is_bot[this.props.data.role] || {
                 AUSTRIA: false,
                 ENGLAND: false,
@@ -211,6 +212,7 @@ export class ContentGame extends React.Component {
             commentaryTimeSpent:
                 this.props.data.commentary_durations[this.props.data.role] ||
                 [],
+            stanceChanged: false,
         };
 
         // Bind some class methods to this instance.
@@ -536,7 +538,6 @@ export class ContentGame extends React.Component {
                         orderBuildingPath: [],
                         hasInitialOrders: false,
                         hoverOrders: [],
-                        stances: {},
                     }).then(() =>
                         this.getPage().info(
                             `Game update (${notification.name}) to ${networkGame.local.phase}.`
@@ -857,7 +858,7 @@ export class ContentGame extends React.Component {
         networkGame.sendDeceiving({ info: info });
     }
 
-    sendMessage(networkGame, recipient, body, deception) {
+    sendMessage(networkGame, recipient, body, deception, message_type) {
         const page = this.getPage();
 
         // make sure the message is not empty
@@ -870,6 +871,7 @@ export class ContentGame extends React.Component {
                 recipient: recipient,
                 message: body,
                 truth: deception,
+                message_type: message_type,
             });
             networkGame
                 .sendGameMessage({ message: message })
@@ -926,7 +928,6 @@ export class ContentGame extends React.Component {
             power_name: powerName,
             durations: durations,
         };
-        console.log("Sending", durations);
         networkGame.sendCommentaryDurations({ durations: info });
     }
 
@@ -948,7 +949,6 @@ export class ContentGame extends React.Component {
     };
 
     handleFocus = () => {
-        console.log("updated current time");
         this.setState({ lastSwitchPanelTime: Date.now() });
     };
 
@@ -971,7 +971,10 @@ export class ContentGame extends React.Component {
             .then(() => {
                 page.success("Game processed.");
                 this.props.data.clearInitialOrders();
-                return this.setState({ hasInitialOrders: false, hoverOrders: [] });
+                return this.setState({
+                    hasInitialOrders: false,
+                    hoverOrders: [],
+                });
             })
             .catch((err) => {
                 page.error(err.toString());
@@ -1098,7 +1101,7 @@ export class ContentGame extends React.Component {
             if (!UTILS.javascript.count(orders[powerName]))
                 orders[powerName] = null;
             this.__store_orders(orders);
-            await this.setState({ orders: orders });
+            await this.setState({ orders: orders, hoverOrders: [] });
         }
         this.setOrders();
     }
@@ -1119,7 +1122,7 @@ export class ContentGame extends React.Component {
             this.sendOrderLog(engine.client, "clear", null);
             allOrders[currentPowerName] = null;
             this.__store_orders(allOrders);
-            await this.setState({ orders: allOrders });
+            await this.setState({ orders: allOrders, hoverOrders: [] });
         }
         this.setOrders();
     }
@@ -1133,7 +1136,7 @@ export class ContentGame extends React.Component {
         orders[powerName] = {};
         this.__store_orders(orders);
         this.setOrders();
-        return this.setState({ orders: orders });
+        return this.setState({ orders: orders, hoverOrders: [] });
     }
 
     /**
@@ -1258,6 +1261,7 @@ export class ContentGame extends React.Component {
         return this.setState({
             orderBuildingType: form.order_type,
             orderBuildingPath: [],
+            hoverOrders: [],
         });
     }
 
@@ -1353,6 +1357,7 @@ export class ContentGame extends React.Component {
             historyPhaseIndex: newPhaseIndex,
             historyCurrentLoc: null,
             historyCurrentOrders: null,
+            hoverOrders: [],
         });
     }
 
@@ -1531,7 +1536,7 @@ export class ContentGame extends React.Component {
         const currentTabId = this.state.tabPastMessages || tabNames[0];
 
         const convList = tabNames.map((protagonist) => (
-            <div style={{ minWidth: "200px" }}>
+            <div style={{ minWidth: "220px" }}>
                 <Conversation
                     className={
                         protagonist === currentTabId
@@ -1609,7 +1614,7 @@ export class ContentGame extends React.Component {
             >
                 <MainContainer responsive>
                     <Sidebar
-                        style={{ maxWidth: "200px" }}
+                        style={{ maxWidth: "220px" }}
                         position="left"
                         scrollable={false}
                     >
@@ -1759,7 +1764,7 @@ export class ContentGame extends React.Component {
             const sent_time = latestMoveSuggestion.time_sent;
             if (
                 this.state.annotatedMessages.hasOwnProperty(sent_time) &&
-                this.state.annotatedMessages[sent_time] === "reject"
+                (this.state.annotatedMessages[sent_time] === "reject" || this.state.annotatedMessages[sent_time] === "replace")
             ) {
                 latestMoveSuggestion = null;
             }
@@ -1836,7 +1841,6 @@ export class ContentGame extends React.Component {
             this.setState({
                 numAllCommentary: numCommentary,
                 showBadge: true,
-                commentaryProtagonist: protagonist,
             });
         } // update numAllCommentary and show badge if new commentary is received
 
@@ -1869,11 +1873,28 @@ export class ContentGame extends React.Component {
 
         const convList = tabNames.map((protagonist) => (
             <Conversation
-                style={{ minWidth: "200px" }}
+                style={{ minWidth: "220px" }}
                 info={
-                    isAdmin && protagonist !== "GLOBAL"
-                        ? engine.powers[protagonist].getController()
-                        : ""
+                    isAdmin && protagonist !== "GLOBAL" ? (
+                        engine.powers[protagonist].getController()
+                    ) : (
+                        <div>
+                            non-ally
+                            <Switch
+                                color="success"
+                                size="small"
+                                onChange={(e) => {
+                                    this.handleStance(
+                                        protagonist,
+                                        e.target.checked ? 1 : 0
+                                    );
+                                    this.setState({stanceChanged: true});
+                                }}
+                                checked={this.state.stances[protagonist] === 1}
+                            ></Switch>
+                            ally
+                        </div>
+                    )
                 }
                 className={
                     protagonist === currentTabId
@@ -2105,7 +2126,8 @@ export class ContentGame extends React.Component {
                                                 engine.client,
                                                 currentTabId,
                                                 this.state.message,
-                                                "Truth"
+                                                "Truth",
+                                                null,
                                             );
                                             this.setMessageInputValue("");
                                         }}
@@ -2120,7 +2142,8 @@ export class ContentGame extends React.Component {
                                                 engine.client,
                                                 currentTabId,
                                                 this.state.message,
-                                                "Lie"
+                                                "Lie",
+                                                null,
                                             );
                                             this.setMessageInputValue("");
                                         }}
@@ -2539,9 +2562,6 @@ export class ContentGame extends React.Component {
                                                 onClick={() => {
                                                     if (isCurrent) {
                                                         this.setState({
-                                                            tabCurrentMessages:
-                                                                this.state
-                                                                    .commentaryProtagonist,
                                                             lastSwitchPanelTime:
                                                                 Date.now(),
                                                         });
@@ -2612,7 +2632,8 @@ export class ContentGame extends React.Component {
                                                         ></ChatMessage>
                                                         <div
                                                             style={{
-                                                                flexDirection: "column",
+                                                                flexDirection:
+                                                                    "column",
                                                                 flexGrow: 0,
                                                                 flexShrink: 0,
                                                                 display: "flex",
@@ -3137,6 +3158,10 @@ export class ContentGame extends React.Component {
                 suggestionTypeDisplay.push("commentary");
         }
 
+        if (!fullSuggestionComponent && !partialSuggestionComponent && !suggestionTypeDisplay.includes("move")) {
+            return null;
+        }
+
         return (
             <div className={"col-4 mb-4"}>
                 {suggestionType === null && (
@@ -3155,24 +3180,42 @@ export class ContentGame extends React.Component {
                     </div>
                 )}
                 {suggestionType !== null && (suggestionType & UTILS.SuggestionType.MOVE) === UTILS.SuggestionType.MOVE && (
-                    <ChatContainer
-                        style={{
-                            display: "flex",
-                            border: "1px solid black",
-                            boxSizing: "border-box",
-                        }}
-                    >
-                        <ConversationHeader>
-                            <ConversationHeader.Content
-                                userName={`Moves Advice for ${engine.phase}`}
-                            />
-                        </ConversationHeader>
-
-                        <MessageList>
-                            {fullSuggestionComponent}
-                            {partialSuggestionComponent}
-                        </MessageList>
-                    </ChatContainer>
+                    <div>
+                    <div>
+                        <Button
+                            title={"Get ally-based advice"}
+                            color={"primary"}
+                            onClick={() => {
+                                if (latestMoveSuggestionFull) {
+                                    this.handleRecipientAnnotation(latestMoveSuggestionFull.time_sent, "replace");
+                                }
+                                
+                                this.sendMessage(
+                                    engine.client,
+                                    "GLOBAL",
+                                    `${JSON.stringify(this.state.stances)}`,
+                                    null,
+                                    null,
+                                    "move_advice_request",
+                                );
+                                this.setState({stanceChanged: false});
+                            }}
+                            disabled={!this.state.hasInitialOrders && !this.state.stanceChanged}
+                        ></Button>
+                    </div>
+                <div
+                    style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        border: "1px solid black",
+                        boxSizing: "border-box",
+                        marginTop: "10px",
+                    }}
+                >
+                    {fullSuggestionComponent}
+                    {partialSuggestionComponent}
+                </div>
+                </div>
                 )}
             </div>
         );
@@ -3416,9 +3459,6 @@ export class ContentGame extends React.Component {
             (controllablePowers.length && controllablePowers[0]);
         const serverOrders = this.__get_orders(engine);
         const powerOrders = serverOrders[currentPowerName] || [];
-        let numOrderText = `[${Object.keys(powerOrders).length}/${
-            engine.orderableLocations[currentPowerName].length
-        }] moves have been set.`;
 
         this.props.data.displayed = true;
         const page = this.context;
@@ -3510,6 +3550,26 @@ export class ContentGame extends React.Component {
             half: 6,
             large: 8,
             full: 12,
+        }
+
+        // orderable locations and units with no orders
+        let numOrderText = "";
+
+        if (phaseType === "M" && orderTypeToLocs) {
+            const merged = new Set(Object.values(orderTypeToLocs).flat());
+            const unitsWithoutOrders = new Set(
+                [...merged].filter((x) => !Object.keys(powerOrders).includes(x))
+            );
+            if (unitsWithoutOrders.size === 0 || merged.size === unitsWithoutOrders.size) {
+                numOrderText = `[${Object.keys(powerOrders).length}/${
+                          engine.orderableLocations[currentPowerName].length
+                      }] set.`;
+            } else {
+                const unitsWithoutOrdersArray = Array.from(unitsWithoutOrders);
+                numOrderText = `[${Object.keys(powerOrders).length}/${
+                          engine.orderableLocations[currentPowerName].length
+                      }] set. Need: ${unitsWithoutOrdersArray.join(", ")}`;
+            }
         }
 
         const navAfterTitle = (
@@ -3785,7 +3845,7 @@ export class ContentGame extends React.Component {
         //window.addEventListener("visibilitychange", this.handleVisibilityChange);
         window.addEventListener("blur", this.handleBlur);
         window.addEventListener("focus", this.handleFocus);
-        this.state.lastSwitchPanelTime = Date.now();
+        this.setState({ lastSwitchPanelTime: Date.now() });
     }
 
     componentDidUpdate() {
