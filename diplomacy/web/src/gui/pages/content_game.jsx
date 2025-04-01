@@ -857,7 +857,7 @@ export class ContentGame extends React.Component {
         networkGame.sendDeceiving({ info: info });
     }
 
-    sendMessage(networkGame, recipient, body, deception) {
+    sendMessage(networkGame, recipient, body, deception, message_type) {
         const page = this.getPage();
 
         // make sure the message is not empty
@@ -870,6 +870,7 @@ export class ContentGame extends React.Component {
                 recipient: recipient,
                 message: body,
                 truth: deception,
+                message_type: message_type,
             });
             networkGame
                 .sendGameMessage({ message: message })
@@ -2124,7 +2125,8 @@ export class ContentGame extends React.Component {
                                                 engine.client,
                                                 currentTabId,
                                                 this.state.message,
-                                                "Truth"
+                                                "Truth",
+                                                null,
                                             );
                                             this.setMessageInputValue("");
                                         }}
@@ -2139,7 +2141,8 @@ export class ContentGame extends React.Component {
                                                 engine.client,
                                                 currentTabId,
                                                 this.state.message,
-                                                "Lie"
+                                                "Lie",
+                                                null,
                                             );
                                             this.setMessageInputValue("");
                                         }}
@@ -2154,7 +2157,8 @@ export class ContentGame extends React.Component {
                                                 engine.client,
                                                 currentTabId,
                                                 this.state.message,
-                                                "Neutral"
+                                                "Neutral",
+                                                null,
                                             );
                                             this.setMessageInputValue("");
                                         }}
@@ -3206,7 +3210,8 @@ export class ContentGame extends React.Component {
                                     "GLOBAL",
                                     `${JSON.stringify(this.state.stances)}`,
                                     null,
-                                    null
+                                    null,
+                                    "move_advice_request",
                                 );
                                 this.setState({stanceChanged: false});
                             }}
