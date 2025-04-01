@@ -1762,7 +1762,7 @@ export class ContentGame extends React.Component {
             const sent_time = latestMoveSuggestion.time_sent;
             if (
                 this.state.annotatedMessages.hasOwnProperty(sent_time) &&
-                (this.state.annotatedMessages[sent_time] === "reject" || this.state.annotatedMessages[sent_time] === "reject")
+                (this.state.annotatedMessages[sent_time] === "reject" || this.state.annotatedMessages[sent_time] === "replace")
             ) {
                 latestMoveSuggestion = null;
             }
