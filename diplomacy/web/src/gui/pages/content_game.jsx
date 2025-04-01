@@ -1820,6 +1820,7 @@ export class ContentGame extends React.Component {
         const receivedSuggestions = globalMessages.filter(
             (msg) =>
                 msg.type === STRINGS.SUGGESTED_COMMENTARY &&
+                msg.parsed.payload.recipient === protagonist &&
                 (isAdmin ||
                     !this.state.annotatedMessages.hasOwnProperty(msg.time_sent))
         );
