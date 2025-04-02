@@ -3128,32 +3128,8 @@ export class ContentGame extends React.Component {
             );
         }
 
-        const suggestionTypeDisplay = [];
-        if (suggestionType !== null) {
-            if ((suggestionType & UTILS.SuggestionType.MESSAGE) === UTILS.SuggestionType.MESSAGE)
-                suggestionTypeDisplay.push("message");
-            if ((suggestionType & UTILS.SuggestionType.MOVE) === UTILS.SuggestionType.MOVE) suggestionTypeDisplay.push("move");
-            if ((suggestionType & UTILS.SuggestionType.COMMENTARY) === UTILS.SuggestionType.COMMENTARY)
-                suggestionTypeDisplay.push("commentary");
-        }
-
         return (
             <div className={"col-4 mb-4"}>
-                {suggestionType === null && (
-                    <div>
-                        We haven't assigned advisors yet / No advisor for this
-                        year
-                    </div>
-                )}
-                {suggestionType !== null && suggestionType === UTILS.SuggestionType.NONE && (
-                    <div>You are on your own this turn.</div>
-                )}
-                {suggestionType !== null && suggestionType !== UTILS.SuggestionType.NONE && (
-                    <div>
-                        You are getting advice this turn:{" "}
-                        {suggestionTypeDisplay.join(", ")}.
-                    </div>
-                )}
                 {suggestionType !== null && (suggestionType & UTILS.SuggestionType.MOVE) === UTILS.SuggestionType.MOVE && (
                     <ChatContainer
                         style={{
@@ -3512,6 +3488,22 @@ export class ContentGame extends React.Component {
             full: 12,
         }
 
+        const messageChannels = engine.getMessageChannels(
+            currentPowerName,
+            true
+        );
+        const suggestionMessages = this.getSuggestionMessages(
+            currentPowerName,
+            messageChannels,
+            engine
+        );
+
+        const suggestionType = this.getSuggestionType(
+            currentPowerName,
+            engine,
+            suggestionMessages
+        );
+
         const navAfterTitle = (
             <form className="form-inline form-current-power">
                 <div className="custom-control custom-control-inline">
@@ -3576,6 +3568,15 @@ export class ContentGame extends React.Component {
             </form>
         );
 
+        const suggestionTypeDisplay = [];
+        if (suggestionType !== null) {
+            if ((suggestionType & UTILS.SuggestionType.MESSAGE) === UTILS.SuggestionType.MESSAGE)
+                suggestionTypeDisplay.push("message");
+            if ((suggestionType & UTILS.SuggestionType.MOVE) === UTILS.SuggestionType.MOVE) suggestionTypeDisplay.push("move");
+            if ((suggestionType & UTILS.SuggestionType.COMMENTARY) === UTILS.SuggestionType.COMMENTARY)
+                suggestionTypeDisplay.push("commentary");
+        }
+
         const currentTabOrderCreation = hasTabCurrentPhase && (
             <div>
                 <PowerOrderCreationForm
@@ -3612,6 +3613,21 @@ export class ContentGame extends React.Component {
                             </strong>
                         )))}
                 {phaseType === "M" && <div>{numOrderText}</div>}
+                {suggestionType === null && (
+                    <div>
+                        We haven't assigned advisors yet / No advisor for this
+                        year
+                    </div>
+                )}
+                {suggestionType !== null && suggestionType === UTILS.SuggestionType.NONE && (
+                    <div>You are on your own this turn.</div>
+                )}
+                {suggestionType !== null && suggestionType !== UTILS.SuggestionType.NONE && (
+                    <div>
+                        You are getting advice this turn:{" "}
+                        {suggestionTypeDisplay.join(", ")}.
+                    </div>
+                )}
             </div>
         );
 
@@ -3635,22 +3651,6 @@ export class ContentGame extends React.Component {
         } else {
             phasePanel = this.renderTabResults(true, engine);
         }
-
-        const messageChannels = engine.getMessageChannels(
-            currentPowerName,
-            true
-        );
-        const suggestionMessages = this.getSuggestionMessages(
-            currentPowerName,
-            messageChannels,
-            engine
-        );
-
-        const suggestionType = this.getSuggestionType(
-            currentPowerName,
-            engine,
-            suggestionMessages
-        );
 
         const hasMoveSuggestion =
             suggestionType !== null && (suggestionType & UTILS.SuggestionType.MOVE) === UTILS.SuggestionType.MOVE;
