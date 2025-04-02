@@ -1,15 +1,5 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { Slider } from "./slider";
-import { Button } from "./button";
-
-const stanceDict = {
-    1: "Very hostile",
-    2: "Slightly hostile",
-    3: "Neutral",
-    4: "Slightly friendly",
-    5: "Very friendly",
-};
 
 class DefaultWrapper {
     constructor(data) {
