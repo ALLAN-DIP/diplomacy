@@ -58,12 +58,12 @@ sphinx:
 .PHONY: check
 check:
 	$(MAKE) precommit
-	$(MAKE) pytest
-	# $(MAKE) pylint
-	$(MAKE) sphinx
-	# $(MAKE) eslint
 	$(MAKE) check-npm-build
+	# $(MAKE) pylint
+	# $(MAKE) eslint
+	$(MAKE) sphinx
 	$(MAKE) npm-test
+	$(MAKE) pytest
 
 .PHONY: update-npm
 update-npm:
