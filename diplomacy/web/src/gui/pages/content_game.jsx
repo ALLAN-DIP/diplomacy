@@ -30,7 +30,6 @@ import { Message } from "../../diplomacy/engine/message";
 import { PowerOrders } from "../components/power_orders";
 import { STRINGS } from "../../diplomacy/utils/strings";
 import { Diplog } from "../../diplomacy/utils/diplog";
-import { Table } from "../components/table";
 import { AdminPowersInfoTable } from "../components/admin_powers_info_table";
 import { PowerView } from "../utils/power_view";
 import { DipStorage } from "../utils/dipStorage";
@@ -77,7 +76,6 @@ import ITA from "../assets/ITA.png";
 import RUS from "../assets/RUS.png";
 import TUR from "../assets/TUR.png";
 import GLOBAL from "../assets/GLOBAL.png";
-import { Forms } from "../components/forms";
 import Grid from "@mui/material/Grid";
 
 const POWER_ICONS = {
@@ -184,6 +182,7 @@ export class ContentGame extends React.Component {
             orderBuildingType: null,
             orderBuildingPath: [],
             showAbbreviations: true,
+            mapSize: 6,
             message: "",
             logData: "",
             hasInitialOrders: this.props.data.getInitialOrders(
@@ -2021,14 +2020,6 @@ export class ContentGame extends React.Component {
 
         const phaseType = engine.getPhaseType();
 
-        // for filtering message suggestions based on the current power talking to
-
-        const suggestionMessages = this.getSuggestionMessages(
-            currentPowerName,
-            messageChannels,
-            engine
-        );
-
         return (
             <Box
                 className={isWide ? "col-12 mb-4" : "col-6 mb-4"}
@@ -2125,21 +2116,6 @@ export class ContentGame extends React.Component {
                                                 currentTabId,
                                                 this.state.message,
                                                 "Lie",
-                                            );
-                                            this.setMessageInputValue("");
-                                        }}
-                                    ></Button>
-                                    <Button
-                                        key={"n"}
-                                        pickEvent={true}
-                                        title={"Neutral"}
-                                        color={"primary"}
-                                        onClick={() => {
-                                            this.sendMessage(
-                                                engine.client,
-                                                currentTabId,
-                                                this.state.message,
-                                                "Neutral",
                                             );
                                             this.setMessageInputValue("");
                                         }}
@@ -2457,7 +2433,7 @@ export class ContentGame extends React.Component {
         let prevPhase = "";
 
         powerLogs.forEach((log) => {
-            if (log.phase != prevPhase) {
+            if (log.phase !== prevPhase) {
                 curPhase = log.phase;
                 renderedLogs.push(
                     <MessageSeparator>{curPhase}</MessageSeparator>
@@ -2780,11 +2756,10 @@ export class ContentGame extends React.Component {
                                                     )
                                                 }
                                                 onSend={() => {
-                                                    const message =
-                                                        this.sendLogData(
-                                                            engine.client,
-                                                            this.state.logData
-                                                        );
+                                                    this.sendLogData(
+                                                        engine.client,
+                                                        this.state.logData
+                                                    );
                                                     //this.setLogs([...this.state.logs, message])
                                                 }}
                                             />
@@ -3088,31 +3063,8 @@ export class ContentGame extends React.Component {
             );
         }
 
-        const suggestionTypeDisplay = [];
-        if (suggestionType !== null) {
-            if ((suggestionType & UTILS.SuggestionType.MESSAGE) === UTILS.SuggestionType.MESSAGE)
-                suggestionTypeDisplay.push("message");
-            if ((suggestionType & UTILS.SuggestionType.MOVE) === UTILS.SuggestionType.MOVE) suggestionTypeDisplay.push("move");
-            if ((suggestionType & UTILS.SuggestionType.COMMENTARY) === UTILS.SuggestionType.COMMENTARY)
-                suggestionTypeDisplay.push("commentary");
-        }
-
         return (
-            <div className={"col-2 mb-4"}>
-                {suggestionType === null && (
-                    <div>
-                        No advice for this turn
-                    </div>
-                )}
-                {suggestionType !== null && suggestionType === 0 && (
-                    <div>You are on your own</div>
-                )}
-                {suggestionType !== null && suggestionType >= 1 && (
-                    <div>
-                        You are getting advice:{" "}
-                        {suggestionTypeDisplay.join(", ")}.
-                    </div>
-                )}
+            <div className={"col-4 mb-4"}>
                 {suggestionType !== null && (suggestionType & UTILS.SuggestionType.MOVE) === UTILS.SuggestionType.MOVE && (
                     <div
                         style={{
@@ -3255,18 +3207,10 @@ export class ContentGame extends React.Component {
         const powerNames = Object.keys(engine.powers);
         powerNames.sort();
 
-        const orderedPowers = powerNames.map((pn) => engine.powers[pn]);
-
-        const serverOrders = this.__get_orders(engine);
-        const powerOrders = serverOrders[currentPowerName] || [];
-        let numOrderText = `[${Object.keys(powerOrders).length}/${
-            engine.orderableLocations[currentPowerName].length
-        }] moves have been set.`;
-
         return (
             <Tab id={"tab-current-phase"} display={toDisplay}>
                 <Row>
-                    <div className={"col-6"}>
+                    <div className={`col-${this.state.mapSize}`}>
                         {this.renderMapForCurrent(
                             engine,
                             powerName,
@@ -3458,8 +3402,54 @@ export class ContentGame extends React.Component {
             buildCount = engine.getBuildsCount(currentPowerName);
         }
 
+        const possibleMapSizes = {
+            half: 6,
+            large: 8,
+            full: 12,
+        }
+
+        const messageChannels = engine.getMessageChannels(
+            currentPowerName,
+            true
+        );
+
+        const suggestionMessages = this.getSuggestionMessages(
+            currentPowerName,
+            messageChannels,
+            engine
+        );
+
+        const suggestionType = this.getSuggestionType(
+            currentPowerName,
+            engine,
+            suggestionMessages
+        );
+
         const navAfterTitle = (
             <form className="form-inline form-current-power">
+                <div className="custom-control custom-control-inline">
+                    Map size:
+                    <label className="sr-only" htmlFor="map-size">
+                        map size
+                    </label>
+                    <select
+                        className="form-control custom-select custom-control-inline"
+                        id="map-size"
+                        value={Object.keys(possibleMapSizes).find(key => possibleMapSizes[key] === this.state.mapSize)}
+                        onChange={(event) => {
+                            this.setState({
+                                mapSize: possibleMapSizes[event.target.value],
+                            });
+                        }}
+                    >
+                        {Object.keys(possibleMapSizes).map((key) => (
+                            <option key={key} value={key}>
+                                {key.charAt(0).toUpperCase() + key.slice(1)}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+                    
                 {(controllablePowers.length === 1 && (
                     <span className="power-name">{controllablePowers[0]}</span>
                 )) || (
@@ -3499,6 +3489,15 @@ export class ContentGame extends React.Component {
             </form>
         );
 
+        const suggestionTypeDisplay = [];
+        if (suggestionType !== null) {
+            if ((suggestionType & UTILS.SuggestionType.MESSAGE) === UTILS.SuggestionType.MESSAGE)
+                suggestionTypeDisplay.push("message");
+            if ((suggestionType & UTILS.SuggestionType.MOVE) === UTILS.SuggestionType.MOVE) suggestionTypeDisplay.push("move");
+            if ((suggestionType & UTILS.SuggestionType.COMMENTARY) === UTILS.SuggestionType.COMMENTARY)
+                suggestionTypeDisplay.push("commentary");
+        }
+
         const currentTabOrderCreation = hasTabCurrentPhase && (
             <div>
                 <PowerOrderCreationForm
@@ -3535,6 +3534,21 @@ export class ContentGame extends React.Component {
                             </strong>
                         )))}
                 {phaseType === "M" && <div>{numOrderText}</div>}
+                {suggestionType === null && (
+                    <div>
+                        We haven't assigned advisors yet / No advisor for this
+                        year
+                    </div>
+                )}
+                {suggestionType !== null && suggestionType === UTILS.SuggestionType.NONE && (
+                    <div>You are on your own this turn.</div>
+                )}
+                {suggestionType !== null && suggestionType !== UTILS.SuggestionType.NONE && (
+                    <div>
+                        You are getting advice this turn:{" "}
+                        {suggestionTypeDisplay.join(", ")}.
+                    </div>
+                )}
             </div>
         );
 
@@ -3565,12 +3579,6 @@ export class ContentGame extends React.Component {
         } else {
             phasePanel = this.renderTabResults(true, engine);
         }
-
-        const messageChannels = engine.getMessageChannels(
-            currentPowerName,
-            true
-        );
-
         const advice = this.getSuggestionMessages(
             currentPowerName,
             messageChannels,
@@ -3591,11 +3599,6 @@ export class ContentGame extends React.Component {
                     !this.state.annotatedMessages.hasOwnProperty(msg.time_sent))
         );
 
-        const suggestionType = this.getSuggestionType(
-            currentPowerName,
-            engine,
-            advice
-        );
 
         const showMessageAdviceTab =
             suggestionType !== null &&
@@ -3665,7 +3668,9 @@ export class ContentGame extends React.Component {
         //window.addEventListener("visibilitychange", this.handleVisibilityChange);
         window.addEventListener("blur", this.handleBlur);
         window.addEventListener("focus", this.handleFocus);
-        this.state.lastSwitchPanelTime = Date.now();
+        this.setState({
+            lastSwitchPanelTime: Date.now(),
+        })
     }
 
     componentDidUpdate() {
