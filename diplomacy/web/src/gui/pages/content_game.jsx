@@ -3509,7 +3509,7 @@ export class ContentGame extends React.Component {
                         ))}
                     </select>
                 </div>
-                    
+
                 {(controllablePowers.length === 1 && (
                     <span className="power-name">{controllablePowers[0]}</span>
                 )) || (
