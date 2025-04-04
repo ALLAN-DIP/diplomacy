@@ -1,0 +1,95 @@
+name: Checks
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+      - test-ci**
+  workflow_dispatch: # Enable workflow to be run manually
+
+# Disable all access to the GitHub API by default
+# This default can be overridden for individual workflows and jobs
+# Documentation: https://docs.github.com/en/actions/writing-workflows/workflow-syntax-for-github-actions#permissions
+permissions: {}
+
+# Cancel the currently running CI job if you push a change while CI is running
+# Documentation: https://docs.github.com/en/actions/using-jobs/using-concurrency
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODEJS_VERSION: 22.14.0
+
+jobs:
+  checks:
+    runs-on: ubuntu-22.04 # Pinned version of `ubuntu-latest`
+    name: Run checks
+    env:
+      PYTHON_VERSION: 3.11.11
+    defaults:
+      run:
+        shell: bash -leo pipefail {0}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Initialize NodeJS environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODEJS_VERSION }}
+          cache: npm
+          cache-dependency-path: diplomacy/web/package-lock.json
+      - name: Install dependencies into NodeJS environment
+        run: |
+          make update-npm
+
+      - name: Initialize Python environment
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: pyproject.toml
+      - name: Install dependencies into Python environment
+        run: |
+          pip install --upgrade pip
+          pip install --upgrade -e .[dev]
+
+      - name: Cache pre-commit environments
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pre-commit
+          key: precommit--${{ runner.os }}--${{ runner.arch }}--${{ env.PYTHON_VERSION }}--${{ hashFiles('.pre-commit-config.yaml') }}
+      - name: Run all checks
+        run: |
+          SKIP=no-commit-to-branch make check
+
+  # Run tests for Python 3.7 to limit any version-related breakages in Cicero
+  checks-py37:
+    runs-on: ubuntu-22.04 # Pinned version of `ubuntu-latest`
+    name: Run Python 3.7 checks
+    env:
+      PYTHON_VERSION: 3.7.17
+    defaults:
+      run:
+        shell: bash -leo pipefail {0}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Initialize Python environment
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: requirements-lock.txt
+      - name: Install dependencies into Python environment
+        run: |
+          make update-pip
+
+      - name: Run tests
+        run: |
+          make pytest
