@@ -871,7 +871,7 @@ export class ContentGame extends React.Component {
                 recipient: recipient,
                 message: body,
                 truth: deception,
-                message_type: message_type,
+                type: message_type,
             });
             networkGame
                 .sendGameMessage({ message: message })
