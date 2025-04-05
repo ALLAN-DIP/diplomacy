@@ -3064,7 +3064,7 @@ export class ContentGame extends React.Component {
         }
 
         return (
-            <div className={"col-4 mb-4"}>
+            <div className={"col-2 mb-4"}>
                 {suggestionType !== null && (suggestionType & UTILS.SuggestionType.MOVE) === UTILS.SuggestionType.MOVE && (
                     <div
                         style={{
