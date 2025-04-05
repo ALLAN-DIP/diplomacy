@@ -1886,7 +1886,7 @@ export class ContentGame extends React.Component {
                                 onChange={(e) => {
                                     this.handleStance(
                                         protagonist,
-                                        e.target.checked ? 1 : 0
+                                        e.target.checked ? UTILS.Stance.ALLY : UTILS.Stance.NON_ALLY
                                     );
                                     this.setState({stanceChanged: true});
                                 }}
@@ -3189,7 +3189,7 @@ export class ContentGame extends React.Component {
                                 if (latestMoveSuggestionFull) {
                                     this.handleRecipientAnnotation(latestMoveSuggestionFull.time_sent, "replace");
                                 }
-                                
+
                                 this.sendMessage(
                                     engine.client,
                                     "GLOBAL",
@@ -3595,7 +3595,7 @@ export class ContentGame extends React.Component {
                         ))}
                     </select>
                 </div>
-                    
+
                 {(controllablePowers.length === 1 && (
                     <span className="power-name">{controllablePowers[0]}</span>
                 )) || (
