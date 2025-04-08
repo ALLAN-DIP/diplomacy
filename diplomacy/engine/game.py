@@ -5511,6 +5511,13 @@ class Game(Jsonable):
                         power.units += [" ".join(word[:2])]
                         diff += 1
                         self.result[unit] += [OK]
+
+                        loc = word[1] if len(word[1]) == 3 else word[1][:3]
+                        # Setting influence
+                        for influence_power in self.powers.values():
+                            if loc in influence_power.influence:
+                                influence_power.influence.remove(loc)
+                        power.influence.append(loc)
                     else:
                         self.result[unit] += [VOID]
                     if unit not in self.ordered_units[power.name]:
