@@ -12,9 +12,6 @@ RUN npm install --force
 COPY diplomacy/web/ /app
 COPY diplomacy/maps/ /maps
 
-# Needed to work around changes in OpenSSL 3.0
-ENV NODE_OPTIONS=--openssl-legacy-provider
-
 RUN npm run build
 
 FROM python:3.7.17-alpine3.18 AS server
