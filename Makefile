@@ -36,6 +36,10 @@ eslint:
 precommit:
 	pre-commit run --all-files
 
+.PHONY: prettier
+prettier:
+	pre-commit run --all-files prettier
+
 .PHONY: pylint
 pylint:
 	find diplomacy -name "*.py" ! -name 'zzz_*.py' ! -name '_*.py' -exec pylint '{}' +
