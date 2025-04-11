@@ -50,4 +50,4 @@ repos:
     rev: v3.5.3
     hooks:
       - id: prettier
-        files: ^diplomacy/web/src/gui/maps/template\.js$
+        files: ^diplomacy/web/src/gui/maps/(template\.js|(ancmed|modern|pure|standard)/.*)$
