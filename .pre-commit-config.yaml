@@ -40,3 +40,9 @@ repos:
       - id: no-commit-to-branch
       - id: requirements-txt-fixer
       - id: trailing-whitespace
+  - repo: local
+    hooks:
+      - id: convert-svg-maps-to-react
+        name: convert svg maps to react
+        language: system
+        entry: ./diplomacy/web/convert_svg_maps_to_react.sh
