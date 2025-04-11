@@ -19,8 +19,8 @@ Copyright (C) 2019 - Philip Paquette, Steven Bocco
 /** Generated with parameters: Namespace(input='src/diplomacy/maps/svg/pure.svg', name='SvgPure', output='src/gui/maps/pure/') **/
 import React from "react";
 import PropTypes from "prop-types";
-import './SvgPure.css';
-import {Coordinates, SymbolSizes, Colors} from "./SvgPureMetadata";
+import "./SvgPure.css";
+import { Coordinates, SymbolSizes, Colors } from "./SvgPureMetadata";
 import { getClickedID, parseLocation, setInfluence } from "../common/common";
 import { Game } from "../../../diplomacy/engine/game";
 import { MapData } from "../../utils/map_data";
@@ -178,7 +178,21 @@ export class SvgPure extends React.Component {
         return neighbors.length ? neighbors : null;
     }
     render() {
-        const classes = {"_vie":"nopower","_lon":"nopower","_par":"nopower","_ber":"nopower","_rom":"nopower","_mos":"nopower","_con":"nopower","CurrentNote":"currentnotetext","CurrentNote2":"currentnotetext","CurrentPhase":"currentphasetext","BriefLabelLayer":"labeltext","FullLabelLayer":"labeltext","MouseLayer":"invisibleContent"}
+        const classes = {
+            _vie: "nopower",
+            _lon: "nopower",
+            _par: "nopower",
+            _ber: "nopower",
+            _rom: "nopower",
+            _mos: "nopower",
+            _con: "nopower",
+            CurrentNote: "currentnotetext",
+            CurrentNote2: "currentnotetext",
+            CurrentPhase: "currentphasetext",
+            BriefLabelLayer: "labeltext",
+            FullLabelLayer: "labeltext",
+            MouseLayer: "invisibleContent",
+        };
         const game = this.props.game;
         const mapData = this.props.mapData;
         const orders = this.props.orders;
