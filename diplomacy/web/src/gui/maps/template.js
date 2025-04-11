@@ -1,8 +1,8 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-%(style_content)s
-%(extra_content)s
+/* PythonTemplate.style_content */
+/* PythonTemplate.extra_content */
 import {getClickedID, parseLocation, setInfluence} from "../common/common";
 import {Game} from "../../../diplomacy/engine/game";
 import {MapData} from "../../utils/map_data";
@@ -18,7 +18,7 @@ import {Convoy} from "../common/convoy";
 import {Build} from "../common/build";
 import {Disband} from "../common/disband";
 
-export class %(classname)s extends React.Component {
+export class PythonTemplate/* classname */ extends React.Component {
     constructor(props) {
         super(props);
         this.onClick = this.onClick.bind(this);
@@ -153,7 +153,7 @@ export class %(classname)s extends React.Component {
         return neighbors.length ? neighbors: null;
     }
     render() {
-        const classes = %(classes)s;
+        const classes = "PythonTemplate"/* classes */;
         const game = this.props.game;
         const mapData = this.props.mapData;
         const orders = this.props.orders;
@@ -340,11 +340,11 @@ export class %(classname)s extends React.Component {
         }
 
         return (
-%(svg)s
+"PythonTemplate"/* svg */
         );
     }
 }
-%(classname)s.propTypes = {
+PythonTemplate/* classname */.propTypes = {
     game: PropTypes.instanceOf(Game).isRequired,
     mapData: PropTypes.instanceOf(MapData).isRequired,
     orders: PropTypes.object,
