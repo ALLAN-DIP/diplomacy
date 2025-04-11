@@ -435,6 +435,12 @@ export const Colors = %(colors)s;
     # Map javacript
     with open(TEMPLATE_FILE_NAME) as template_file:
         js_template_code = template_file.read()
+    # Replace template for complete line
+    js_template_code = re.sub(r"/\* PythonTemplate.([\w_]+?) \*/", r"%(\1)s", js_template_code)
+    # Replace template for JavaScript identifier
+    js_template_code = re.sub(r"PythonTemplate ?/\* ([\w_]+?) \*/", r"%(\1)s", js_template_code)
+    # Replace template for JavaScript value
+    js_template_code = re.sub(r"\"PythonTemplate\";? ?/\* ([\w_]+?) \*/", r"%(\1)s", js_template_code)
     map_js_code = (js_template_code
     % {'style_content': "import './%s.css';" % class_name if data.style_lines else '',
        'extra_content': 'import {Coordinates, SymbolSizes, Colors} from "./%s";' %
