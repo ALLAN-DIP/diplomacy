@@ -339,6 +339,7 @@ export class PythonTemplate/* classname */ extends React.Component {
             classes['BriefLabelLayer'] = 'visibilityHidden';
         }
 
+        // prettier-ignore
         return (
 "PythonTemplate"/* svg */
         );
