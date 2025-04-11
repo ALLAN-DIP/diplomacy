@@ -19,8 +19,8 @@ Copyright (C) 2019 - Philip Paquette, Steven Bocco
 /** Generated with parameters: Namespace(input='src/diplomacy/maps/svg/ancmed.svg', name='SvgAncMed', output='src/gui/maps/ancmed/') **/
 import React from "react";
 import PropTypes from "prop-types";
-import './SvgAncMed.css';
-import {Coordinates, SymbolSizes, Colors} from "./SvgAncMedMetadata";
+import "./SvgAncMed.css";
+import { Coordinates, SymbolSizes, Colors } from "./SvgAncMedMetadata";
 import { getClickedID, parseLocation, setInfluence } from "../common/common";
 import { Game } from "../../../diplomacy/engine/game";
 import { MapData } from "../../utils/map_data";
@@ -178,7 +178,93 @@ export class SvgAncMed extends React.Component {
         return neighbors.length ? neighbors : null;
     }
     render() {
-        const classes = {"_adr":"water","_aeg":"water","_ale":"nopower","_ant":"nopower","_apu":"nopower","_ara":"nopower","_arm":"nopower","_ath":"nopower","_aus":"water","_bal":"nopower","_bay":"nopower","_ber":"water","_bit":"nopower","_bla":"water","_byz":"nopower","_cap":"nopower","_car":"nopower","_che":"nopower","_cil":"water","_cir":"nopower","_cor":"nopower","_cre":"nopower","_cyp":"nopower","_cyr":"nopower","_dac":"nopower","_dal":"nopower","_dam":"nopower","_egy":"water","_epi":"nopower","_etr":"nopower","_gal":"nopower","_gau":"nopower","_gop":"water","_gos":"water","_got":"water","_ibe":"water","_ill":"nopower","_ion":"water","_isa":"nopower","_jer":"nopower","_lep":"nopower","_lib":"water","_lig":"water","_lus":"nopower","_mac":"nopower","_mar":"nopower","_mas":"nopower","_mau":"nopower","_mem":"nopower","_mes":"water","_mil":"nopower","_min":"water","_nab":"nopower","_nea":"nopower","_num":"nopower","_pet":"nopower","_pha":"nopower","_pun":"water","_rav":"nopower","_ree":"water","_rha":"nopower","_rom":"nopower","_sag":"nopower","_sah":"nopower","_sad":"nopower","_sam":"nopower","_sic":"nopower","_sid":"nopower","_sin":"nopower","_sip":"nopower","_spa":"nopower","_syr":"water","_tar":"nopower","_tha":"nopower","_thb":"nopower","_tye":"nopower","_tyn":"water","_ven":"nopower","_vin":"nopower","water":"water","BriefLabelLayer":"smalllabeltext","CurrentNote":"currentnotetext","CurrentNote2":"currentnotetext","CurrentPhase":"currentphasetext","MouseLayer":"invisibleContent"}
+        const classes = {
+            _adr: "water",
+            _aeg: "water",
+            _ale: "nopower",
+            _ant: "nopower",
+            _apu: "nopower",
+            _ara: "nopower",
+            _arm: "nopower",
+            _ath: "nopower",
+            _aus: "water",
+            _bal: "nopower",
+            _bay: "nopower",
+            _ber: "water",
+            _bit: "nopower",
+            _bla: "water",
+            _byz: "nopower",
+            _cap: "nopower",
+            _car: "nopower",
+            _che: "nopower",
+            _cil: "water",
+            _cir: "nopower",
+            _cor: "nopower",
+            _cre: "nopower",
+            _cyp: "nopower",
+            _cyr: "nopower",
+            _dac: "nopower",
+            _dal: "nopower",
+            _dam: "nopower",
+            _egy: "water",
+            _epi: "nopower",
+            _etr: "nopower",
+            _gal: "nopower",
+            _gau: "nopower",
+            _gop: "water",
+            _gos: "water",
+            _got: "water",
+            _ibe: "water",
+            _ill: "nopower",
+            _ion: "water",
+            _isa: "nopower",
+            _jer: "nopower",
+            _lep: "nopower",
+            _lib: "water",
+            _lig: "water",
+            _lus: "nopower",
+            _mac: "nopower",
+            _mar: "nopower",
+            _mas: "nopower",
+            _mau: "nopower",
+            _mem: "nopower",
+            _mes: "water",
+            _mil: "nopower",
+            _min: "water",
+            _nab: "nopower",
+            _nea: "nopower",
+            _num: "nopower",
+            _pet: "nopower",
+            _pha: "nopower",
+            _pun: "water",
+            _rav: "nopower",
+            _ree: "water",
+            _rha: "nopower",
+            _rom: "nopower",
+            _sag: "nopower",
+            _sah: "nopower",
+            _sad: "nopower",
+            _sam: "nopower",
+            _sic: "nopower",
+            _sid: "nopower",
+            _sin: "nopower",
+            _sip: "nopower",
+            _spa: "nopower",
+            _syr: "water",
+            _tar: "nopower",
+            _tha: "nopower",
+            _thb: "nopower",
+            _tye: "nopower",
+            _tyn: "water",
+            _ven: "nopower",
+            _vin: "nopower",
+            water: "water",
+            BriefLabelLayer: "smalllabeltext",
+            CurrentNote: "currentnotetext",
+            CurrentNote2: "currentnotetext",
+            CurrentPhase: "currentphasetext",
+            MouseLayer: "invisibleContent",
+        };
         const game = this.props.game;
         const mapData = this.props.mapData;
         const orders = this.props.orders;
