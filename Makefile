@@ -25,12 +25,17 @@ endif
 .PHONY: check-npm-build
 check-npm-build:
 	cd diplomacy/web/ && \
-	NODE_OPTIONS=--openssl-legacy-provider npm run build
+	npm run build
 
 .PHONY: eslint
 eslint:
 	cd diplomacy/web/ && \
 	npx eslint --ext js,jsx .
+
+.PHONY: npm-test
+npm-test:
+	cd diplomacy/web/ && \
+	npm run test
 
 .PHONY: precommit
 precommit:
@@ -53,11 +58,12 @@ sphinx:
 .PHONY: check
 check:
 	$(MAKE) precommit
-	$(MAKE) pytest
-	# $(MAKE) pylint
-	$(MAKE) sphinx
-	# $(MAKE) eslint
 	$(MAKE) check-npm-build
+	# $(MAKE) pylint
+	# $(MAKE) eslint
+	$(MAKE) sphinx
+	$(MAKE) npm-test
+	$(MAKE) pytest
 
 .PHONY: update-npm
 update-npm:
