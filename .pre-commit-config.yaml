@@ -40,3 +40,14 @@ repos:
       - id: no-commit-to-branch
       - id: requirements-txt-fixer
       - id: trailing-whitespace
+  - repo: local
+    hooks:
+      - id: convert-svg-maps-to-react
+        name: convert svg maps to react
+        language: system
+        entry: ./diplomacy/web/convert_svg_maps_to_react.sh
+  - repo: https://github.com/rbubley/mirrors-prettier # Use maintained fork of official mirror
+    rev: v3.5.3
+    hooks:
+      - id: prettier
+        files: ^diplomacy/web/src/gui/maps/(template\.js|(ancmed|modern|pure|standard)/.*)$
