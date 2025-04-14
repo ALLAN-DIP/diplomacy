@@ -1584,7 +1584,7 @@ export class ContentGame extends React.Component {
             if (role === sender) dir = "outgoing";
             if (role === rec) dir = "incoming";
             const html = msg.hide
-                ? `<div style='color: transparent; text-shadow: 0 0 5px rgba(0, 0, 0, 0.5)'; user-select: none>${msg.message}</div>`
+                ? `<div style='color: transparent; text-shadow: 0 0 5px rgba(0, 0, 0, 0.5); user-select: none'>${msg.message}</div>`
                 : msg.message;
             renderedMessages.push(
                 <ChatMessage
