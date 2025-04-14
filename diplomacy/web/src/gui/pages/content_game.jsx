@@ -223,7 +223,6 @@ export class ContentGame extends React.Component {
             this.notifiedLocalStateChange.bind(this);
         this.notifiedNetworkGame = this.notifiedNetworkGame.bind(this);
         this.notifiedNewGameMessage = this.notifiedNewGameMessage.bind(this);
-        // this.notifiedNewLog = this.notifiedNewLog.bind(this);
         this.notifiedPowersControllers =
             this.notifiedPowersControllers.bind(this);
         this.onChangeCurrentPower = this.onChangeCurrentPower.bind(this);
@@ -276,7 +275,6 @@ export class ContentGame extends React.Component {
                 ? game.status
                 : `${game.countControlledPowers()} / 7 |`;
         title += players;
-        //if (game.daide_port) title += ` | DAIDE ${game.daide_port}`;
         const remainingTime = game.deadline_timer;
         const remainingHour = Math.floor(remainingTime / 3600);
         const remainingMinute = Math.floor(
@@ -1469,7 +1467,6 @@ export class ContentGame extends React.Component {
         for (let powerName of Object.keys(engine.powers))
             if (powerName !== role) tabNames.push(powerName);
         tabNames.sort();
-        //tabNames.push("Centaur");
         const currentTabId = this.state.tabPastMessages || tabNames[0];
 
         const convList = tabNames.map((protagonist) => (
@@ -1806,7 +1803,6 @@ export class ContentGame extends React.Component {
         for (let powerName of Object.keys(engine.powers))
             if (powerName !== role) tabNames.push(powerName);
         tabNames.sort();
-        //tabNames.push("Centaur");
         const currentTabId = this.state.tabCurrentMessages || tabNames[0];
 
         const convList = tabNames.map((protagonist) => (
@@ -2242,7 +2238,6 @@ export class ContentGame extends React.Component {
         };
 
         const orderView = [
-            //this.__form_phases(pastPhases, phaseIndex),
             (countOrders && (
                 <div key={2} className={"past-orders container"}>
                     {powerNames.map((powerName) =>
@@ -2550,9 +2545,6 @@ export class ContentGame extends React.Component {
                                                                         !isAdmin
                                                                     )
                                                                 }
-                                                                //disabled={this.state.annotatedMessages.hasOwnProperty(
-                                                                //  m.time_sent,
-                                                                //)}
                                                             ></Button>
                                                             <Button
                                                                 key={"r"}
@@ -2573,9 +2565,6 @@ export class ContentGame extends React.Component {
                                                                         !isAdmin
                                                                     )
                                                                 }
-                                                                //disabled={this.state.annotatedMessages.hasOwnProperty(
-                                                                //  m.time_sent,
-                                                                //)}
                                                             ></Button>
                                                         </div>
                                                     </div>
@@ -2636,24 +2625,7 @@ export class ContentGame extends React.Component {
                                                 }
                                             )}
                                         </MessageList>
-                                        {/* {engine.isPlayerGame() && (
-                                            <MessageInput
-                                                attachButton={false}
-                                                onChange={(val) =>
-                                                    this.setlogDataInputValue(
-                                                        val
-                                                    )
-                                                }
-                                                onSend={() => {
-                                                    const message =
-                                                        this.sendLogData(
-                                                            engine.client,
-                                                            this.state.logData
-                                                        );
-                                                    //this.setLogs([...this.state.logs, message])
-                                                }}
-                                            />
-                                        )} */}
+                                        {}
                                     </ChatContainer>
                                 </MainContainer>
                             )}
@@ -2688,7 +2660,6 @@ export class ContentGame extends React.Component {
                                                         engine.client,
                                                         this.state.logData
                                                     );
-                                                    //this.setLogs([...this.state.logs, message])
                                                 }}
                                             />
                                         )}
@@ -2807,9 +2778,6 @@ export class ContentGame extends React.Component {
                                         );
                                     }}
                                     invisible={!(isCurrent && !isAdmin)}
-                                    //disabled={this.state.annotatedMessages.hasOwnProperty(
-                                    //  latestMoveSuggestionFull.time_sent,
-                                    //)}
                                 ></Button>
                             </div>
                         </div>
@@ -3090,10 +3058,7 @@ export class ContentGame extends React.Component {
                         data={filteredPowers}
                         wrapper={PowerView.wrap}
                         countries={filteredPowerNames}
-                        //stances={engine.getPower(currentPowerName).getStances()}
                         player={currentPowerName}
-                        //isBot={engine.getPower(currentPowerName).getIsBot()}
-                        //stanceUpdated={this.state.stances}
                     />
                 </div>
             </div>
@@ -3323,7 +3288,6 @@ export class ContentGame extends React.Component {
             currentPower = engine.getPower(currentPowerName);
             orderTypeToLocs = engine.getOrderTypeToLocs(currentPowerName);
             allowedPowerOrderTypes = Object.keys(orderTypeToLocs);
-            // canOrder = allowedPowerOrderTypes.length
             if (allowedPowerOrderTypes.length) {
                 POSSIBLE_ORDERS.sortOrderTypes(
                     allowedPowerOrderTypes,
@@ -3641,7 +3605,6 @@ export class ContentGame extends React.Component {
         };
 
         window.addEventListener("beforeunload", this.handleExit);
-        //window.addEventListener("visibilitychange", this.handleVisibilityChange);
         window.addEventListener("blur", this.handleBlur);
         window.addEventListener("focus", this.handleFocus);
         this.setState({
@@ -3660,10 +3623,6 @@ export class ContentGame extends React.Component {
 
         this.handleExit();
         window.removeEventListener("beforeunload", this.handleExit);
-        //window.removeEventListener(
-        //    "visibilitychange",
-        //    this.handleVisibilityChange
-        //);
         window.removeEventListener("blur", this.handleBlur);
         window.removeEventListener("focus", this.handleFocus);
     }
