@@ -271,11 +271,6 @@ export class ContentGame extends React.Component {
         this.updateReadCommentary = this.updateReadCommentary.bind(this);
     }
 
-    static prettyRole(role) {
-        if (PRETTY_ROLES.hasOwnProperty(role)) return PRETTY_ROLES[role];
-        return role;
-    }
-
     static gameTitle(game) {
         let title = `${game.game_id} | `;
         const players =
@@ -314,15 +309,6 @@ export class ContentGame extends React.Component {
             wait[powerName] = engine.powers[powerName].wait;
         }
         return wait;
-    }
-
-    static getCommStatuses(engine) {
-        const commStatus = {};
-        const controllablePowers = engine.getControllablePowers();
-        for (let powerName of controllablePowers) {
-            commStatus[powerName] = engine.powers[powerName].comm_status;
-        }
-        return commStatus;
     }
 
     static getOrderBuilding(powerName, orderType, orderPath) {
@@ -723,23 +709,6 @@ export class ContentGame extends React.Component {
         }
     }
 
-    handleIsBot(country, isBot) {
-        const engine = this.props.data;
-        const power = engine.getPower(engine.role);
-
-        try {
-            let stanceCopy = Object.assign({}, this.state.isBot);
-            stanceCopy[country] = isBot;
-            this.setState({ isBot: stanceCopy });
-            power.setIsBot(country, isBot);
-            this.sendIsBot(engine.client, engine.role, power.getIsBot());
-        } catch (e) {
-            this.getPage().error(
-                "Will not update stance of a noncontrollable power."
-            );
-        }
-    }
-
     sendOrderLog(networkGame, logType, order) {
         const engine = networkGame.local;
         let message = null;
@@ -952,14 +921,6 @@ export class ContentGame extends React.Component {
 
     handleBlur = () => {
         this.handleExit();
-    };
-
-    handleVisibilityChange = () => {
-        if (document.hidden) {
-            this.handleBlur();
-        } else {
-            this.handleFocus();
-        }
     };
 
     onProcessGame() {
@@ -2173,35 +2134,6 @@ export class ContentGame extends React.Component {
         );
     }
 
-    renderMapForMessages(gameEngine, showOrders) {
-        const Map = getMapComponent(gameEngine.map_name);
-        return (
-            <div id="messages-map" key="messages-map">
-                <Map
-                    game={gameEngine}
-                    showAbbreviations={this.state.showAbbreviations}
-                    mapData={
-                        new MapData(
-                            this.getMapInfo(gameEngine.map_name),
-                            gameEngine
-                        )
-                    }
-                    onError={this.getPage().error}
-                    orders={
-                        (showOrders &&
-                            gameEngine.order_history.contains(
-                                gameEngine.phase
-                            ) &&
-                            gameEngine.order_history.get(gameEngine.phase)) ||
-                        null
-                    }
-                    onHover={showOrders ? this.displayLocationOrders : null}
-                    onSelectVia={this.onSelectVia}
-                />
-            </div>
-        );
-    }
-
     renderMapForCurrent(gameEngine, powerName, orderType, orderPath) {
         const Map = getMapComponent(gameEngine.map_name);
         const rawOrders = this.__get_orders(gameEngine);
@@ -3277,29 +3209,6 @@ export class ContentGame extends React.Component {
         );
     }
 
-    renderOrderSuggestions(orders) {
-        return orders ? (
-            <div className={"table-responsive"}>
-                <table className={this.props.className}>
-                    <tbody>
-                        {orders.map((order) => (
-                            <tr>
-                                <td>
-                                    <Button
-                                        title={order}
-                                        color={"primary"}
-                                    ></Button>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
-        ) : (
-            <div></div>
-        );
-    }
-
     renderTabCurrentPhase(
         toDisplay,
         engine,
@@ -3358,20 +3267,6 @@ export class ContentGame extends React.Component {
                 </Row>
             </Tab>
         );
-    }
-
-    renderMainPanel(
-        toDisplay,
-        initialEngine,
-        currentPowerName,
-        hasTabPhaseHistory,
-        hasTabCurrentPhase,
-        orderBuildingType,
-        orderBuildingPath,
-        currentTabOrderCreation
-    ) {
-        const { engine, pastPhases, phaseIndex } =
-            this.__get_engine_to_display(initialEngine);
     }
 
     renderTabChat(toDisplay, initialEngine, currentPowerName, isWide) {
