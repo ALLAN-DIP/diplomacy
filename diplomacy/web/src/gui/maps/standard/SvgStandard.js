@@ -21,7 +21,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import "./SvgStandard.css";
 import { Coordinates, SymbolSizes, Colors } from "./SvgStandardMetadata";
-import { getClickedID, parseLocation, setInfluence, setInfluenceLightBackground } from "../common/common";
+import { getClickedID, parseLocation, setInfluence } from "../common/common";
 import { Game } from "../../../diplomacy/engine/game";
 import { MapData } from "../../utils/map_data";
 import { UTILS } from "../../../diplomacy/utils/utils";
@@ -540,25 +540,11 @@ export class SvgStandard extends React.Component {
                         />,
                     );
                 }
-
-                /* Modify classname to display light background */
-                for (let classKey of Object.keys(classes)) {
-                    if (classes.hasOwnProperty(classKey)) {
-                        if (
-                            classes[classKey] === "nopower" ||
-                            classes[classKey] === "water" ||
-                            classes[classKey] === "neutral"
-                        ) {
-                            classes[classKey] = `${classes[classKey]}light`;
-                        }
-                    }
-                }
-
                 for (let center of power.centers) {
-                    setInfluenceLightBackground(classes, mapData, center, power.name);
+                    setInfluence(classes, mapData, center, power.name);
                 }
                 for (let loc of power.influence) {
-                    if (!mapData.supplyCenters.has(loc)) setInfluenceLightBackground(classes, mapData, loc, power.name);
+                    if (!mapData.supplyCenters.has(loc)) setInfluence(classes, mapData, loc, power.name);
                 }
 
                 if (orders) {
