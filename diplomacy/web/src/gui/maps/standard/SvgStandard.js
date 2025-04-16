@@ -59,13 +59,13 @@ export class SvgStandard extends React.Component {
         const phaseType = localGame.phase.slice(-1); // 'M'/'A'/'R' - movement/adjustment/retreat
         const requestedPower = orderBuilding.power;
         var requestedProvince = "";
-        const COUNTRIES = ["Austria", "England", "France", "Germany", "Italy", "Russia", "Turkey"];
+        const powers = Object.values(this.props.game.powers).map((power) => power.name);
 
         /* Get correct naming of province*/
         if (phaseType === "M") {
             /* MOVEMENT PHASE */
-            for (const power of COUNTRIES) {
-                var occupiedProvince = province.getOccupied(power.toUpperCase());
+            for (const power of powers) {
+                var occupiedProvince = province.getOccupied(power);
                 if (occupiedProvince) {
                     requestedProvince = occupiedProvince.name.toUpperCase();
                     break;
@@ -73,8 +73,8 @@ export class SvgStandard extends React.Component {
             }
         } else if (phaseType === "R") {
             /* RETREAT PHASE */
-            for (const power of COUNTRIES) {
-                var retreatProvince = province.getRetreated(power.toUpperCase());
+            for (const power of powers) {
+                var retreatProvince = province.getRetreated(power);
                 if (retreatProvince) {
                     requestedProvince = retreatProvince.retreatUnit.split(" ")[1];
                     break;
