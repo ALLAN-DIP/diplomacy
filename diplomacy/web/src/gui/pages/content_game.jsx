@@ -3763,6 +3763,9 @@ export class ContentGame extends React.Component {
             if ((suggestionType & UTILS.SuggestionType.MOVE) === UTILS.SuggestionType.MOVE) suggestionTypeDisplay.push("move");
             if ((suggestionType & UTILS.SuggestionType.COMMENTARY) === UTILS.SuggestionType.COMMENTARY)
                 suggestionTypeDisplay.push("commentary");
+            if ((suggestionType & UTILS.SuggestionType.MOVE_DISTRIBUTION_TEXTUAL) === UTILS.SuggestionType.MOVE_DISTRIBUTION_TEXTUAL ||
+              (suggestionType & UTILS.SuggestionType.MOVE_DISTRIBUTION_VISUAL) === UTILS.SuggestionType.MOVE_DISTRIBUTION_VISUAL)
+                suggestionTypeDisplay.push("move probability");
         }
 
         const currentTabOrderCreation = hasTabCurrentPhase && (
