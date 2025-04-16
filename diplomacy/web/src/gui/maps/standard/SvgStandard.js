@@ -745,7 +745,7 @@ export class SvgStandard extends React.Component {
 
         // prettier-ignore
         return (
-            <svg className="SvgStandard noselect" colorRendering="optimizeQuality" height="680px" preserveAspectRatio="xMinYMin" viewBox="0 0 1835 1360" width="918px" xmlns="http://www.w3.org/2000/svg">
+            <svg className="SvgStandard" colorRendering="optimizeQuality" height="680px" preserveAspectRatio="xMinYMin" viewBox="0 0 1835 1360" width="918px" xmlns="http://www.w3.org/2000/svg">
                 <defs>
                     <symbol id="WaivedBuild" overflow="visible" viewBox="0 0 100 100">
                         <linearGradient gradientUnits="userSpaceOnUse" id="symWBGradient" x1="15" x2="100" y1="100" y2="10">

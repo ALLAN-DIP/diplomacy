@@ -93,12 +93,6 @@ Copyright (C) 2019 - Philip Paquette, Steven Bocco
   fill: url(#patternBlue);
 }
 
-.noselect {
-  /* https://stackoverflow.com/questions/826782/how-to-disable-text-selection-highlighting/4407335#4407335 */
-  -webkit-user-select: none; /* Safari */
-  user-select: none; /* All other mainstream browsers */
-}
-
 .SvgStandard .nopower {
   fill: color-mix(in oklab, antiquewhite, white 25%);
   stroke: #000000;
