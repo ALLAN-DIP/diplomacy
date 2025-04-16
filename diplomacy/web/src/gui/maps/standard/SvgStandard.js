@@ -59,6 +59,7 @@ export class SvgStandard extends React.Component {
         const phaseType = localGame.phase.slice(-1); // 'M'/'A'/'R' - movement/adjustment/retreat
         const requestedPower = orderBuilding.power;
         var requestedProvince = "";
+        const provinceController = province.controller;
         const powers = Object.values(this.props.game.powers).map((power) => power.name);
 
         /* Get correct naming of province*/
@@ -111,7 +112,7 @@ export class SvgStandard extends React.Component {
         }
         if (requestedProvince === "") {
             this.props.onError(`No orderable locations at province ${province.name}`);
-            return this.props.onChangeOrderDistribution(requestedPower, null);
+            return this.props.onChangeOrderDistribution(requestedPower, null, provinceController);
         }
 
         for (var orderDist of this.props.orderDistribution) {
@@ -120,7 +121,7 @@ export class SvgStandard extends React.Component {
             }
         }
 
-        this.props.onChangeOrderDistribution(requestedPower, requestedProvince);
+        this.props.onChangeOrderDistribution(requestedPower, requestedProvince, provinceController);
         return true;
     }
 
