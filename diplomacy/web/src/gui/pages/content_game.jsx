@@ -676,37 +676,47 @@ export class ContentGame extends React.Component {
      * @param {string} requestedPower  - power requesting the advice
      * @param {string} requestedProvince - province to get advice for
      */
-    onChangeOrderDistribution(requestedPower, requestedProvince){
+    onChangeOrderDistribution(requestedPower, requestedProvince, provinceController){
         if (this.state.displayVisualAdvice === null || this.state.displayVisualAdvice === undefined){
             return;
         }
         if (requestedProvince === undefined || requestedProvince === null){
             return;
         }
-        // communicate with server to get model prediction
-        this.props.data.client.getOrderDistribution({ power_name: requestedPower, province: requestedProvince, model: "" }).then(res => {
-            if (res.hasOwnProperty("error")){
-                this.getPage().error(res.error);
-            }
-            else{
-                // successfully retrieves and updates order distribution
-                if (!this.state.displayVisualAdvice){
-                    this.setState({ orderDistribution: [ { power: res.power, distribution: res.preds, province: requestedProvince } ] });
-                }
-                else{
-                    let prevOrderDistribution = this.state.orderDistribution;
-                    let updatedOrderDistribution = []
-                    for (var orderDist of prevOrderDistribution){
-                        if (orderDist.province !== requestedProvince){
-                            updatedOrderDistribution.push(orderDist)
-                        }
-                    }
-                    updatedOrderDistribution.push({ power: res.power, distribution: res.preds, province: requestedProvince });
-                    this.setState({ orderDistribution: updatedOrderDistribution });
-                }
 
+        const engine = this.props.data;
+        const messageChannels = engine.getMessageChannels(
+            requestedPower,
+            true
+        );
+        const suggestionMessages = this.getSuggestionMessages(
+            requestedPower,
+            messageChannels,
+            engine
+        );
+        const provinceOrderDistributions = suggestionMessages.filter(
+            (msg) => msg.type === STRINGS.SUGGESTED_MOVE_DISTRIBUTION && msg.parsed.payload.province === requestedProvince
+        );
+        if (provinceOrderDistributions.length === 0) {
+            return
+        }
+        const provinceOrderDistribution = provinceOrderDistributions[0].parsed.payload
+
+        // successfully retrieves and updates order distribution
+        if (!this.state.displayVisualAdvice){
+            this.setState({ orderDistribution: [ { power: provinceController, distribution: provinceOrderDistribution.predicted_orders, province: requestedProvince } ] });
+        }
+        else{
+            let prevOrderDistribution = this.state.orderDistribution;
+            let updatedOrderDistribution = []
+            for (var orderDist of prevOrderDistribution){
+                if (orderDist.province !== requestedProvince){
+                    updatedOrderDistribution.push(orderDist)
+                }
             }
-        });
+            updatedOrderDistribution.push({ power: provinceController, distribution: provinceOrderDistribution.predicted_orders, province: requestedProvince });
+            this.setState({ orderDistribution: updatedOrderDistribution });
+        }
     }
 
     /**
