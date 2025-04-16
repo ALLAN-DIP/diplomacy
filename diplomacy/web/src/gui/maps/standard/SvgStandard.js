@@ -692,8 +692,8 @@ export class SvgStandard extends React.Component {
             }
         }
 
-        if (this.props.onShowHoverAdvice) {
-            for (const orderObj of this.props.onShowHoverAdvice) {
+        if (this.props.hoverDistributionOrder) {
+            for (const orderObj of this.props.hoverDistributionOrder) {
                 const component = this.renderOrderFromDist(orderObj.order, orderObj.power, game, 1, "H");
                 if (component.renderedOrders.length !== 0) {
                     renderedOrders.push(component.renderedOrders[0]);
@@ -706,8 +706,8 @@ export class SvgStandard extends React.Component {
         }
 
         /** For textual advice, user is able to show or hide an advice order*/
-        if (this.props.onShowVisibleAdvice) {
-            for (const orderObj of this.props.onShowVisibleAdvice) {
+        if (this.props.visibleDistributionOrder) {
+            for (const orderObj of this.props.visibleDistributionOrder) {
                 const component = this.renderOrderFromDist(orderObj.order, orderObj.power, game, 1, "V");
                 if (component.renderedOrders.length !== 0) {
                     renderedOrders.push(component.renderedOrders[0]);
@@ -1214,7 +1214,7 @@ SvgStandard.propTypes = {
     orderDistribution: PropTypes.array,
     displayVisualAdvice: PropTypes.bool,
     shiftKeyPressed: PropTypes.bool,
-    onShowHoverAdvice: PropTypes.array,
-    onShowVisibleAdvice: PropTypes.array,
+    hoverDistributionOrder: PropTypes.array,
+    visibleDistributionOrder: PropTypes.array,
 };
 // eslint-disable-line semi

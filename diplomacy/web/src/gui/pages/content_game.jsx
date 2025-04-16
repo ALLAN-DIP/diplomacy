@@ -2246,8 +2246,8 @@ export class ContentGame extends React.Component {
                     onChangeOrderDistribution={this.onChangeOrderDistribution}
                     orderDistribution={this.state.orderDistribution}
                     displayVisualAdvice={this.state.displayVisualAdvice}
-                    onShowVisibleAdvice={this.state.visibleDistributionOrder}
-                    onShowHoverAdvice={this.state.hoverDistributionOrder}
+                    visibleDistributionOrder={this.state.visibleDistributionOrder}
+                    hoverDistributionOrder={this.state.hoverDistributionOrder}
                     onSelectLocation={this.onSelectLocation}
                     onSelectVia={this.onSelectVia}
                 />
