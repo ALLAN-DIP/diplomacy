@@ -54,6 +54,7 @@ import { default as Tabs2 } from "@mui/material/Tabs";
 import { default as Tab2 } from "@mui/material/Tab";
 import Box from "@mui/material/Box";
 import Badge from "@mui/material/Badge";
+import Switch from "@mui/material/Switch";
 
 import {
     MainContainer,
@@ -189,7 +190,7 @@ export class ContentGame extends React.Component {
                 this.props.data.role
             ),
             annotatedMessages: this.props.data.getAnnotatedMessages(),
-            stances: /* this.props.data.stances[this.props.data.role] || */ {},
+            stances: this.props.data.stances[this.props.data.role] || {},
             isBot: this.props.data.is_bot[this.props.data.role] || {
                 AUSTRIA: false,
                 ENGLAND: false,
@@ -209,6 +210,7 @@ export class ContentGame extends React.Component {
             commentaryTimeSpent:
                 this.props.data.commentary_durations[this.props.data.role] ||
                 [],
+            stanceChanged: false
         };
 
         // Bind some class methods to this instance.
@@ -534,7 +536,6 @@ export class ContentGame extends React.Component {
                         orderBuildingPath: [],
                         hasInitialOrders: false,
                         hoverOrders: [],
-                        stances: {},
                     }).then(() =>
                         this.getPage().info(
                             `Game update (${notification.name}) to ${networkGame.local.phase}.`
@@ -711,9 +712,9 @@ export class ContentGame extends React.Component {
 
         try {
             let stanceCopy = Object.assign({}, this.state.stances);
-            stanceCopy[country] = parseInt(stance);
+            stanceCopy[country] = stance;
             this.setState({ stances: stanceCopy });
-            power.setStances(country, parseInt(stance));
+            power.setStances(country, stance);
             this.sendGameStance(engine.client, engine.role, power.getStances());
         } catch (e) {
             this.getPage().error(
@@ -855,7 +856,7 @@ export class ContentGame extends React.Component {
         networkGame.sendDeceiving({ info: info });
     }
 
-    sendMessage(networkGame, recipient, body, deception) {
+    sendMessage(networkGame, recipient, body, deception, messageType) {
         const page = this.getPage();
 
         // make sure the message is not empty
@@ -868,6 +869,7 @@ export class ContentGame extends React.Component {
                 recipient: recipient,
                 message: body,
                 truth: deception,
+                type: messageType,
             });
             networkGame
                 .sendGameMessage({ message: message })
@@ -1759,7 +1761,8 @@ export class ContentGame extends React.Component {
             const sent_time = latestMoveSuggestion.time_sent;
             if (
                 this.state.annotatedMessages.hasOwnProperty(sent_time) &&
-                this.state.annotatedMessages[sent_time] === "reject"
+                (this.state.annotatedMessages[sent_time] === "reject" ||
+                    this.state.annotatedMessages[sent_time] === "replace")
             ) {
                 latestMoveSuggestion = null;
             }
@@ -1871,9 +1874,27 @@ export class ContentGame extends React.Component {
             <Conversation
                 style={{ minWidth: "220px" }}
                 info={
-                    isAdmin && protagonist !== "GLOBAL"
-                        ? engine.powers[protagonist].getController()
-                        : ""
+                    isAdmin && protagonist !== "GLOBAL" ? (
+                        engine.powers[protagonist].getController()
+                    ) : (
+                        <div>
+                            non-ally
+                            <Switch
+                                color="success"
+                                size="small"
+                                onChange={(e) => {
+                                    this.handleStance(
+                                        protagonist,
+                                        e.target.checked ? UTILS.Stance.ALLY : UTILS.Stance.NON_ALLY
+                                    );
+                                    this.setState({stanceChanged: true});
+                                    console.log(`Stance changed for ${protagonist} to ${e.target.checked ? UTILS.Stance.ALLY : UTILS.Stance.NON_ALLY}`);
+                                }}
+                                checked={this.state.stances[protagonist] === UTILS.Stance.ALLY}
+                            ></Switch>
+                            ally
+                        </div>
+                    )
                 }
                 className={
                     protagonist === currentTabId
@@ -2089,7 +2110,8 @@ export class ContentGame extends React.Component {
                                                 engine.client,
                                                 currentTabId,
                                                 this.state.message,
-                                                "Truth"
+                                                "Truth",
+                                                null,
                                             );
                                             this.setMessageInputValue("");
                                         }}
@@ -2104,7 +2126,8 @@ export class ContentGame extends React.Component {
                                                 engine.client,
                                                 currentTabId,
                                                 this.state.message,
-                                                "Lie"
+                                                "Lie",
+                                                null
                                             );
                                             this.setMessageInputValue("");
                                         }}
@@ -3114,9 +3137,32 @@ export class ContentGame extends React.Component {
             );
         }
 
+        if (!fullSuggestionComponent && !partialSuggestionComponent) {
+            return null;
+        }
+
         return (
             <div className={"col-4 mb-4"}>
                 {suggestionType !== null && (suggestionType & UTILS.SuggestionType.MOVE) === UTILS.SuggestionType.MOVE && (
+                    <>
+                    <Button
+                            title={"Get ally-based advice"}
+                            color={"primary"}
+                            onClick={() => {
+                                if (latestMoveSuggestionFull) {
+                                    this.handleRecipientAnnotation(latestMoveSuggestionFull.time_sent, "replace");
+                                }
+                                this.sendMessage(
+                                    engine.client,
+                                    "GLOBAL",
+                                    `${JSON.stringify(this.state.stances)}`,
+                                    null,
+                                    "move_advice_request",
+                                );
+                                this.setState({stanceChanged: false});
+                            }}
+                            disabled={!this.state.hasInitialOrders && !this.state.stanceChanged}
+                        ></Button>
                     <ChatContainer
                         style={{
                             display: "flex",
@@ -3135,6 +3181,7 @@ export class ContentGame extends React.Component {
                             {partialSuggestionComponent}
                         </MessageList>
                     </ChatContainer>
+                    </>
                 )}
             </div>
         );
