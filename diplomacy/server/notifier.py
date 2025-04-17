@@ -362,6 +362,11 @@ class Notifier:
         """
         if game_message.is_global():
             yield self._notify_game(server_game, notifications.GameMessageReceived, message=game_message)
+            for game_role, token in server_game.get_omniscient_addresses():
+                yield self._notify(notifications.GameMessageReceived(token=token,
+                                                                     game_id=server_game.game_id,
+                                                                     game_role=game_role,
+                                                                     message=game_message))
         else:
             power_from = server_game.get_power(game_message.sender)
             power_to = server_game.get_power(game_message.recipient)
