@@ -197,4 +197,9 @@ export const UTILS = {
         OPPONENT_MOVE: 8,
     },
 
+    Stance: {
+        NON_ALLY: "non-ally",
+        ALLY: "ally",
+    }
+
 };

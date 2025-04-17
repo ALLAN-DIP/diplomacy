@@ -854,7 +854,7 @@ class SetGameState(_AbstractGameRequest):
         strings.ORDERS: parsing.DictType(str, parsing.SequenceType(str)),
         strings.RESULTS: parsing.DictType(str, parsing.SequenceType(str)),
         strings.MESSAGES: parsing.DictType(int, parsing.JsonableClassType(Message), SortedDict.builder(int, Message)),
-        strings.STANCES: parsing.DefaultValueType(parsing.DictType(str, parsing.DictType(str, int)), {}),
+        strings.STANCES: parsing.DefaultValueType(parsing.DictType(str, parsing.DictType(str, parsing.OptionalValueType(str))), {}),
         'is_bot': parsing.DefaultValueType(parsing.DictType(str, parsing.DictType(str, bool)), {}),
         'deceiving': parsing.DefaultValueType(parsing.DictType(str, parsing.DictType(str, bool)), {})
     }

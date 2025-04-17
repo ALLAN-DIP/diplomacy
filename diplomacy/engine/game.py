@@ -366,7 +366,7 @@ class Game(Jsonable):
         strings.WIN: parsing.DefaultValueType(int, 0),
         strings.ZOBRIST_HASH: parsing.DefaultValueType(int, 0),
         strings.STANCES: parsing.DefaultValueType(
-            parsing.DictType(str, parsing.DictType(str, int)), {}
+            parsing.DictType(str, parsing.DictType(str, parsing.OptionalValueType(str))), {}
         ),
         strings.STANCE_HISTORY: parsing.DefaultValueType(
             parsing.DictType(str, parsing.DictType(str, parsing.DictType(str, int))), {}
