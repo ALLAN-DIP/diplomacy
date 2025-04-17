@@ -1529,7 +1529,7 @@ export class ContentGame extends React.Component {
         const currentTabId = this.state.tabPastMessages || tabNames[0];
 
         const convList = tabNames.map((protagonist) => (
-            <div style={{ minWidth: "200px" }}>
+            <div style={{ minWidth: "220px" }}>
                 <Conversation
                     className={
                         protagonist === currentTabId
@@ -1607,7 +1607,7 @@ export class ContentGame extends React.Component {
             >
                 <MainContainer responsive>
                     <Sidebar
-                        style={{ maxWidth: "200px" }}
+                        style={{ maxWidth: "220px" }}
                         position="left"
                         scrollable={false}
                     >
@@ -1867,7 +1867,7 @@ export class ContentGame extends React.Component {
 
         const convList = tabNames.map((protagonist) => (
             <Conversation
-                style={{ minWidth: "200px" }}
+                style={{ minWidth: "220px" }}
                 info={
                     isAdmin && protagonist !== "GLOBAL"
                         ? engine.powers[protagonist].getController()
