@@ -3365,9 +3365,6 @@ export class ContentGame extends React.Component {
             (controllablePowers.length && controllablePowers[0]);
         const serverOrders = this.__get_orders(engine);
         const powerOrders = serverOrders[currentPowerName] || [];
-        let numOrderText = `[${Object.keys(powerOrders).length}/${
-            engine.orderableLocations[currentPowerName].length
-        }] moves have been set.`;
 
         this.props.data.displayed = true;
         const page = this.context;
@@ -3476,6 +3473,25 @@ export class ContentGame extends React.Component {
             engine,
             suggestionMessages
         );
+
+        let numOrderText = "";
+
+        if (phaseType === "M" && orderTypeToLocs) {
+            const merged = new Set(Object.values(orderTypeToLocs).flat());
+            const unitsWithoutOrders = new Set(
+                [...merged].filter((x) => !Object.keys(powerOrders).includes(x))
+            );
+            if (unitsWithoutOrders.size === 0 || merged.size === unitsWithoutOrders.size) {
+                numOrderText = `[${Object.keys(powerOrders).length}/${
+                          engine.orderableLocations[currentPowerName].length
+                      }] set.`;
+            } else {
+                const unitsWithoutOrdersArray = Array.from(unitsWithoutOrders);
+                numOrderText = `[${Object.keys(powerOrders).length}/${
+                          engine.orderableLocations[currentPowerName].length
+                      }] set. Need: ${unitsWithoutOrdersArray.join(", ")}`;
+            }
+        }
 
         const navAfterTitle = (
             <form className="form-inline form-current-power">
