@@ -401,7 +401,7 @@
         .labeltext24 {text-anchor:middle; stroke-width:0.1; stroke:black; fill:black; font-family:serif,sans-serif; font-style:italic; font-size:1.4em;}
         .labeltext18 {text-anchor:middle; stroke-width:0.1; stroke:black; fill:black; font-family:serif,sans-serif; font-style:italic; font-size:1.1em;}
         .currentnotetext {font-family:serif,sans-serif; font-size:1.5em; fill:black; stroke:black;}
-        .currentnoterect {fill:#c5dfea;}
+        .currentnoterect {fill:color-mix(in oklab, #c5dfea, white 25%);}
         .currentphasetext {font-family:serif,sans-serif; font-size:2.5em; fill:black; stroke:black;}
 
         .labeltext24 text {cursor:default;}
@@ -422,18 +422,18 @@
         .provinceBlack {fill:url(#patternBlack)}
         .provinceBlue {fill:url(#patternBlue)}
 
-        .nopower {fill:antiquewhite;    stroke:#000000; stroke-width:1}
-        .water {fill:#c5dfea; stroke:#000000; stroke-width:1}
+        .nopower {fill:color-mix(in oklab, antiquewhite, white 25%);    stroke:#000000; stroke-width:1}
+        .water {fill:color-mix(in oklab, #c5dfea, white 25%); stroke:#000000; stroke-width:1}
 
-        .neutral {fill:lightgray; stroke:#000000; stroke-width:1}
+        .neutral {fill:color-mix(in oklab, lightgray, white 25%); stroke:#000000; stroke-width:1}
 
-        .austria {fill:#c48f85; stroke:#000000; stroke-width:1}
-        .england {fill:darkviolet; stroke:#000000; stroke-width:1}
-        .france {fill:royalblue; stroke:#000000; stroke-width:1}
-        .germany {fill:#a08a75; stroke:#000000; stroke-width:1}
-        .italy {fill:forestgreen; stroke:#000000; stroke-width:1}
-        .russia {fill:#757d91; stroke:#000000; stroke-width:1}
-        .turkey {fill:#b9a61c; stroke:#000000; stroke-width:1}
+        .austria {fill:color-mix(in oklab, #c48f85, white 25%); stroke:#000000; stroke-width:1}
+        .england {fill:color-mix(in oklab, darkviolet, white 25%); stroke:#000000; stroke-width:1}
+        .france {fill:color-mix(in oklab, royalblue, white 25%); stroke:#000000; stroke-width:1}
+        .germany {fill:color-mix(in oklab, #a08a75, white 25%); stroke:#000000; stroke-width:1}
+        .italy {fill:color-mix(in oklab, forestgreen, white 25%); stroke:#000000; stroke-width:1}
+        .russia {fill:color-mix(in oklab, #757d91, white 25%); stroke:#000000; stroke-width:1}
+        .turkey {fill:color-mix(in oklab, #b9a61c, white 25%); stroke:#000000; stroke-width:1}
 
         /* unit colors, by power note that underscores are not supported */
 
