@@ -3145,7 +3145,7 @@ export class ContentGame extends React.Component {
             <div className={"col-4 mb-4"}>
                 {suggestionType !== null && (suggestionType & UTILS.SuggestionType.MOVE) === UTILS.SuggestionType.MOVE && (
                     <>
-                    <Button
+                    {(fullSuggestionComponent || partialSuggestionComponent) && <Button
                             title={"Get ally-based advice"}
                             color={"primary"}
                             onClick={() => {
@@ -3162,7 +3162,7 @@ export class ContentGame extends React.Component {
                                 this.setState({stanceChanged: false});
                             }}
                             disabled={!this.state.hasInitialOrders && !this.state.stanceChanged}
-                        ></Button>
+                        ></Button>}
                     <ChatContainer
                         style={{
                             display: "flex",
