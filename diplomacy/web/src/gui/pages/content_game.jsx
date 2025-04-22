@@ -2959,6 +2959,9 @@ export class ContentGame extends React.Component {
                                 title={"dismiss"}
                                 color={"danger"}
                                 onClick={() => {
+                                    this.setState({
+                                        hoverOrders: [],
+                                    });
                                     this.handleRecipientAnnotation(
                                         latestMoveSuggestionFull.time_sent,
                                         "reject"
