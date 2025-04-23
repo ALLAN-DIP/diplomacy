@@ -3665,7 +3665,14 @@ export class ContentGame extends React.Component {
                 {suggestionType !== null && suggestionType !== UTILS.SuggestionType.NONE && (
                     <div>
                         You are getting:{" "}
-                        {suggestionTypeDisplay.join(", ")}
+                        {/* `reduce()` call used to "`join()`" React elements
+                        (from https://stackoverflow.com/questions/34034038/how-to-render-react-components-by-using-map-and-join/35840806#35840806)
+                        */}
+                        {suggestionTypeDisplay.reduce(
+                            (accu, elem) => {
+                                return accu === null ? [elem] : [...accu, ", ", elem]
+                            }, null)
+                        }
                     </div>
                 )}
             </div>
