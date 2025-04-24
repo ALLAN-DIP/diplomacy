@@ -2917,7 +2917,7 @@ export class ContentGame extends React.Component {
                         <ChatMessage
                             style={{ flexGrow: 1 }}
                             model={{
-                                message: "Full Suggestions:",
+                                message: "Full Set:",
                                 sent: latestMoveSuggestionFull.time_sent,
                                 sender: latestMoveSuggestionFull.sender,
                                 direction: "incoming",
@@ -3056,7 +3056,7 @@ export class ContentGame extends React.Component {
                         <ChatMessage
                             style={{ flexGrow: 1 }}
                             model={{
-                                message: `Suggestions based on ${latestMoveSuggestionPartial.givenMoves.join(
+                                message: `Advice based on ${latestMoveSuggestionPartial.givenMoves.join(
                                     ", "
                                 )}:`,
                                 sent: latestMoveSuggestionPartial.time_sent,
