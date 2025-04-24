@@ -3609,16 +3609,15 @@ export class ContentGame extends React.Component {
                 {phaseType === "M" && <div>{numOrderText}</div>}
                 {suggestionType === null && (
                     <div>
-                        We haven't assigned advisors yet / No advisor for this
-                        year
+                        No advice assigned
                     </div>
                 )}
                 {suggestionType !== null && suggestionType === UTILS.SuggestionType.NONE && (
-                    <div>You are on your own this turn.</div>
+                    <div>No advice this turn</div>
                 )}
                 {suggestionType !== null && suggestionType !== UTILS.SuggestionType.NONE && (
                     <div>
-                        You are getting advice this turn:{" "}
+                        You are getting:{" "}
                         {suggestionTypeDisplay.join(", ")}.
                     </div>
                 )}
