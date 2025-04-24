@@ -2637,7 +2637,7 @@ export class ContentGame extends React.Component {
                                                                 key={"r"}
                                                                 pickEvent={true}
                                                                 title={
-                                                                    "dismiss"
+                                                                    String.fromCharCode(0x2716)
                                                                 }
                                                                 color={"danger"}
                                                                 onClick={() => {
@@ -2872,7 +2872,7 @@ export class ContentGame extends React.Component {
                                 <Button
                                     key={"a"}
                                     pickEvent={true}
-                                    title={"accept"}
+                                    title={"+"}
                                     color={"success"}
                                     onClick={() => {
                                         this.onOrderBuilt(
@@ -2936,7 +2936,7 @@ export class ContentGame extends React.Component {
                             <Button
                                 key={"a"}
                                 pickEvent={true}
-                                title={"accept all"}
+                                title={"+all"}
                                 color={"success"}
                                 onClick={async () => {
                                     for (let move of latestMoveSuggestionFull.moves) {
@@ -2956,7 +2956,7 @@ export class ContentGame extends React.Component {
                             <Button
                                 key={"r"}
                                 pickEvent={true}
-                                title={"dismiss"}
+                                title={String.fromCharCode(0x2715)}
                                 color={"danger"}
                                 onClick={() => {
                                     this.setState({
@@ -3015,7 +3015,7 @@ export class ContentGame extends React.Component {
                                 <Button
                                     key={"a"}
                                     pickEvent={true}
-                                    title={"accept"}
+                                    title={"+"}
                                     color={"success"}
                                     onClick={() => {
                                         this.onOrderBuilt(
@@ -3077,7 +3077,7 @@ export class ContentGame extends React.Component {
                             <Button
                                 key={"a"}
                                 pickEvent={true}
-                                title={"accept all"}
+                                title={"+all"}
                                 color={"success"}
                                 onClick={async () => {
                                     for (let move of latestMoveSuggestionPartial.moves) {
@@ -3097,7 +3097,7 @@ export class ContentGame extends React.Component {
                             <Button
                                 key={"r"}
                                 pickEvent={true}
-                                title={"dismiss"}
+                                title={String.fromCharCode(0x2715)}
                                 color={"danger"}
                                 onClick={() => {
                                     this.handleRecipientAnnotation(
