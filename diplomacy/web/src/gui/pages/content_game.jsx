@@ -3726,7 +3726,7 @@ export class ContentGame extends React.Component {
                 <Row className={"mb-4"}>
                     {this.renderTabChat(
                         true, engine, currentPowerName, showMessageAdviceTab ? false : true
-                    )}     
+                    )}
                         {showMessageAdviceTab && this.renderTabCentaurMessages(
                             true,
                             engine,
