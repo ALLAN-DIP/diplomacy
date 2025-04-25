@@ -2637,7 +2637,7 @@ export class ContentGame extends React.Component {
                                                                 key={"r"}
                                                                 pickEvent={true}
                                                                 title={
-                                                                    String.fromCharCode(0x2716)
+                                                                    "✕"
                                                                 }
                                                                 color={"danger"}
                                                                 onClick={() => {
@@ -2956,7 +2956,7 @@ export class ContentGame extends React.Component {
                             <Button
                                 key={"r"}
                                 pickEvent={true}
-                                title={String.fromCharCode(0x2715)}
+                                title={"✕"}
                                 color={"danger"}
                                 onClick={() => {
                                     this.setState({
@@ -3097,7 +3097,7 @@ export class ContentGame extends React.Component {
                             <Button
                                 key={"r"}
                                 pickEvent={true}
-                                title={String.fromCharCode(0x2715)}
+                                title={"✕"}
                                 color={"danger"}
                                 onClick={() => {
                                     this.handleRecipientAnnotation(
