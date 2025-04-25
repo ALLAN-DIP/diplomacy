@@ -1604,7 +1604,7 @@ export class ContentGame extends React.Component {
 
         return (
             <div
-                className={isWide ? "col-6" : "col-4"}
+                className={isWide ? "col-12" : "col-4"}
                 style={{ height: "500px" }}
             >
                 <MainContainer responsive>
@@ -2039,7 +2039,7 @@ export class ContentGame extends React.Component {
 
         return (
             <Box
-                className={isWide ? "col-6 mb-4" : "col-4 mb-4"}
+                className={isWide ? "col-12 mb-4" : "col-4 mb-4"}
                 style={{ height: "500px" }}
             >
                 <Grid container spacing={2}>
@@ -2058,9 +2058,10 @@ export class ContentGame extends React.Component {
                                 </ChatContainer>
                             </MainContainer>
                             {engine.isPlayerGame() && (
-                                <>
+                                <Row>
                                     <textarea
-                                        style={{ flex: 1 }}
+                                        style={{ resize: "both" }}
+                                        cols={30}
                                         onChange={(val) =>
                                             this.setMessageInputValue(
                                                 val.target.value
@@ -2134,7 +2135,7 @@ export class ContentGame extends React.Component {
                                             this.setMessageInputValue("");
                                         }}
                                     ></Button>
-                                </>
+                                </Row>
                             )}
                         </Box>
                     </Grid>
@@ -2379,7 +2380,7 @@ export class ContentGame extends React.Component {
         return (
             <Tab id={"tab-phase-history"} display={toDisplay}>
                 <Row>
-                    <div className={"col-xl"}>
+                    <div className={"col-6"}>
                         {this.state.historyCurrentOrders && (
                             <div className={"history-current-orders"}>
                                 {this.state.historyCurrentOrders.join(", ")}
@@ -2508,7 +2509,7 @@ export class ContentGame extends React.Component {
         const curController = engine.powers[role].getController();
 
         return (
-            <Box className={isWide ? "col-6 mb-4" : "col-4 mb-4"}>
+            <Box className={"col-6 mb-4"}>
                 <Grid container spacing={2}>
                     <Grid item xs={12} sx={{ height: "100%" }}>
                         <Box sx={{ width: "100%", height: "550px" }}>
@@ -3143,7 +3144,7 @@ export class ContentGame extends React.Component {
         }
 
         return (
-            <div className={"col-4 mb-4"}>
+            <div className={"col-2 mb-4"}>
                     {(fullSuggestionComponent || partialSuggestionComponent) && <Button
                             title={"Get ally-based advice"}
                             color={"primary"}
@@ -3306,7 +3307,8 @@ export class ContentGame extends React.Component {
         orderType,
         orderPath,
         currentPowerName,
-        currentTabOrderCreation
+        currentTabOrderCreation,
+        moveAdvicePanel
     ) {
         const powerNames = Object.keys(engine.powers);
         powerNames.sort();
@@ -3322,7 +3324,7 @@ export class ContentGame extends React.Component {
                             orderPath
                         )}
                     </div>
-                    <div className={"col-xl"}>
+                    <div className={moveAdvicePanel ? "col-4" : "col-6"}>
                         {/* Orders. */}
                         <div
                             className={"panel-orders mb-4"}
@@ -3352,6 +3354,7 @@ export class ContentGame extends React.Component {
                             </div>
                         </div>
                     </div>
+                    {moveAdvicePanel}
                 </Row>
             </Tab>
         );
@@ -3675,6 +3678,12 @@ export class ContentGame extends React.Component {
             </div>
         );
 
+        const moveAdvicePanel = this.renderTabCentaur(
+            true,
+            engine,
+            currentPowerName
+        );
+
         const { engineCur, pastPhases, phaseIndex } =
             this.__get_engine_to_display(engine);
         let phasePanel;
@@ -3687,7 +3696,8 @@ export class ContentGame extends React.Component {
                     orderBuildingType,
                     this.state.orderBuildingPath,
                     currentPowerName,
-                    currentTabOrderCreation
+                    currentTabOrderCreation,
+                    moveAdvicePanel
                 );
             } else if (hasTabPhaseHistory) {
                 phasePanel = this.renderTabResults(true, engine);
@@ -3696,101 +3706,40 @@ export class ContentGame extends React.Component {
             phasePanel = this.renderTabResults(true, engine);
         }
 
-        const hasMoveSuggestion =
-            this.hasSuggestionType(suggestionType, UTILS.SuggestionType.MOVE);
+        const advice = this.getSuggestionMessages(
+            currentPowerName,
+            messageChannels,
+            engine
+        );
 
-        let gameContent;
+        const isAdmin = engine.role === "omniscient_type" || engine.role === "master_type";
 
-        if (pastPhases[phaseIndex] === engine.phase) {
-            if (hasMoveSuggestion) {
-                gameContent = (
-                    <div>
-                        <Row>
-                            {phasePanel}
-                            {this.renderTabCentaur(
-                                true,
-                                engine,
-                                currentPowerName
-                            )}
-                        </Row>
-                        <Row className={"mb-4"}>
-                            {this.renderTabChat(
-                                true,
-                                engine,
-                                currentPowerName,
-                                false
-                            )}
-                            {this.renderTabCentaurMessages(
-                                true,
-                                engine,
-                                currentPowerName,
-                                false
-                            )}
-                        </Row>
-                        <Row>
-                            {!engine.isPlayerGame() &&
-                                this.renderPowerInfo(engine)}
-                            {localStorage.getItem("username") === "admin" &&
-                                this.renderLogs(engine, currentPowerName)}
-                        </Row>
-                    </div>
-                );
-            } else {
-                gameContent = (
-                    <div>
-                        <Row>
-                            {phasePanel}
-                            <div className={"col-4"}>{/* Orders. */}</div>
-                        </Row>
-                        <Row>
-                            {this.renderTabChat(
-                                true,
-                                engine,
-                                currentPowerName,
-                                true
-                            )}
-                            {this.renderTabCentaurMessages(
-                                true,
-                                engine,
-                                currentPowerName,
-                                true
-                            )}
-                        </Row>
-                        <Row>
-                            {!engine.isPlayerGame() &&
-                                this.renderPowerInfo(engine)}
-                            {localStorage.getItem("username") === "admin" &&
-                                this.renderLogs(engine, currentPowerName)}
-                        </Row>
-                    </div>
-                );
-            }
-        } else {
-            gameContent = (
-                <div>
-                    {phasePanel}
-                    <Row>
-                        {this.renderTabChat(
+        const receivedSuggestions = advice.filter(
+            (msg) =>
+                msg.type && (msg.type === STRINGS.SUGGESTED_COMMENTARY || msg.type === STRINGS.SUGGESTED_MESSAGE) && (isAdmin || !this.state.annotatedMessages.hasOwnProperty(msg.time_sent))
+        );
+
+        const showMessageAdviceTab = (this.hasSuggestionType(suggestionType, UTILS.SuggestionType.MESSAGE) || this.hasSuggestionType(suggestionType, UTILS.SuggestionType.COMMENTARY)) && receivedSuggestions.length > 0;
+        const gameContent = (
+            <div>
+                {phasePanel}
+                <Row className={"mb-4"}>
+                    {this.renderTabChat(
+                        true, engine, currentPowerName, showMessageAdviceTab ? false : true
+                    )}     
+                        {showMessageAdviceTab && this.renderTabCentaurMessages(
                             true,
                             engine,
                             currentPowerName,
-                            true
-                        )}
-                        {this.renderTabCentaurMessages(
-                            true,
-                            engine,
-                            currentPowerName,
-                            true
+                            false
                         )}
                     </Row>
                     <Row>
                         {!engine.isPlayerGame() && this.renderPowerInfo(engine)}
-                        {localStorage.getItem("username") === "admin" &&
-                            this.renderLogs(engine, currentPowerName)}
+                        {localStorage.getItem("username") === "admin" && this.renderLogs(engine, currentPowerName)}
                     </Row>
-                </div>
-            );
-        }
+                    </div>
+        );
 
         return (
             <main>
