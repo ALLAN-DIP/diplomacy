@@ -3138,14 +3138,12 @@ export class ContentGame extends React.Component {
             );
         }
 
-        if (!fullSuggestionComponent && !partialSuggestionComponent) {
+        if (!this.hasSuggestionType(suggestionType, UTILS.SuggestionType.MOVE)) {
             return null;
         }
 
         return (
             <div className={"col-4 mb-4"}>
-                {this.hasSuggestionType(suggestionType, UTILS.SuggestionType.MOVE) && (
-                    <>
                     {(fullSuggestionComponent || partialSuggestionComponent) && <Button
                             title={"Get ally-based advice"}
                             color={"primary"}
@@ -3183,8 +3181,6 @@ export class ContentGame extends React.Component {
                             {partialSuggestionComponent}
                         </MessageList>
                     </ChatContainer>
-                    </>
-                )}
             </div>
         );
     }
