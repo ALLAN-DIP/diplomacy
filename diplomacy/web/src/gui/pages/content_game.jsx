@@ -2917,7 +2917,7 @@ export class ContentGame extends React.Component {
                         <ChatMessage
                             style={{ flexGrow: 1 }}
                             model={{
-                                message: "Full Suggestions:",
+                                message: "Full Set:",
                                 sent: latestMoveSuggestionFull.time_sent,
                                 sender: latestMoveSuggestionFull.sender,
                                 direction: "incoming",
@@ -3056,7 +3056,7 @@ export class ContentGame extends React.Component {
                         <ChatMessage
                             style={{ flexGrow: 1 }}
                             model={{
-                                message: `Suggestions based on ${latestMoveSuggestionPartial.givenMoves.join(
+                                message: `Advice based on ${latestMoveSuggestionPartial.givenMoves.join(
                                     ", "
                                 )}:`,
                                 sent: latestMoveSuggestionPartial.time_sent,
@@ -3609,16 +3609,15 @@ export class ContentGame extends React.Component {
                 {phaseType === "M" && <div>{numOrderText}</div>}
                 {suggestionType === null && (
                     <div>
-                        We haven't assigned advisors yet / No advisor for this
-                        year
+                        No advice assigned
                     </div>
                 )}
                 {suggestionType !== null && suggestionType === UTILS.SuggestionType.NONE && (
-                    <div>You are on your own this turn.</div>
+                    <div>No advice this turn</div>
                 )}
                 {suggestionType !== null && suggestionType !== UTILS.SuggestionType.NONE && (
                     <div>
-                        You are getting advice this turn:{" "}
+                        You are getting:{" "}
                         {suggestionTypeDisplay.join(", ")}.
                     </div>
                 )}
