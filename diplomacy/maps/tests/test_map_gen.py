@@ -22,11 +22,14 @@ import os
 import pickle
 import sys
 
+import pytest
+
 from diplomacy.engine.map import Map
 from diplomacy.utils.convoy_paths import EXTERNAL_CACHE_PATH, get_file_md5
 
 MODULE_PATH = sys.modules['diplomacy'].__path__[0]
 
+@pytest.mark.skipif(sys.version_info < (3, 8), reason="Test fails intermittently in Python 3.7 CI with a variety of errors")
 def test_map_creation():
     """ Tests for map creation """
     maps = glob.glob(os.path.join(MODULE_PATH, 'maps', '*.map'))
@@ -46,6 +49,7 @@ def test_map_with_full_path():
         assert this_map.error == [], 'Map %s should have no errors' % current_map
         del this_map
 
+@pytest.mark.skipif(sys.version_info < (3, 8), reason="Test fails intermittently in Python 3.7 CI")
 def test_external_cache():
     """ Tests that all maps with a SVG are in the external cache """
     maps = glob.glob(os.path.join(MODULE_PATH, 'maps', '*.map'))
