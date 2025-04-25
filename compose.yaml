@@ -3,7 +3,7 @@ services:
     image: ghcr.io/allan-dip/diplomacy:${TAG:-latest}
     platform: linux/amd64
     container_name: diplomacy
-    pull_policy: ${PULL_POLICY:-always}
+    pull_policy: ${PULL_POLICY:-missing}
     restart: unless-stopped
     ports:
       - 3000:80 # Web UI
