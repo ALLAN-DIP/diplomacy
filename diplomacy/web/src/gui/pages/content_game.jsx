@@ -78,6 +78,8 @@ import RUS from "../assets/RUS.png";
 import TUR from "../assets/TUR.png";
 import GLOBAL from "../assets/GLOBAL.png";
 import Grid from "@mui/material/Grid";
+import { Tooltip } from "@mui/material";
+import Octicon, { Question } from "@primer/octicons-react";
 
 const POWER_ICONS = {
     AUSTRIA: AUS,
@@ -3676,7 +3678,21 @@ export class ContentGame extends React.Component {
             suggestionTypeDisplay.push("commentary");
         if (this.hasSuggestionType(suggestionType, UTILS.SuggestionType.MOVE_DISTRIBUTION_TEXTUAL) ||
               this.hasSuggestionType(suggestionType, UTILS.SuggestionType.MOVE_DISTRIBUTION_VISUAL))
-                suggestionTypeDisplay.push("move probability");
+            suggestionTypeDisplay.push(
+                <>
+                    move probability
+                    {" "}
+                    <Tooltip title={
+                        <>
+                            <p>Hold <kbd>Shift</kbd> and click on a province to display recommended/predicted orders for the province's unit.</p>
+                            <p>Click the province a second time to place an order.</p>
+                            <p>Release <kbd>Shift</kbd> to clear all selections.</p>
+                        </>}>
+                        {/* Tooltip does not display without using `<span>` here */}
+                        <span><Octicon icon={Question}/></span>
+                    </Tooltip>
+                </>
+            );
 
         const currentTabOrderCreation = hasTabCurrentPhase && (
             <div>
