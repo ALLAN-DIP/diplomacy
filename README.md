@@ -69,8 +69,6 @@ It is also possible to install a web interface in React to play against bots and
 The web interface can be built and run with Docker:
 
 ```shell
-export MAPS_TO_LOAD=standard.map
-export PULL_POLICY=never
 make build
 docker compose up --detach
 ```
