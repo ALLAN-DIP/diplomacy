@@ -3665,7 +3665,7 @@ export class ContentGame extends React.Component {
                 {suggestionType !== null && suggestionType !== UTILS.SuggestionType.NONE && (
                     <div>
                         You are getting:{" "}
-                        {suggestionTypeDisplay.join(", ")}.
+                        {suggestionTypeDisplay.join(", ")}
                     </div>
                 )}
             </div>
