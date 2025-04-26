@@ -1604,7 +1604,7 @@ export class ContentGame extends React.Component {
 
         return (
             <div
-                className={isWide ? "col-12" : "col-4"}
+                className={isWide ? "col-12" : "col-6"}
                 style={{ height: "500px" }}
             >
                 <MainContainer responsive>
@@ -2039,7 +2039,7 @@ export class ContentGame extends React.Component {
 
         return (
             <Box
-                className={isWide ? "col-12 mb-4" : "col-4 mb-4"}
+                className={isWide ? "col-12 mb-4" : "col-6 mb-4"}
                 style={{ height: "500px" }}
             >
                 <Grid container spacing={2}>
