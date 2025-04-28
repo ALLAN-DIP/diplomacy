@@ -1715,6 +1715,10 @@ export class ContentGame extends React.Component {
         return suggestionMessages;
     }
 
+    hasSuggestionType(suggestionTypeValue, suggestionTypeToMatch) {
+        return suggestionTypeValue !== null && (suggestionTypeValue & suggestionTypeToMatch) === suggestionTypeToMatch
+    }
+
     getSuggestionType(currentPowerName, engine, globalMessages) {
         let suggestionType = UTILS.SuggestionType.NONE;
 
@@ -2520,8 +2524,7 @@ export class ContentGame extends React.Component {
                                         label="Message Advice"
                                         value="messages"
                                     />
-                                    {suggestionType !== null &&
-                                        (suggestionType & UTILS.SuggestionType.COMMENTARY) === UTILS.SuggestionType.COMMENTARY && (
+                                    {this.hasSuggestionType(suggestionType, UTILS.SuggestionType.COMMENTARY) && (
                                             <Tab2
                                                 label={
                                                     this.state.showBadge ? (
@@ -3135,14 +3138,12 @@ export class ContentGame extends React.Component {
             );
         }
 
-        if (!fullSuggestionComponent && !partialSuggestionComponent) {
+        if (!this.hasSuggestionType(suggestionType, UTILS.SuggestionType.MOVE)) {
             return null;
         }
 
         return (
             <div className={"col-4 mb-4"}>
-                {suggestionType !== null && (suggestionType & UTILS.SuggestionType.MOVE) === UTILS.SuggestionType.MOVE && (
-                    <>
                     {(fullSuggestionComponent || partialSuggestionComponent) && <Button
                             title={"Get ally-based advice"}
                             color={"primary"}
@@ -3180,8 +3181,6 @@ export class ContentGame extends React.Component {
                             {partialSuggestionComponent}
                         </MessageList>
                     </ChatContainer>
-                    </>
-                )}
             </div>
         );
     }
@@ -3610,13 +3609,11 @@ export class ContentGame extends React.Component {
         );
 
         const suggestionTypeDisplay = [];
-        if (suggestionType !== null) {
-            if ((suggestionType & UTILS.SuggestionType.MESSAGE) === UTILS.SuggestionType.MESSAGE)
-                suggestionTypeDisplay.push("message");
-            if ((suggestionType & UTILS.SuggestionType.MOVE) === UTILS.SuggestionType.MOVE) suggestionTypeDisplay.push("move");
-            if ((suggestionType & UTILS.SuggestionType.COMMENTARY) === UTILS.SuggestionType.COMMENTARY)
-                suggestionTypeDisplay.push("commentary");
-        }
+        if (this.hasSuggestionType(suggestionType, UTILS.SuggestionType.MESSAGE))
+            suggestionTypeDisplay.push("message");
+        if (this.hasSuggestionType(suggestionType, UTILS.SuggestionType.MOVE)) suggestionTypeDisplay.push("move");
+        if (this.hasSuggestionType(suggestionType, UTILS.SuggestionType.COMMENTARY))
+            suggestionTypeDisplay.push("commentary");
 
         const currentTabOrderCreation = hasTabCurrentPhase && (
             <div>
@@ -3700,7 +3697,7 @@ export class ContentGame extends React.Component {
         }
 
         const hasMoveSuggestion =
-            suggestionType !== null && (suggestionType & UTILS.SuggestionType.MOVE) === UTILS.SuggestionType.MOVE;
+            this.hasSuggestionType(suggestionType, UTILS.SuggestionType.MOVE);
 
         let gameContent;
 
