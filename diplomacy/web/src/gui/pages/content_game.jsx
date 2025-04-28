@@ -926,7 +926,6 @@ export class ContentGame extends React.Component {
             power_name: powerName,
             durations: durations,
         };
-        console.log("Sending", durations);
         networkGame.sendCommentaryDurations({ durations: info });
     }
 
@@ -948,7 +947,6 @@ export class ContentGame extends React.Component {
     };
 
     handleFocus = () => {
-        console.log("updated current time");
         this.setState({ lastSwitchPanelTime: Date.now() });
     };
 
@@ -3168,6 +3166,7 @@ export class ContentGame extends React.Component {
                             display: "flex",
                             border: "1px solid black",
                             boxSizing: "border-box",
+                            marginTop: "10px",
                         }}
                     >
                         <ConversationHeader>
@@ -3526,6 +3525,7 @@ export class ContentGame extends React.Component {
             suggestionMessages
         );
 
+        // orderable locations and units with no orders
         let numOrderText = "";
 
         if (phaseType === "M" && orderTypeToLocs) {
