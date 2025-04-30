@@ -225,7 +225,6 @@ export class ContentGame extends React.Component {
             this.notifiedLocalStateChange.bind(this);
         this.notifiedNetworkGame = this.notifiedNetworkGame.bind(this);
         this.notifiedNewGameMessage = this.notifiedNewGameMessage.bind(this);
-        // this.notifiedNewLog = this.notifiedNewLog.bind(this);
         this.notifiedPowersControllers =
             this.notifiedPowersControllers.bind(this);
         this.onChangeCurrentPower = this.onChangeCurrentPower.bind(this);
@@ -271,11 +270,6 @@ export class ContentGame extends React.Component {
         this.updateReadCommentary = this.updateReadCommentary.bind(this);
     }
 
-    static prettyRole(role) {
-        if (PRETTY_ROLES.hasOwnProperty(role)) return PRETTY_ROLES[role];
-        return role;
-    }
-
     static gameTitle(game) {
         let title = `${game.game_id} | `;
         const players =
@@ -283,7 +277,6 @@ export class ContentGame extends React.Component {
                 ? game.status
                 : `${game.countControlledPowers()} / 7 |`;
         title += players;
-        //if (game.daide_port) title += ` | DAIDE ${game.daide_port}`;
         const remainingTime = game.deadline_timer;
         const remainingHour = Math.floor(remainingTime / 3600);
         const remainingMinute = Math.floor(
@@ -314,15 +307,6 @@ export class ContentGame extends React.Component {
             wait[powerName] = engine.powers[powerName].wait;
         }
         return wait;
-    }
-
-    static getCommStatuses(engine) {
-        const commStatus = {};
-        const controllablePowers = engine.getControllablePowers();
-        for (let powerName of controllablePowers) {
-            commStatus[powerName] = engine.powers[powerName].comm_status;
-        }
-        return commStatus;
     }
 
     static getOrderBuilding(powerName, orderType, orderPath) {
@@ -723,23 +707,6 @@ export class ContentGame extends React.Component {
         }
     }
 
-    handleIsBot(country, isBot) {
-        const engine = this.props.data;
-        const power = engine.getPower(engine.role);
-
-        try {
-            let stanceCopy = Object.assign({}, this.state.isBot);
-            stanceCopy[country] = isBot;
-            this.setState({ isBot: stanceCopy });
-            power.setIsBot(country, isBot);
-            this.sendIsBot(engine.client, engine.role, power.getIsBot());
-        } catch (e) {
-            this.getPage().error(
-                "Will not update stance of a noncontrollable power."
-            );
-        }
-    }
-
     sendOrderLog(networkGame, logType, order) {
         const engine = networkGame.local;
         let message = null;
@@ -952,14 +919,6 @@ export class ContentGame extends React.Component {
 
     handleBlur = () => {
         this.handleExit();
-    };
-
-    handleVisibilityChange = () => {
-        if (document.hidden) {
-            this.handleBlur();
-        } else {
-            this.handleFocus();
-        }
     };
 
     onProcessGame() {
@@ -1527,7 +1486,6 @@ export class ContentGame extends React.Component {
         for (let powerName of Object.keys(engine.powers))
             if (powerName !== role) tabNames.push(powerName);
         tabNames.sort();
-        //tabNames.push("Centaur");
         const currentTabId = this.state.tabPastMessages || tabNames[0];
 
         const convList = tabNames.map((protagonist) => (
@@ -1584,7 +1542,7 @@ export class ContentGame extends React.Component {
             if (role === sender) dir = "outgoing";
             if (role === rec) dir = "incoming";
             const html = msg.hide
-                ? `<div style='color: transparent; text-shadow: 0 0 5px rgba(0, 0, 0, 0.5)'; user-select: none>${msg.message}</div>`
+                ? `<div style='color: transparent; text-shadow: 0 0 5px rgba(0, 0, 0, 0.5); user-select: none'>${msg.message}</div>`
                 : msg.message;
             renderedMessages.push(
                 <ChatMessage
@@ -1869,7 +1827,6 @@ export class ContentGame extends React.Component {
         for (let powerName of Object.keys(engine.powers))
             if (powerName !== role) tabNames.push(powerName);
         tabNames.sort();
-        //tabNames.push("Centaur");
         const currentTabId = this.state.tabCurrentMessages || tabNames[0];
 
         const convList = tabNames.map((protagonist) => (
@@ -2173,35 +2130,6 @@ export class ContentGame extends React.Component {
         );
     }
 
-    renderMapForMessages(gameEngine, showOrders) {
-        const Map = getMapComponent(gameEngine.map_name);
-        return (
-            <div id="messages-map" key="messages-map">
-                <Map
-                    game={gameEngine}
-                    showAbbreviations={this.state.showAbbreviations}
-                    mapData={
-                        new MapData(
-                            this.getMapInfo(gameEngine.map_name),
-                            gameEngine
-                        )
-                    }
-                    onError={this.getPage().error}
-                    orders={
-                        (showOrders &&
-                            gameEngine.order_history.contains(
-                                gameEngine.phase
-                            ) &&
-                            gameEngine.order_history.get(gameEngine.phase)) ||
-                        null
-                    }
-                    onHover={showOrders ? this.displayLocationOrders : null}
-                    onSelectVia={this.onSelectVia}
-                />
-            </div>
-        );
-    }
-
     renderMapForCurrent(gameEngine, powerName, orderType, orderPath) {
         const Map = getMapComponent(gameEngine.map_name);
         const rawOrders = this.__get_orders(gameEngine);
@@ -2347,7 +2275,6 @@ export class ContentGame extends React.Component {
         };
 
         const orderView = [
-            //this.__form_phases(pastPhases, phaseIndex),
             (countOrders && (
                 <div key={2} className={"past-orders container"}>
                     {powerNames.map((powerName) =>
@@ -2654,9 +2581,6 @@ export class ContentGame extends React.Component {
                                                                         !isAdmin
                                                                     )
                                                                 }
-                                                                //disabled={this.state.annotatedMessages.hasOwnProperty(
-                                                                //  m.time_sent,
-                                                                //)}
                                                             ></Button>
                                                             <Button
                                                                 key={"r"}
@@ -2677,9 +2601,6 @@ export class ContentGame extends React.Component {
                                                                         !isAdmin
                                                                     )
                                                                 }
-                                                                //disabled={this.state.annotatedMessages.hasOwnProperty(
-                                                                //  m.time_sent,
-                                                                //)}
                                                             ></Button>
                                                         </div>
                                                     </div>
@@ -2740,24 +2661,7 @@ export class ContentGame extends React.Component {
                                                 }
                                             )}
                                         </MessageList>
-                                        {/* {engine.isPlayerGame() && (
-                                            <MessageInput
-                                                attachButton={false}
-                                                onChange={(val) =>
-                                                    this.setlogDataInputValue(
-                                                        val
-                                                    )
-                                                }
-                                                onSend={() => {
-                                                    const message =
-                                                        this.sendLogData(
-                                                            engine.client,
-                                                            this.state.logData
-                                                        );
-                                                    //this.setLogs([...this.state.logs, message])
-                                                }}
-                                            />
-                                        )} */}
+                                        {}
                                     </ChatContainer>
                                 </MainContainer>
                             )}
@@ -2792,7 +2696,6 @@ export class ContentGame extends React.Component {
                                                         engine.client,
                                                         this.state.logData
                                                     );
-                                                    //this.setLogs([...this.state.logs, message])
                                                 }}
                                             />
                                         )}
@@ -2911,9 +2814,6 @@ export class ContentGame extends React.Component {
                                         );
                                     }}
                                     invisible={!(isCurrent && !isAdmin)}
-                                    //disabled={this.state.annotatedMessages.hasOwnProperty(
-                                    //  latestMoveSuggestionFull.time_sent,
-                                    //)}
                                 ></Button>
                             </div>
                         </div>
@@ -3218,10 +3118,7 @@ export class ContentGame extends React.Component {
                         data={filteredPowers}
                         wrapper={PowerView.wrap}
                         countries={filteredPowerNames}
-                        //stances={engine.getPower(currentPowerName).getStances()}
                         player={currentPowerName}
-                        //isBot={engine.getPower(currentPowerName).getIsBot()}
-                        //stanceUpdated={this.state.stances}
                     />
                 </div>
             </div>
@@ -3274,29 +3171,6 @@ export class ContentGame extends React.Component {
                     </ChatContainer>
                 </MainContainer>
             </div>
-        );
-    }
-
-    renderOrderSuggestions(orders) {
-        return orders ? (
-            <div className={"table-responsive"}>
-                <table className={this.props.className}>
-                    <tbody>
-                        {orders.map((order) => (
-                            <tr>
-                                <td>
-                                    <Button
-                                        title={order}
-                                        color={"primary"}
-                                    ></Button>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
-        ) : (
-            <div></div>
         );
     }
 
@@ -3358,20 +3232,6 @@ export class ContentGame extends React.Component {
                 </Row>
             </Tab>
         );
-    }
-
-    renderMainPanel(
-        toDisplay,
-        initialEngine,
-        currentPowerName,
-        hasTabPhaseHistory,
-        hasTabCurrentPhase,
-        orderBuildingType,
-        orderBuildingPath,
-        currentTabOrderCreation
-    ) {
-        const { engine, pastPhases, phaseIndex } =
-            this.__get_engine_to_display(initialEngine);
     }
 
     renderTabChat(toDisplay, initialEngine, currentPowerName, isWide) {
@@ -3487,7 +3347,6 @@ export class ContentGame extends React.Component {
             currentPower = engine.getPower(currentPowerName);
             orderTypeToLocs = engine.getOrderTypeToLocs(currentPowerName);
             allowedPowerOrderTypes = Object.keys(orderTypeToLocs);
-            // canOrder = allowedPowerOrderTypes.length
             if (allowedPowerOrderTypes.length) {
                 POSSIBLE_ORDERS.sortOrderTypes(
                     allowedPowerOrderTypes,
@@ -3775,7 +3634,6 @@ export class ContentGame extends React.Component {
         };
 
         window.addEventListener("beforeunload", this.handleExit);
-        //window.addEventListener("visibilitychange", this.handleVisibilityChange);
         window.addEventListener("blur", this.handleBlur);
         window.addEventListener("focus", this.handleFocus);
         this.setState({
@@ -3794,10 +3652,6 @@ export class ContentGame extends React.Component {
 
         this.handleExit();
         window.removeEventListener("beforeunload", this.handleExit);
-        //window.removeEventListener(
-        //    "visibilitychange",
-        //    this.handleVisibilityChange
-        //);
         window.removeEventListener("blur", this.handleBlur);
         window.removeEventListener("focus", this.handleFocus);
     }
