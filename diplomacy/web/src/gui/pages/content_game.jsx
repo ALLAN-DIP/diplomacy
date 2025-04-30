@@ -3173,7 +3173,7 @@ export class ContentGame extends React.Component {
                             <Button
                                 key={"a"}
                                 pickEvent={true}
-                                title={"accept"}
+                                title={"+"}
                                 color={"success"}
                                 onClick={() => {
                                     if (move.indexOf('NOORDER') === -1){
