@@ -3258,7 +3258,7 @@ export class ContentGame extends React.Component {
                             />
                         </ConversationHeader>
 
-                        <MessageList>
+                        <MessageList className="move-suggestion-list">
                             {fullSuggestionComponent}
                             {partialSuggestionComponent}
                             {distributionSuggestionComponent}
