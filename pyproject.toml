@@ -42,7 +42,8 @@ dynamic = ["version"]
 dev = [
   "pre-commit",
   "pylint>=2.3.0",
-  "pytest>=4.4.0",
+  # `pytest` `6.0` introduced `--strict-config` argument and `pyproject.toml` support
+  "pytest>=6.0",
   "pytest-xdist",
   "sphinx",
   "sphinx_copybutton",
@@ -62,8 +63,14 @@ packages = ["diplomacy"]
 version = {attr = "diplomacy.version.PACKAGE_VERSION"}
 
 [tool.pytest.ini_options]
-addopts = "--verbosity=1 --strict-config --strict-markers --ignore=diplomacy/web/src/diplomacy/maps/tests/ --numprocesses auto"
+addopts = "--verbosity=1 -ra --strict-config --strict-markers --ignore=diplomacy/web/src/diplomacy/maps/tests/ --numprocesses auto"
 filterwarnings = [
+  "error",
   "ignore::DeprecationWarning",
+  # TODO: Fix warning that shows up in Python 3.11 but not 3.7
+  # See https://docs.pytest.org/en/8.3.x/how-to/failures.html#warning-about-unraisable-exceptions-and-unhandled-thread-exceptions
+  "ignore::pytest.PytestUnraisableExceptionWarning",
 ]
-minversion = "4.4.0"
+log_cli_level = "INFO"
+minversion = "6.0"
+xfail_strict = true
