@@ -3384,7 +3384,7 @@ export class ContentGame extends React.Component {
                         {/* Orders. */}
                         <div
                             className={"panel-orders mb-4"}
-                            style={{ maxHeight: "500px", overflowY: "scroll" }}
+                            style={{ maxHeight: "500px", overflowY: "auto" }}
                         >
                             {currentTabOrderCreation ? (
                                 <div className="mb-4">
