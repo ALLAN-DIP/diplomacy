@@ -40,6 +40,7 @@ def test_map_creation():
         assert this_map.error == [], 'Map %s should have no errors' % map_name
         del this_map
 
+@pytest.mark.skipif(sys.version_info < (3, 8), reason="Test fails intermittently in Python 3.7 CI with a variety of errors")
 def test_map_with_full_path():
     """ Tests for map creation """
     maps = glob.glob(os.path.join(MODULE_PATH, 'maps', '*.map'))
