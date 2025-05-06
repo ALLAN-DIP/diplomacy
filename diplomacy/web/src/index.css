@@ -54,6 +54,9 @@ span.dropdown-item {
     display: block;
     width: 100%;
     height: auto;
+    /* Disable user text selection (from https://stackoverflow.com/questions/826782/how-to-disable-text-selection-highlighting/4407335#4407335) */
+    -webkit-user-select: none; /* Safari */
+    user-select: none; /* All other mainstream browsers */
 }
 
 .history-current-orders {

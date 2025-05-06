@@ -20,13 +20,16 @@ import PropTypes from "prop-types";
 
 export class Hold extends React.Component {
     render() {
+        const opacity = (this.props?.opacity === undefined ? 1 : this.props?.opacity);
         const Coordinates = this.props.coordinates;
         const Colors = this.props.colors;
         const SymbolSizes = this.props.symbolSizes;
         const symbol = 'HoldUnit';
         const [loc_x, loc_y] = centerSymbolAroundUnit(Coordinates, SymbolSizes, this.props.loc, false, symbol);
         return (
-            <g stroke={Colors[this.props.powerName]}>
+            <g stroke={Colors[this.props.powerName]}
+               opacity={opacity}
+            >
                 <use
                     x={loc_x}
                     y={loc_y}
@@ -43,5 +46,6 @@ Hold.propTypes = {
     powerName: PropTypes.string.isRequired,
     coordinates: PropTypes.object.isRequired,
     symbolSizes: PropTypes.object.isRequired,
-    colors: PropTypes.object.isRequired
+    colors: PropTypes.object.isRequired,
+    opacity: PropTypes.number
 };
