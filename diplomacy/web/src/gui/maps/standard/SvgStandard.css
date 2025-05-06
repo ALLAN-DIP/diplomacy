@@ -45,7 +45,7 @@ Copyright (C) 2019 - Philip Paquette, Steven Bocco
   stroke: black;
 }
 .SvgStandard .currentnoterect {
-  fill: #c5dfea;
+  fill: color-mix(in oklab, #c5dfea, white 25%);
 }
 .SvgStandard .currentphasetext {
   font-family: serif, sans-serif;
@@ -94,54 +94,54 @@ Copyright (C) 2019 - Philip Paquette, Steven Bocco
 }
 
 .SvgStandard .nopower {
-  fill: antiquewhite;
+  fill: color-mix(in oklab, antiquewhite, white 25%);
   stroke: #000000;
   stroke-width: 1;
 }
 .SvgStandard .water {
-  fill: #c5dfea;
+  fill: color-mix(in oklab, #c5dfea, white 25%);
   stroke: #000000;
   stroke-width: 1;
 }
 
 .SvgStandard .neutral {
-  fill: lightgray;
+  fill: color-mix(in oklab, lightgray, white 25%);
   stroke: #000000;
   stroke-width: 1;
 }
 
 .SvgStandard .austria {
-  fill: #c48f85;
+  fill: color-mix(in oklab, #c48f85, white 25%);
   stroke: #000000;
   stroke-width: 1;
 }
 .SvgStandard .england {
-  fill: darkviolet;
+  fill: color-mix(in oklab, darkviolet, white 25%);
   stroke: #000000;
   stroke-width: 1;
 }
 .SvgStandard .france {
-  fill: royalblue;
+  fill: color-mix(in oklab, royalblue, white 25%);
   stroke: #000000;
   stroke-width: 1;
 }
 .SvgStandard .germany {
-  fill: #a08a75;
+  fill: color-mix(in oklab, #a08a75, white 25%);
   stroke: #000000;
   stroke-width: 1;
 }
 .SvgStandard .italy {
-  fill: forestgreen;
+  fill: color-mix(in oklab, forestgreen, white 25%);
   stroke: #000000;
   stroke-width: 1;
 }
 .SvgStandard .russia {
-  fill: #757d91;
+  fill: color-mix(in oklab, #757d91, white 25%);
   stroke: #000000;
   stroke-width: 1;
 }
 .SvgStandard .turkey {
-  fill: #b9a61c;
+  fill: color-mix(in oklab, #b9a61c, white 25%);
   stroke: #000000;
   stroke-width: 1;
 }
