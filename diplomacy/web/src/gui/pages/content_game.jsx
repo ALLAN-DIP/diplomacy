@@ -3254,7 +3254,7 @@ export class ContentGame extends React.Component {
                     >
                         <ConversationHeader>
                             <ConversationHeader.Content
-                                userName={`Moves Advice for ${engine.phase}`}
+                                userName={`Moves Advice`}
                             />
                         </ConversationHeader>
 
