@@ -14,7 +14,7 @@ COPY diplomacy/maps/ /maps
 
 RUN npm run build
 
-FROM python:3.7.17-alpine3.18 AS server
+FROM python:3.11.12-alpine3.21 AS server
 
 RUN apk upgrade --no-cache
 
