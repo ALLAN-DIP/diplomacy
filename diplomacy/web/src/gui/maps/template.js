@@ -575,13 +575,9 @@ export class PythonTemplate /* classname */ extends React.Component {
                             orderDistribution[order].opacity,
                             "P",
                         );
-                        if (component.renderedOrders.length !== 0) {
-                            renderedOrders.push(component.renderedOrders[0]);
-                        } else if (component.renderedOrders2.length !== 0) {
-                            renderedOrders2.push(component.renderedOrders2[0]);
-                        } else if (component.renderedHighestOrders.length !== 0) {
-                            renderedHighestOrders.push(component.renderedHighestOrders[0]);
-                        }
+                        renderedOrders.push(...component.renderedOrders);
+                        renderedOrders2.push(...component.renderedOrders2);
+                        renderedHighestOrders.push(...component.renderedHighestOrders);
                     }
                 }
             }
@@ -590,13 +586,9 @@ export class PythonTemplate /* classname */ extends React.Component {
         if (this.props.hoverDistributionOrder) {
             for (const orderObj of this.props.hoverDistributionOrder) {
                 const component = this.renderOrderFromDist(orderObj.order, orderObj.power, game, 1, "H");
-                if (component.renderedOrders.length !== 0) {
-                    renderedOrders.push(component.renderedOrders[0]);
-                } else if (component.renderedOrders2.length !== 0) {
-                    renderedOrders2.push(component.renderedOrders2[0]);
-                } else if (component.renderedHighestOrders.length !== 0) {
-                    renderedHighestOrders.push(component.renderedHighestOrders[0]);
-                }
+                renderedOrders.push(...component.renderedOrders);
+                renderedOrders2.push(...component.renderedOrders2);
+                renderedHighestOrders.push(...component.renderedHighestOrders);
             }
         }
 
@@ -604,13 +596,9 @@ export class PythonTemplate /* classname */ extends React.Component {
         if (this.props.visibleDistributionOrder) {
             for (const orderObj of this.props.visibleDistributionOrder) {
                 const component = this.renderOrderFromDist(orderObj.order, orderObj.power, game, 1, "V");
-                if (component.renderedOrders.length !== 0) {
-                    renderedOrders.push(component.renderedOrders[0]);
-                } else if (component.renderedOrders2.length !== 0) {
-                    renderedOrders2.push(component.renderedOrders2[0]);
-                } else if (component.renderedHighestOrders.length !== 0) {
-                    renderedHighestOrders.push(component.renderedHighestOrders[0]);
-                }
+                renderedOrders.push(...component.renderedOrders);
+                renderedOrders2.push(...component.renderedOrders2);
+                renderedHighestOrders.push(...component.renderedHighestOrders);
             }
         }
 
