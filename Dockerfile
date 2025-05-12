@@ -20,7 +20,7 @@ RUN apk upgrade --no-cache
 
 WORKDIR /app
 
-RUN pip install --no-cache-dir pip==24.0 \
+RUN pip install --no-cache-dir pip==25.1.1 \
     && pip uninstall --yes setuptools wheel
 
 # Install required packages
