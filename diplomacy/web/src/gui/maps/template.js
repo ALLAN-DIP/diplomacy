@@ -376,7 +376,7 @@ export class PythonTemplate /* classname */ extends React.Component {
                 />,
             );
         } else {
-            throw new Error(`Unknown error to render (${order}).`);
+            console.error(`Unable to parse order to render: ${JSON.stringify(order)}.`);
         }
         return renderComponents;
     }
