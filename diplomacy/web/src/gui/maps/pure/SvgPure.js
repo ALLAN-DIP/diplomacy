@@ -261,8 +261,7 @@ export class SvgPure extends React.Component {
     }
 
     /**
-     * Copied and modified original logic in render() for rendering orders
-     * to render distribution advice order with specified opacity
+     * Render orders, including for distribution advice
      * @param {string} order - Order string
      * @param {string} powerName - Name of the power for this order
      * @param {Game} game - Game object of the current game
@@ -270,7 +269,7 @@ export class SvgPure extends React.Component {
      * @param {string} key - The keycode for react component to have unique key
      * @returns renderComponents - Json object that stores the order component into the corresponding order rendering list
      */
-    renderOrderFromDist(order, powerName, game, opacity, key) {
+    renderOrder(order, powerName, game, opacity = undefined, key = "O") {
         var renderComponents = {
             renderedOrders: [],
             renderedOrders2: [],
@@ -396,7 +395,7 @@ export class SvgPure extends React.Component {
                 />,
             );
         } else {
-            throw new Error(`Unknown error to render (${order}).`);
+            console.error(`Unable to parse order to render: ${JSON.stringify(order)}.`);
         }
         return renderComponents;
     }
@@ -478,118 +477,10 @@ export class SvgPure extends React.Component {
                 if (orders) {
                     const powerOrders = (orders && orders.hasOwnProperty(power.name) && orders[power.name]) || [];
                     for (let order of powerOrders) {
-                        const tokens = order.split(/ +/);
-                        if (!tokens || tokens.length < 3) continue;
-                        const unit_loc = tokens[1];
-                        if (tokens[2] === "H") {
-                            renderedOrders.push(
-                                <Hold
-                                    key={order}
-                                    loc={unit_loc}
-                                    powerName={power.name}
-                                    coordinates={Coordinates}
-                                    symbolSizes={SymbolSizes}
-                                    colors={Colors}
-                                />,
-                            );
-                        } else if (tokens[2] === "-") {
-                            const destLoc = tokens[tokens.length - (tokens[tokens.length - 1] === "VIA" ? 2 : 1)];
-                            renderedOrders.push(
-                                <Move
-                                    key={order}
-                                    srcLoc={unit_loc}
-                                    dstLoc={destLoc}
-                                    powerName={power.name}
-                                    phaseType={game.getPhaseType()}
-                                    coordinates={Coordinates}
-                                    symbolSizes={SymbolSizes}
-                                    colors={Colors}
-                                />,
-                            );
-                        } else if (tokens[2] === "S") {
-                            const destLoc = tokens[tokens.length - 1];
-                            if (tokens.includes("-")) {
-                                const srcLoc = tokens[4];
-                                renderedOrders2.push(
-                                    <SupportMove
-                                        key={order}
-                                        loc={unit_loc}
-                                        srcLoc={srcLoc}
-                                        dstLoc={destLoc}
-                                        powerName={power.name}
-                                        coordinates={Coordinates}
-                                        symbolSizes={SymbolSizes}
-                                        colors={Colors}
-                                    />,
-                                );
-                            } else {
-                                renderedOrders2.push(
-                                    <SupportHold
-                                        key={order}
-                                        loc={unit_loc}
-                                        dstLoc={destLoc}
-                                        powerName={power.name}
-                                        coordinates={Coordinates}
-                                        symbolSizes={SymbolSizes}
-                                        colors={Colors}
-                                    />,
-                                );
-                            }
-                        } else if (tokens[2] === "C") {
-                            const srcLoc = tokens[4];
-                            const destLoc = tokens[tokens.length - 1];
-                            if (srcLoc !== destLoc && tokens.includes("-")) {
-                                renderedOrders2.push(
-                                    <Convoy
-                                        key={order}
-                                        loc={unit_loc}
-                                        srcLoc={srcLoc}
-                                        dstLoc={destLoc}
-                                        powerName={power.name}
-                                        coordinates={Coordinates}
-                                        colors={Colors}
-                                        symbolSizes={SymbolSizes}
-                                    />,
-                                );
-                            }
-                        } else if (tokens[2] === "B") {
-                            renderedHighestOrders.push(
-                                <Build
-                                    key={order}
-                                    unitType={tokens[0]}
-                                    loc={unit_loc}
-                                    powerName={power.name}
-                                    coordinates={Coordinates}
-                                    symbolSizes={SymbolSizes}
-                                />,
-                            );
-                        } else if (tokens[2] === "D") {
-                            renderedHighestOrders.push(
-                                <Disband
-                                    key={order}
-                                    loc={unit_loc}
-                                    phaseType={game.getPhaseType()}
-                                    coordinates={Coordinates}
-                                    symbolSizes={SymbolSizes}
-                                />,
-                            );
-                        } else if (tokens[2] === "R") {
-                            const destLoc = tokens[3];
-                            renderedOrders.push(
-                                <Move
-                                    key={order}
-                                    srcLoc={unit_loc}
-                                    dstLoc={destLoc}
-                                    powerName={power.name}
-                                    phaseType={game.getPhaseType()}
-                                    coordinates={Coordinates}
-                                    symbolSizes={SymbolSizes}
-                                    colors={Colors}
-                                />,
-                            );
-                        } else {
-                            throw new Error(`Unknown error to render (${order}).`);
-                        }
+                        const component = this.renderOrder(order, power.name, game);
+                        renderedOrders.push(...component.renderedOrders);
+                        renderedOrders2.push(...component.renderedOrders2);
+                        renderedHighestOrders.push(...component.renderedHighestOrders);
                     }
                 }
             }
@@ -601,20 +492,16 @@ export class SvgPure extends React.Component {
                 var provincePower = provinceDistribution.power;
                 for (var order in orderDistribution) {
                     if (orderDistribution.hasOwnProperty(order)) {
-                        const component = this.renderOrderFromDist(
+                        const component = this.renderOrder(
                             order,
                             provincePower,
                             game,
                             orderDistribution[order].opacity,
                             "P",
                         );
-                        if (component.renderedOrders.length !== 0) {
-                            renderedOrders.push(component.renderedOrders[0]);
-                        } else if (component.renderedOrders2.length !== 0) {
-                            renderedOrders2.push(component.renderedOrders2[0]);
-                        } else if (component.renderedHighestOrders.length !== 0) {
-                            renderedHighestOrders.push(component.renderedHighestOrders[0]);
-                        }
+                        renderedOrders.push(...component.renderedOrders);
+                        renderedOrders2.push(...component.renderedOrders2);
+                        renderedHighestOrders.push(...component.renderedHighestOrders);
                     }
                 }
             }
@@ -622,28 +509,20 @@ export class SvgPure extends React.Component {
 
         if (this.props.hoverDistributionOrder) {
             for (const orderObj of this.props.hoverDistributionOrder) {
-                const component = this.renderOrderFromDist(orderObj.order, orderObj.power, game, 1, "H");
-                if (component.renderedOrders.length !== 0) {
-                    renderedOrders.push(component.renderedOrders[0]);
-                } else if (component.renderedOrders2.length !== 0) {
-                    renderedOrders2.push(component.renderedOrders2[0]);
-                } else if (component.renderedHighestOrders.length !== 0) {
-                    renderedHighestOrders.push(component.renderedHighestOrders[0]);
-                }
+                const component = this.renderOrder(orderObj.order, orderObj.power, game, 1, "H");
+                renderedOrders.push(...component.renderedOrders);
+                renderedOrders2.push(...component.renderedOrders2);
+                renderedHighestOrders.push(...component.renderedHighestOrders);
             }
         }
 
         /** For textual advice, user is able to show or hide an advice order*/
         if (this.props.visibleDistributionOrder) {
             for (const orderObj of this.props.visibleDistributionOrder) {
-                const component = this.renderOrderFromDist(orderObj.order, orderObj.power, game, 1, "V");
-                if (component.renderedOrders.length !== 0) {
-                    renderedOrders.push(component.renderedOrders[0]);
-                } else if (component.renderedOrders2.length !== 0) {
-                    renderedOrders2.push(component.renderedOrders2[0]);
-                } else if (component.renderedHighestOrders.length !== 0) {
-                    renderedHighestOrders.push(component.renderedHighestOrders[0]);
-                }
+                const component = this.renderOrder(orderObj.order, orderObj.power, game, 1, "V");
+                renderedOrders.push(...component.renderedOrders);
+                renderedOrders2.push(...component.renderedOrders2);
+                renderedHighestOrders.push(...component.renderedHighestOrders);
             }
         }
 
