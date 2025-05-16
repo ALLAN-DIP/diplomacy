@@ -2534,10 +2534,12 @@ export class ContentGame extends React.Component {
                                     onChange={this.updateTabVal}
                                     aria-label="basic tabs example"
                                 >
+                                    {this.hasSuggestionType(suggestionType, UTILS.SuggestionType.MESSAGE) && (
                                     <Tab2
                                         label="Message Advice"
                                         value="messages"
                                     />
+                                    )}
                                     {this.hasSuggestionType(suggestionType, UTILS.SuggestionType.COMMENTARY) && (
                                             <Tab2
                                                 label={
