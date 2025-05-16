@@ -2168,17 +2168,19 @@ export class ContentGame extends React.Component {
                                     {this.hasSuggestionType(suggestionType, UTILS.SuggestionType.COMMENTARY) && (
                                         <Tab2
                                             label={
-                                                this.state.showBadge ? (
-                                                    <Badge variant="dot" color="warning"></Badge>
-                                                ) : (
-                                                    <span
-                                                        sx={{
-                                                            marginRight: "8px",
-                                                        }}
-                                                    >
-                                                        Commentary
-                                                    </span>
-                                                )
+                                                <span
+                                                    sx={{
+                                                        marginRight: "8px",
+                                                    }}
+                                                >
+                                                    Commentary
+                                                    {this.state.showBadge && (
+                                                        <>
+                                                            {" "}
+                                                            <Badge variant="dot" color="warning"></Badge>
+                                                        </>
+                                                    )}
+                                                </span>
                                             }
                                             value="commentary"
                                             onClick={() => {
