@@ -3254,7 +3254,7 @@ export class ContentGame extends React.Component {
                     >
                         <ConversationHeader>
                             <ConversationHeader.Content
-                                userName={`Moves Advice for ${engine.phase}`}
+                                userName={`Order Advice`}
                             />
                         </ConversationHeader>
 
@@ -3673,14 +3673,14 @@ export class ContentGame extends React.Component {
         const suggestionTypeDisplay = [];
         if (this.hasSuggestionType(suggestionType, UTILS.SuggestionType.MESSAGE))
             suggestionTypeDisplay.push("message");
-        if (this.hasSuggestionType(suggestionType, UTILS.SuggestionType.MOVE)) suggestionTypeDisplay.push("move");
+        if (this.hasSuggestionType(suggestionType, UTILS.SuggestionType.MOVE)) suggestionTypeDisplay.push("order");
         if (this.hasSuggestionType(suggestionType, UTILS.SuggestionType.COMMENTARY))
             suggestionTypeDisplay.push("commentary");
         if (this.hasSuggestionType(suggestionType, UTILS.SuggestionType.MOVE_DISTRIBUTION_TEXTUAL) ||
               this.hasSuggestionType(suggestionType, UTILS.SuggestionType.MOVE_DISTRIBUTION_VISUAL))
             suggestionTypeDisplay.push(
                 <>
-                    move probability
+                    order probability
                     {" "}
                     <Tooltip title={
                         <>
