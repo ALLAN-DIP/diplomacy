@@ -1859,7 +1859,6 @@ export class ContentGame extends React.Component {
         const receivedSuggestions = globalMessages.filter(
             (msg) =>
                 msg.type === STRINGS.SUGGESTED_COMMENTARY &&
-                msg.parsed.payload.recipient === protagonist &&
                 (isAdmin ||
                     !this.state.annotatedMessages.hasOwnProperty(msg.time_sent))
         );
@@ -1878,7 +1877,6 @@ export class ContentGame extends React.Component {
             this.setState({
                 numAllCommentary: numCommentary,
                 showBadge: true,
-                commentaryProtagonist: protagonist,
             });
         } // update numAllCommentary and show badge if new commentary is received
 
@@ -2703,8 +2701,7 @@ export class ContentGame extends React.Component {
                                         <ConversationHeader>
                                             <ConversationHeader.Content
                                                 userName={
-                                                    "Commentary about " +
-                                                    protagonist
+                                                    "Commentary"
                                                 }
                                             />
                                         </ConversationHeader>
