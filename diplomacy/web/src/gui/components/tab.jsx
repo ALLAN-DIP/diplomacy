@@ -25,11 +25,7 @@ export class Tab extends React.Component {
         const id = this.props.id ? { id: this.props.id } : {};
 
         return (
-            <div
-                className={"tab mb-4 " + this.props.className}
-                style={style}
-                {...id}
-            >
+            <div className={"tab mb-4 " + this.props.className} style={style} {...id}>
                 {this.props.children}
             </div>
         );

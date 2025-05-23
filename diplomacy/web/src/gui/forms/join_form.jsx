@@ -14,8 +14,8 @@
 //  You should have received a copy of the GNU Affero General Public License along
 //  with this program.  If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
-import React from 'react';
-import {Forms} from "../components/forms";
+import React from "react";
+import { Forms } from "../components/forms";
 import PropTypes from "prop-types";
 
 export class JoinForm extends React.Component {
@@ -27,7 +27,7 @@ export class JoinForm extends React.Component {
     initState() {
         return {
             [this.getPowerNameID()]: this.getDefaultPowerName(),
-            [this.getPasswordID()]: ''
+            [this.getPasswordID()]: "",
         };
     }
 
@@ -40,31 +40,41 @@ export class JoinForm extends React.Component {
     }
 
     getDefaultPowerName() {
-        return (this.props.powers && this.props.powers.length && this.props.powers[0]) || '';
+        return (this.props.powers && this.props.powers.length && this.props.powers[0]) || "";
     }
 
     render() {
         const onChange = Forms.createOnChangeCallback(this, this.props.onChange);
         const onSubmit = Forms.createOnSubmitCallback(this, this.props.onSubmit);
         return (
-            <form className={'form-inline'}>
-                <div className={'form-group mr-2'}>
-                    {Forms.createLabel(this.getPowerNameID(), 'Power:')}
-                    <select id={this.getPowerNameID()} className={'from-control custom-select ml-2'}
-                            value={Forms.getValue(this.state, this.getPowerNameID())} onChange={onChange}>
+            <form className={"form-inline"}>
+                <div className={"form-group mr-2"}>
+                    {Forms.createLabel(this.getPowerNameID(), "Power:")}
+                    <select
+                        id={this.getPowerNameID()}
+                        className={"from-control custom-select ml-2"}
+                        value={Forms.getValue(this.state, this.getPowerNameID())}
+                        onChange={onChange}
+                    >
                         {Forms.createSelectOptions(this.props.availablePowers, true)}
                     </select>
                 </div>
                 {this.props.password_required ? (
-                    <div className={'form-group mr-2'}>
-                        {Forms.createLabel(this.getPasswordID(), '', 'sr-only')}
-                        <input id={this.getPasswordID()} type={'password'} className={'form-control'}
-                               placeholder={'registration password'}
-                               value={Forms.getValue(this.state, this.getPasswordID())}
-                               onChange={onChange}/>
+                    <div className={"form-group mr-2"}>
+                        {Forms.createLabel(this.getPasswordID(), "", "sr-only")}
+                        <input
+                            id={this.getPasswordID()}
+                            type={"password"}
+                            className={"form-control"}
+                            placeholder={"registration password"}
+                            value={Forms.getValue(this.state, this.getPasswordID())}
+                            onChange={onChange}
+                        />
                     </div>
-                ) : ''}
-                {Forms.createSubmit('join', false, onSubmit)}
+                ) : (
+                    ""
+                )}
+                {Forms.createSubmit("join", false, onSubmit)}
             </form>
         );
     }
@@ -76,5 +86,5 @@ JoinForm.propTypes = {
     powers: PropTypes.arrayOf(PropTypes.string),
     availablePowers: PropTypes.arrayOf(PropTypes.string),
     onChange: PropTypes.func,
-    onSubmit: PropTypes.func
+    onSubmit: PropTypes.func,
 };
