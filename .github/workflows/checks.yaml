@@ -52,11 +52,10 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
           cache: pip
-          cache-dependency-path: pyproject.toml
+          cache-dependency-path: requirements-lock.txt
       - name: Install dependencies into Python environment
         run: |
-          pip install --upgrade pip
-          pip install --upgrade -e .[dev]
+          make update-pip
 
       - name: Cache pre-commit environments
         uses: actions/cache@v4
@@ -85,10 +84,11 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
           cache: pip
-          cache-dependency-path: requirements-lock.txt
+          cache-dependency-path: pyproject.toml
       - name: Install dependencies into Python environment
         run: |
-          make update-pip
+          pip install --upgrade pip
+          pip install --upgrade -e .[dev]
 
       - name: Run tests
         run: |
