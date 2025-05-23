@@ -1,0 +1,11 @@
+{$HOSTNAME} {
+	reverse_proxy diplomacy
+}
+
+{$HOSTNAME}:8433 {
+	@websockets {
+		header Connection *Upgrade*
+		header Upgrade websocket
+	}
+	reverse_proxy @websockets diplomacy:8433
+}
