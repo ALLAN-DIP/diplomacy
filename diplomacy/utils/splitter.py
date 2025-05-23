@@ -15,7 +15,7 @@
 #  with this program.  If not, see <https://www.gnu.org/licenses/>.
 # ==============================================================================
 """SubjectSplit
-- Contains utils to retrieve splitted subjects fields
+- Contains utils to retrieve split subjects fields
 """
 from abc import ABCMeta, abstractmethod
 

@@ -2228,7 +2228,7 @@ class Game(Jsonable):
 
     def get_phase_data(self):
         """Return a GamePhaseData object representing current game."""
-        # Associate each power name to power orders, or None if order ist not set for the power.
+        # Associate each power name to power orders, or None if order isn't not set for the power.
         # This is done to make distinction between voluntary empty orders ([]) and unset orders (None).
         current_orders = {
             power.name: (self.get_orders(power.name) if power.order_is_set else None)
@@ -2259,7 +2259,7 @@ class Game(Jsonable):
         """
         # In the following code, we use Game.method instead of self.method to make sure
         # game internal state is correctly set without calling any asynchronous
-        # overriden method from a derived class (especially NetworkGame class).
+        # overridden method from a derived class (especially NetworkGame class).
 
         if not phase_data:
             return
@@ -3862,7 +3862,7 @@ class Game(Jsonable):
     def _transfer_center(self, from_power, to_power, center):
         """Transfers a supply center from a power to another
 
-        :param from_power: The power instance from whom the supply center is transfered
+        :param from_power: The power instance from whom the supply center is transferred
         :param to_power: The power instance to whom the supply center is transferred
         :param center: The supply center location (e.g. 'PAR')
         :return: Nothing

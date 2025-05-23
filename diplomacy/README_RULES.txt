@@ -198,7 +198,7 @@
             - Every component of the order must be understood.  That is, the
               order must appear to be a Diplomacy move, convoy, support or
               hold order, and all placenames must be identifiable on the map
-              in use. This check catches inadvertant misspellings, such as "URK" for "UKR".
+              in use. This check catches inadvertent misspellings, such as "URK" for "UKR".
               In fact, this is known as the "Urk check."
 
             - Any placename abbreviation that is potentially ambiguous is declared

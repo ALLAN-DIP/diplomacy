@@ -458,7 +458,7 @@ export const Colors = %(colors)s;
                 }
             )
 
-    # Map javacript
+    # Map JavaScript
     with open(TEMPLATE_FILE_NAME) as template_file:
         js_template_code = template_file.read()
     # Replace template for complete line

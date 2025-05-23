@@ -71,7 +71,7 @@ Tabs.propTypes = {
     onChange: PropTypes.func.isRequired, // callback(tab name)
     children: PropTypes.array.isRequired,
     active: PropTypes.string, // current active tab name
-    highlights: PropTypes.object, // {tab name => highligh message (optional)}
+    highlights: PropTypes.object, // {tab name => highlight message (optional)}
 };
 
 Tabs.defaultProps = {
