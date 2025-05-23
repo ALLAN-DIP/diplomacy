@@ -22,14 +22,14 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  NODEJS_VERSION: 22.14.0
+  NODEJS_VERSION: 22.16.0
 
 jobs:
   checks:
     runs-on: ubuntu-22.04 # Pinned version of `ubuntu-latest`
     name: Run checks
     env:
-      PYTHON_VERSION: 3.11.11
+      PYTHON_VERSION: 3.11.12
     defaults:
       run:
         shell: bash -leo pipefail {0}
@@ -52,11 +52,10 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
           cache: pip
-          cache-dependency-path: pyproject.toml
+          cache-dependency-path: requirements-lock.txt
       - name: Install dependencies into Python environment
         run: |
-          pip install --upgrade pip
-          pip install --upgrade -e .[dev]
+          make update-pip
 
       - name: Cache pre-commit environments
         uses: actions/cache@v4
@@ -85,10 +84,11 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
           cache: pip
-          cache-dependency-path: requirements-lock.txt
+          cache-dependency-path: pyproject.toml
       - name: Install dependencies into Python environment
         run: |
-          make update-pip
+          pip install --upgrade pip
+          pip install --upgrade -e .[dev]
 
       - name: Run tests
         run: |
