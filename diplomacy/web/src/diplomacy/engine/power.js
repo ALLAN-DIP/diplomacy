@@ -15,11 +15,11 @@
 //  with this program.  If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
 /** Class Power. **/
-import {SortedDict} from "../utils/sorted_dict";
-import {STRINGS} from "../utils/strings";
+import { SortedDict } from "../utils/sorted_dict";
+import { STRINGS } from "../utils/strings";
 
 export class Power {
-    COUNTRIES = ['Austria', 'England', 'France', 'Germany', 'Italy', 'Russia', 'Turkey'];
+    COUNTRIES = ["Austria", "England", "France", "Germany", "Italy", "Russia", "Turkey"];
 
     constructor(name, role, game) {
         this.game = game;
@@ -45,7 +45,7 @@ export class Power {
             GERMANY: false,
             ITALY: false,
             RUSSIA: false,
-            TURKEY: false
+            TURKEY: false,
         };
         this.comm_status = STRINGS.READY;
         this.player_type = null;
@@ -59,17 +59,17 @@ export class Power {
     }
 
     getController() {
-        const len = this.controller.size()
+        const len = this.controller.size();
         let res = STRINGS.DUMMY;
         if (len > 0) {
-            res = this.controller.lastValue()
+            res = this.controller.lastValue();
         }
         //return (this.controller && this.controller.lastValue()) || STRINGS.DUMMY;
-        return(res);
+        return res;
     }
 
     getCommStatus() {
-        return(this.comm_status);
+        return this.comm_status;
     }
 
     isEliminated() {
@@ -108,25 +108,21 @@ export class Power {
 
         // Get orders.
         this.orders = [];
-        if (this.game.phase.charAt(this.game.phase.length - 1) === 'M') {
+        if (this.game.phase.charAt(this.game.phase.length - 1) === "M") {
             if (this.game.isNoCheck()) {
-                for (let value of Object.values(powerState.orders)) if (value)
-                    this.orders.push(value);
+                for (let value of Object.values(powerState.orders)) if (value) this.orders.push(value);
             } else {
-                for (let unit of Object.keys(powerState.orders))
-                    this.orders.push(unit + ' ' + powerState.orders[unit]);
+                for (let unit of Object.keys(powerState.orders)) this.orders.push(unit + " " + powerState.orders[unit]);
             }
         } else {
             for (let order of powerState.adjust)
-                if (order && order !== 'WAIVE' && !order.startsWith('VOID '))
-                    this.orders.push(order);
+                if (order && order !== "WAIVE" && !order.startsWith("VOID ")) this.orders.push(order);
         }
     }
 
     copy() {
         const power = new Power(this.name, this.role, this.game);
-        for (let key of this.controller.keys())
-            power.controller.put(key, this.controller.get(key));
+        for (let key of this.controller.keys()) power.controller.put(key, this.controller.get(key));
         power.vote = this.vote;
         power.order_is_set = this.order_is_set;
         power.wait = this.wait;
@@ -153,7 +149,7 @@ export class Power {
     }
 
     set_comm_status(comm_status) {
-        this.comm_status = comm_status
+        this.comm_status = comm_status;
     }
 
     setDummy() {

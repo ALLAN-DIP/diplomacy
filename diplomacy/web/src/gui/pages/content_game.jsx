@@ -19,11 +19,7 @@ import { SelectLocationForm } from "../forms/select_location_form";
 import { SelectViaForm } from "../forms/select_via_form";
 import { Order } from "../utils/order";
 import { Row, Col } from "../components/layouts";
-import {
-    extendOrderBuilding,
-    ORDER_BUILDER,
-    POSSIBLE_ORDERS,
-} from "../utils/order_building";
+import { extendOrderBuilding, ORDER_BUILDER, POSSIBLE_ORDERS } from "../utils/order_building";
 import { PowerOrderCreationForm } from "../forms/power_order_creation_form";
 import { UTILS } from "../../diplomacy/utils/utils";
 import { Message } from "../../diplomacy/engine/message";
@@ -150,7 +146,7 @@ export class ContentGame extends React.Component {
             ? DipStorage.getUserGameOrders(
                   this.props.data.client.channel.username,
                   this.props.data.game_id,
-                  this.props.data.phase
+                  this.props.data.phase,
               )
             : null;
 
@@ -193,9 +189,7 @@ export class ContentGame extends React.Component {
             mapSize: 6,
             message: "",
             logData: "",
-            hasInitialOrders: this.props.data.getInitialOrders(
-                this.props.data.role
-            ),
+            hasInitialOrders: this.props.data.getInitialOrders(this.props.data.role),
             annotatedMessages: this.props.data.getAnnotatedMessages(),
             stances: this.props.data.stances[this.props.data.role] || {},
             isBot: this.props.data.is_bot[this.props.data.role] || {
@@ -214,10 +208,8 @@ export class ContentGame extends React.Component {
             showBadge: false,
             commentaryProtagonist: null,
             lastSwitchPanelTime: Date.now(),
-            commentaryTimeSpent:
-                this.props.data.commentary_durations[this.props.data.role] ||
-                [],
-            stanceChanged: false
+            commentaryTimeSpent: this.props.data.commentary_durations[this.props.data.role] || [],
+            stanceChanged: false,
         };
 
         // Bind some class methods to this instance.
@@ -227,24 +219,19 @@ export class ContentGame extends React.Component {
         this.displayLastPastPhase = this.displayLastPastPhase.bind(this);
         this.displayLocationOrders = this.displayLocationOrders.bind(this);
         this.getMapInfo = this.getMapInfo.bind(this);
-        this.notifiedGamePhaseUpdated =
-            this.notifiedGamePhaseUpdated.bind(this);
-        this.notifiedLocalStateChange =
-            this.notifiedLocalStateChange.bind(this);
+        this.notifiedGamePhaseUpdated = this.notifiedGamePhaseUpdated.bind(this);
+        this.notifiedLocalStateChange = this.notifiedLocalStateChange.bind(this);
         this.notifiedNetworkGame = this.notifiedNetworkGame.bind(this);
         this.notifiedNewGameMessage = this.notifiedNewGameMessage.bind(this);
-        this.notifiedPowersControllers =
-            this.notifiedPowersControllers.bind(this);
+        this.notifiedPowersControllers = this.notifiedPowersControllers.bind(this);
         this.onChangeCurrentPower = this.onChangeCurrentPower.bind(this);
         this.onChangeMainTab = this.onChangeMainTab.bind(this);
         this.onChangeOrderType = this.onChangeOrderType.bind(this);
         this.onChangePastPhase = this.onChangePastPhase.bind(this);
         this.onChangePastPhaseIndex = this.onChangePastPhaseIndex.bind(this);
         this.onChangeShowPastOrders = this.onChangeShowPastOrders.bind(this);
-        this.onChangeShowAbbreviations =
-            this.onChangeShowAbbreviations.bind(this);
-        this.onChangeTabCurrentMessages =
-            this.onChangeTabCurrentMessages.bind(this);
+        this.onChangeShowAbbreviations = this.onChangeShowAbbreviations.bind(this);
+        this.onChangeTabCurrentMessages = this.onChangeTabCurrentMessages.bind(this);
         this.onChangeTabPastMessages = this.onChangeTabPastMessages.bind(this);
         this.onClickMessage = this.onClickMessage.bind(this);
         this.onDecrementPastPhase = this.onDecrementPastPhase.bind(this);
@@ -252,8 +239,7 @@ export class ContentGame extends React.Component {
         this.onOrderBuilding = this.onOrderBuilding.bind(this);
         this.onOrderBuilt = this.onOrderBuilt.bind(this);
         this.onProcessGame = this.onProcessGame.bind(this);
-        this.onRemoveAllCurrentPowerOrders =
-            this.onRemoveAllCurrentPowerOrders.bind(this);
+        this.onRemoveAllCurrentPowerOrders = this.onRemoveAllCurrentPowerOrders.bind(this);
         this.onRemoveOrder = this.onRemoveOrder.bind(this);
         this.onSelectLocation = this.onSelectLocation.bind(this);
         this.onSelectVia = this.onSelectVia.bind(this);
@@ -280,18 +266,12 @@ export class ContentGame extends React.Component {
 
     static gameTitle(game) {
         let title = `${game.game_id} | `;
-        const players =
-            game.status === "active"
-                ? game.status
-                : `${game.countControlledPowers()} / 7 |`;
+        const players = game.status === "active" ? game.status : `${game.countControlledPowers()} / 7 |`;
         title += players;
         const remainingTime = game.deadline_timer;
         const remainingHour = Math.floor(remainingTime / 3600);
-        const remainingMinute = Math.floor(
-            (remainingTime - remainingHour * 3600) / 60
-        );
-        const remainingSecond =
-            remainingTime - remainingHour * 3600 - remainingMinute * 60;
+        const remainingMinute = Math.floor((remainingTime - remainingHour * 3600) / 60);
+        const remainingSecond = remainingTime - remainingHour * 3600 - remainingMinute * 60;
 
         if (remainingTime === undefined) {
             title += ` (deadline: ${game.deadline} sec)`;
@@ -359,7 +339,7 @@ export class ContentGame extends React.Component {
             location,
             this.onOrderBuilding,
             this.onOrderBuilt,
-            this.getPage().error
+            this.getPage().error,
         );
     }
 
@@ -372,7 +352,7 @@ export class ContentGame extends React.Component {
             location,
             this.onOrderBuilding,
             this.onOrderBuilt,
-            this.getPage().error
+            this.getPage().error,
         );
     }
 
@@ -382,12 +362,7 @@ export class ContentGame extends React.Component {
                 path={orderPath}
                 locations={possibleLocations}
                 onSelect={(location) => {
-                    this.setSelectedLocation(
-                        location,
-                        powerName,
-                        orderType,
-                        orderPath
-                    );
+                    this.setSelectedLocation(location, powerName, orderType, orderPath);
                     onClose();
                 }}
                 onClose={() => {
@@ -404,12 +379,7 @@ export class ContentGame extends React.Component {
                 path={orderPath}
                 onSelect={(moveType) => {
                     setTimeout(() => {
-                        this.setSelectedVia(
-                            moveType,
-                            powerName,
-                            orderPath,
-                            location
-                        );
+                        this.setSelectedVia(moveType, powerName, orderPath, location);
                         onClose();
                     }, 0);
                 }}
@@ -452,17 +422,12 @@ export class ContentGame extends React.Component {
                 const server_current = schedule.current_time;
                 const server_end = schedule.time_added + schedule.delay;
                 const server_remaining = server_end - server_current;
-                this.props.data.deadline_timer =
-                    server_remaining * schedule.time_unit;
+                this.props.data.deadline_timer = server_remaining * schedule.time_unit;
                 if (!this.schedule_timeout_id)
-                    this.schedule_timeout_id = setInterval(
-                        this.updateDeadlineTimer,
-                        schedule.time_unit * 1000
-                    );
+                    this.schedule_timeout_id = setInterval(this.updateDeadlineTimer, schedule.time_unit * 1000);
             })
             .catch(() => {
-                if (this.props.data.hasOwnProperty("deadline_timer"))
-                    delete this.props.data.deadline_timer;
+                if (this.props.data.hasOwnProperty("deadline_timer")) delete this.props.data.deadline_timer;
                 this.clearScheduleTimeout();
             });
     }
@@ -475,9 +440,7 @@ export class ContentGame extends React.Component {
      * @returns {boolean}
      */
     networkGameIsDisplayed(networkGame) {
-        return (
-            this.getPage().getName() === `game: ${networkGame.local.game_id}`
-        );
+        return this.getPage().getName() === `game: ${networkGame.local.game_id}`;
     }
 
     notifiedNetworkGame(networkGame, notification) {
@@ -492,12 +455,8 @@ export class ContentGame extends React.Component {
     notifiedPowersControllers(networkGame, notification) {
         if (
             networkGame.local.isPlayerGame() &&
-            (!networkGame.channel.game_id_to_instances.hasOwnProperty(
-                networkGame.local.game_id
-            ) ||
-                !networkGame.channel.game_id_to_instances[
-                    networkGame.local.game_id
-                ].has(networkGame.local.role))
+            (!networkGame.channel.game_id_to_instances.hasOwnProperty(networkGame.local.game_id) ||
+                !networkGame.channel.game_id_to_instances[networkGame.local.game_id].has(networkGame.local.role))
         ) {
             // This power game is now invalid.
             return this.getPage()
@@ -532,17 +491,11 @@ export class ContentGame extends React.Component {
                         hasInitialOrders: false,
                         hoverOrders: [],
                     }).then(() =>
-                        this.getPage().info(
-                            `Game update (${notification.name}) to ${networkGame.local.phase}.`
-                        )
+                        this.getPage().info(`Game update (${notification.name}) to ${networkGame.local.phase}.`),
                     );
                 }
             })
-            .catch((error) =>
-                this.getPage().error(
-                    "Error when updating possible orders: " + error.toString()
-                )
-            );
+            .catch((error) => this.getPage().error("Error when updating possible orders: " + error.toString()));
     }
 
     notifiedLocalStateChange(networkGame, notification) {
@@ -554,32 +507,20 @@ export class ContentGame extends React.Component {
                     this.reloadDeadlineTimer(networkGame);
                     let result = null;
                     if (notification.power_name) {
-                        result = this.reloadPowerServerOrders(
-                            notification.power_name
-                        );
+                        result = this.reloadPowerServerOrders(notification.power_name);
                     } else {
                         result = this.forceUpdate();
                     }
-                    return result.then(() =>
-                        this.getPage().info(`Possible orders re-loaded.`)
-                    );
+                    return result.then(() => this.getPage().info(`Possible orders re-loaded.`));
                 }
             })
-            .catch((error) =>
-                this.getPage().error(
-                    "Error when updating possible orders: " + error.toString()
-                )
-            );
+            .catch((error) => this.getPage().error("Error when updating possible orders: " + error.toString()));
     }
 
     notifiedNewGameMessage(networkGame, notification) {
         let protagonist = notification.message.sender;
-        if (notification.message.recipient === "GLOBAL")
-            protagonist = notification.message.recipient;
-        const messageHighlights = Object.assign(
-            {},
-            this.state.messageHighlights
-        );
+        if (notification.message.recipient === "GLOBAL") protagonist = notification.message.recipient;
+        const messageHighlights = Object.assign({}, this.state.messageHighlights);
         if (!messageHighlights.hasOwnProperty(protagonist)) {
             messageHighlights[protagonist] = 1;
         } else {
@@ -590,8 +531,8 @@ export class ContentGame extends React.Component {
         } else {
             ++messageHighlights["messages"];
         }
-        return this.setState({ messageHighlights: messageHighlights }).then(
-            () => this.notifiedNetworkGame(networkGame, notification)
+        return this.setState({ messageHighlights: messageHighlights }).then(() =>
+            this.notifiedNetworkGame(networkGame, notification),
         );
     }
 
@@ -602,31 +543,16 @@ export class ContentGame extends React.Component {
         const consumer = (notification) => {
             switch (notification.name) {
                 case "powers_controllers":
-                    return this.notifiedPowersControllers(
-                        networkGame,
-                        notification
-                    );
+                    return this.notifiedPowersControllers(networkGame, notification);
                 case "game_message_received":
-                    return this.notifiedNewGameMessage(
-                        networkGame,
-                        notification
-                    );
+                    return this.notifiedNewGameMessage(networkGame, notification);
                 case "log_received":
-                    return this.notifiedNewGameMessage(
-                        networkGame,
-                        notification
-                    );
+                    return this.notifiedNewGameMessage(networkGame, notification);
                 case "recipients_annotation_received":
-                    return this.notifiedNewGameMessage(
-                        networkGame,
-                        notification
-                    );
+                    return this.notifiedNewGameMessage(networkGame, notification);
                 case "game_processed":
                 case "game_phase_update":
-                    return this.notifiedGamePhaseUpdated(
-                        networkGame,
-                        notification
-                    );
+                    return this.notifiedGamePhaseUpdated(networkGame, notification);
                 case "cleared_centers":
                 case "cleared_orders":
                 case "cleared_units":
@@ -641,9 +567,7 @@ export class ContentGame extends React.Component {
                 case "vote_updated":
                     return this.notifiedNetworkGame(networkGame, notification);
                 default:
-                    throw new Error(
-                        `Unhandled notification: ${notification.name}`
-                    );
+                    throw new Error(`Unhandled notification: ${notification.name}`);
             }
         };
         if (!networkGame.callbacksBound) {
@@ -678,45 +602,50 @@ export class ContentGame extends React.Component {
      * @param {string} requestedPower  - power requesting the advice
      * @param {string} requestedProvince - province to get advice for
      */
-    onChangeOrderDistribution(requestedPower, requestedProvince, provinceController){
-        if (this.state.displayVisualAdvice === null || this.state.displayVisualAdvice === undefined){
+    onChangeOrderDistribution(requestedPower, requestedProvince, provinceController) {
+        if (this.state.displayVisualAdvice === null || this.state.displayVisualAdvice === undefined) {
             return;
         }
-        if (requestedProvince === undefined || requestedProvince === null){
+        if (requestedProvince === undefined || requestedProvince === null) {
             return;
         }
 
         const engine = this.props.data;
-        const messageChannels = engine.getMessageChannels(
-            requestedPower,
-            true
-        );
-        const suggestionMessages = this.getSuggestionMessages(
-            requestedPower,
-            messageChannels,
-            engine
-        );
+        const messageChannels = engine.getMessageChannels(requestedPower, true);
+        const suggestionMessages = this.getSuggestionMessages(requestedPower, messageChannels, engine);
         const provinceOrderDistributions = suggestionMessages.filter(
-            (msg) => msg.type === STRINGS.SUGGESTED_MOVE_DISTRIBUTION && msg.parsed.payload.province === requestedProvince
+            (msg) =>
+                msg.type === STRINGS.SUGGESTED_MOVE_DISTRIBUTION && msg.parsed.payload.province === requestedProvince,
         );
         if (provinceOrderDistributions.length === 0) {
-            return
+            return;
         }
-        const provinceOrderDistribution = provinceOrderDistributions[0].parsed.payload
+        const provinceOrderDistribution = provinceOrderDistributions[0].parsed.payload;
 
         // successfully retrieves and updates order distribution
-        if (!this.state.displayVisualAdvice){
-            this.setState({ orderDistribution: [ { power: provinceController, distribution: provinceOrderDistribution.predicted_orders, province: requestedProvince } ] });
-        }
-        else{
+        if (!this.state.displayVisualAdvice) {
+            this.setState({
+                orderDistribution: [
+                    {
+                        power: provinceController,
+                        distribution: provinceOrderDistribution.predicted_orders,
+                        province: requestedProvince,
+                    },
+                ],
+            });
+        } else {
             let prevOrderDistribution = this.state.orderDistribution;
-            let updatedOrderDistribution = []
-            for (var orderDist of prevOrderDistribution){
-                if (orderDist.province !== requestedProvince){
-                    updatedOrderDistribution.push(orderDist)
+            let updatedOrderDistribution = [];
+            for (var orderDist of prevOrderDistribution) {
+                if (orderDist.province !== requestedProvince) {
+                    updatedOrderDistribution.push(orderDist);
                 }
             }
-            updatedOrderDistribution.push({ power: provinceController, distribution: provinceOrderDistribution.predicted_orders, province: requestedProvince });
+            updatedOrderDistribution.push({
+                power: provinceController,
+                distribution: provinceOrderDistribution.predicted_orders,
+                province: requestedProvince,
+            });
             this.setState({ orderDistribution: updatedOrderDistribution });
         }
     }
@@ -726,15 +655,14 @@ export class ContentGame extends React.Component {
      * @param {array} orderArr  - [ { order: str, power: str },... ]
      * @param {string} order - order
      */
-    includeOrder(orderArr, order){
-        for (var orderObj of orderArr){
-            if (orderObj.order === order){
+    includeOrder(orderArr, order) {
+        for (var orderObj of orderArr) {
+            if (orderObj.order === order) {
                 return true;
             }
         }
         return false;
     }
-
 
     onChangeCurrentPower(event) {
         return this.setState({
@@ -744,7 +672,7 @@ export class ContentGame extends React.Component {
             distributionAdviceSetting: null,
             orderDistribution: [],
             hoverDistributionOrder: [],
-            visibleDistributionOrder: []
+            visibleDistributionOrder: [],
         });
     }
 
@@ -779,9 +707,7 @@ export class ContentGame extends React.Component {
             power.setStances(country, stance);
             this.sendGameStance(engine.client, engine.role, power.getStances());
         } catch (e) {
-            this.getPage().error(
-                "Will not update stance of a noncontrollable power."
-            );
+            this.getPage().error("Will not update stance of a noncontrollable power.");
         }
     }
 
@@ -817,11 +743,7 @@ export class ContentGame extends React.Component {
         };
         this.setState({ annotatedMessages: newAnnotatedMessages });
 
-        this.sendRecipientAnnotation(
-            engine.client,
-            message_time_sent,
-            annotation
-        );
+        this.sendRecipientAnnotation(engine.client, message_time_sent, annotation);
     }
 
     updateTabVal(event, value) {
@@ -836,11 +758,7 @@ export class ContentGame extends React.Component {
                 commentaryTimeSpent: newTimeSpent,
             });
 
-            this.sendCommentaryDurations(
-                this.props.data.client,
-                this.props.data.role,
-                timeDiff
-            );
+            this.sendCommentaryDurations(this.props.data.client, this.props.data.role, timeDiff);
 
             return this.setState({
                 tabVal: value,
@@ -865,11 +783,9 @@ export class ContentGame extends React.Component {
         networkGame
             .sendRecipientAnnotation({ annotation: info })
             .then(() => {
-                page.load(
-                    `game: ${networkGame.local.game_id}`,
-                    <ContentGame data={networkGame.local} />,
-                    { success: `Annotation sent: ${JSON.stringify(info)}` }
-                );
+                page.load(`game: ${networkGame.local.game_id}`, <ContentGame data={networkGame.local} />, {
+                    success: `Annotation sent: ${JSON.stringify(info)}`,
+                });
             })
             .catch((error) => {
                 page.error(error.toString());
@@ -919,13 +835,9 @@ export class ContentGame extends React.Component {
             networkGame
                 .sendGameMessage({ message: message })
                 .then(() => {
-                    page.load(
-                        `game: ${engine.game_id}`,
-                        <ContentGame data={engine} />,
-                        {
-                            success: `Message sent: ${JSON.stringify(message)}`,
-                        }
-                    );
+                    page.load(`game: ${engine.game_id}`, <ContentGame data={engine} />, {
+                        success: `Message sent: ${JSON.stringify(message)}`,
+                    });
                 })
                 .catch((error) => page.error(error.toString()));
         } else {
@@ -945,13 +857,9 @@ export class ContentGame extends React.Component {
         networkGame
             .sendLogData({ log: message })
             .then(() => {
-                page.load(
-                    `game: ${engine.game_id}`,
-                    <ContentGame data={engine} />,
-                    {
-                        success: `Log sent: ${JSON.stringify(message)}`,
-                    }
-                );
+                page.load(`game: ${engine.game_id}`, <ContentGame data={engine} />, {
+                    success: `Log sent: ${JSON.stringify(message)}`,
+                });
             })
             .catch((error) => {
                 page.error(error.toString());
@@ -1020,10 +928,7 @@ export class ContentGame extends React.Component {
     getCurrentPowerName() {
         const engine = this.props.data;
         const controllablePowers = engine.getControllablePowers();
-        return (
-            this.state.power ||
-            (controllablePowers.length && controllablePowers[0])
-        );
+        return this.state.power || (controllablePowers.length && controllablePowers[0]);
     }
 
     // [ Methods involved in orders management.
@@ -1049,8 +954,7 @@ export class ContentGame extends React.Component {
                         localOrder.local =
                             !serverPowerOrders ||
                             !serverPowerOrders.hasOwnProperty(localOrder.loc) ||
-                            serverPowerOrders[localOrder.loc].order !==
-                                localOrder.order;
+                            serverPowerOrders[localOrder.loc].order !== localOrder.order;
                     }
                 }
                 orders[powerName] = localPowerOrders;
@@ -1072,18 +976,9 @@ export class ContentGame extends React.Component {
         for (let entry of Object.entries(orders)) {
             const powerName = entry[0];
             let powerOrdersList = null;
-            if (entry[1])
-                powerOrdersList = Object.values(entry[1]).map(
-                    (order) => order.order
-                );
+            if (entry[1]) powerOrdersList = Object.values(entry[1]).map((order) => order.order);
             DipStorage.clearUserGameOrders(username, gameID, powerName);
-            DipStorage.addUserGameOrders(
-                username,
-                gameID,
-                gamePhase,
-                powerName,
-                powerOrdersList
-            );
+            DipStorage.addUserGameOrders(username, gameID, gamePhase, powerName, powerOrdersList);
         }
     }
 
@@ -1130,8 +1025,7 @@ export class ContentGame extends React.Component {
             this.sendOrderLog(this.props.data.client, "remove", order.order);
 
             delete orders[powerName][order.loc];
-            if (!UTILS.javascript.count(orders[powerName]))
-                orders[powerName] = null;
+            if (!UTILS.javascript.count(orders[powerName])) orders[powerName] = null;
             this.__store_orders(orders);
             await this.setState({ orders: orders, hoverOrders: [] });
         }
@@ -1180,13 +1074,9 @@ export class ContentGame extends React.Component {
 
         for (let entry of Object.entries(orders)) {
             const powerName = entry[0];
-            const localPowerOrders = entry[1]
-                ? Object.values(entry[1]).map((orderEntry) => orderEntry.order)
-                : null;
+            const localPowerOrders = entry[1] ? Object.values(entry[1]).map((orderEntry) => orderEntry.order) : null;
             const serverPowerOrders = serverOrders[powerName]
-                ? Object.values(serverOrders[powerName]).map(
-                      (orderEntry) => orderEntry.order
-                  )
+                ? Object.values(serverOrders[powerName]).map((orderEntry) => orderEntry.order)
                 : null;
             let same = false;
 
@@ -1201,10 +1091,7 @@ export class ContentGame extends React.Component {
                 // Otherwise, we have either local non-empty orders set or local null order.
             } else {
                 // Orders set on server. Identical to local orders only if we have exactly same orders on server and locally.
-                if (
-                    localPowerOrders &&
-                    localPowerOrders.length === serverPowerOrders.length
-                ) {
+                if (localPowerOrders && localPowerOrders.length === serverPowerOrders.length) {
                     localPowerOrders.sort();
                     serverPowerOrders.sort();
                     same = true;
@@ -1223,9 +1110,7 @@ export class ContentGame extends React.Component {
             }
 
             Diplog.info(
-                `Sending orders for ${powerName}: ${
-                    localPowerOrders ? JSON.stringify(localPowerOrders) : null
-                }`
+                `Sending orders for ${powerName}: ${localPowerOrders ? JSON.stringify(localPowerOrders) : null}`,
             );
             let requestCall = null;
             if (localPowerOrders) {
@@ -1256,7 +1141,7 @@ export class ContentGame extends React.Component {
     onOrderBuilding(powerName, path) {
         const pathToSave = path.slice(1);
         return this.setState({ orderBuildingPath: pathToSave }).then(() =>
-            this.getPage().success(`Building order ${pathToSave.join(" ")} ...`)
+            this.getPage().success(`Building order ${pathToSave.join(" ")} ...`),
         );
     }
 
@@ -1301,41 +1186,24 @@ export class ContentGame extends React.Component {
         const engine = this.props.data;
         const networkGame = engine.client;
         const controllablePowers = engine.getControllablePowers();
-        const currentPowerName =
-            this.state.power ||
-            (controllablePowers.length ? controllablePowers[0] : null);
-        if (!currentPowerName)
-            throw new Error(
-                `Internal error: unable to detect current selected power name.`
-            );
+        const currentPowerName = this.state.power || (controllablePowers.length ? controllablePowers[0] : null);
+        if (!currentPowerName) throw new Error(`Internal error: unable to detect current selected power name.`);
         networkGame
             .vote({ power_name: currentPowerName, vote: decision })
-            .then(() =>
-                this.getPage().success(
-                    `Vote set to ${decision} for ${currentPowerName}`
-                )
-            )
+            .then(() => this.getPage().success(`Vote set to ${decision} for ${currentPowerName}`))
             .catch((error) => {
                 Diplog.error(error.stack);
-                this.getPage().error(
-                    `Error while setting vote for ${currentPowerName}: ${error.toString()}`
-                );
+                this.getPage().error(`Error while setting vote for ${currentPowerName}: ${error.toString()}`);
             });
     }
 
     setCommStatus(commStatus) {
-        let newCommStatus =
-            commStatus === STRINGS.READY ? STRINGS.READY : STRINGS.READY;
+        let newCommStatus = commStatus === STRINGS.READY ? STRINGS.READY : STRINGS.READY;
         const engine = this.props.data;
         const networkGame = engine.client;
         const controllablePowers = engine.getControllablePowers();
-        const currentPowerName =
-            this.state.power ||
-            (controllablePowers.length ? controllablePowers[0] : null);
-        if (!currentPowerName)
-            throw new Error(
-                `Internal error: unable to detect current selected power name.`
-            );
+        const currentPowerName = this.state.power || (controllablePowers.length ? controllablePowers[0] : null);
+        if (!currentPowerName) throw new Error(`Internal error: unable to detect current selected power name.`);
         networkGame
             .setCommStatus({
                 comm_status: newCommStatus,
@@ -1343,16 +1211,12 @@ export class ContentGame extends React.Component {
             })
             .then(() => {
                 this.forceUpdate(() =>
-                    this.getPage().success(
-                        `Comm. status set to ${newCommStatus} for ${currentPowerName}`
-                    )
+                    this.getPage().success(`Comm. status set to ${newCommStatus} for ${currentPowerName}`),
                 );
             })
             .catch((error) => {
                 Diplog.error(error.stack);
-                this.getPage().error(
-                    `Error while setting comm. status for ${currentPowerName}: ${error.toString()}`
-                );
+                this.getPage().error(`Error while setting comm. status for ${currentPowerName}: ${error.toString()}`);
             });
     }
 
@@ -1360,27 +1224,16 @@ export class ContentGame extends React.Component {
         const engine = this.props.data;
         const networkGame = engine.client;
         const controllablePowers = engine.getControllablePowers();
-        const currentPowerName =
-            this.state.power ||
-            (controllablePowers.length ? controllablePowers[0] : null);
-        if (!currentPowerName)
-            throw new Error(
-                `Internal error: unable to detect current selected power name.`
-            );
+        const currentPowerName = this.state.power || (controllablePowers.length ? controllablePowers[0] : null);
+        if (!currentPowerName) throw new Error(`Internal error: unable to detect current selected power name.`);
         networkGame
             .setWait(waitFlag, { power_name: currentPowerName })
             .then(() => {
-                this.forceUpdate(() =>
-                    this.getPage().success(
-                        `Wait flag set to ${waitFlag} for ${currentPowerName}`
-                    )
-                );
+                this.forceUpdate(() => this.getPage().success(`Wait flag set to ${waitFlag} for ${currentPowerName}`));
             })
             .catch((error) => {
                 Diplog.error(error.stack);
-                this.getPage().error(
-                    `Error while setting wait flag for ${currentPowerName}: ${error.toString()}`
-                );
+                this.getPage().error(`Error while setting wait flag for ${currentPowerName}: ${error.toString()}`);
             });
     }
 
@@ -1405,10 +1258,7 @@ export class ContentGame extends React.Component {
             const newIndex = index + (increment ? 1 : -1);
             if (newIndex >= 0 && newIndex < selectObject.length) {
                 selectObject.selectedIndex = newIndex;
-                this.__change_past_phase(
-                    parseInt(selectObject.options[newIndex].value, 10),
-                    increment ? 0 : 1
-                );
+                this.__change_past_phase(parseInt(selectObject.options[newIndex].value, 10), increment ? 0 : 1);
             }
         }
     }
@@ -1444,18 +1294,12 @@ export class ContentGame extends React.Component {
             message.read = true;
             let protagonist = message.sender;
             if (message.recipient === "GLOBAL") protagonist = message.recipient;
-            this.getPage().load(
-                `game: ${this.props.data.game_id}`,
-                <ContentGame data={this.props.data} />
-            );
+            this.getPage().load(`game: ${this.props.data.game_id}`, <ContentGame data={this.props.data} />);
             if (
                 this.state.messageHighlights.hasOwnProperty(protagonist) &&
                 this.state.messageHighlights[protagonist] > 0
             ) {
-                const messageHighlights = Object.assign(
-                    {},
-                    this.state.messageHighlights
-                );
+                const messageHighlights = Object.assign({}, this.state.messageHighlights);
                 --messageHighlights[protagonist];
                 --messageHighlights["messages"];
                 this.setState({ messageHighlights: messageHighlights });
@@ -1484,23 +1328,17 @@ export class ContentGame extends React.Component {
                 wait={wait[currentPowerName]}
                 orders={orders[currentPowerName]}
                 serverCount={
-                    serverOrders[currentPowerName]
-                        ? UTILS.javascript.count(serverOrders[currentPowerName])
-                        : -1
+                    serverOrders[currentPowerName] ? UTILS.javascript.count(serverOrders[currentPowerName]) : -1
                 }
                 onRemove={this.onRemoveOrder}
-            />
+            />,
         );
         return render;
     }
 
     blurMessages(engine, messageChannels) {
         /* add a *hide* key to decide whether to blur a message */
-        if (
-            engine.role === "omniscient_type" ||
-            engine.role === "observer_type" ||
-            engine.role === "master_type"
-        )
+        if (engine.role === "omniscient_type" || engine.role === "observer_type" || engine.role === "master_type")
             return messageChannels;
 
         let blurredMessageChannels = {};
@@ -1519,9 +1357,7 @@ export class ContentGame extends React.Component {
                     // if the message is from self or is annotated, don't blur
                     if (
                         currentMessage.sender === controlledPower ||
-                        this.state.annotatedMessages.hasOwnProperty(
-                            currentMessage.time_sent
-                        )
+                        this.state.annotatedMessages.hasOwnProperty(currentMessage.time_sent)
                     ) {
                         blurredMessages.push(currentMessage);
                     } else {
@@ -1530,18 +1366,13 @@ export class ContentGame extends React.Component {
                             blurredMessages.push(currentMessage);
                         } else {
                             const toShow = { hide: hideMessage };
-                            const newMessage = Object.assign(
-                                toShow,
-                                currentMessage
-                            );
+                            const newMessage = Object.assign(toShow, currentMessage);
                             blurredMessages.push(newMessage);
                         }
 
                         if (
                             currentMessage.sender !== controlledPower &&
-                            !this.state.annotatedMessages.hasOwnProperty(
-                                currentMessage.time_sent
-                            )
+                            !this.state.annotatedMessages.hasOwnProperty(currentMessage.time_sent)
                         ) {
                             hideMessage = true;
                         }
@@ -1556,41 +1387,25 @@ export class ContentGame extends React.Component {
 
     renderPastMessages(engine, role, isWide) {
         const messageChannels = engine.getMessageChannels(role, true);
-        const filteredMessageChannels = this.blurMessages(
-            engine,
-            messageChannels
-        );
+        const filteredMessageChannels = this.blurMessages(engine, messageChannels);
         const tabNames = [];
-        for (let powerName of Object.keys(engine.powers))
-            if (powerName !== role) tabNames.push(powerName);
+        for (let powerName of Object.keys(engine.powers)) if (powerName !== role) tabNames.push(powerName);
         tabNames.sort();
         const currentTabId = this.state.tabPastMessages || tabNames[0];
 
         const convList = tabNames.map((protagonist) => (
             <div style={{ minWidth: "220px" }}>
                 <Conversation
-                    className={
-                        protagonist === currentTabId
-                            ? "cs-conversation--active"
-                            : null
-                    }
+                    className={protagonist === currentTabId ? "cs-conversation--active" : null}
                     onClick={() => {
                         this.onChangeTabPastMessages(protagonist);
                     }}
                     key={protagonist}
                     name={protagonist}
-                    unreadCnt={this.countUnreadMessages(
-                        engine,
-                        role,
-                        protagonist
-                    )}
+                    unreadCnt={this.countUnreadMessages(engine, role, protagonist)}
                     unreadDot={this.hasUnreadAdvice(engine, role, protagonist)}
                 >
-                    <Avatar
-                        src={POWER_ICONS[protagonist]}
-                        name={protagonist}
-                        size="sm"
-                    />
+                    <Avatar src={POWER_ICONS[protagonist]} name={protagonist} size="sm" />
                 </Conversation>
             </div>
         ));
@@ -1611,9 +1426,7 @@ export class ContentGame extends React.Component {
             rec = msg.recipient;
             curPhase = msg.phase;
             if (curPhase !== prevPhase) {
-                renderedMessages.push(
-                    <MessageSeparator>{curPhase}</MessageSeparator>
-                );
+                renderedMessages.push(<MessageSeparator>{curPhase}</MessageSeparator>);
                 prevPhase = curPhase;
             }
 
@@ -1634,21 +1447,14 @@ export class ContentGame extends React.Component {
                 >
                     <Avatar src={POWER_ICONS[sender]} name={sender} size="sm" />
                     <ChatMessage.HtmlContent html={html} />
-                </ChatMessage>
+                </ChatMessage>,
             );
         }
 
         return (
-            <div
-                className={isWide ? "col-12" : "col-6"}
-                style={{ height: "500px" }}
-            >
+            <div className={isWide ? "col-12" : "col-6"} style={{ height: "500px" }}>
                 <MainContainer responsive>
-                    <Sidebar
-                        style={{ maxWidth: "220px" }}
-                        position="left"
-                        scrollable={false}
-                    >
+                    <Sidebar style={{ maxWidth: "220px" }} position="left" scrollable={false}>
                         <ConversationList>{convList}</ConversationList>
                     </Sidebar>
                     <ChatContainer>
@@ -1661,9 +1467,7 @@ export class ContentGame extends React.Component {
 
     hasUnreadAdvice(engine, role, protagonist) {
         const isAdmin =
-            engine.role === "omniscient_type" ||
-            engine.role === "master_type" ||
-            engine.role === "observer_type";
+            engine.role === "omniscient_type" || engine.role === "master_type" || engine.role === "observer_type";
         if (isAdmin) {
             return false;
         }
@@ -1671,18 +1475,14 @@ export class ContentGame extends React.Component {
         let messageChannels = engine.getMessageChannels(role, true);
         const controlledPower = this.getCurrentPowerName();
 
-        const suggestionMessages = this.getSuggestionMessages(
-            controlledPower,
-            messageChannels,
-            engine
-        );
+        const suggestionMessages = this.getSuggestionMessages(controlledPower, messageChannels, engine);
 
         const suggestedMessagesForCurrentPower = this.getSuggestedMessages(
             controlledPower,
             protagonist,
             isAdmin,
             engine,
-            suggestionMessages
+            suggestionMessages,
         );
 
         return suggestedMessagesForCurrentPower.length > 0;
@@ -1690,11 +1490,7 @@ export class ContentGame extends React.Component {
 
     countUnreadMessages(engine, role, protagonist) {
         let messageChannels = engine.getMessageChannels(role, true);
-        if (
-            engine.role === "omniscient_type" ||
-            engine.role === "observer_type" ||
-            engine.role === "master_type"
-        )
+        if (engine.role === "omniscient_type" || engine.role === "observer_type" || engine.role === "master_type")
             return 0;
 
         const controlledPower = this.getCurrentPowerName();
@@ -1708,9 +1504,7 @@ export class ContentGame extends React.Component {
                     message.sender === protagonist &&
                     message.recipient === controlledPower &&
                     !message.recipient_annotation &&
-                    !this.state.annotatedMessages.hasOwnProperty(
-                        message.time_sent
-                    )
+                    !this.state.annotatedMessages.hasOwnProperty(message.time_sent)
                 ) {
                     count++;
                 }
@@ -1735,10 +1529,7 @@ export class ContentGame extends React.Component {
         // For `Array.flatMap()` explanation, see
         // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/flatMap#for_adding_and_removing_items_during_a_map
         const suggestionMessages = globalMessages.flatMap((msg) => {
-            if (
-                !suggestionMessageTypes.includes(msg.type) ||
-                msg.phase !== engine.phase
-            ) {
+            if (!suggestionMessageTypes.includes(msg.type) || msg.phase !== engine.phase) {
                 return [];
             }
             const parsed = JSON.parse(msg.message);
@@ -1753,15 +1544,13 @@ export class ContentGame extends React.Component {
     }
 
     hasSuggestionType(suggestionTypeValue, suggestionTypeToMatch) {
-        return suggestionTypeValue !== null && (suggestionTypeValue & suggestionTypeToMatch) === suggestionTypeToMatch
+        return suggestionTypeValue !== null && (suggestionTypeValue & suggestionTypeToMatch) === suggestionTypeToMatch;
     }
 
     getSuggestionType(currentPowerName, engine, globalMessages) {
         let suggestionType = UTILS.SuggestionType.NONE;
 
-        const powerSuggestions = globalMessages.filter(
-            (msg) => msg.type === STRINGS.HAS_SUGGESTIONS
-        );
+        const powerSuggestions = globalMessages.filter((msg) => msg.type === STRINGS.HAS_SUGGESTIONS);
         powerSuggestions.forEach((msg) => {
             suggestionType |= msg.parsed.payload;
         });
@@ -1775,9 +1564,7 @@ export class ContentGame extends React.Component {
 
     getSuggestedMoves(currentPowerName, engine, globalMessages) {
         const receivedSuggestions = globalMessages.filter(
-            (msg) =>
-                msg.type === STRINGS.SUGGESTED_MOVE_FULL ||
-                msg.type === STRINGS.SUGGESTED_MOVE_PARTIAL
+            (msg) => msg.type === STRINGS.SUGGESTED_MOVE_FULL || msg.type === STRINGS.SUGGESTED_MOVE_PARTIAL,
         );
 
         return receivedSuggestions;
@@ -1787,11 +1574,7 @@ export class ContentGame extends React.Component {
         let latestMoveSuggestion = null;
         for (const msg of receivedSuggestions) {
             if (msg.type === suggestionType) {
-                if (
-                    !latestMoveSuggestion ||
-                    msg.time_sent > latestMoveSuggestion.time_sent
-                )
-                    latestMoveSuggestion = msg;
+                if (!latestMoveSuggestion || msg.time_sent > latestMoveSuggestion.time_sent) latestMoveSuggestion = msg;
             }
         }
 
@@ -1817,25 +1600,17 @@ export class ContentGame extends React.Component {
             time_sent: latestMoveSuggestion.time_sent,
         };
         if (suggestionType === STRINGS.SUGGESTED_MOVE_PARTIAL) {
-            suggestion.givenMoves =
-                latestMoveSuggestion.parsed.payload.player_orders;
+            suggestion.givenMoves = latestMoveSuggestion.parsed.payload.player_orders;
         }
         return suggestion;
     }
 
-    getSuggestedMessages(
-        currentPowerName,
-        protagonist,
-        isAdmin,
-        engine,
-        globalMessages
-    ) {
+    getSuggestedMessages(currentPowerName, protagonist, isAdmin, engine, globalMessages) {
         const receivedSuggestions = globalMessages.filter(
             (msg) =>
                 msg.type === STRINGS.SUGGESTED_MESSAGE &&
                 msg.parsed.payload.recipient === protagonist &&
-                (isAdmin ||
-                    !this.state.annotatedMessages.hasOwnProperty(msg.time_sent))
+                (isAdmin || !this.state.annotatedMessages.hasOwnProperty(msg.time_sent)),
         );
 
         const suggestedMessages = receivedSuggestions.map((msg) => {
@@ -1849,18 +1624,11 @@ export class ContentGame extends React.Component {
         return suggestedMessages;
     }
 
-    getSuggestedCommentary(
-        currentPowerName,
-        protagonist,
-        isAdmin,
-        engine,
-        globalMessages
-    ) {
+    getSuggestedCommentary(currentPowerName, protagonist, isAdmin, engine, globalMessages) {
         const receivedSuggestions = globalMessages.filter(
             (msg) =>
                 msg.type === STRINGS.SUGGESTED_COMMENTARY &&
-                (isAdmin ||
-                    !this.state.annotatedMessages.hasOwnProperty(msg.time_sent))
+                (isAdmin || !this.state.annotatedMessages.hasOwnProperty(msg.time_sent)),
         );
 
         const suggestedCommentary = receivedSuggestions.map((msg) => {
@@ -1885,24 +1653,16 @@ export class ContentGame extends React.Component {
 
     renderCurrentMessages(engine, role, isWide) {
         const isAdmin =
-            engine.role === "omniscient_type" ||
-            engine.role === "master_type" ||
-            engine.role === "observer_type";
+            engine.role === "omniscient_type" || engine.role === "master_type" || engine.role === "observer_type";
 
         const controllablePowers = engine.getControllablePowers();
-        const currentPowerName =
-            this.state.power ||
-            (controllablePowers.length ? controllablePowers[0] : null);
+        const currentPowerName = this.state.power || (controllablePowers.length ? controllablePowers[0] : null);
 
         const messageChannels = engine.getMessageChannels(role, true);
 
-        const filteredMessageChannels = this.blurMessages(
-            engine,
-            messageChannels
-        );
+        const filteredMessageChannels = this.blurMessages(engine, messageChannels);
         const tabNames = [];
-        for (let powerName of Object.keys(engine.powers))
-            if (powerName !== role) tabNames.push(powerName);
+        for (let powerName of Object.keys(engine.powers)) if (powerName !== role) tabNames.push(powerName);
         tabNames.sort();
         const currentTabId = this.state.tabCurrentMessages || tabNames[0];
 
@@ -1921,10 +1681,12 @@ export class ContentGame extends React.Component {
                                 onChange={(e) => {
                                     this.handleStance(
                                         protagonist,
-                                        e.target.checked ? UTILS.Stance.ALLY : UTILS.Stance.NON_ALLY
+                                        e.target.checked ? UTILS.Stance.ALLY : UTILS.Stance.NON_ALLY,
                                     );
-                                    this.setState({stanceChanged: true});
-                                    console.log(`Stance changed for ${protagonist} to ${e.target.checked ? UTILS.Stance.ALLY : UTILS.Stance.NON_ALLY}`);
+                                    this.setState({ stanceChanged: true });
+                                    console.log(
+                                        `Stance changed for ${protagonist} to ${e.target.checked ? UTILS.Stance.ALLY : UTILS.Stance.NON_ALLY}`,
+                                    );
                                 }}
                                 checked={this.state.stances[protagonist] === UTILS.Stance.ALLY}
                             ></Switch>
@@ -1932,11 +1694,7 @@ export class ContentGame extends React.Component {
                         </div>
                     )
                 }
-                className={
-                    protagonist === currentTabId
-                        ? "cs-conversation--active"
-                        : null
-                }
+                className={protagonist === currentTabId ? "cs-conversation--active" : null}
                 onClick={() => {
                     this.onChangeTabCurrentMessages(protagonist);
                 }}
@@ -1945,11 +1703,7 @@ export class ContentGame extends React.Component {
                 unreadCnt={this.countUnreadMessages(engine, role, protagonist)}
                 unreadDot={this.hasUnreadAdvice(engine, role, protagonist)}
             >
-                <Avatar
-                    src={POWER_ICONS[protagonist]}
-                    name={protagonist}
-                    size="sm"
-                />
+                <Avatar src={POWER_ICONS[protagonist]} name={protagonist} size="sm" />
             </Conversation>
         ));
 
@@ -1973,11 +1727,7 @@ export class ContentGame extends React.Component {
                 : msg.message;
 
             if (curPhase !== prevPhase) {
-                renderedMessages.push(
-                    <MessageSeparator key={msg.phase}>
-                        {curPhase}
-                    </MessageSeparator>
-                );
+                renderedMessages.push(<MessageSeparator key={msg.phase}>{curPhase}</MessageSeparator>);
                 prevPhase = curPhase;
             }
             let messageId = msg.sender + "-" + msg.time_sent.toString();
@@ -1998,7 +1748,7 @@ export class ContentGame extends React.Component {
                 >
                     <Avatar src={POWER_ICONS[sender]} name={sender} size="sm" />
                     <ChatMessage.HtmlContent html={html} />
-                </ChatMessage>
+                </ChatMessage>,
             );
 
             if (dir === "incoming") {
@@ -2017,18 +1767,11 @@ export class ContentGame extends React.Component {
                                     value="yes"
                                     name={messageId}
                                     checked={
-                                        this.state.annotatedMessages.hasOwnProperty(
-                                            msg.time_sent
-                                        ) &&
-                                        this.state.annotatedMessages[
-                                            msg.time_sent
-                                        ] === "yes"
+                                        this.state.annotatedMessages.hasOwnProperty(msg.time_sent) &&
+                                        this.state.annotatedMessages[msg.time_sent] === "yes"
                                     }
                                     onChange={() => {
-                                        this.handleRecipientAnnotation(
-                                            msg.time_sent,
-                                            "yes"
-                                        );
+                                        this.handleRecipientAnnotation(msg.time_sent, "yes");
                                     }}
                                     disabled={
                                         engine.role === "omniscient_type" ||
@@ -2042,19 +1785,10 @@ export class ContentGame extends React.Component {
                                     value="none"
                                     name={messageId}
                                     checked={
-                                        this.state.annotatedMessages.hasOwnProperty(
-                                            msg.time_sent
-                                        ) &&
-                                        this.state.annotatedMessages[
-                                            msg.time_sent
-                                        ] === "None"
+                                        this.state.annotatedMessages.hasOwnProperty(msg.time_sent) &&
+                                        this.state.annotatedMessages[msg.time_sent] === "None"
                                     }
-                                    onChange={() =>
-                                        this.handleRecipientAnnotation(
-                                            msg.time_sent,
-                                            "None"
-                                        )
-                                    }
+                                    onChange={() => this.handleRecipientAnnotation(msg.time_sent, "None")}
                                     disabled={
                                         engine.role === "omniscient_type" ||
                                         engine.role === "observer_type" ||
@@ -2064,7 +1798,7 @@ export class ContentGame extends React.Component {
                                 no
                             </Col>
                         </div>
-                    </div>
+                    </div>,
                 );
             }
         }
@@ -2072,23 +1806,16 @@ export class ContentGame extends React.Component {
         const phaseType = engine.getPhaseType();
 
         return (
-            <Box
-                className={isWide ? "col-12 mb-4" : "col-6 mb-4"}
-                style={{ height: "500px" }}
-            >
+            <Box className={isWide ? "col-12 mb-4" : "col-6 mb-4"} style={{ height: "500px" }}>
                 <Grid container spacing={2}>
                     <Grid item xs={12} sx={{ height: "100%" }}>
                         <Box sx={{ width: "100%", height: "550px" }}>
                             <MainContainer responsive>
                                 <Sidebar position="left" scrollable={true}>
-                                    <ConversationList>
-                                        {convList}
-                                    </ConversationList>
+                                    <ConversationList>{convList}</ConversationList>
                                 </Sidebar>
                                 <ChatContainer>
-                                    <MessageList>
-                                        {renderedMessages}
-                                    </MessageList>
+                                    <MessageList>{renderedMessages}</MessageList>
                                 </ChatContainer>
                             </MainContainer>
                             {engine.isPlayerGame() && (
@@ -2096,43 +1823,21 @@ export class ContentGame extends React.Component {
                                     <textarea
                                         style={{ resize: "both" }}
                                         cols={30}
-                                        onChange={(val) =>
-                                            this.setMessageInputValue(
-                                                val.target.value
-                                            )
-                                        }
+                                        onChange={(val) => this.setMessageInputValue(val.target.value)}
                                         value={this.state.message}
                                         disabled={
                                             phaseType === "M" &&
                                             (!this.state.hasInitialOrders ||
-                                                (this.__get_orders(engine)[
-                                                    currentPowerName
-                                                ] &&
-                                                    Object.keys(
-                                                        this.__get_orders(
-                                                            engine
-                                                        )[currentPowerName]
-                                                    ).length <
-                                                        engine
-                                                            .orderableLocations[
-                                                            currentPowerName
-                                                        ].length))
+                                                (this.__get_orders(engine)[currentPowerName] &&
+                                                    Object.keys(this.__get_orders(engine)[currentPowerName]).length <
+                                                        engine.orderableLocations[currentPowerName].length))
                                         }
                                         placeholder={
                                             phaseType === "M" &&
                                             (!this.state.hasInitialOrders ||
-                                                (this.__get_orders(engine)[
-                                                    currentPowerName
-                                                ] &&
-                                                    Object.keys(
-                                                        this.__get_orders(
-                                                            engine
-                                                        )[currentPowerName]
-                                                    ).length <
-                                                        engine
-                                                            .orderableLocations[
-                                                            currentPowerName
-                                                        ].length))
+                                                (this.__get_orders(engine)[currentPowerName] &&
+                                                    Object.keys(this.__get_orders(engine)[currentPowerName]).length <
+                                                        engine.orderableLocations[currentPowerName].length))
                                                 ? "You need to set orders for all units before sending messages."
                                                 : ""
                                         }
@@ -2164,7 +1869,7 @@ export class ContentGame extends React.Component {
                                                 currentTabId,
                                                 this.state.message,
                                                 "Lie",
-                                                null
+                                                null,
                                             );
                                             this.setMessageInputValue("");
                                         }}
@@ -2185,18 +1890,11 @@ export class ContentGame extends React.Component {
                 <Map
                     game={gameEngine}
                     showAbbreviations={this.state.showAbbreviations}
-                    mapData={
-                        new MapData(
-                            this.getMapInfo(gameEngine.map_name),
-                            gameEngine
-                        )
-                    }
+                    mapData={new MapData(this.getMapInfo(gameEngine.map_name), gameEngine)}
                     onError={this.getPage().error}
                     orders={
                         (showOrders &&
-                            gameEngine.order_history.contains(
-                                gameEngine.phase
-                            ) &&
+                            gameEngine.order_history.contains(gameEngine.phase) &&
                             gameEngine.order_history.get(gameEngine.phase)) ||
                         null
                     }
@@ -2214,8 +1912,7 @@ export class ContentGame extends React.Component {
         for (let entry of Object.entries(rawOrders)) {
             orders[entry[0]] = [];
             if (entry[1]) {
-                for (let orderObject of Object.values(entry[1]))
-                    orders[entry[0]].push(orderObject.order);
+                for (let orderObject of Object.values(entry[1])) orders[entry[0]].push(orderObject.order);
             }
         }
         for (let oo of this.state.hoverOrders) {
@@ -2227,18 +1924,9 @@ export class ContentGame extends React.Component {
                 <Map
                     game={gameEngine}
                     showAbbreviations={this.state.showAbbreviations}
-                    mapData={
-                        new MapData(
-                            this.getMapInfo(gameEngine.map_name),
-                            gameEngine
-                        )
-                    }
+                    mapData={new MapData(this.getMapInfo(gameEngine.map_name), gameEngine)}
                     onError={this.getPage().error}
-                    orderBuilding={ContentGame.getOrderBuilding(
-                        powerName,
-                        orderType,
-                        orderPath
-                    )}
+                    orderBuilding={ContentGame.getOrderBuilding(powerName, orderType, orderPath)}
                     onOrderBuilding={this.onOrderBuilding}
                     onOrderBuilt={this.onOrderBuilt}
                     orders={orders}
@@ -2256,16 +1944,11 @@ export class ContentGame extends React.Component {
     }
 
     __get_engine_to_display(initialEngine) {
-        const pastPhases = initialEngine.state_history
-            .values()
-            .map((state) => state.name);
+        const pastPhases = initialEngine.state_history.values().map((state) => state.name);
         pastPhases.push(initialEngine.phase);
         let phaseIndex = 0;
         if (initialEngine.displayed) {
-            if (
-                this.state.historyPhaseIndex === null ||
-                this.state.historyPhaseIndex >= pastPhases.length
-            ) {
+            if (this.state.historyPhaseIndex === null || this.state.historyPhaseIndex >= pastPhases.length) {
                 phaseIndex = pastPhases.length - 1;
             } else if (this.state.historyPhaseIndex < 0) {
                 phaseIndex = pastPhases.length + this.state.historyPhaseIndex;
@@ -2318,14 +2001,11 @@ export class ContentGame extends React.Component {
     }
 
     renderTabResults(toDisplay, initialEngine) {
-        const { engine, pastPhases, phaseIndex } =
-            this.__get_engine_to_display(initialEngine);
+        const { engine, pastPhases, phaseIndex } = this.__get_engine_to_display(initialEngine);
         let orders = {};
         let orderResult = null;
-        if (engine.order_history.contains(engine.phase))
-            orders = engine.order_history.get(engine.phase);
-        if (engine.result_history.contains(engine.phase))
-            orderResult = engine.result_history.get(engine.phase);
+        if (engine.order_history.contains(engine.phase)) orders = engine.order_history.get(engine.phase);
+        if (engine.result_history.contains(engine.phase)) orderResult = engine.result_history.get(engine.phase);
         let countOrders = 0;
         for (let powerOrders of Object.values(orders)) {
             if (powerOrders) countOrders += powerOrders.length;
@@ -2344,12 +2024,9 @@ export class ContentGame extends React.Component {
                     for (let r of resultsToParse) {
                         if (results.length) results.push(", ");
                         results.push(
-                            <span
-                                key={results.length}
-                                className={r || "success"}
-                            >
+                            <span key={results.length} className={r || "success"}>
                                 {r || "OK"}
-                            </span>
+                            </span>,
                         );
                     }
                     return <span className={"order-result"}> ({results})</span>;
@@ -2366,9 +2043,7 @@ export class ContentGame extends React.Component {
                             ""
                         ) : (
                             <div key={powerName} className={"row"}>
-                                <div className={"past-power-name col-sm-2"}>
-                                    {powerName}
-                                </div>
+                                <div className={"past-power-name col-sm-2"}>{powerName}</div>
                                 <div className={"past-power-orders col-sm-10"}>
                                     {orders[powerName].map((order, index) => (
                                         <div key={index}>
@@ -2378,7 +2053,7 @@ export class ContentGame extends React.Component {
                                     ))}
                                 </div>
                             </div>
-                        )
+                        ),
                     )}
                 </div>
             )) || (
@@ -2393,55 +2068,27 @@ export class ContentGame extends React.Component {
                 <Row>
                     <div className={"col-6"}>
                         {this.state.historyCurrentOrders && (
-                            <div className={"history-current-orders"}>
-                                {this.state.historyCurrentOrders.join(", ")}
-                            </div>
+                            <div className={"history-current-orders"}>{this.state.historyCurrentOrders.join(", ")}</div>
                         )}
-                        {this.renderMapForResults(
-                            engine,
-                            this.state.historyShowOrders
-                        )}
+                        {this.renderMapForResults(engine, this.state.historyShowOrders)}
                     </div>
                     <div className={"col-4"}>{orderView}</div>
                 </Row>
-                {toDisplay && (
-                    <HotKey
-                        keys={["arrowleft"]}
-                        onKeysCoincide={this.onDecrementPastPhase}
-                    />
-                )}
-                {toDisplay && (
-                    <HotKey
-                        keys={["arrowright"]}
-                        onKeysCoincide={this.onIncrementPastPhase}
-                    />
-                )}
-                {toDisplay && (
-                    <HotKey
-                        keys={["home"]}
-                        onKeysCoincide={this.displayFirstPastPhase}
-                    />
-                )}
-                {toDisplay && (
-                    <HotKey
-                        keys={["end"]}
-                        onKeysCoincide={this.displayLastPastPhase}
-                    />
-                )}
+                {toDisplay && <HotKey keys={["arrowleft"]} onKeysCoincide={this.onDecrementPastPhase} />}
+                {toDisplay && <HotKey keys={["arrowright"]} onKeysCoincide={this.onIncrementPastPhase} />}
+                {toDisplay && <HotKey keys={["home"]} onKeysCoincide={this.displayFirstPastPhase} />}
+                {toDisplay && <HotKey keys={["end"]} onKeysCoincide={this.displayLastPastPhase} />}
             </Tab>
         );
     }
 
     renderCentaurMessages(engine, role, isCurrent, isWide) {
         const isAdmin =
-            engine.role === "omniscient_type" ||
-            engine.role === "master_type" ||
-            engine.role === "observer_type";
+            engine.role === "omniscient_type" || engine.role === "master_type" || engine.role === "observer_type";
 
         // for filtering message suggestions based on the current power talking to
         const tabNames = [];
-        for (let powerName of Object.keys(engine.powers))
-            if (powerName !== role) tabNames.push(powerName);
+        for (let powerName of Object.keys(engine.powers)) if (powerName !== role) tabNames.push(powerName);
         tabNames.sort();
         let protagonist;
 
@@ -2461,9 +2108,7 @@ export class ContentGame extends React.Component {
         powerLogs.forEach((log) => {
             if (log.phase !== prevPhase) {
                 curPhase = log.phase;
-                renderedLogs.push(
-                    <MessageSeparator>{curPhase}</MessageSeparator>
-                );
+                renderedLogs.push(<MessageSeparator>{curPhase}</MessageSeparator>);
 
                 prevPhase = curPhase;
             }
@@ -2478,44 +2123,31 @@ export class ContentGame extends React.Component {
                         direction: "outgoing",
                         position: "single",
                     }}
-                ></ChatMessage>
+                ></ChatMessage>,
             );
         });
 
         const currentPowerName =
-            this.state.power ||
-            (engine.getControllablePowers().length &&
-                engine.getControllablePowers()[0]);
+            this.state.power || (engine.getControllablePowers().length && engine.getControllablePowers()[0]);
 
-        const messageChannels = engine.getMessageChannels(
-            currentPowerName,
-            true
-        );
-        const suggestionMessages = this.getSuggestionMessages(
-            currentPowerName,
-            messageChannels,
-            engine
-        );
+        const messageChannels = engine.getMessageChannels(currentPowerName, true);
+        const suggestionMessages = this.getSuggestionMessages(currentPowerName, messageChannels, engine);
 
-        const suggestionType = this.getSuggestionType(
-            currentPowerName,
-            engine,
-            suggestionMessages
-        );
+        const suggestionType = this.getSuggestionType(currentPowerName, engine, suggestionMessages);
 
         const suggestedMessagesForCurrentPower = this.getSuggestedMessages(
             currentPowerName,
             protagonist,
             isAdmin,
             engine,
-            suggestionMessages
+            suggestionMessages,
         );
         const suggestedCommentaryForCurrentPower = this.getSuggestedCommentary(
             currentPowerName,
             protagonist,
             isAdmin,
             engine,
-            suggestionMessages
+            suggestionMessages,
         );
         const curController = engine.powers[role].getController();
 
@@ -2524,58 +2156,41 @@ export class ContentGame extends React.Component {
                 <Grid container spacing={2}>
                     <Grid item xs={12} sx={{ height: "100%" }}>
                         <Box sx={{ width: "100%", height: "550px" }}>
-                            <Box
-                                sx={{ borderBottom: 1, borderColor: "divider" }}
-                            >
+                            <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
                                 <Tabs2
                                     value={this.state.tabVal}
                                     onChange={this.updateTabVal}
                                     aria-label="basic tabs example"
                                 >
-                                    <Tab2
-                                        label="Message Advice"
-                                        value="messages"
-                                    />
+                                    <Tab2 label="Message Advice" value="messages" />
                                     {this.hasSuggestionType(suggestionType, UTILS.SuggestionType.COMMENTARY) && (
-                                            <Tab2
-                                                label={
-                                                    this.state.showBadge ? (
-                                                        <Badge
-                                                            variant="dot"
-                                                            color="warning"
-                                                        ></Badge>
-                                                    ) : (
-                                                        <span
-                                                            sx={{
-                                                                marginRight:
-                                                                    "8px",
-                                                            }}
-                                                        >
-                                                            Commentary
-                                                        </span>
-                                                    )
-                                                }
-                                                value="commentary"
-                                                onClick={() => {
-                                                    if (isCurrent) {
-                                                        this.setState({
-                                                            tabCurrentMessages:
-                                                                this.state
-                                                                    .commentaryProtagonist,
-                                                            lastSwitchPanelTime:
-                                                                Date.now(),
-                                                        });
-                                                    } // make sure commentary tab is selected for the correct conversation
-                                                    this.updateReadCommentary();
-                                                }}
-                                            />
-                                        )}
-                                    {isAdmin && (
                                         <Tab2
-                                            label="Captain's Log"
-                                            value="intent-log"
+                                            label={
+                                                this.state.showBadge ? (
+                                                    <Badge variant="dot" color="warning"></Badge>
+                                                ) : (
+                                                    <span
+                                                        sx={{
+                                                            marginRight: "8px",
+                                                        }}
+                                                    >
+                                                        Commentary
+                                                    </span>
+                                                )
+                                            }
+                                            value="commentary"
+                                            onClick={() => {
+                                                if (isCurrent) {
+                                                    this.setState({
+                                                        tabCurrentMessages: this.state.commentaryProtagonist,
+                                                        lastSwitchPanelTime: Date.now(),
+                                                    });
+                                                } // make sure commentary tab is selected for the correct conversation
+                                                this.updateReadCommentary();
+                                            }}
                                         />
                                     )}
+                                    {isAdmin && <Tab2 label="Captain's Log" value="intent-log" />}
                                 </Tabs2>
                             </Box>
                             {this.state.tabVal === "messages" && (
@@ -2590,107 +2205,71 @@ export class ContentGame extends React.Component {
                                     }}
                                 >
                                     <ConversationHeader>
-                                        <ConversationHeader.Content
-                                            userName={`Messages Advice to ${protagonist}`}
-                                        />
+                                        <ConversationHeader.Content userName={`Messages Advice to ${protagonist}`} />
                                     </ConversationHeader>
 
                                     <MessageList>
-                                        {suggestedMessagesForCurrentPower.map(
-                                            (msg, i) => {
-                                                return (
+                                        {suggestedMessagesForCurrentPower.map((msg, i) => {
+                                            return (
+                                                <div
+                                                    style={{
+                                                        alignItems: "flex-end",
+                                                        display: !this.state.annotatedMessages.hasOwnProperty(
+                                                            msg.time_sent,
+                                                        )
+                                                            ? "flex"
+                                                            : "none",
+                                                        marginBottom: "2px",
+                                                    }}
+                                                >
+                                                    <ChatMessage
+                                                        style={{
+                                                            flexGrow: 1,
+                                                        }}
+                                                        model={{
+                                                            message: msg.message,
+                                                            sent: msg.time_sent,
+                                                            sender: msg.sender,
+                                                            direction: "incoming",
+                                                            position: "single",
+                                                        }}
+                                                        avatarPosition={"tl"}
+                                                    ></ChatMessage>
                                                     <div
                                                         style={{
-                                                            alignItems:
-                                                                "flex-end",
-                                                            display:
-                                                                !this.state.annotatedMessages.hasOwnProperty(
-                                                                    msg.time_sent
-                                                                )
-                                                                    ? "flex"
-                                                                    : "none",
-                                                            marginBottom: "2px",
+                                                            flexDirection: "column",
+                                                            flexGrow: 0,
+                                                            flexShrink: 0,
+                                                            display: "flex",
+                                                            alignItems: "flex-end",
                                                         }}
                                                     >
-                                                        <ChatMessage
-                                                            style={{
-                                                                flexGrow: 1,
-                                                            }}
-                                                            model={{
-                                                                message:
-                                                                    msg.message,
-                                                                sent: msg.time_sent,
-                                                                sender: msg.sender,
-                                                                direction:
-                                                                    "incoming",
-                                                                position:
-                                                                    "single",
-                                                            }}
-                                                            avatarPosition={
-                                                                "tl"
-                                                            }
-                                                        ></ChatMessage>
-                                                        <div
-                                                            style={{
-                                                                flexDirection: "column",
-                                                                flexGrow: 0,
-                                                                flexShrink: 0,
-                                                                display: "flex",
-                                                                alignItems:
-                                                                    "flex-end",
-                                                            }}
-                                                        >
-                                                            <Button
-                                                                key={"a"}
-                                                                pickEvent={true}
-                                                                title={
-                                                                    "add to textbox"
-                                                                }
-                                                                color={
-                                                                    "success"
-                                                                }
-                                                                onClick={() => {
-                                                                    this.setMessageInputValue(
-                                                                        msg.message
-                                                                    );
+                                                        <Button
+                                                            key={"a"}
+                                                            pickEvent={true}
+                                                            title={"add to textbox"}
+                                                            color={"success"}
+                                                            onClick={() => {
+                                                                this.setMessageInputValue(msg.message);
 
-                                                                    this.handleRecipientAnnotation(
-                                                                        msg.time_sent,
-                                                                        "accept"
-                                                                    );
-                                                                }}
-                                                                invisible={
-                                                                    !(
-                                                                        isCurrent &&
-                                                                        !isAdmin
-                                                                    )
-                                                                }
-                                                            ></Button>
-                                                            <Button
-                                                                key={"r"}
-                                                                pickEvent={true}
-                                                                title={
-                                                                    "✕"
-                                                                }
-                                                                color={"danger"}
-                                                                onClick={() => {
-                                                                    this.handleRecipientAnnotation(
-                                                                        msg.time_sent,
-                                                                        "reject"
-                                                                    );
-                                                                }}
-                                                                invisible={
-                                                                    !(
-                                                                        isCurrent &&
-                                                                        !isAdmin
-                                                                    )
-                                                                }
-                                                            ></Button>
-                                                        </div>
+                                                                this.handleRecipientAnnotation(msg.time_sent, "accept");
+                                                            }}
+                                                            invisible={!(isCurrent && !isAdmin)}
+                                                        ></Button>
+                                                        <Button
+                                                            key={"r"}
+                                                            pickEvent={true}
+                                                            title={"✕"}
+                                                            color={"danger"}
+                                                            onClick={() => {
+                                                                this.handleRecipientAnnotation(msg.time_sent, "reject");
+                                                            }}
+                                                            invisible={!(isCurrent && !isAdmin)}
+                                                        ></Button>
                                                     </div>
-                                                );
-                                            }
-                                        )}
+                                                </div>
+                                            );
+                                        })}
                                     </MessageList>
                                 </ChatContainer>
                             )}
@@ -2699,50 +2278,37 @@ export class ContentGame extends React.Component {
                                 <MainContainer responsive>
                                     <ChatContainer>
                                         <ConversationHeader>
-                                            <ConversationHeader.Content
-                                                userName={
-                                                    "Commentary"
-                                                }
-                                            />
+                                            <ConversationHeader.Content userName={"Commentary"} />
                                         </ConversationHeader>
                                         <MessageList>
-                                            {suggestedCommentaryForCurrentPower.map(
-                                                (com, i) => {
-                                                    return (
-                                                        <div
+                                            {suggestedCommentaryForCurrentPower.map((com, i) => {
+                                                return (
+                                                    <div
+                                                        style={{
+                                                            alignItems: "flex-end",
+                                                            display: !this.state.annotatedMessages.hasOwnProperty(
+                                                                com.time_sent,
+                                                            )
+                                                                ? "flex"
+                                                                : "none",
+                                                        }}
+                                                    >
+                                                        <ChatMessage
                                                             style={{
-                                                                alignItems:
-                                                                    "flex-end",
-                                                                display:
-                                                                    !this.state.annotatedMessages.hasOwnProperty(
-                                                                        com.time_sent
-                                                                    )
-                                                                        ? "flex"
-                                                                        : "none",
+                                                                flexGrow: 1,
                                                             }}
-                                                        >
-                                                            <ChatMessage
-                                                                style={{
-                                                                    flexGrow: 1,
-                                                                }}
-                                                                model={{
-                                                                    message:
-                                                                        com.commentary,
-                                                                    sent: com.time_sent,
-                                                                    sender: com.sender,
-                                                                    direction:
-                                                                        "incoming",
-                                                                    position:
-                                                                        "single",
-                                                                }}
-                                                                avatarPosition={
-                                                                    "tl"
-                                                                }
-                                                            ></ChatMessage>
-                                                        </div>
-                                                    );
-                                                }
-                                            )}
+                                                            model={{
+                                                                message: com.commentary,
+                                                                sent: com.time_sent,
+                                                                sender: com.sender,
+                                                                direction: "incoming",
+                                                                position: "single",
+                                                            }}
+                                                            avatarPosition={"tl"}
+                                                        ></ChatMessage>
+                                                    </div>
+                                                );
+                                            })}
                                         </MessageList>
                                         {}
                                     </ChatContainer>
@@ -2755,30 +2321,17 @@ export class ContentGame extends React.Component {
                                         <ConversationHeader>
                                             <ConversationHeader.Content
                                                 userName={
-                                                    role.toString() +
-                                                    " (" +
-                                                    curController +
-                                                    ")" +
-                                                    ": Captain's Log"
+                                                    role.toString() + " (" + curController + ")" + ": Captain's Log"
                                                 }
                                             />
                                         </ConversationHeader>
-                                        <MessageList>
-                                            {renderedLogs}
-                                        </MessageList>
+                                        <MessageList>{renderedLogs}</MessageList>
                                         {engine.isPlayerGame() && (
                                             <MessageInput
                                                 attachButton={false}
-                                                onChange={(val) =>
-                                                    this.setlogDataInputValue(
-                                                        val
-                                                    )
-                                                }
+                                                onChange={(val) => this.setlogDataInputValue(val)}
                                                 onSend={() => {
-                                                    this.sendLogData(
-                                                        engine.client,
-                                                        this.state.logData
-                                                    );
+                                                    this.sendLogData(engine.client, this.state.logData);
                                                 }}
                                             />
                                         )}
@@ -2794,51 +2347,31 @@ export class ContentGame extends React.Component {
 
     renderCurrentCentaur(engine, role, isCurrent) {
         const isAdmin =
-            engine.role === "omniscient_type" ||
-            engine.role === "master_type" ||
-            engine.role === "observer_type";
+            engine.role === "omniscient_type" || engine.role === "master_type" || engine.role === "observer_type";
 
         // for filtering message suggestions based on the current power talking to
         const tabNames = [];
-        for (let powerName of Object.keys(engine.powers))
-            if (powerName !== role) tabNames.push(powerName);
+        for (let powerName of Object.keys(engine.powers)) if (powerName !== role) tabNames.push(powerName);
         tabNames.sort();
 
         const currentPowerName =
-            this.state.power ||
-            (engine.getControllablePowers().length &&
-                engine.getControllablePowers()[0]);
+            this.state.power || (engine.getControllablePowers().length && engine.getControllablePowers()[0]);
 
-        const messageChannels = engine.getMessageChannels(
-            currentPowerName,
-            true
-        );
-        const suggestionMessages = this.getSuggestionMessages(
-            currentPowerName,
-            messageChannels,
-            engine
-        );
+        const messageChannels = engine.getMessageChannels(currentPowerName, true);
+        const suggestionMessages = this.getSuggestionMessages(currentPowerName, messageChannels, engine);
 
-        const suggestionType = this.getSuggestionType(
-            currentPowerName,
-            engine,
-            suggestionMessages
-        );
+        const suggestionType = this.getSuggestionType(currentPowerName, engine, suggestionMessages);
 
-        const moveSuggestionForCurrentPower = this.getSuggestedMoves(
-            currentPowerName,
-            engine,
-            suggestionMessages
-        );
+        const moveSuggestionForCurrentPower = this.getSuggestedMoves(currentPowerName, engine, suggestionMessages);
 
         // display only the latest to avoid cluttering textbox
         let latestMoveSuggestionFull = this.getLatestSuggestedMoves(
             moveSuggestionForCurrentPower,
-            STRINGS.SUGGESTED_MOVE_FULL
+            STRINGS.SUGGESTED_MOVE_FULL,
         );
         let latestMoveSuggestionPartial = this.getLatestSuggestedMoves(
             moveSuggestionForCurrentPower,
-            STRINGS.SUGGESTED_MOVE_PARTIAL
+            STRINGS.SUGGESTED_MOVE_PARTIAL,
         );
 
         let fullSuggestionComponent = null;
@@ -2846,64 +2379,59 @@ export class ContentGame extends React.Component {
         let distributionSuggestionComponent = null;
 
         if (latestMoveSuggestionFull) {
-            const fullSuggestionMessages = latestMoveSuggestionFull.moves.map(
-                (move, index) => {
-                    return (
+            const fullSuggestionMessages = latestMoveSuggestionFull.moves.map((move, index) => {
+                return (
+                    <div
+                        style={{
+                            display: "flex",
+                            alignItems: "flex-end",
+                        }}
+                        onMouseEnter={() => {
+                            let newMoves = [move];
+                            this.setState({ hoverOrders: newMoves });
+                        }}
+                        onMouseLeave={() => {
+                            this.setState({ hoverOrders: [] });
+                        }}
+                    >
+                        <ChatMessage
+                            style={{ flexGrow: 1 }}
+                            model={{
+                                message: move,
+                                sent: latestMoveSuggestionFull.time_sent,
+                                sender: latestMoveSuggestionFull.sender,
+                                direction: "incoming",
+                                position: "single",
+                            }}
+                            avatarPosition={"tl"}
+                        ></ChatMessage>
                         <div
                             style={{
+                                flexGrow: 0,
+                                flexShrink: 0,
                                 display: "flex",
                                 alignItems: "flex-end",
                             }}
-                            onMouseEnter={() => {
-                                let newMoves = [move];
-                                this.setState({ hoverOrders: newMoves });
-                            }}
-                            onMouseLeave={() => {
-                                this.setState({ hoverOrders: [] });
-                            }}
                         >
-                            <ChatMessage
-                                style={{ flexGrow: 1 }}
-                                model={{
-                                    message: move,
-                                    sent: latestMoveSuggestionFull.time_sent,
-                                    sender: latestMoveSuggestionFull.sender,
-                                    direction: "incoming",
-                                    position: "single",
-                                }}
-                                avatarPosition={"tl"}
-                            ></ChatMessage>
-                            <div
-                                style={{
-                                    flexGrow: 0,
-                                    flexShrink: 0,
-                                    display: "flex",
-                                    alignItems: "flex-end",
-                                }}
-                            >
-                                <Button
-                                    key={"a"}
-                                    pickEvent={true}
-                                    title={"+"}
-                                    color={"success"}
-                                    onClick={() => {
-                                        this.onOrderBuilt(
-                                            currentPowerName,
-                                            move
-                                        );
+                            <Button
+                                key={"a"}
+                                pickEvent={true}
+                                title={"+"}
+                                color={"success"}
+                                onClick={() => {
+                                    this.onOrderBuilt(currentPowerName, move);
 
-                                        this.handleRecipientAnnotation(
-                                            latestMoveSuggestionFull.time_sent,
-                                            `accept ${move}`
-                                        );
-                                    }}
-                                    invisible={!(isCurrent && !isAdmin)}
-                                ></Button>
-                            </div>
+                                    this.handleRecipientAnnotation(
+                                        latestMoveSuggestionFull.time_sent,
+                                        `accept ${move}`,
+                                    );
+                                }}
+                                invisible={!(isCurrent && !isAdmin)}
+                            ></Button>
                         </div>
-                    );
-                }
-            );
+                    </div>
+                );
+            });
 
             fullSuggestionComponent = (
                 <div>
@@ -2949,16 +2477,10 @@ export class ContentGame extends React.Component {
                                 color={"success"}
                                 onClick={async () => {
                                     for (let move of latestMoveSuggestionFull.moves) {
-                                        await this.onOrderBuilt(
-                                            currentPowerName,
-                                            move
-                                        );
+                                        await this.onOrderBuilt(currentPowerName, move);
                                     }
 
-                                    this.handleRecipientAnnotation(
-                                        latestMoveSuggestionFull.time_sent,
-                                        "accept all"
-                                    );
+                                    this.handleRecipientAnnotation(latestMoveSuggestionFull.time_sent, "accept all");
                                 }}
                                 invisible={!(isCurrent && !isAdmin)}
                             ></Button>
@@ -2971,10 +2493,7 @@ export class ContentGame extends React.Component {
                                     this.setState({
                                         hoverOrders: [],
                                     });
-                                    this.handleRecipientAnnotation(
-                                        latestMoveSuggestionFull.time_sent,
-                                        "reject"
-                                    );
+                                    this.handleRecipientAnnotation(latestMoveSuggestionFull.time_sent, "reject");
                                 }}
                                 invisible={!(isCurrent && !isAdmin)}
                             ></Button>
@@ -2986,63 +2505,59 @@ export class ContentGame extends React.Component {
         }
 
         if (latestMoveSuggestionPartial) {
-            const partialSuggestionMessages =
-                latestMoveSuggestionPartial.moves.map((move, index) => {
-                    return (
+            const partialSuggestionMessages = latestMoveSuggestionPartial.moves.map((move, index) => {
+                return (
+                    <div
+                        style={{
+                            display: "flex",
+                            alignItems: "flex-end",
+                        }}
+                        onMouseEnter={() => {
+                            let newMoves = [move];
+                            this.setState({ hoverOrders: newMoves });
+                        }}
+                        onMouseLeave={() => {
+                            this.setState({ hoverOrders: [] });
+                        }}
+                    >
+                        <ChatMessage
+                            style={{ flexGrow: 1 }}
+                            model={{
+                                message: move,
+                                sent: latestMoveSuggestionPartial.time_sent,
+                                sender: latestMoveSuggestionPartial.sender,
+                                direction: "incoming",
+                                position: "single",
+                            }}
+                            avatarPosition={"tl"}
+                        ></ChatMessage>
                         <div
                             style={{
+                                flexGrow: 0,
+                                flexShrink: 0,
                                 display: "flex",
                                 alignItems: "flex-end",
                             }}
-                            onMouseEnter={() => {
-                                let newMoves = [move];
-                                this.setState({ hoverOrders: newMoves });
-                            }}
-                            onMouseLeave={() => {
-                                this.setState({ hoverOrders: [] });
-                            }}
                         >
-                            <ChatMessage
-                                style={{ flexGrow: 1 }}
-                                model={{
-                                    message: move,
-                                    sent: latestMoveSuggestionPartial.time_sent,
-                                    sender: latestMoveSuggestionPartial.sender,
-                                    direction: "incoming",
-                                    position: "single",
-                                }}
-                                avatarPosition={"tl"}
-                            ></ChatMessage>
-                            <div
-                                style={{
-                                    flexGrow: 0,
-                                    flexShrink: 0,
-                                    display: "flex",
-                                    alignItems: "flex-end",
-                                }}
-                            >
-                                <Button
-                                    key={"a"}
-                                    pickEvent={true}
-                                    title={"+"}
-                                    color={"success"}
-                                    onClick={() => {
-                                        this.onOrderBuilt(
-                                            currentPowerName,
-                                            move
-                                        );
+                            <Button
+                                key={"a"}
+                                pickEvent={true}
+                                title={"+"}
+                                color={"success"}
+                                onClick={() => {
+                                    this.onOrderBuilt(currentPowerName, move);
 
-                                        this.handleRecipientAnnotation(
-                                            latestMoveSuggestionPartial.time_sent,
-                                            `accept ${move}`
-                                        );
-                                    }}
-                                    invisible={!(isCurrent && !isAdmin)}
-                                ></Button>
-                            </div>
+                                    this.handleRecipientAnnotation(
+                                        latestMoveSuggestionPartial.time_sent,
+                                        `accept ${move}`,
+                                    );
+                                }}
+                                invisible={!(isCurrent && !isAdmin)}
+                            ></Button>
                         </div>
-                    );
-                });
+                    </div>
+                );
+            });
 
             partialSuggestionComponent = (
                 <div>
@@ -3065,9 +2580,7 @@ export class ContentGame extends React.Component {
                         <ChatMessage
                             style={{ flexGrow: 1 }}
                             model={{
-                                message: `Advice based on ${latestMoveSuggestionPartial.givenMoves.join(
-                                    ", "
-                                )}:`,
+                                message: `Advice based on ${latestMoveSuggestionPartial.givenMoves.join(", ")}:`,
                                 sent: latestMoveSuggestionPartial.time_sent,
                                 sender: latestMoveSuggestionPartial.sender,
                                 direction: "incoming",
@@ -3090,16 +2603,10 @@ export class ContentGame extends React.Component {
                                 color={"success"}
                                 onClick={async () => {
                                     for (let move of latestMoveSuggestionPartial.moves) {
-                                        await this.onOrderBuilt(
-                                            currentPowerName,
-                                            move
-                                        );
+                                        await this.onOrderBuilt(currentPowerName, move);
                                     }
 
-                                    this.handleRecipientAnnotation(
-                                        latestMoveSuggestionPartial.time_sent,
-                                        "accept all"
-                                    );
+                                    this.handleRecipientAnnotation(latestMoveSuggestionPartial.time_sent, "accept all");
                                 }}
                                 invisible={!(isCurrent && !isAdmin)}
                             ></Button>
@@ -3109,10 +2616,7 @@ export class ContentGame extends React.Component {
                                 title={"✕"}
                                 color={"danger"}
                                 onClick={() => {
-                                    this.handleRecipientAnnotation(
-                                        latestMoveSuggestionPartial.time_sent,
-                                        "reject"
-                                    );
+                                    this.handleRecipientAnnotation(latestMoveSuggestionPartial.time_sent, "reject");
                                 }}
                                 invisible={!(isCurrent && !isAdmin)}
                             ></Button>
@@ -3123,16 +2627,19 @@ export class ContentGame extends React.Component {
             );
         }
 
-        if (this.hasSuggestionType(suggestionType, UTILS.SuggestionType.MOVE_DISTRIBUTION_TEXTUAL)
-            && this.state.orderDistribution.length > 0){
+        if (
+            this.hasSuggestionType(suggestionType, UTILS.SuggestionType.MOVE_DISTRIBUTION_TEXTUAL) &&
+            this.state.orderDistribution.length > 0
+        ) {
             /** render messages that outlines the probability of all possible orders for a selected province*/
-            var orderDistribution = this.state.orderDistribution[0]
+            var orderDistribution = this.state.orderDistribution[0];
             var distributionMoves = new Array(Object.keys(orderDistribution.distribution).length);
-            for (var order in orderDistribution.distribution){
-                if (! orderDistribution.distribution.hasOwnProperty(order)){
+            for (var order in orderDistribution.distribution) {
+                if (!orderDistribution.distribution.hasOwnProperty(order)) {
                     continue;
                 }
-                distributionMoves[orderDistribution.distribution[order].rank] = `${order}: ${(orderDistribution.distribution[order].pred_prob*100.0).toFixed(2)}%`;
+                distributionMoves[orderDistribution.distribution[order].rank] =
+                    `${order}: ${(orderDistribution.distribution[order].pred_prob * 100.0).toFixed(2)}%`;
             }
             const distributionMessages = distributionMoves.map((move) => {
                 return (
@@ -3144,7 +2651,11 @@ export class ContentGame extends React.Component {
                         }}
                         onMouseEnter={() => {
                             let newMove = move.split(":")[0];
-                            this.setState( { hoverDistributionOrder: [{ order: newMove, power: this.state.orderDistribution[0].power }] });
+                            this.setState({
+                                hoverDistributionOrder: [
+                                    { order: newMove, power: this.state.orderDistribution[0].power },
+                                ],
+                            });
                         }}
                         onMouseLeave={() => {
                             this.setState({ hoverDistributionOrder: [] });
@@ -3159,13 +2670,13 @@ export class ContentGame extends React.Component {
                             }}
                         ></ChatMessage>
                         <div
-                        style={{
-                            flexGrow: 0,
-                            flexShrink: 0,
-                            display: "flex",
-                            alignItems: "flex-end",
-                            gap: 3
-                        }}
+                            style={{
+                                flexGrow: 0,
+                                flexShrink: 0,
+                                display: "flex",
+                                alignItems: "flex-end",
+                                gap: 3,
+                            }}
                         >
                             <Button
                                 key={"a"}
@@ -3173,94 +2684,104 @@ export class ContentGame extends React.Component {
                                 title={"+"}
                                 color={"success"}
                                 onClick={() => {
-                                    if (move.indexOf('NOORDER') === -1){
-                                        this.onOrderBuilt(
-                                            currentPowerName,
-                                            move.split(":")[0]
-                                        );
+                                    if (move.indexOf("NOORDER") === -1) {
+                                        this.onOrderBuilt(currentPowerName, move.split(":")[0]);
                                     }
                                 }}
-                                invisible={!(isCurrent && (this.state.orderDistribution[0].power === this.getCurrentPowerName()))}
+                                invisible={
+                                    !(isCurrent && this.state.orderDistribution[0].power === this.getCurrentPowerName())
+                                }
                             ></Button>
 
                             <Button
                                 key={"v"}
                                 pickEvent={true}
-                                title={this.includeOrder(this.state.visibleDistributionOrder, move.split(":")[0]) ? "hide" : "show"}
-                                color={this.includeOrder(this.state.visibleDistributionOrder, move.split(":")[0]) ? "secondary": "info"}
+                                title={
+                                    this.includeOrder(this.state.visibleDistributionOrder, move.split(":")[0])
+                                        ? "hide"
+                                        : "show"
+                                }
+                                color={
+                                    this.includeOrder(this.state.visibleDistributionOrder, move.split(":")[0])
+                                        ? "secondary"
+                                        : "info"
+                                }
                                 onClick={() => {
                                     const newMove = move.split(":")[0];
-                                    var prevVisibleDistributionOrder = this.state.visibleDistributionOrder
-                                    var newVisibleDistributionOrder = []
-                                    for (var orderObj of prevVisibleDistributionOrder){
-                                        if (orderObj.order !== newMove){
+                                    var prevVisibleDistributionOrder = this.state.visibleDistributionOrder;
+                                    var newVisibleDistributionOrder = [];
+                                    for (var orderObj of prevVisibleDistributionOrder) {
+                                        if (orderObj.order !== newMove) {
                                             newVisibleDistributionOrder.push(orderObj);
                                         }
                                     }
-                                    if (!this.includeOrder(prevVisibleDistributionOrder, newMove)){
-                                        newVisibleDistributionOrder.push({ order: newMove, power: this.state.orderDistribution[0].power });
+                                    if (!this.includeOrder(prevVisibleDistributionOrder, newMove)) {
+                                        newVisibleDistributionOrder.push({
+                                            order: newMove,
+                                            power: this.state.orderDistribution[0].power,
+                                        });
                                     }
                                     this.setState({ visibleDistributionOrder: newVisibleDistributionOrder });
                                 }}
-                                invisible={!(isCurrent)}
+                                invisible={!isCurrent}
                             ></Button>
                         </div>
                     </div>
                 );
-            })
+            });
 
-            distributionSuggestionComponent = (
-                <div>
-                    {distributionMessages}
-                </div>
-            )
+            distributionSuggestionComponent = <div>{distributionMessages}</div>;
         }
 
-        if (!(this.hasSuggestionType(suggestionType, UTILS.SuggestionType.MOVE) ||
-                this.hasSuggestionType(suggestionType, UTILS.SuggestionType.MOVE_DISTRIBUTION_TEXTUAL))) {
+        if (
+            !(
+                this.hasSuggestionType(suggestionType, UTILS.SuggestionType.MOVE) ||
+                this.hasSuggestionType(suggestionType, UTILS.SuggestionType.MOVE_DISTRIBUTION_TEXTUAL)
+            )
+        ) {
             return null;
         }
 
         return (
             <div className={"col-2 mb-4"}>
-                    {(fullSuggestionComponent || partialSuggestionComponent) && <Button
-                            title={"Get ally-based advice"}
-                            color={"primary"}
-                            onClick={() => {
-                                if (latestMoveSuggestionFull) {
-                                    this.handleRecipientAnnotation(latestMoveSuggestionFull.time_sent, "replace");
-                                }
-                                this.sendMessage(
-                                    engine.client,
-                                    "GLOBAL",
-                                    `${JSON.stringify(this.state.stances)}`,
-                                    null,
-                                    "move_advice_request",
-                                );
-                                this.setState({stanceChanged: false});
-                            }}
-                            disabled={!this.state.hasInitialOrders && !this.state.stanceChanged}
-                        ></Button>}
-                    <ChatContainer
-                        style={{
-                            display: "flex",
-                            border: "1px solid black",
-                            boxSizing: "border-box",
-                            marginTop: "10px",
+                {(fullSuggestionComponent || partialSuggestionComponent) && (
+                    <Button
+                        title={"Get ally-based advice"}
+                        color={"primary"}
+                        onClick={() => {
+                            if (latestMoveSuggestionFull) {
+                                this.handleRecipientAnnotation(latestMoveSuggestionFull.time_sent, "replace");
+                            }
+                            this.sendMessage(
+                                engine.client,
+                                "GLOBAL",
+                                `${JSON.stringify(this.state.stances)}`,
+                                null,
+                                "move_advice_request",
+                            );
+                            this.setState({ stanceChanged: false });
                         }}
-                    >
-                        <ConversationHeader>
-                            <ConversationHeader.Content
-                                userName={`Order Advice`}
-                            />
-                        </ConversationHeader>
+                        disabled={!this.state.hasInitialOrders && !this.state.stanceChanged}
+                    ></Button>
+                )}
+                <ChatContainer
+                    style={{
+                        display: "flex",
+                        border: "1px solid black",
+                        boxSizing: "border-box",
+                        marginTop: "10px",
+                    }}
+                >
+                    <ConversationHeader>
+                        <ConversationHeader.Content userName={`Order Advice`} />
+                    </ConversationHeader>
 
-                        <MessageList className="move-suggestion-list">
-                            {fullSuggestionComponent}
-                            {partialSuggestionComponent}
-                            {distributionSuggestionComponent}
-                        </MessageList>
-                    </ChatContainer>
+                    <MessageList className="move-suggestion-list">
+                        {fullSuggestionComponent}
+                        {partialSuggestionComponent}
+                        {distributionSuggestionComponent}
+                    </MessageList>
+                </ChatContainer>
             </div>
         );
     }
@@ -3273,21 +2794,15 @@ export class ContentGame extends React.Component {
         }
 
         const filteredPowerNames = powerNames.filter(isNotSelf);
-        const filteredPowers = filteredPowerNames.map(
-            (pn) => engine.powers[pn]
-        );
+        const filteredPowers = filteredPowerNames.map((pn) => engine.powers[pn]);
 
         powerNames.sort();
         filteredPowerNames.sort();
 
         const currentPowerName =
-            this.state.power ||
-            (engine.getControllablePowers().length &&
-                engine.getControllablePowers()[0]);
+            this.state.power || (engine.getControllablePowers().length && engine.getControllablePowers()[0]);
 
-        return engine.role === "omniscient_type" ||
-            engine.role === "observer_type" ||
-            engine.role === "master_type" ? (
+        return engine.role === "omniscient_type" || engine.role === "observer_type" || engine.role === "master_type" ? (
             <div className={"col-lg-6 col-md-12"}>
                 <div className={"table-responsive"}>
                     <AdminPowersInfoTable
@@ -3316,9 +2831,7 @@ export class ContentGame extends React.Component {
         powerLogs.forEach((log) => {
             if (log.phase !== prevPhase) {
                 curPhase = log.phase;
-                renderedLogs.push(
-                    <MessageSeparator>{curPhase}</MessageSeparator>
-                );
+                renderedLogs.push(<MessageSeparator>{curPhase}</MessageSeparator>);
 
                 prevPhase = curPhase;
             }
@@ -3333,7 +2846,7 @@ export class ContentGame extends React.Component {
                         direction: "outgoing",
                         position: "single",
                     }}
-                ></ChatMessage>
+                ></ChatMessage>,
             );
         });
 
@@ -3342,9 +2855,7 @@ export class ContentGame extends React.Component {
                 <MainContainer responsive>
                     <ChatContainer>
                         <ConversationHeader>
-                            <ConversationHeader.Content
-                                userName={curController}
-                            />
+                            <ConversationHeader.Content userName={curController} />
                         </ConversationHeader>
                         <MessageList>{renderedLogs}</MessageList>
                     </ChatContainer>
@@ -3361,7 +2872,7 @@ export class ContentGame extends React.Component {
         orderPath,
         currentPowerName,
         currentTabOrderCreation,
-        moveAdvicePanel
+        moveAdvicePanel,
     ) {
         const powerNames = Object.keys(engine.powers);
         powerNames.sort();
@@ -3370,41 +2881,24 @@ export class ContentGame extends React.Component {
             <Tab id={"tab-current-phase"} display={toDisplay}>
                 <Row>
                     <div className={`col-${this.state.mapSize}`}>
-                        {this.renderMapForCurrent(
-                            engine,
-                            powerName,
-                            orderType,
-                            orderPath
-                        )}
+                        {this.renderMapForCurrent(engine, powerName, orderType, orderPath)}
                     </div>
                     <div className={moveAdvicePanel ? "col-4" : "col-6"}>
                         {/* Orders. */}
-                        <div
-                            className={"panel-orders mb-4"}
-                            style={{ maxHeight: "500px", overflowY: "auto" }}
-                        >
-                            {currentTabOrderCreation ? (
-                                <div className="mb-4">
-                                    {currentTabOrderCreation}
-                                </div>
-                            ) : (
-                                ""
-                            )}
+                        <div className={"panel-orders mb-4"} style={{ maxHeight: "500px", overflowY: "auto" }}>
+                            {currentTabOrderCreation ? <div className="mb-4">{currentTabOrderCreation}</div> : ""}
                             <PowerOrdersActionBar
                                 onReset={this.reloadServerOrders}
                                 onDeleteAll={this.onRemoveAllCurrentPowerOrders}
                                 onUpdate={this.setOrders}
                                 onProcess={
                                     !this.props.data.isPlayerGame() &&
-                                    this.props.data.observer_level ===
-                                        STRINGS.MASTER_TYPE
+                                    this.props.data.observer_level === STRINGS.MASTER_TYPE
                                         ? this.onProcessGame
                                         : null
                                 }
                             />
-                            <div className={"orders"}>
-                                {this.renderOrders(this.props.data, powerName)}
-                            </div>
+                            <div className={"orders"}>{this.renderOrders(this.props.data, powerName)}</div>
                         </div>
                     </div>
                     {moveAdvicePanel}
@@ -3414,47 +2908,29 @@ export class ContentGame extends React.Component {
     }
 
     renderTabChat(toDisplay, initialEngine, currentPowerName, isWide) {
-        const { engine, pastPhases, phaseIndex } =
-            this.__get_engine_to_display(initialEngine);
+        const { engine, pastPhases, phaseIndex } = this.__get_engine_to_display(initialEngine);
 
         return pastPhases[phaseIndex] === initialEngine.phase
-            ? this.renderCurrentMessages(
-                  initialEngine,
-                  currentPowerName,
-                  isWide
-              )
+            ? this.renderCurrentMessages(initialEngine, currentPowerName, isWide)
             : this.renderPastMessages(engine, currentPowerName, isWide);
     }
 
     renderTabCentaur(toDisplay, initialEngine, role) {
-        const { engine, pastPhases, phaseIndex } =
-            this.__get_engine_to_display(initialEngine);
+        const { engine, pastPhases, phaseIndex } = this.__get_engine_to_display(initialEngine);
 
-        return this.renderCurrentCentaur(
-            engine,
-            role,
-            pastPhases[phaseIndex] === initialEngine.phase
-        );
+        return this.renderCurrentCentaur(engine, role, pastPhases[phaseIndex] === initialEngine.phase);
     }
 
     renderTabCentaurMessages(toDisplay, initialEngine, role, isWide) {
-        const { engine, pastPhases, phaseIndex } =
-            this.__get_engine_to_display(initialEngine);
+        const { engine, pastPhases, phaseIndex } = this.__get_engine_to_display(initialEngine);
 
-        return this.renderCentaurMessages(
-            engine,
-            role,
-            pastPhases[phaseIndex] === initialEngine.phase,
-            isWide
-        );
+        return this.renderCentaurMessages(engine, role, pastPhases[phaseIndex] === initialEngine.phase, isWide);
     }
 
     render() {
         const engine = this.props.data;
         const controllablePowers = engine.getControllablePowers();
-        const currentPowerName =
-            this.state.power ||
-            (controllablePowers.length && controllablePowers[0]);
+        const currentPowerName = this.state.power || (controllablePowers.length && controllablePowers[0]);
         const serverOrders = this.__get_orders(engine);
         const powerOrders = serverOrders[currentPowerName] || [];
 
@@ -3462,20 +2938,11 @@ export class ContentGame extends React.Component {
         const page = this.context;
         const title = ContentGame.gameTitle(engine);
         const navigation = [
-            [
-                "Help",
-                () => page.dialog((onClose) => <Help onClose={onClose} />),
-            ],
+            ["Help", () => page.dialog((onClose) => <Help onClose={onClose} />)],
             ["Load a game from disk", page.loadGameFromDisk],
             ["Save game to disk", () => saveGameToDisk(engine, page.error)],
-            [
-                `${UTILS.html.UNICODE_SMALL_LEFT_ARROW} Games`,
-                () => page.loadGames(),
-            ],
-            [
-                `${UTILS.html.UNICODE_SMALL_LEFT_ARROW} Leave game`,
-                () => page.leaveGame(engine.game_id),
-            ],
+            [`${UTILS.html.UNICODE_SMALL_LEFT_ARROW} Games`, () => page.loadGames()],
+            [`${UTILS.html.UNICODE_SMALL_LEFT_ARROW} Leave game`, () => page.leaveGame(engine.game_id)],
             [`${UTILS.html.UNICODE_SMALL_LEFT_ARROW} Logout`, page.logout],
         ];
         const phaseType = engine.getPhaseType();
@@ -3499,11 +2966,7 @@ export class ContentGame extends React.Component {
         }
         tabNames.push("messages");
         tabTitles.push("Messages");
-        if (
-            controllablePowers.length &&
-            phaseType &&
-            !engine.isObserverGame()
-        ) {
+        if (controllablePowers.length && phaseType && !engine.isObserverGame()) {
             hasTabCurrentPhase = true;
             tabNames.push("current_phase");
             tabTitles.push("Current");
@@ -3527,34 +2990,18 @@ export class ContentGame extends React.Component {
             orderTypeToLocs = engine.getOrderTypeToLocs(currentPowerName);
             allowedPowerOrderTypes = Object.keys(orderTypeToLocs);
             if (allowedPowerOrderTypes.length) {
-                POSSIBLE_ORDERS.sortOrderTypes(
-                    allowedPowerOrderTypes,
-                    phaseType
-                );
+                POSSIBLE_ORDERS.sortOrderTypes(allowedPowerOrderTypes, phaseType);
             }
 
-            const messageChannels = engine.getMessageChannels(
-                currentPowerName,
-                true
+            const messageChannels = engine.getMessageChannels(currentPowerName, true);
+            const suggestionMessages = this.getSuggestionMessages(currentPowerName, messageChannels, engine);
+            const suggestionType = this.getSuggestionType(currentPowerName, engine, suggestionMessages);
+            this.state.displayVisualAdvice = this.hasSuggestionType(
+                suggestionType,
+                UTILS.SuggestionType.MOVE_DISTRIBUTION_VISUAL,
             );
-            const suggestionMessages = this.getSuggestionMessages(
-                currentPowerName,
-                messageChannels,
-                engine
-            );
-            const suggestionType = this.getSuggestionType(
-                currentPowerName,
-                engine,
-                suggestionMessages
-            );
-            this.state.displayVisualAdvice = this.hasSuggestionType(suggestionType, UTILS.SuggestionType.MOVE_DISTRIBUTION_VISUAL)
             if (allowedPowerOrderTypes.length) {
-                if (
-                    this.state.orderBuildingType &&
-                    allowedPowerOrderTypes.includes(
-                        this.state.orderBuildingType
-                    )
-                )
+                if (this.state.orderBuildingType && allowedPowerOrderTypes.includes(this.state.orderBuildingType))
                     orderBuildingType = this.state.orderBuildingType;
                 else orderBuildingType = allowedPowerOrderTypes[0];
             }
@@ -3565,41 +3012,28 @@ export class ContentGame extends React.Component {
             half: 6,
             large: 8,
             full: 12,
-        }
+        };
 
-        const messageChannels = engine.getMessageChannels(
-            currentPowerName,
-            true
-        );
-        const suggestionMessages = this.getSuggestionMessages(
-            currentPowerName,
-            messageChannels,
-            engine
-        );
+        const messageChannels = engine.getMessageChannels(currentPowerName, true);
+        const suggestionMessages = this.getSuggestionMessages(currentPowerName, messageChannels, engine);
 
-        const suggestionType = this.getSuggestionType(
-            currentPowerName,
-            engine,
-            suggestionMessages
-        );
+        const suggestionType = this.getSuggestionType(currentPowerName, engine, suggestionMessages);
 
         // orderable locations and units with no orders
         let numOrderText = "";
 
         if (phaseType === "M" && orderTypeToLocs) {
             const merged = new Set(Object.values(orderTypeToLocs).flat());
-            const unitsWithoutOrders = new Set(
-                [...merged].filter((x) => !Object.keys(powerOrders).includes(x))
-            );
+            const unitsWithoutOrders = new Set([...merged].filter((x) => !Object.keys(powerOrders).includes(x)));
             if (unitsWithoutOrders.size === 0 || merged.size === unitsWithoutOrders.size) {
                 numOrderText = `[${Object.keys(powerOrders).length}/${
-                          engine.orderableLocations[currentPowerName].length
-                      }] set.`;
+                    engine.orderableLocations[currentPowerName].length
+                }] set.`;
             } else {
                 const unitsWithoutOrdersArray = Array.from(unitsWithoutOrders);
                 numOrderText = `[${Object.keys(powerOrders).length}/${
-                          engine.orderableLocations[currentPowerName].length
-                      }] set. Need: ${unitsWithoutOrdersArray.join(", ")}`;
+                    engine.orderableLocations[currentPowerName].length
+                }] set. Need: ${unitsWithoutOrdersArray.join(", ")}`;
             }
         }
 
@@ -3613,7 +3047,9 @@ export class ContentGame extends React.Component {
                     <select
                         className="form-control custom-select custom-control-inline"
                         id="map-size"
-                        value={Object.keys(possibleMapSizes).find(key => possibleMapSizes[key] === this.state.mapSize)}
+                        value={Object.keys(possibleMapSizes).find(
+                            (key) => possibleMapSizes[key] === this.state.mapSize,
+                        )}
                         onChange={(event) => {
                             this.setState({
                                 mapSize: possibleMapSizes[event.target.value],
@@ -3628,9 +3064,7 @@ export class ContentGame extends React.Component {
                     </select>
                 </div>
 
-                {(controllablePowers.length === 1 && (
-                    <span className="power-name">{controllablePowers[0]}</span>
-                )) || (
+                {(controllablePowers.length === 1 && <span className="power-name">{controllablePowers[0]}</span>) || (
                     <div className="custom-control custom-control-inline">
                         <label className="sr-only" htmlFor="current-power">
                             power
@@ -3657,10 +3091,7 @@ export class ContentGame extends React.Component {
                         checked={this.state.showAbbreviations}
                         onChange={this.onChangeShowAbbreviations}
                     />
-                    <label
-                        className="custom-control-label"
-                        htmlFor="show-abbreviations"
-                    >
+                    <label className="custom-control-label" htmlFor="show-abbreviations">
                         Show abbreviations
                     </label>
                 </div>
@@ -3668,27 +3099,37 @@ export class ContentGame extends React.Component {
         );
 
         const suggestionTypeDisplay = [];
-        if (this.hasSuggestionType(suggestionType, UTILS.SuggestionType.MESSAGE))
-            suggestionTypeDisplay.push("message");
+        if (this.hasSuggestionType(suggestionType, UTILS.SuggestionType.MESSAGE)) suggestionTypeDisplay.push("message");
         if (this.hasSuggestionType(suggestionType, UTILS.SuggestionType.MOVE)) suggestionTypeDisplay.push("order");
         if (this.hasSuggestionType(suggestionType, UTILS.SuggestionType.COMMENTARY))
             suggestionTypeDisplay.push("commentary");
-        if (this.hasSuggestionType(suggestionType, UTILS.SuggestionType.MOVE_DISTRIBUTION_TEXTUAL) ||
-              this.hasSuggestionType(suggestionType, UTILS.SuggestionType.MOVE_DISTRIBUTION_VISUAL))
+        if (
+            this.hasSuggestionType(suggestionType, UTILS.SuggestionType.MOVE_DISTRIBUTION_TEXTUAL) ||
+            this.hasSuggestionType(suggestionType, UTILS.SuggestionType.MOVE_DISTRIBUTION_VISUAL)
+        )
             suggestionTypeDisplay.push(
                 <>
-                    order probability
-                    {" "}
-                    <Tooltip title={
-                        <>
-                            <p>Hold <kbd>Shift</kbd> and click on a province to display recommended/predicted orders for the province's unit.</p>
-                            <p>Click the province a second time to place an order.</p>
-                            <p>Release <kbd>Shift</kbd> to clear all selections.</p>
-                        </>}>
+                    order probability{" "}
+                    <Tooltip
+                        title={
+                            <>
+                                <p>
+                                    Hold <kbd>Shift</kbd> and click on a province to display recommended/predicted
+                                    orders for the province's unit.
+                                </p>
+                                <p>Click the province a second time to place an order.</p>
+                                <p>
+                                    Release <kbd>Shift</kbd> to clear all selections.
+                                </p>
+                            </>
+                        }
+                    >
                         {/* Tooltip does not display without using `<span>` here */}
-                        <span><Octicon icon={Question}/></span>
+                        <span>
+                            <Octicon icon={Question} />
+                        </span>
                     </Tooltip>
-                </>
+                </>,
             );
 
         const currentTabOrderCreation = hasTabCurrentPhase && (
@@ -3705,20 +3146,16 @@ export class ContentGame extends React.Component {
                 />
                 {(allowedPowerOrderTypes.length && (
                     <span>
-                        <strong>Orderable locations</strong>:{" "}
-                        {orderTypeToLocs[orderBuildingType].join(", ")}
+                        <strong>Orderable locations</strong>: {orderTypeToLocs[orderBuildingType].join(", ")}
                     </span>
                 )) || <strong>&nbsp;No orderable location.</strong>}
                 {phaseType === "A" &&
-                    ((buildCount === null && (
-                        <strong>&nbsp;(unknown build count)</strong>
-                    )) ||
+                    ((buildCount === null && <strong>&nbsp;(unknown build count)</strong>) ||
                         (buildCount === 0 ? (
                             <strong>&nbsp;(nothing to build or disband)</strong>
                         ) : buildCount > 0 ? (
                             <strong>
-                                &nbsp;({buildCount} unit{buildCount > 1 && "s"}{" "}
-                                may be built)
+                                &nbsp;({buildCount} unit{buildCount > 1 && "s"} may be built)
                             </strong>
                         ) : (
                             <strong>
@@ -3727,11 +3164,7 @@ export class ContentGame extends React.Component {
                             </strong>
                         )))}
                 {phaseType === "M" && <div>{numOrderText}</div>}
-                {suggestionType === null && (
-                    <div>
-                        No advice assigned
-                    </div>
-                )}
+                {suggestionType === null && <div>No advice assigned</div>}
                 {suggestionType !== null && suggestionType === UTILS.SuggestionType.NONE && (
                     <div>No advice this turn</div>
                 )}
@@ -3741,24 +3174,17 @@ export class ContentGame extends React.Component {
                         {/* `reduce()` call used to "`join()`" React elements
                         (from https://stackoverflow.com/questions/34034038/how-to-render-react-components-by-using-map-and-join/35840806#35840806)
                         */}
-                        {suggestionTypeDisplay.reduce(
-                            (accu, elem) => {
-                                return accu === null ? [elem] : [...accu, ", ", elem]
-                            }, null)
-                        }
+                        {suggestionTypeDisplay.reduce((accu, elem) => {
+                            return accu === null ? [elem] : [...accu, ", ", elem];
+                        }, null)}
                     </div>
                 )}
             </div>
         );
 
-        const moveAdvicePanel = this.renderTabCentaur(
-            true,
-            engine,
-            currentPowerName
-        );
+        const moveAdvicePanel = this.renderTabCentaur(true, engine, currentPowerName);
 
-        const { engineCur, pastPhases, phaseIndex } =
-            this.__get_engine_to_display(engine);
+        const { engineCur, pastPhases, phaseIndex } = this.__get_engine_to_display(engine);
         let phasePanel;
         if (pastPhases[phaseIndex] === engine.phase) {
             if (hasTabCurrentPhase) {
@@ -3770,7 +3196,7 @@ export class ContentGame extends React.Component {
                     this.state.orderBuildingPath,
                     currentPowerName,
                     currentTabOrderCreation,
-                    moveAdvicePanel
+                    moveAdvicePanel,
                 );
             } else if (hasTabPhaseHistory) {
                 phasePanel = this.renderTabResults(true, engine);
@@ -3779,39 +3205,33 @@ export class ContentGame extends React.Component {
             phasePanel = this.renderTabResults(true, engine);
         }
 
-        const advice = this.getSuggestionMessages(
-            currentPowerName,
-            messageChannels,
-            engine
-        );
+        const advice = this.getSuggestionMessages(currentPowerName, messageChannels, engine);
 
         const isAdmin = engine.role === "omniscient_type" || engine.role === "master_type";
 
         const receivedSuggestions = advice.filter(
             (msg) =>
-                msg.type && (msg.type === STRINGS.SUGGESTED_COMMENTARY || msg.type === STRINGS.SUGGESTED_MESSAGE) && (isAdmin || !this.state.annotatedMessages.hasOwnProperty(msg.time_sent))
+                msg.type &&
+                (msg.type === STRINGS.SUGGESTED_COMMENTARY || msg.type === STRINGS.SUGGESTED_MESSAGE) &&
+                (isAdmin || !this.state.annotatedMessages.hasOwnProperty(msg.time_sent)),
         );
 
-        const showMessageAdviceTab = (this.hasSuggestionType(suggestionType, UTILS.SuggestionType.MESSAGE) || this.hasSuggestionType(suggestionType, UTILS.SuggestionType.COMMENTARY)) && receivedSuggestions.length > 0;
+        const showMessageAdviceTab =
+            (this.hasSuggestionType(suggestionType, UTILS.SuggestionType.MESSAGE) ||
+                this.hasSuggestionType(suggestionType, UTILS.SuggestionType.COMMENTARY)) &&
+            receivedSuggestions.length > 0;
         const gameContent = (
             <div>
                 {phasePanel}
                 <Row className={"mb-4"}>
-                    {this.renderTabChat(
-                        true, engine, currentPowerName, showMessageAdviceTab ? false : true
-                    )}
-                        {showMessageAdviceTab && this.renderTabCentaurMessages(
-                            true,
-                            engine,
-                            currentPowerName,
-                            false
-                        )}
-                    </Row>
-                    <Row>
-                        {!engine.isPlayerGame() && this.renderPowerInfo(engine)}
-                        {localStorage.getItem("username") === "admin" && this.renderLogs(engine, currentPowerName)}
-                    </Row>
-                    </div>
+                    {this.renderTabChat(true, engine, currentPowerName, showMessageAdviceTab ? false : true)}
+                    {showMessageAdviceTab && this.renderTabCentaurMessages(true, engine, currentPowerName, false)}
+                </Row>
+                <Row>
+                    {!engine.isPlayerGame() && this.renderPowerInfo(engine)}
+                    {localStorage.getItem("username") === "admin" && this.renderLogs(engine, currentPowerName)}
+                </Row>
+            </div>
         );
 
         return (
@@ -3833,47 +3253,45 @@ export class ContentGame extends React.Component {
 
     componentDidMount() {
         window.scrollTo(0, 0);
-        if (this.props.data.client)
-            this.reloadDeadlineTimer(this.props.data.client);
+        if (this.props.data.client) this.reloadDeadlineTimer(this.props.data.client);
         this.props.data.displayed = true;
 
         document.onkeydown = (event) => {
-            if (event.key === "Shift" && !event.repeat){
+            if (event.key === "Shift" && !event.repeat) {
                 this.setState({
                     shiftKeyPressed: true,
                     orderDistribution: [],
                     hoverDistributionOrder: [],
-                    visibleDistributionOrder: []
-                })
+                    visibleDistributionOrder: [],
+                });
             }
 
             // Try to prevent scrolling when pressing keys Home and End.
             if (["home", "end"].includes(event.key.toLowerCase())) {
                 // Try to prevent scrolling.
-                if (event.hasOwnProperty("cancelBubble"))
-                    event.cancelBubble = true;
+                if (event.hasOwnProperty("cancelBubble")) event.cancelBubble = true;
                 if (event.stopPropagation) event.stopPropagation();
                 if (event.preventDefault) event.preventDefault();
             }
         };
 
         document.onkeyup = (event) => {
-            if (event.key === "Shift"){
+            if (event.key === "Shift") {
                 this.setState({
                     shiftKeyPressed: false,
                     orderDistribution: [],
                     hoverDistributionOrder: [],
-                    visibleDistributionOrder: []
-                })
+                    visibleDistributionOrder: [],
+                });
             }
-        }
+        };
 
         window.addEventListener("beforeunload", this.handleExit);
         window.addEventListener("blur", this.handleBlur);
         window.addEventListener("focus", this.handleFocus);
         this.setState({
             lastSwitchPanelTime: Date.now(),
-        })
+        });
     }
 
     componentDidUpdate() {

@@ -14,7 +14,7 @@
 //  You should have received a copy of the GNU Affero General Public License along
 //  with this program.  If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
-import {Future} from "./future";
+import { Future } from "./future";
 
 /** Class FutureEvent (like Python's Tornado FutureEvent). **/
 export class FutureEvent {
@@ -24,15 +24,12 @@ export class FutureEvent {
 
     set(error) {
         if (!this.__future.done())
-            if (error)
-                this.__future.setException(error);
-            else
-                this.__future.setResult(null);
+            if (error) this.__future.setException(error);
+            else this.__future.setResult(null);
     }
 
     clear() {
-        if (this.__future.done())
-            this.__future = new Future();
+        if (this.__future.done()) this.__future = new Future();
     }
 
     wait() {

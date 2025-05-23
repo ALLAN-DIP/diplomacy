@@ -14,7 +14,7 @@
 //  You should have received a copy of the GNU Affero General Public License along
 //  with this program.  If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
-import {UTILS} from "./utils";
+import { UTILS } from "./utils";
 
 function defaultComparableKey(key) {
     return key;
@@ -26,8 +26,7 @@ export class SortedDict {
         this.__keys = [];
         this.__values = [];
         this.__key_fn = keyFn || defaultComparableKey;
-        if (dct) for (let key of Object.keys(dct))
-            this.put(key, dct[key]);
+        if (dct) for (let key of Object.keys(dct)) this.put(key, dct[key]);
     }
 
     clear() {
@@ -53,8 +52,7 @@ export class SortedDict {
     remove(key) {
         key = this.__key_fn(key);
         const position = UTILS.binarySearch.find(this.__keys, key);
-        if (position < 0)
-            return null;
+        if (position < 0) return null;
         this.__keys.splice(position, 1);
         this.__real_keys.splice(position, 1);
         return this.__values.splice(position, 1)[0];
@@ -66,8 +64,7 @@ export class SortedDict {
 
     get(key) {
         const position = UTILS.binarySearch.find(this.__keys, this.__key_fn(key));
-        if (position < 0)
-            return null;
+        if (position < 0) return null;
         return this.__values[position];
     }
 
@@ -88,14 +85,12 @@ export class SortedDict {
     }
 
     lastKey() {
-        if (!this.__keys.length)
-            throw new Error('Sorted dict is empty.');
+        if (!this.__keys.length) throw new Error("Sorted dict is empty.");
         return this.__real_keys[this.__keys.length - 1];
     }
 
     lastValue() {
-        if (!this.__keys.length)
-            throw new Error('Sorted dict is empty.');
+        if (!this.__keys.length) throw new Error("Sorted dict is empty.");
         return this.__values[this.__values.length - 1];
     }
 

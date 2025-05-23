@@ -52,6 +52,6 @@ input[type=range]::-ms-thumb {
 } */
 
 .unclickedSlider {
-    color: red;
-    font-weight: bold;
+  color: red;
+  font-weight: bold;
 }

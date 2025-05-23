@@ -38,44 +38,27 @@ class Reconnection {
     genSyncCallback(game) {
         const reconnection = this;
         return (serverSyncResponse) => {
-            reconnection.games_phases[game.local.game_id][
-                game.local.game_role
-            ] = serverSyncResponse;
+            reconnection.games_phases[game.local.game_id][game.local.game_role] = serverSyncResponse;
             ++reconnection.n_synchronized_games;
-            if (
-                reconnection.n_synchronized_games ===
-                reconnection.n_expected_games
-            )
-                reconnection.syncDone();
+            if (reconnection.n_synchronized_games === reconnection.n_expected_games) reconnection.syncDone();
         };
     }
 
     reconnect() {
-        for (let waitingContext of Object.values(
-            this.connection.requestsWaitingResponses
-        ))
+        for (let waitingContext of Object.values(this.connection.requestsWaitingResponses))
             waitingContext.request.re_sent = true;
-        const lenWaiting = Object.keys(
-            this.connection.requestsWaitingResponses
-        ).length;
+        const lenWaiting = Object.keys(this.connection.requestsWaitingResponses).length;
         const lenBefore = Object.keys(this.connection.requestsToSend).length;
-        Object.assign(
-            this.connection.requestsToSend,
-            this.connection.requestsWaitingResponses
-        );
+        Object.assign(this.connection.requestsToSend, this.connection.requestsWaitingResponses);
         const lenAfter = Object.keys(this.connection.requestsToSend).length;
-        if (lenAfter !== lenWaiting + lenBefore)
-            throw new Error("Programming error.");
+        if (lenAfter !== lenWaiting + lenBefore) throw new Error("Programming error.");
         this.connection.requestsWaitingResponses = {};
 
         const requestsToSendUpdated = {};
         for (let context of Object.values(this.connection.requestsToSend)) {
             if (context.request.name === STRINGS.SYNCHRONIZE)
                 context.future.setException(
-                    new Error(
-                        "Sync request invalidated for game ID " +
-                            context.request.game_id
-                    )
+                    new Error("Sync request invalidated for game ID " + context.request.game_id),
                 );
             else requestsToSendUpdated[context.request.request_id] = context;
         }
@@ -86,8 +69,7 @@ class Reconnection {
                 for (let game of gis.getGames()) {
                     const game_id = game.local.game_id;
                     const game_role = game.local.role;
-                    if (!this.games_phases.hasOwnProperty(game_id))
-                        this.games_phases[game_id] = {};
+                    if (!this.games_phases.hasOwnProperty(game_id)) this.games_phases[game_id] = {};
                     this.games_phases[game_id][game_role] = null;
                     ++this.n_expected_games;
                 }
@@ -97,8 +79,7 @@ class Reconnection {
         if (this.n_expected_games) {
             for (let channel of Object.values(this.connection.channels))
                 for (let gis of Object.values(channel.game_id_to_instances))
-                    for (let game of gis.getGames())
-                        game.synchronize().then(this.genSyncCallback(game));
+                    for (let game of gis.getGames()) game.synchronize().then(this.genSyncCallback(game));
         } else {
             this.syncDone();
         }
@@ -114,17 +95,10 @@ class Reconnection {
                     context.request.game_id !== null &&
                     context.request.game_role !== null &&
                     this.games_phases.hasOwnProperty(context.request.game_id) &&
-                    this.games_phases[context.request.game_id].hasOwnProperty(
-                        context.request.game_role
-                    ) &&
-                    this.games_phases[context.request.game_id][
-                        context.request.game_role
-                    ] !== null
+                    this.games_phases[context.request.game_id].hasOwnProperty(context.request.game_role) &&
+                    this.games_phases[context.request.game_id][context.request.game_role] !== null
                 ) {
-                    const server_phase =
-                        this.games_phases[context.request.game_id][
-                            context.request.game_role
-                        ].phase;
+                    const server_phase = this.games_phases[context.request.game_id][context.request.game_role].phase;
                     if (request_phase !== server_phase) {
                         context.future.setException(
                             new Error(
@@ -136,22 +110,21 @@ class Reconnection {
                                     request_phase +
                                     " does not match current server game phase " +
                                     server_phase +
-                                    "."
-                            )
+                                    ".",
+                            ),
                         );
                         keep = false;
                     }
                 }
             }
-            if (keep)
-                requestsToSendUpdated[context.request.request_id] = context;
+            if (keep) requestsToSendUpdated[context.request.request_id] = context;
         }
         Diplog.info(
             "Keep " +
                 Object.keys(requestsToSendUpdated).length +
                 "/" +
                 Object.keys(this.connection.requestsToSend).length +
-                " old request(s) to send."
+                " old request(s) to send.",
         );
         this.connection.requestsToSend = requestsToSendUpdated;
 
@@ -202,14 +175,10 @@ class ConnectionProcessing {
             if (this.attemptIndex === UTILS.NB_CONNECTION_ATTEMPTS) {
                 this.connection.isConnecting.set(
                     new Error(
-                        `${
-                            this.connection.isReconnecting.isWaiting()
-                                ? "Reconnection"
-                                : "Connection"
-                        } failed after ${
+                        `${this.connection.isReconnecting.isWaiting() ? "Reconnection" : "Connection"} failed after ${
                             UTILS.NB_CONNECTION_ATTEMPTS
-                        } attempts.`
-                    )
+                        } attempts.`,
+                    ),
                 );
                 return;
             }
@@ -218,7 +187,7 @@ class ConnectionProcessing {
                     this.attemptIndex +
                     "/" +
                     UTILS.NB_CONNECTION_ATTEMPTS +
-                    "), retrying ..."
+                    "), retrying ...",
             );
             ++this.attemptIndex;
             setTimeout(this.tryConnect, 0);
@@ -231,10 +200,7 @@ class ConnectionProcessing {
         try {
             this.connection.socket = new WebSocket(this.connection.getUrl());
             this.connection.socket.onopen = this.onSocketOpen;
-            this.timeoutID = setTimeout(
-                this.onSocketTimeout,
-                UTILS.ATTEMPT_DELAY_SECONDS * 1000
-            );
+            this.timeoutID = setTimeout(this.onSocketTimeout, UTILS.ATTEMPT_DELAY_SECONDS * 1000);
         } catch (error) {
             this.__on_error(error);
         }
@@ -317,23 +283,12 @@ export class Connection {
                 const context = this.requestsWaitingResponses[requestID];
                 delete this.requestsWaitingResponses[requestID];
                 try {
-                    context.future.setResult(
-                        RESPONSE_MANAGERS.handleResponse(
-                            context,
-                            RESPONSES.parse(jsonMessage)
-                        )
-                    );
+                    context.future.setResult(RESPONSE_MANAGERS.handleResponse(context, RESPONSES.parse(jsonMessage)));
                 } catch (error) {
                     context.future.setException(error);
                 }
-            } else if (
-                jsonMessage.hasOwnProperty("notification_id") &&
-                jsonMessage.notification_id
-            )
-                NOTIFICATION_MANAGERS.handleNotification(
-                    this,
-                    NOTIFICATIONS.parse(jsonMessage)
-                );
+            } else if (jsonMessage.hasOwnProperty("notification_id") && jsonMessage.notification_id)
+                NOTIFICATION_MANAGERS.handleNotification(this, NOTIFICATIONS.parse(jsonMessage));
             else Diplog.error("Unknown socket message received.");
         } catch (error) {
             Diplog.error(error);
@@ -351,8 +306,7 @@ export class Connection {
                     if (this.onReconnection) this.onReconnection();
                 })
                 .catch((error) => {
-                    if (this.onReconnectionError)
-                        this.onReconnectionError(error);
+                    if (this.onReconnectionError) this.onReconnectionError(error);
                     else throw error;
                 });
         }
@@ -363,10 +317,7 @@ export class Connection {
             this.currentConnectionProcessing.stop();
             this.currentConnectionProcessing = null;
         }
-        this.currentConnectionProcessing = new ConnectionProcessing(
-            this,
-            logger
-        );
+        this.currentConnectionProcessing = new ConnectionProcessing(this, logger);
         return this.currentConnectionProcessing.process();
     }
 
@@ -391,8 +342,7 @@ export class Connection {
             Diplog.info("Error occurred while sending a request " + requestID);
             writeFuture.setException(error);
         };
-        if (request.name === STRINGS.SYNCHRONIZE)
-            this.isConnecting.wait().then(onConnected, onAnyError);
+        if (request.name === STRINGS.SYNCHRONIZE) this.isConnecting.wait().then(onConnected, onAnyError);
         else this.isReconnecting.wait().then(onConnected, onAnyError);
         return writeFuture.promise();
     }
@@ -413,7 +363,7 @@ export class Connection {
             REQUESTS.create("sign_in", {
                 username: username,
                 password: password,
-            })
+            }),
         ).promise();
     }
 
