@@ -14,27 +14,103 @@
 #  You should have received a copy of the GNU Affero General Public License along
 #  with this program.  If not, see <https://www.gnu.org/licenses/>.
 # ==============================================================================
-""" Aliases and keywords
+"""Aliases and keywords
 
-    - Contains aliases and keywords
-    - Keywords are always single words
-    - Aliases are only converted in a second pass, so if they contain a keyword, you should replace
-      the keyword with its abbreviation.
+- Contains aliases and keywords
+- Keywords are always single words
+- Aliases are only converted in a second pass, so if they contain a keyword, you should replace
+  the keyword with its abbreviation.
 """
 
-KEYWORDS = {'>': '', '-': '-', 'ARMY': 'A', 'FLEET': 'F', 'WING': 'W', 'THE': '', 'NC': '/NC', 'SC': '/SC',
-            'EC': '/EC', 'WC': '/WC', 'MOVE': '', 'MOVES': '', 'MOVING': '', 'ATTACK': '', 'ATTACKS': '',
-            'ATTACKING': '', 'RETREAT': 'R', 'RETREATS': 'R', 'RETREATING': 'R', 'SUPPORT': 'S', 'SUPPORTS': 'S',
-            'SUPPORTING': 'S', 'CONVOY': 'C', 'CONVOYS': 'C', 'CONVOYING': 'C', 'HOLD': 'H', 'HOLDS': 'H',
-            'HOLDING': 'H', 'BUILD': 'B', 'BUILDS': 'B', 'BUILDING': 'B', 'DISBAND': 'D', 'DISBANDS': 'D',
-            'DISBANDING': 'D', 'DESTROY': 'D', 'DESTROYS': 'D', 'DESTROYING': 'D', 'REMOVE': 'D', 'REMOVES': 'D',
-            'REMOVING': 'D', 'WAIVE': 'V', 'WAIVES': 'V', 'WAIVING': 'V', 'WAIVED': 'V', 'KEEP': 'K', 'KEEPS': 'K',
-            'KEEPING': 'K', 'PROXY': 'P', 'PROXIES': 'P', 'PROXYING': 'P', 'IS': '', 'WILL': '', 'IN': '', 'AT': '',
-            'ON': '', 'TO': '', 'OF': '\\', 'FROM': '\\', 'WITH': '?', 'TSR': '=', 'VIA': 'VIA', 'THROUGH': '~',
-            'OVER': '~', 'BY': '~', 'OR': '|', 'BOUNCE': '|', 'CUT': '|', 'VOID': '?', 'DISLODGED': '~',
-            'DESTROYED': '*'}
+KEYWORDS = {
+    ">": "",
+    "-": "-",
+    "ARMY": "A",
+    "FLEET": "F",
+    "WING": "W",
+    "THE": "",
+    "NC": "/NC",
+    "SC": "/SC",
+    "EC": "/EC",
+    "WC": "/WC",
+    "MOVE": "",
+    "MOVES": "",
+    "MOVING": "",
+    "ATTACK": "",
+    "ATTACKS": "",
+    "ATTACKING": "",
+    "RETREAT": "R",
+    "RETREATS": "R",
+    "RETREATING": "R",
+    "SUPPORT": "S",
+    "SUPPORTS": "S",
+    "SUPPORTING": "S",
+    "CONVOY": "C",
+    "CONVOYS": "C",
+    "CONVOYING": "C",
+    "HOLD": "H",
+    "HOLDS": "H",
+    "HOLDING": "H",
+    "BUILD": "B",
+    "BUILDS": "B",
+    "BUILDING": "B",
+    "DISBAND": "D",
+    "DISBANDS": "D",
+    "DISBANDING": "D",
+    "DESTROY": "D",
+    "DESTROYS": "D",
+    "DESTROYING": "D",
+    "REMOVE": "D",
+    "REMOVES": "D",
+    "REMOVING": "D",
+    "WAIVE": "V",
+    "WAIVES": "V",
+    "WAIVING": "V",
+    "WAIVED": "V",
+    "KEEP": "K",
+    "KEEPS": "K",
+    "KEEPING": "K",
+    "PROXY": "P",
+    "PROXIES": "P",
+    "PROXYING": "P",
+    "IS": "",
+    "WILL": "",
+    "IN": "",
+    "AT": "",
+    "ON": "",
+    "TO": "",
+    "OF": "\\",
+    "FROM": "\\",
+    "WITH": "?",
+    "TSR": "=",
+    "VIA": "VIA",
+    "THROUGH": "~",
+    "OVER": "~",
+    "BY": "~",
+    "OR": "|",
+    "BOUNCE": "|",
+    "CUT": "|",
+    "VOID": "?",
+    "DISLODGED": "~",
+    "DESTROYED": "*",
+}
 
-ALIASES = {'NORTH COAST \\': '/NC \\', 'SOUTH COAST \\': '/SC \\', 'EAST COAST \\': '/EC \\',
-           'WEST COAST \\': '/WC \\', 'AN A': 'A', 'A F': 'F', 'A W': 'W', 'NO C': '?', '~ C': '^',
-           '~ =': '=', '? =': '=', '~ LAND': '_', '~ WATER': '_', '~ SEA': '_', 'VIA C': 'VIA',
-           'TRANS SIBERIAN RAILROAD': '=', 'V B': 'B V'}
+ALIASES = {
+    "NORTH COAST \\": "/NC \\",
+    "SOUTH COAST \\": "/SC \\",
+    "EAST COAST \\": "/EC \\",
+    "WEST COAST \\": "/WC \\",
+    "AN A": "A",
+    "A F": "F",
+    "A W": "W",
+    "NO C": "?",
+    "~ C": "^",
+    "~ =": "=",
+    "? =": "=",
+    "~ LAND": "_",
+    "~ WATER": "_",
+    "~ SEA": "_",
+    "VIA C": "VIA",
+    "TRANS SIBERIAN RAILROAD": "=",
+    "V B": "B V",
+}

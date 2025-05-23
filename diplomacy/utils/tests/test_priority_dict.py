@@ -14,17 +14,18 @@
 #  You should have received a copy of the GNU Affero General Public License along
 #  with this program.  If not, see <https://www.gnu.org/licenses/>.
 # ==============================================================================
-""" Test class PriorityDict. """
+"""Test class PriorityDict."""
 from diplomacy.utils.priority_dict import PriorityDict
 from diplomacy.utils.tests.test_common import assert_equals
 
+
 def test_priority_dict():
-    """ Test Heap class PriorityDict. """
+    """Test Heap class PriorityDict."""
 
     for unordered_list in [
-            [464, 21, 43453, 211, 324, 321, 102, 1211, 14, 875, 1, 33444, 22],
-            'once upon a time in West'.split(),
-            'This is a sentence with many words like panthera, lion, tiger, cat or cheetah!'.split()
+        [464, 21, 43453, 211, 324, 321, 102, 1211, 14, 875, 1, 33444, 22],
+        "once upon a time in West".split(),
+        "This is a sentence with many words like panthera, lion, tiger, cat or cheetah!".split(),
     ]:
         expected_ordered_set = list(sorted(set(unordered_list)))
         computed_sorted_list = []
@@ -37,40 +38,42 @@ def test_priority_dict():
             del priority_dict[key]
         assert_equals(expected_ordered_set, computed_sorted_list)
 
+
 def test_item_getter_setter_deletion():
-    """ Test PriorityDict item setter/getter/deletion. """
+    """Test PriorityDict item setter/getter/deletion."""
 
     priority_dict = PriorityDict()
-    priority_dict['a'] = 12
-    priority_dict['f'] = 9
-    priority_dict['b'] = 23
-    assert list(priority_dict.keys()) == ['f', 'a', 'b']
-    assert priority_dict['a'] == 12
-    assert priority_dict['f'] == 9
-    assert priority_dict['b'] == 23
-    priority_dict['e'] = -1
-    priority_dict['a'] = 8
-    del priority_dict['b']
-    assert list(priority_dict.keys()) == ['e', 'a', 'f']
+    priority_dict["a"] = 12
+    priority_dict["f"] = 9
+    priority_dict["b"] = 23
+    assert list(priority_dict.keys()) == ["f", "a", "b"]
+    assert priority_dict["a"] == 12
+    assert priority_dict["f"] == 9
+    assert priority_dict["b"] == 23
+    priority_dict["e"] = -1
+    priority_dict["a"] = 8
+    del priority_dict["b"]
+    assert list(priority_dict.keys()) == ["e", "a", "f"]
     assert list(priority_dict.values()) == [-1, 8, 9]
 
+
 def test_iterations():
-    """ test iterations:
-        - for key in priority_dict
-        - priority_dict.keys()
-        - priority_dict.values()
-        - priority_dict.items()
+    """test iterations:
+    - for key in priority_dict
+    - priority_dict.keys()
+    - priority_dict.values()
+    - priority_dict.items()
     """
     priorities = [464, 21, 43453, 211, 324, 321, 102, 1211, 14, 875, 1, 33444, 22]
 
     # Build priority dict.
     priority_dict = PriorityDict()
     for priority in priorities:
-        priority_dict['value of %s' % priority] = priority
+        priority_dict["value of %s" % priority] = priority
 
     # Build expected priorities and keys.
     expected_sorted_priorities = list(sorted(priorities))
-    expected_sorted_keys = ['value of %s' % priority for priority in sorted(priorities)]
+    expected_sorted_keys = ["value of %s" % priority for priority in sorted(priorities)]
 
     # Iterate on priority dict.
     computed_sorted_priorities = [priority_dict[key] for key in priority_dict]
@@ -88,12 +91,12 @@ def test_iterations():
     priority_dict_values_from_items = [item[1] for item in priority_dict_items]
 
     for expected, computed in [
-            (expected_sorted_priorities, computed_sorted_priorities),
-            (expected_sorted_priorities, sorted_priorities_from_key),
-            (expected_sorted_priorities, sorted_priorities_from_values),
-            (expected_sorted_priorities, priority_dict_values_from_items),
-            (expected_sorted_keys, priority_dict_keys_from_items),
-            (expected_sorted_keys, priority_dict_keys),
+        (expected_sorted_priorities, computed_sorted_priorities),
+        (expected_sorted_priorities, sorted_priorities_from_key),
+        (expected_sorted_priorities, sorted_priorities_from_values),
+        (expected_sorted_priorities, priority_dict_values_from_items),
+        (expected_sorted_keys, priority_dict_keys_from_items),
+        (expected_sorted_keys, priority_dict_keys),
     ]:
         assert_equals(expected, computed)
 

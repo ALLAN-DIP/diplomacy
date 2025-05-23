@@ -14,12 +14,14 @@
 #  You should have received a copy of the GNU Affero General Public License along
 #  with this program.  If not, see <https://www.gnu.org/licenses/>.
 # ==============================================================================
-""" Tests the DAIDE tokens"""
+"""Tests the DAIDE tokens"""
 from enum import Enum
 from diplomacy.daide.tokens import Token
 
+
 class ExpectedTokens(Enum):
-    """ Copy of the tokens definition from aiclient/adjudicator/TOKENS.h """
+    """Copy of the tokens definition from aiclient/adjudicator/TOKENS.h"""
+
     # Source: http://www.ellought.demon.co.uk/dipai/aiclient.zip
     # Powers
     TOKEN_POWER_AUS = 0x4100
@@ -255,11 +257,12 @@ class ExpectedTokens(Enum):
     TOKEN_PROVINCE_SPA = 0x5749
     TOKEN_PROVINCE_STP = 0x574A
 
+
 def test_tokens():
-    """ Test all tokens """
+    """Test all tokens"""
     for token in ExpectedTokens:
         token_str = token.name[-3:]
-        token_bytes = token.value.to_bytes(2, byteorder='big')
+        token_bytes = token.value.to_bytes(2, byteorder="big")
         token_from_str = Token(from_str=token_str)
         token_from_bytes = Token(from_bytes=token_bytes)
         assert str(token_from_str) == token_str
