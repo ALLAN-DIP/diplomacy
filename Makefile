@@ -22,6 +22,10 @@ endif
 	# They install automatically on Linux as a requirement of PyTorch
 	sed --in-place -e '/^\(nvidia-.*\|triton\)==.*/d' requirements-lock.txt
 
+.PHONY: actionlint
+actionlint:
+	pre-commit run --all-files actionlint
+
 .PHONY: black
 black:
 	pre-commit run --all-files black
@@ -31,10 +35,22 @@ check-npm-build:
 	cd diplomacy/web/ && \
 	npm run build
 
+.PHONY: codespell
+codespell:
+	pre-commit run --all-files codespell
+
 .PHONY: eslint
 eslint:
 	cd diplomacy/web/ && \
 	npx eslint --ext js,jsx .
+
+.PHONY: lychee
+lychee:
+	pre-commit run --all-files --hook-stage manual lychee
+
+.PHONY: markdownlint
+markdownlint:
+	pre-commit run --all-files markdownlint
 
 .PHONY: npm-test
 npm-test:
@@ -57,11 +73,23 @@ pylint:
 pytest:
 	pytest
 
+.PHONY: shellcheck
+shellcheck:
+	pre-commit run --all-files shellcheck
+
+.PHONY: shfmt
+shfmt:
+	pre-commit run --all-files shfmt
+
 .PHONY: sphinx
 sphinx:
 	cd docs && \
 	$(MAKE) clean && \
 	$(MAKE) html
+
+.PHONY: yamllint
+yamllint:
+	pre-commit run --all-files yamllint
 
 .PHONY: check
 check:
