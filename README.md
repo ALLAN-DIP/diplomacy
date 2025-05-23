@@ -2,9 +2,7 @@
 
 This project contains an open-source DATC-compliant Diplomacy game engine, a client-server architecture for network play, a web interface to play against bots and to visualize games, and a DAIDE-compatible adapter to connect DAIDE bots to the server.
 
-<p align="center">
-  <img width="500" src="docs/images/map_overview.png" alt="Diplomacy Map Overview">
-</p>
+![Screenshot of Diplomacy overview map](docs/images/map_overview.png)
 
 ## Documentation
 
@@ -73,17 +71,17 @@ make build
 docker compose up --detach
 ```
 
-The web interface will be accessible at http://localhost:3000.
+The web interface will be accessible at <http://localhost:3000>.
 
 To login, users can use admin/password or username/password. Additional users can be created by logging in with a username that does not exist in the database.
 
-![](docs/images/web_interface.png)
+![Screenshot of the web interface with an in-progress game](docs/images/web_interface.png)
 
 ### Visualizing a game
 
 It is possible to visualize a game by using the "Load a game from disk" menu on the top-right corner of the web interface.
 
-![](docs/images/visualize_game.png)
+![Screenshot of the web interface showing the "Load a game from disk" menu item](docs/images/visualize_game.png)
 
 ## Network Game
 
