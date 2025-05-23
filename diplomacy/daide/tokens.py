@@ -148,7 +148,7 @@ def is_ascii_token(token):
     """Check if the token is an ascii token
 
     :param token: An instance of Token
-    :return: True if `token` is an acsii token. False otherwise
+    :return: True if `token` is an ASCII token. False otherwise
     """
     return (
         isinstance(token, Token)

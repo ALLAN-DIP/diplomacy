@@ -50,7 +50,7 @@ each request:
 - the Python client returned values (important)
 
 All requests classes inherit from :class:`._AbstractRequest` which require parameters
-``name`` (from parant class :class:`.NetworkData`), ``request_id`` and ``re_sent``.
+``name`` (from parent class :class:`.NetworkData`), ``request_id`` and ``re_sent``.
 These parameters are automatically filled by the client.
 
 From parent class :class:`._AbstractRequest`, we get 3 types of requests:

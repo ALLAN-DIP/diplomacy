@@ -1293,7 +1293,7 @@ class Map:
         else:
             return 0
 
-        # If the target location is impassible, returning 0
+        # If the target location is impassable, returning 0
         other_loc_type = self.area_type(other_loc)
         if other_loc_type == "SHUT":
             return 0

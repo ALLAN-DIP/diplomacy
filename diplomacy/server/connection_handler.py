@@ -62,7 +62,7 @@ class ConnectionHandler(WebSocketHandler):
         return {}
 
     def check_origin(self, origin):
-        """Return True if we should accept connexion from given origin (str)."""
+        """Return True if we should accept connection from given origin (str)."""
 
         # It seems origin may be 'null', e.g. if client is a web page loaded from disk (`file:///my_test_file.html`).
         # Accept it.
