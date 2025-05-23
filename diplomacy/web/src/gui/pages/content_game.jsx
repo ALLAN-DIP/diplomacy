@@ -3838,7 +3838,7 @@ export class ContentGame extends React.Component {
         this.props.data.displayed = true;
 
         document.onkeydown = (event) => {
-            if (event.key === "Shift"){
+            if (event.key === "Shift" && !event.repeat){
                 this.setState({
                     shiftKeyPressed: true,
                     orderDistribution: [],
