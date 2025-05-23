@@ -61,6 +61,16 @@ version = {attr = "diplomacy.version.PACKAGE_VERSION"}
 [tool.black]
 line-length = 100
 
+[tool.codespell]
+ignore-regex = "\\[nt]" # Do not count escaped newlines or tabs as part of a word
+# `astroid` is a dependency of pylint
+# "consequentially" is used in the DATC and copied as part of a comment
+# "HEL", "KET", "LOD", "MIS", "SER", "THN", and "VIE" are from DAIDE
+ignore-words-list = "astroid,consequentially,hel,ket,lod,mis,ser,thn,vie"
+quiet-level = 0 # Display all warnings
+check-filenames = ""
+check-hidden = ""
+
 [tool.pytest.ini_options]
 addopts = "--verbosity=1 -ra --strict-config --strict-markers --ignore=diplomacy/web/src/diplomacy/maps/tests/ --numprocesses auto"
 filterwarnings = [
