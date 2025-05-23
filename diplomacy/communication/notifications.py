@@ -25,9 +25,11 @@ from diplomacy.utils.network_data import NetworkData
 from diplomacy.utils.constants import OrderSettings
 from diplomacy.utils.game_phase_data import GamePhaseData
 
+
 class _AbstractNotification(NetworkData):
-    """ Base notification object """
-    __slots__ = ['notification_id', 'token']
+    """Base notification object"""
+
+    __slots__ = ["notification_id", "token"]
     header = {
         strings.NOTIFICATION_ID: str,
         strings.NAME: str,
@@ -44,22 +46,29 @@ class _AbstractNotification(NetworkData):
 
     @classmethod
     def validate_params(cls):
-        """ Hack: we just use it to validate level. """
+        """Hack: we just use it to validate level."""
         assert cls.level in strings.ALL_COMM_LEVELS
 
+
 class _ChannelNotification(_AbstractNotification):
-    """ Channel notification (intended to be sent to a channel). """
+    """Channel notification (intended to be sent to a channel)."""
+
     __slots__ = []
     level = strings.CHANNEL
 
+
 class _GameNotification(_AbstractNotification):
-    """ Game notification (intended to be sent to a game). """
-    __slots__ = ['game_id', 'game_role', 'power_name']
-    header = parsing.update_model(_AbstractNotification.header, {
-        strings.GAME_ID: str,
-        strings.GAME_ROLE: str,
-        strings.POWER_NAME: parsing.OptionalValueType(str),
-    })
+    """Game notification (intended to be sent to a game)."""
+
+    __slots__ = ["game_id", "game_role", "power_name"]
+    header = parsing.update_model(
+        _AbstractNotification.header,
+        {
+            strings.GAME_ID: str,
+            strings.GAME_ROLE: str,
+            strings.POWER_NAME: parsing.OptionalValueType(str),
+        },
+    )
 
     level = strings.GAME
 
@@ -69,50 +78,62 @@ class _GameNotification(_AbstractNotification):
         self.power_name = None  # type: str
         super(_GameNotification, self).__init__(**kwargs)
 
+
 class AccountDeleted(_ChannelNotification):
-    """ Notification about an account deleted. """
+    """Notification about an account deleted."""
+
     __slots__ = []
 
+
 class OmniscientUpdated(_GameNotification):
-    """ Notification about a grade updated. Sent at channel level.
+    """Notification about a grade updated. Sent at channel level.
 
-        Properties:
+    Properties:
 
-            - **grade_update**: :class:`str` One of 'promote' or 'demote'.
-            - **game**: :class:`parsing.JsonableClassType(Game)` a :class:`diplomacy.engine.game.Game` object.
+        - **grade_update**: :class:`str` One of 'promote' or 'demote'.
+        - **game**: :class:`parsing.JsonableClassType(Game)` a :class:`diplomacy.engine.game.Game` object.
     """
-    __slots__ = ['grade_update', 'game']
+
+    __slots__ = ["grade_update", "game"]
     params = {
         strings.GRADE_UPDATE: parsing.EnumerationType(strings.ALL_GRADE_UPDATES),
-        strings.GAME: parsing.JsonableClassType(Game)
+        strings.GAME: parsing.JsonableClassType(Game),
     }
 
     def __init__(self, **kwargs):
-        self.grade_update = ''
+        self.grade_update = ""
         self.game = None  # type: Game
         super(OmniscientUpdated, self).__init__(**kwargs)
 
+
 class ClearedCenters(_GameNotification):
-    """ Notification about centers cleared. """
+    """Notification about centers cleared."""
+
     __slots__ = []
+
 
 class ClearedOrders(_GameNotification):
-    """ Notification about orders cleared. """
+    """Notification about orders cleared."""
+
     __slots__ = []
+
 
 class ClearedUnits(_GameNotification):
-    """ Notification about units cleared. """
+    """Notification about units cleared."""
+
     __slots__ = []
 
+
 class VoteCountUpdated(_GameNotification):
-    """ Notification about new count of draw votes for a game (for observers).
+    """Notification about new count of draw votes for a game (for observers).
 
-        Properties:
+    Properties:
 
-            - **count_voted**: :class:`int` number of powers that have voted.
-            - **count_expected**: :class:`int` number of powers to be expected to vote.
+        - **count_voted**: :class:`int` number of powers that have voted.
+        - **count_expected**: :class:`int` number of powers to be expected to vote.
     """
-    __slots__ = ['count_voted', 'count_expected']
+
+    __slots__ = ["count_voted", "count_expected"]
     params = {
         strings.COUNT_VOTED: int,
         strings.COUNT_EXPECTED: int,
@@ -123,15 +144,17 @@ class VoteCountUpdated(_GameNotification):
         self.count_expected = None  # type: int
         super(VoteCountUpdated, self).__init__(**kwargs)
 
+
 class VoteUpdated(_GameNotification):
-    """ Notification about votes updated for a game (for omniscient observers).
+    """Notification about votes updated for a game (for omniscient observers).
 
-        Properties:
+    Properties:
 
-            - **vote**: :class:`Dict` mapping a power name to a Vote (:class:`str`) object representing power vote.
-              Possible votes are: yes, no, neutral.
+        - **vote**: :class:`Dict` mapping a power name to a Vote (:class:`str`) object representing power vote.
+          Possible votes are: yes, no, neutral.
     """
-    __slots__ = ['vote']
+
+    __slots__ = ["vote"]
     params = {
         strings.VOTE: parsing.DictType(str, parsing.EnumerationType(strings.ALL_VOTE_DECISIONS))
     }
@@ -140,38 +163,42 @@ class VoteUpdated(_GameNotification):
         self.vote = None  # type: dict{str, str}
         super(VoteUpdated, self).__init__(**kwargs)
 
+
 class PowerVoteUpdated(VoteCountUpdated):
-    """ Notification about a new vote for a specific game power (for player games).
+    """Notification about a new vote for a specific game power (for player games).
 
-        Properties:
+    Properties:
 
-            - **vote**: :class:`str` vote object representing associated power vote. Can be yes, no, neutral.
+        - **vote**: :class:`str` vote object representing associated power vote. Can be yes, no, neutral.
     """
-    __slots__ = ['vote']
-    params = parsing.extend_model(VoteCountUpdated.params, {
-        strings.VOTE: parsing.EnumerationType(strings.ALL_VOTE_DECISIONS)
-    })
+
+    __slots__ = ["vote"]
+    params = parsing.extend_model(
+        VoteCountUpdated.params, {strings.VOTE: parsing.EnumerationType(strings.ALL_VOTE_DECISIONS)}
+    )
 
     def __init__(self, **kwargs):
         self.vote = None  # type: str
         super(PowerVoteUpdated, self).__init__(**kwargs)
 
+
 class PowersControllers(_GameNotification):
-    """ Notification about current controller for each power in a game.
+    """Notification about current controller for each power in a game.
 
-        Properties:
+    Properties:
 
-            - **powers**: A :class:`Dict` that maps a power_name to a controller_name :class:`str`.
-            - **timestamps**: A :class:`Dict` that maps a power_name to timestamp where the controller took over.
+        - **powers**: A :class:`Dict` that maps a power_name to a controller_name :class:`str`.
+        - **timestamps**: A :class:`Dict` that maps a power_name to timestamp where the controller took over.
     """
-    __slots__ = ['powers', 'timestamps', 'player_types']
+
+    __slots__ = ["powers", "timestamps", "player_types"]
     params = {
         # {power_name => controller_name}
         strings.POWERS: parsing.DictType(str, parsing.OptionalValueType(str)),
         # {power_name => controller timestamp}
         strings.TIMESTAMPS: parsing.DictType(str, int),
         # {power_name => player_types}
-        strings.PLAYER_TYPES: parsing.DictType(str, str)
+        strings.PLAYER_TYPES: parsing.DictType(str, str),
     }
 
     def __init__(self, **kwargs):
@@ -179,19 +206,23 @@ class PowersControllers(_GameNotification):
         self.timestamps = {}
         super(PowersControllers, self).__init__(**kwargs)
 
+
 class GameDeleted(_GameNotification):
-    """ Notification about a game deleted. """
+    """Notification about a game deleted."""
+
     __slots__ = []
 
+
 class GameProcessed(_GameNotification):
-    """ Notification about a game phase update. Sent after game has processed a phase.
+    """Notification about a game phase update. Sent after game has processed a phase.
 
-        Properties:
+    Properties:
 
-            - **previous_phase_data**: :class:`diplomacy.utils.game_phase_data.GamePhaseData` of the previous phase
-            - **current_phase_data**: :class:`diplomacy.utils.game_phase_data.GamePhaseData` of the current phase
+        - **previous_phase_data**: :class:`diplomacy.utils.game_phase_data.GamePhaseData` of the previous phase
+        - **current_phase_data**: :class:`diplomacy.utils.game_phase_data.GamePhaseData` of the current phase
     """
-    __slots__ = ['previous_phase_data', 'current_phase_data']
+
+    __slots__ = ["previous_phase_data", "current_phase_data"]
     params = {
         strings.PREVIOUS_PHASE_DATA: parsing.JsonableClassType(GamePhaseData),
         strings.CURRENT_PHASE_DATA: parsing.JsonableClassType(GamePhaseData),
@@ -202,18 +233,20 @@ class GameProcessed(_GameNotification):
         self.current_phase_data = None  # type: GamePhaseData
         super(GameProcessed, self).__init__(**kwargs)
 
+
 class GamePhaseUpdate(_GameNotification):
-    """ Notification about a game phase update.
+    """Notification about a game phase update.
 
-        Properties:
+    Properties:
 
-            - **phase_data**: :class:`diplomacy.utils.game_phase_data.GamePhaseData` of the updated phase
-            - **phase_data_type**: :class:`str`. One of 'state_history', 'state', 'phase'
+        - **phase_data**: :class:`diplomacy.utils.game_phase_data.GamePhaseData` of the updated phase
+        - **phase_data_type**: :class:`str`. One of 'state_history', 'state', 'phase'
     """
-    __slots__ = ['phase_data', 'phase_data_type']
+
+    __slots__ = ["phase_data", "phase_data_type"]
     params = {
         strings.PHASE_DATA: parsing.JsonableClassType(GamePhaseData),
-        strings.PHASE_DATA_TYPE: strings.ALL_STATE_TYPES
+        strings.PHASE_DATA_TYPE: strings.ALL_STATE_TYPES,
     }
 
     def __init__(self, **kwargs):
@@ -221,14 +254,16 @@ class GamePhaseUpdate(_GameNotification):
         self.phase_data_type = None  # type: str
         super(GamePhaseUpdate, self).__init__(**kwargs)
 
+
 class GameStatusUpdate(_GameNotification):
-    """ Notification about a game status update.
+    """Notification about a game status update.
 
-        Properties:
+    Properties:
 
-            -**status**: :class:`str`. One of 'forming', 'active', 'paused', 'completed', 'canceled'
+        -**status**: :class:`str`. One of 'forming', 'active', 'paused', 'completed', 'canceled'
     """
-    __slots__ = ['status']
+
+    __slots__ = ["status"]
     params = {
         strings.STATUS: parsing.EnumerationType(strings.ALL_GAME_STATUSES),
     }
@@ -237,29 +272,31 @@ class GameStatusUpdate(_GameNotification):
         self.status = None
         super(GameStatusUpdate, self).__init__(**kwargs)
 
-class LogDataReceived(_GameNotification):
-    """ Notification about a game message received.
-        Properties:
 
-            - **log**: :class:`diplomacy.engine.log.Message` received.
+class LogDataReceived(_GameNotification):
+    """Notification about a game message received.
+    Properties:
+
+        - **log**: :class:`diplomacy.engine.log.Message` received.
     """
-    __slots__ = ['log']
-    params = {
-        strings.LOG: parsing.JsonableClassType(Log)
-    }
+
+    __slots__ = ["log"]
+    params = {strings.LOG: parsing.JsonableClassType(Log)}
+
     def __init__(self, **kwargs):
         self.log = None  # type: Message
         super(LogDataReceived, self).__init__(**kwargs)
 
 
 class GameMessageReceived(_GameNotification):
-    """ Notification about a game message received.
+    """Notification about a game message received.
 
-        Properties:
+    Properties:
 
-            - **message**: :class:`diplomacy.engine.message.Message` received.
+        - **message**: :class:`diplomacy.engine.message.Message` received.
     """
-    __slots__ = ['message']
+
+    __slots__ = ["message"]
     params = {
         strings.MESSAGE: parsing.JsonableClassType(Message),
     }
@@ -268,14 +305,16 @@ class GameMessageReceived(_GameNotification):
         self.message = None  # type: Message
         super(GameMessageReceived, self).__init__(**kwargs)
 
+
 class PowerOrdersUpdate(_GameNotification):
-    """ Notification about a power order update.
+    """Notification about a power order update.
 
-        Properties:
+    Properties:
 
-            - **orders**: List of updated orders (i.e. :class:`str`)
+        - **orders**: List of updated orders (i.e. :class:`str`)
     """
-    __slots__ = ['orders']
+
+    __slots__ = ["orders"]
     params = {
         strings.ORDERS: parsing.OptionalValueType(parsing.SequenceType(str)),
     }
@@ -284,14 +323,16 @@ class PowerOrdersUpdate(_GameNotification):
         self.orders = None  # type: set
         super(PowerOrdersUpdate, self).__init__(**kwargs)
 
+
 class PowerOrdersFlag(_GameNotification):
-    """ Notification about a power order flag update.
+    """Notification about a power order flag update.
 
-        Properties:
+    Properties:
 
-            - **order_is_set**: :class:`int`. O = ORDER_NOT_SET, 1 = ORDER_SET_EMPTY, 2 = ORDER_SET.
+        - **order_is_set**: :class:`int`. O = ORDER_NOT_SET, 1 = ORDER_SET_EMPTY, 2 = ORDER_SET.
     """
-    __slots__ = ['order_is_set']
+
+    __slots__ = ["order_is_set"]
     params = {
         strings.ORDER_IS_SET: parsing.EnumerationType(OrderSettings.ALL_SETTINGS),
     }
@@ -300,14 +341,16 @@ class PowerOrdersFlag(_GameNotification):
         self.order_is_set = 0
         super(PowerOrdersFlag, self).__init__(**kwargs)
 
+
 class PowerCommStatusUpdate(_GameNotification):
-    """ Notification about a powers comm status update.
+    """Notification about a powers comm status update.
 
-        Properties:
+    Properties:
 
-            -**status**: :class:`str`. One of 'busy', 'ready', 'inactive'
+        -**status**: :class:`str`. One of 'busy', 'ready', 'inactive'
     """
-    __slots__ = ['comm_status']
+
+    __slots__ = ["comm_status"]
     params = {
         strings.COMM_STATUS: parsing.EnumerationType(strings.ALL_COMM_STATUSES),
     }
@@ -316,16 +359,18 @@ class PowerCommStatusUpdate(_GameNotification):
         self.comm_status = None
         super(PowerCommStatusUpdate, self).__init__(**kwargs)
 
+
 class PowerWaitFlag(_GameNotification):
-    """ Notification about a power wait flag update.
+    """Notification about a power wait flag update.
 
-        Properties:
+    Properties:
 
-            - **wait**: :class:`bool` that indicates to wait until the deadline is reached before proceeding. Otherwise
-              if all powers are not waiting, the game is processed as soon as all non-eliminated powers have submitted
-              their orders.
+        - **wait**: :class:`bool` that indicates to wait until the deadline is reached before proceeding. Otherwise
+          if all powers are not waiting, the game is processed as soon as all non-eliminated powers have submitted
+          their orders.
     """
-    __slots__ = ['wait']
+
+    __slots__ = ["wait"]
     params = {
         strings.WAIT: bool,
     }
@@ -334,17 +379,20 @@ class PowerWaitFlag(_GameNotification):
         self.wait = None  # type: bool
         super(PowerWaitFlag, self).__init__(**kwargs)
 
-def parse_dict(json_notification):
-    """ Parse a JSON expected to represent a notification. Raise an exception if parsing failed.
 
-        :param json_notification: JSON dictionary.
-        :return: a notification class instance.
+def parse_dict(json_notification):
+    """Parse a JSON expected to represent a notification. Raise an exception if parsing failed.
+
+    :param json_notification: JSON dictionary.
+    :return: a notification class instance.
     """
-    assert isinstance(json_notification, dict), 'Notification parser expects a dict.'
+    assert isinstance(json_notification, dict), "Notification parser expects a dict."
     name = json_notification.get(strings.NAME, None)
     if name is None:
         raise exceptions.NotificationException()
     expected_class_name = common.snake_case_to_upper_camel_case(name)
     notification_class = globals()[expected_class_name]
-    assert inspect.isclass(notification_class) and issubclass(notification_class, _AbstractNotification)
+    assert inspect.isclass(notification_class) and issubclass(
+        notification_class, _AbstractNotification
+    )
     return notification_class.from_dict(json_notification)

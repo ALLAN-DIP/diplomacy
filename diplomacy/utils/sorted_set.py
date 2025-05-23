@@ -14,25 +14,27 @@
 #  You should have received a copy of the GNU Affero General Public License along
 #  with this program.  If not, see <https://www.gnu.org/licenses/>.
 # ==============================================================================
-""" Sorted set implementation. """
+"""Sorted set implementation."""
 import bisect
 from copy import copy
 
 from diplomacy.utils import exceptions
 from diplomacy.utils.common import is_sequence
 
+
 class SortedSet:
-    """ Sorted set (sorted values, each value appears once). """
-    __slots__ = ('__type', '__list')
+    """Sorted set (sorted values, each value appears once)."""
+
+    __slots__ = ("__type", "__list")
 
     def __init__(self, element_type, content=()):
-        """ Initialize a typed sorted set.
+        """Initialize a typed sorted set.
 
-            :param element_type: Expected type for values.
-            :param content: (optional) Sequence of values to initialize sorted set with.
+        :param element_type: Expected type for values.
+        :param content: (optional) Sequence of values to initialize sorted set with.
         """
         if not is_sequence(content):
-            raise exceptions.TypeException('sequence', type(content))
+            raise exceptions.TypeException("sequence", type(content))
         self.__type = element_type
         self.__list = []
         for element in content:
@@ -40,53 +42,55 @@ class SortedSet:
 
     @staticmethod
     def builder(element_type):
-        """ Return a function to build sorted sets from content (sequence of values).
-            Returned function expects a content parameter like SortedSet initializer.
+        """Return a function to build sorted sets from content (sequence of values).
+        Returned function expects a content parameter like SortedSet initializer.
 
-            .. code-block:: python
+        .. code-block:: python
 
-                builder_fn = SortedSet.builder(str)
-                my_sorted_set = builder_fn(['c', '3', 'p', '0'])
+            builder_fn = SortedSet.builder(str)
+            my_sorted_set = builder_fn(['c', '3', 'p', '0'])
 
-            :param element_type: expected type for sorted set values.
-            :return: callable
+        :param element_type: expected type for sorted set values.
+        :return: callable
         """
         return lambda iterable: SortedSet(element_type, iterable)
 
     @property
     def element_type(self):
-        """ Get values type. """
+        """Get values type."""
         return self.__type
 
     def __str__(self):
-        """ String representation """
-        return 'SortedSet(%s, %s)' % (self.__type.__name__, self.__list)
+        """String representation"""
+        return "SortedSet(%s, %s)" % (self.__type.__name__, self.__list)
 
     def __len__(self):
-        """ Returns len of SortedSet """
+        """Returns len of SortedSet"""
         return len(self.__list)
 
     def __eq__(self, other):
-        """ Determines if 2 SortedSets are equal """
+        """Determines if 2 SortedSets are equal"""
         assert isinstance(other, SortedSet)
-        return (self.element_type is other.element_type
-                and len(self) == len(other)
-                and all(a == b for a, b in zip(self, other)))
+        return (
+            self.element_type is other.element_type
+            and len(self) == len(other)
+            and all(a == b for a, b in zip(self, other))
+        )
 
     def __getitem__(self, index):
-        """ Returns the item at the position index """
+        """Returns the item at the position index"""
         return copy(self.__list[index])
 
     def __iter__(self):
-        """ Returns an iterator """
+        """Returns an iterator"""
         return self.__list.__iter__()
 
     def __reversed__(self):
-        """ Return reversed view of internal list. """
+        """Return reversed view of internal list."""
         return reversed(self.__list)
 
     def __contains__(self, element):
-        """ Determines if the element is in the SortedSet """
+        """Determines if the element is in the SortedSet"""
         assert isinstance(element, self.__type)
         if self.__list:
             position = bisect.bisect_left(self.__list, element)
@@ -94,7 +98,7 @@ class SortedSet:
         return False
 
     def add(self, element):
-        """ Add an element. """
+        """Add an element."""
         assert isinstance(element, self.__type)
         if self.__list:
             best_position = bisect.bisect_left(self.__list, element)
@@ -108,8 +112,8 @@ class SortedSet:
         return best_position
 
     def get_next_value(self, element):
-        """ Get lowest value in sorted set greater than given element, or None if such values
-            does not exists in the sorted set. Given element may not exists in the sorted set.
+        """Get lowest value in sorted set greater than given element, or None if such values
+        does not exists in the sorted set. Given element may not exists in the sorted set.
         """
         assert isinstance(element, self.__type)
         if self.__list:
@@ -122,8 +126,8 @@ class SortedSet:
         return None
 
     def get_previous_value(self, element):
-        """ Get greatest value in sorted set less the given element, or None if such value
-            does not exists in the sorted set. Given element may not exists in the sorted set.
+        """Get greatest value in sorted set less the given element, or None if such value
+        does not exists in the sorted set. Given element may not exists in the sorted set.
         """
         assert isinstance(element, self.__type)
         if self.__list:
@@ -135,11 +139,11 @@ class SortedSet:
         return None
 
     def pop(self, index):
-        """ Remove and return value at given index. """
+        """Remove and return value at given index."""
         return self.__list.pop(index)
 
     def remove(self, element):
-        """ Remove and return element. """
+        """Remove and return element."""
         assert isinstance(element, self.__type)
         if self.__list:
             position = bisect.bisect_left(self.__list, element)
@@ -148,7 +152,7 @@ class SortedSet:
         return None
 
     def index(self, element):
-        """ Return index of element in the set, or None if element is not in the set. """
+        """Return index of element in the set, or None if element is not in the set."""
         assert isinstance(element, self.__type)
         if self.__list:
             position = bisect.bisect_left(self.__list, element)
@@ -157,5 +161,5 @@ class SortedSet:
         return None
 
     def clear(self):
-        """ Remove all items from set. """
+        """Remove all items from set."""
         self.__list.clear()

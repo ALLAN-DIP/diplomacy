@@ -14,50 +14,60 @@
 #  You should have received a copy of the GNU Affero General Public License along
 #  with this program.  If not, see <https://www.gnu.org/licenses/>.
 # ==============================================================================
-""" Test for diplomacy network code utils. """
+"""Test for diplomacy network code utils."""
 import ujson as json
 
 from diplomacy.utils import common, exceptions
 
+
 def assert_raises(callback, expected_exceptions):
-    """ Checks that given callback raises given exceptions. """
+    """Checks that given callback raises given exceptions."""
 
     try:
         callback()
     except expected_exceptions:
         pass
     else:
-        raise AssertionError('Should fail %s %s' % (callback, str(expected_exceptions)))
+        raise AssertionError("Should fail %s %s" % (callback, str(expected_exceptions)))
+
 
 def assert_equals(expected, computed):
-    """ Checks that expect == computed. """
+    """Checks that expect == computed."""
 
     if expected != computed:
-        raise AssertionError('\nExpected:\n=========\n%s\n\nComputed:\n=========\n%s\n' % (expected, computed))
+        raise AssertionError(
+            "\nExpected:\n=========\n%s\n\nComputed:\n=========\n%s\n" % (expected, computed)
+        )
+
 
 def test_hash_password():
-    """ Test passwords hashing. Note: slower than the other tests. """
+    """Test passwords hashing. Note: slower than the other tests."""
 
-    password1 = '123456789'
-    password2 = 'abcdef'
-    password_unicode = 'しろいねこをみた。 白い猫を見た。'
+    password1 = "123456789"
+    password2 = "abcdef"
+    password_unicode = "しろいねこをみた。 白い猫を見た。"
     for password in (password1, password2, password_unicode):
         hashed_password = common.hash_password(password)
         json_hashed_password = json.dumps(common.hash_password(password))
         hashed_password_from_json = json.loads(json_hashed_password)
         # It seems hashed passwords are not necessarily the same for 2 different calls to hash function.
         assert common.is_valid_password(password, hashed_password), (password, hashed_password)
-        assert common.is_valid_password(password, hashed_password_from_json), (password, hashed_password_from_json)
+        assert common.is_valid_password(password, hashed_password_from_json), (
+            password,
+            hashed_password_from_json,
+        )
+
 
 def test_generate_token():
-    """ Test token generation. """
+    """Test token generation."""
 
     for n_bytes in (128, 344):
         token = common.generate_token(n_bytes)
         assert isinstance(token, str) and len(token) == 2 * n_bytes
 
+
 def test_is_sequence():
-    """ Test sequence type checking function. """
+    """Test sequence type checking function."""
 
     assert common.is_sequence((1, 2, 3))
     assert common.is_sequence([1, 2, 3])
@@ -65,16 +75,17 @@ def test_is_sequence():
     assert common.is_sequence(())
     assert common.is_sequence([])
     assert common.is_sequence(set())
-    assert not common.is_sequence('i am a string')
+    assert not common.is_sequence("i am a string")
     assert not common.is_sequence({})
     assert not common.is_sequence(1)
     assert not common.is_sequence(False)
     assert not common.is_sequence(-2.5)
 
-def test_is_dictionary():
-    """ Test dictionary type checking function. """
 
-    assert common.is_dictionary({'a': 1, 'b': 2})
+def test_is_dictionary():
+    """Test dictionary type checking function."""
+
+    assert common.is_dictionary({"a": 1, "b": 2})
     assert not common.is_dictionary((1, 2, 3))
     assert not common.is_dictionary([1, 2, 3])
     assert not common.is_dictionary({1, 2, 3})
@@ -83,57 +94,71 @@ def test_is_dictionary():
     assert not common.is_dictionary([])
     assert not common.is_dictionary(set())
 
-    assert not common.is_dictionary('i am a string')
+    assert not common.is_dictionary("i am a string")
+
 
 def test_camel_to_snake_case():
-    """ Test conversion from camel case to snake case. """
+    """Test conversion from camel case to snake case."""
 
     for camel, expected_snake in [
-            ('a', 'a'),
-            ('A', 'a'),
-            ('AA', 'a_a'),
-            ('AbCdEEf', 'ab_cd_e_ef'),
-            ('Aa', 'aa'),
-            ('OnGameDone', 'on_game_done'),
-            ('AbstractSuperClass', 'abstract_super_class'),
-            ('ABCDEFghikKLm', 'a_b_c_d_e_fghik_k_lm'),
-            ('is_a_thing', 'is_a_thing'),
-            ('A_a_Aa__', 'a_a_aa__'),
-            ('Horrible_SuperClass_nameWith_mixedSyntax', 'horrible_super_class_name_with_mixed_syntax'),
+        ("a", "a"),
+        ("A", "a"),
+        ("AA", "a_a"),
+        ("AbCdEEf", "ab_cd_e_ef"),
+        ("Aa", "aa"),
+        ("OnGameDone", "on_game_done"),
+        ("AbstractSuperClass", "abstract_super_class"),
+        ("ABCDEFghikKLm", "a_b_c_d_e_fghik_k_lm"),
+        ("is_a_thing", "is_a_thing"),
+        ("A_a_Aa__", "a_a_aa__"),
+        ("Horrible_SuperClass_nameWith_mixedSyntax", "horrible_super_class_name_with_mixed_syntax"),
     ]:
         computed_snake = common.camel_case_to_snake_case(camel)
-        assert computed_snake == expected_snake, ('camel : expected : computed:', camel, expected_snake, computed_snake)
+        assert computed_snake == expected_snake, (
+            "camel : expected : computed:",
+            camel,
+            expected_snake,
+            computed_snake,
+        )
+
 
 def test_snake_to_camel_case():
-    """ Test conversion from snake case to camel upper case. """
+    """Test conversion from snake case to camel upper case."""
 
     for expected_camel, snake in [
-            ('A', 'a'),
-            ('AA', 'a_a'),
-            ('AbCdEEf', 'ab_cd_e_ef'),
-            ('Aa', 'aa'),
-            ('OnGameDone', 'on_game_done'),
-            ('AbstractSuperClass', 'abstract_super_class'),
-            ('ABCDEFghikKLm', 'a_b_c_d_e_fghik_k_lm'),
-            ('IsAThing', 'is_a_thing'),
-            ('AAAa__', 'a_a_aa__'),
-            ('_AnHorrible_ClassName', '__an_horrible__class_name'),
+        ("A", "a"),
+        ("AA", "a_a"),
+        ("AbCdEEf", "ab_cd_e_ef"),
+        ("Aa", "aa"),
+        ("OnGameDone", "on_game_done"),
+        ("AbstractSuperClass", "abstract_super_class"),
+        ("ABCDEFghikKLm", "a_b_c_d_e_fghik_k_lm"),
+        ("IsAThing", "is_a_thing"),
+        ("AAAa__", "a_a_aa__"),
+        ("_AnHorrible_ClassName", "__an_horrible__class_name"),
     ]:
         computed_camel = common.snake_case_to_upper_camel_case(snake)
-        assert computed_camel == expected_camel, ('snake : expected : computed:', snake, expected_camel, computed_camel)
+        assert computed_camel == expected_camel, (
+            "snake : expected : computed:",
+            snake,
+            expected_camel,
+            computed_camel,
+        )
+
 
 def test_assert_no_common_keys():
-    """ Test dictionary disjunction checking function. """
+    """Test dictionary disjunction checking function."""
 
-    dct1 = {'a': 1, 'b': 2, 'c': 3}
-    dct2 = {'a': 1, 'e': 2, 'd': 3}
-    dct3 = {'m': 1, 'e': 2, 'f': 3}
+    dct1 = {"a": 1, "b": 2, "c": 3}
+    dct2 = {"a": 1, "e": 2, "d": 3}
+    dct3 = {"m": 1, "e": 2, "f": 3}
     common.assert_no_common_keys(dct1, dct3)
     assert_raises(lambda: common.assert_no_common_keys(dct1, dct2), exceptions.CommonKeyException)
     assert_raises(lambda: common.assert_no_common_keys(dct2, dct3), exceptions.CommonKeyException)
 
+
 def test_timestamp():
-    """ Test timestamp generation. """
+    """Test timestamp generation."""
 
     timestamp1 = common.timestamp_microseconds()
     timestamp2 = common.timestamp_microseconds()
