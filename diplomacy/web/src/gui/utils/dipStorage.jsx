@@ -43,10 +43,10 @@ export class DipStorage {
                         password: null,
                         hostname: null,
                         port: null,
-                        showServerFields: null
-                    }
+                        showServerFields: null,
+                    },
                 },
-                users: (users && JSON.parse(users)) || {}
+                users: (users && JSON.parse(users)) || {},
             };
         }
     }
@@ -65,15 +65,17 @@ export class DipStorage {
 
     static getUserGames(username) {
         DipStorage.load();
-        if (STORAGE.users[username])
-            return Object.keys(STORAGE.users[username].games);
+        if (STORAGE.users[username]) return Object.keys(STORAGE.users[username].games);
         return null;
     }
 
     static getUserGameOrders(username, gameID, gamePhase) {
         DipStorage.load();
-        if (STORAGE.users[username] && STORAGE.users[username].games[gameID]
-            && STORAGE.users[username].games[gameID].phase === gamePhase)
+        if (
+            STORAGE.users[username] &&
+            STORAGE.users[username].games[gameID] &&
+            STORAGE.users[username].games[gameID].phase === gamePhase
+        )
             return Object.assign({}, STORAGE.users[username].games[gameID].local_orders);
         return null;
     }
@@ -110,17 +112,16 @@ export class DipStorage {
 
     static addUserGame(username, gameID) {
         DipStorage.load();
-        if (!STORAGE.users[username])
-            STORAGE.users[username] = {games: {}};
+        if (!STORAGE.users[username]) STORAGE.users[username] = { games: {} };
         if (!STORAGE.users[username].games[gameID])
-            STORAGE.users[username].games[gameID] = {phase: null, local_orders: {}};
+            STORAGE.users[username].games[gameID] = { phase: null, local_orders: {} };
         DipStorage.save();
     }
 
     static addUserGameOrders(username, gameID, gamePhase, powerName, orders) {
         DipStorage.addUserGame(username, gameID);
         if (STORAGE.users[username].games[gameID].phase !== gamePhase)
-            STORAGE.users[username].games[gameID] = {phase: null, local_orders: {}};
+            STORAGE.users[username].games[gameID] = { phase: null, local_orders: {} };
         STORAGE.users[username].games[gameID].phase = gamePhase;
         STORAGE.users[username].games[gameID].local_orders[powerName] = orders;
         DipStorage.save();
@@ -140,7 +141,7 @@ export class DipStorage {
             if (STORAGE.users[username].games[gameID].local_orders[powerName])
                 delete STORAGE.users[username].games[gameID].local_orders[powerName];
         } else {
-            STORAGE.users[username].games[gameID] = {phase: null, local_orders: {}};
+            STORAGE.users[username].games[gameID] = { phase: null, local_orders: {} };
         }
         DipStorage.save();
     }

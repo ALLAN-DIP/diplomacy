@@ -26,7 +26,7 @@ export class PlayerPowersInfoTable extends React.Component {
     getHeader(columns) {
         const header = [];
         for (let entry of Object.entries(columns)) {
-            if (entry.length > 0 && entry[0] === 'controller') continue;
+            if (entry.length > 0 && entry[0] === "controller") continue;
             const name = entry[0];
             const title = entry[1][0];
             const order = entry[1][1];
@@ -54,14 +54,7 @@ export class PlayerPowersInfoTable extends React.Component {
         );
     }
 
-    getBodyRow(
-        header,
-        row,
-        rowIndex,
-        wrapper,
-        countries,
-        player
-    ) {
+    getBodyRow(header, row, rowIndex, wrapper, countries, player) {
         const wrapped = wrapper(row);
 
         return (
@@ -78,16 +71,7 @@ export class PlayerPowersInfoTable extends React.Component {
     getBodyLines(header, data, wrapper, countries, player) {
         return (
             <tbody>
-                {data.map((row, rowIndex) =>
-                    this.getBodyRow(
-                        header,
-                        row,
-                        rowIndex,
-                        wrapper,
-                        countries,
-                        player
-                    )
-                )}
+                {data.map((row, rowIndex) => this.getBodyRow(header, row, rowIndex, wrapper, countries, player))}
             </tbody>
         );
     }
@@ -106,7 +90,7 @@ export class PlayerPowersInfoTable extends React.Component {
                         this.props.data,
                         this.props.wrapper,
                         this.props.countries,
-                        this.props.player
+                        this.props.player,
                     )}
                 </table>
             </div>
