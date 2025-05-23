@@ -85,7 +85,6 @@ It is possible to visualize a game by using the "Load a game from disk" menu on 
 
 ![](docs/images/visualize_game.png)
 
-
 ## Network Game
 
 It is possible to join a game remotely over a network using websockets. The script below plays a game over a network.
@@ -148,6 +147,7 @@ if __name__ == '__main__':
     asyncio.run(launch(game_id=str(random.randint(1, 1000))))
 
 ```
+
 ## License
 
 This project is licensed under the APGLv3 License - see the [LICENSE](LICENSE) file for details

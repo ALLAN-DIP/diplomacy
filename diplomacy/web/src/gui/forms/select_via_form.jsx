@@ -16,21 +16,23 @@
 // ==============================================================================
 import React from "react";
 import PropTypes from "prop-types";
-import {Button} from "../components/button";
-import {FancyBox} from "../components/fancyBox";
+import { Button } from "../components/button";
+import { FancyBox } from "../components/fancyBox";
 
-const HotKey = require('react-shortcut');
+const HotKey = require("react-shortcut");
 
 export class SelectViaForm extends React.Component {
     render() {
         return (
-            <FancyBox title={`Select move type for move order: ${this.props.path.join(' ')}`}
-                      onClose={this.props.onClose}>
+            <FancyBox
+                title={`Select move type for move order: ${this.props.path.join(" ")}`}
+                onClose={this.props.onClose}
+            >
                 <div>
-                    <Button title={'regular move (M)'} large={true} onClick={() => this.props.onSelect('M')}/>
-                    <Button title={'move via (V)'} large={true} onClick={() => this.props.onSelect('V')}/>
-                    <HotKey keys={['m']} onKeysCoincide={() => this.props.onSelect('M')}/>
-                    <HotKey keys={['v']} onKeysCoincide={() => this.props.onSelect('V')}/>
+                    <Button title={"regular move (M)"} large={true} onClick={() => this.props.onSelect("M")} />
+                    <Button title={"move via (V)"} large={true} onClick={() => this.props.onSelect("V")} />
+                    <HotKey keys={["m"]} onKeysCoincide={() => this.props.onSelect("M")} />
+                    <HotKey keys={["v"]} onKeysCoincide={() => this.props.onSelect("V")} />
                 </div>
             </FancyBox>
         );
@@ -40,5 +42,5 @@ export class SelectViaForm extends React.Component {
 SelectViaForm.propTypes = {
     path: PropTypes.array.isRequired,
     onSelect: PropTypes.func.isRequired,
-    onClose: PropTypes.func.isRequired
+    onClose: PropTypes.func.isRequired,
 };

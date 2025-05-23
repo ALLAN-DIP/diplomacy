@@ -14,7 +14,7 @@
 //  You should have received a copy of the GNU Affero General Public License along
 //  with this program.  If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
-import {Future} from "./future";
+import { Future } from "./future";
 
 export class Queue {
     constructor() {
@@ -39,7 +39,7 @@ export class Queue {
     }
 
     get() {
-        return new Promise(resolve => {
+        return new Promise((resolve) => {
             if (this.queue.length) {
                 resolve(this.__next_value());
             } else {
