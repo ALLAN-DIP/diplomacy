@@ -67,7 +67,7 @@ def strip_parentheses(daide_bytes):
     The first and last token are expected to be parentheses.
     """
     assert daide_bytes[:2] == bytes(tokens.OPE_PAR), 'Expected bytes to start with "("'
-    assert daide_bytes[-2:] == bytes(tokens.CLO_PAR), 'Expected bytes to end wth ")"'
+    assert daide_bytes[-2:] == bytes(tokens.CLO_PAR), 'Expected bytes to end with ")"'
     return daide_bytes[2:-2]
 
 
