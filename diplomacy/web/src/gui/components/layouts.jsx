@@ -14,17 +14,17 @@
 //  You should have received a copy of the GNU Affero General Public License along
 //  with this program.  If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
-import React from 'react';
-import PropTypes from 'prop-types';
+import React from "react";
+import PropTypes from "prop-types";
 
 class Div extends React.Component {
     getClassName() {
-        return '';
+        return "";
     }
 
     render() {
         return (
-            <div className={this.getClassName() + (this.props.className ? ' ' + this.props.className : '')}>
+            <div className={this.getClassName() + (this.props.className ? " " + this.props.className : "")}>
                 {this.props.children}
             </div>
         );
@@ -33,23 +33,23 @@ class Div extends React.Component {
 
 Div.propTypes = {
     className: PropTypes.string,
-    children: PropTypes.oneOfType([PropTypes.array, PropTypes.object])
+    children: PropTypes.oneOfType([PropTypes.array, PropTypes.object]),
 };
 
 export class Bar extends Div {
     getClassName() {
-        return 'bar';
+        return "bar";
     }
 }
 
 export class Row extends Div {
     getClassName() {
-        return 'row';
+        return "row";
     }
 }
 
 export class Col extends Div {
     getClassName() {
-        return 'col';
+        return "col";
     }
 }

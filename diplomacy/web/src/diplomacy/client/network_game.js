@@ -14,8 +14,8 @@
 //  You should have received a copy of the GNU Affero General Public License along
 //  with this program.  If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
-import {Channel} from "./channel";
-import {Game} from "../engine/game";
+import { Channel } from "./channel";
+import { Game } from "../engine/game";
 
 /** Class NetworkGame. **/
 
@@ -56,8 +56,7 @@ export class NetworkGame {
 
     _req(channelMethod, parameters) {
         /** Send a game request using given channel request method. **/
-        if (!this.channel)
-            throw new Error('Invalid client game.');
+        if (!this.channel) throw new Error("Invalid client game.");
         return channelMethod.apply(this.channel, [parameters, this]);
     }
 
@@ -140,7 +139,7 @@ export class NetworkGame {
     }
 
     setCommStatus(parameters) {
-        return this._req(Channel.prototype.setCommStatus, parameters)
+        return this._req(Channel.prototype.setCommStatus, parameters);
     }
 
     vote(parameters) {
@@ -152,9 +151,11 @@ export class NetworkGame {
     }
 
     synchronize() {
-        if (!this.channel)
-            throw new Error('Invalid client game.');
-        return Channel.prototype.synchronize.apply(this.channel, [{timestamp: this.local.getLatestTimestamp()}, this]);
+        if (!this.channel) throw new Error("Invalid client game.");
+        return Channel.prototype.synchronize.apply(this.channel, [
+            { timestamp: this.local.getLatestTimestamp() },
+            this,
+        ]);
     }
 
     // Admin/moderator API.
@@ -202,152 +203,152 @@ export class NetworkGame {
     //// Game callbacks setting API.
 
     addOnClearedCenters(callback) {
-        this.addCallback('cleared_centers', callback);
+        this.addCallback("cleared_centers", callback);
     }
 
     addOnClearedOrders(callback) {
-        this.addCallback('cleared_orders', callback);
+        this.addCallback("cleared_orders", callback);
     }
 
     addOnClearedUnits(callback) {
-        this.addCallback('cleared_units', callback);
+        this.addCallback("cleared_units", callback);
     }
 
     addOnPowersControllers(callback) {
-        this.addCallback('powers_controllers', callback);
+        this.addCallback("powers_controllers", callback);
     }
 
     addOnGameDeleted(callback) {
-        this.addCallback('game_deleted', callback);
+        this.addCallback("game_deleted", callback);
     }
 
     addOnGameMessageReceived(callback) {
-        this.addCallback('game_message_received', callback);
+        this.addCallback("game_message_received", callback);
     }
 
     addOnLogReceived(callback) {
-        this.addCallback('log_received', callback);
+        this.addCallback("log_received", callback);
     }
 
     addOnRecipientAnnotationReceived(callback) {
-        this.addCallback('recipient_annotation_received', callback);
+        this.addCallback("recipient_annotation_received", callback);
     }
 
     addOnGameProcessed(callback) {
-        this.addCallback('game_processed', callback);
+        this.addCallback("game_processed", callback);
     }
 
     addOnGamePhaseUpdate(callback) {
-        this.addCallback('game_phase_update', callback);
+        this.addCallback("game_phase_update", callback);
     }
 
     addOnGameStatusUpdate(callback) {
-        this.addCallback('game_status_update', callback);
+        this.addCallback("game_status_update", callback);
     }
 
     addOnOmniscientUpdated(callback) {
-        this.addCallback('omniscient_updated', callback);
+        this.addCallback("omniscient_updated", callback);
     }
 
     addOnPowerOrdersUpdate(callback) {
-        this.addCallback('power_orders_update', callback);
+        this.addCallback("power_orders_update", callback);
     }
 
     addOnPowerOrdersFlag(callback) {
-        this.addCallback('power_orders_flag', callback);
+        this.addCallback("power_orders_flag", callback);
     }
 
     addOnPowerVoteUpdated(callback) {
-        this.addCallback('power_vote_updated', callback);
+        this.addCallback("power_vote_updated", callback);
     }
 
     addOnPowerWaitFlag(callback) {
-        this.addCallback('power_wait_flag', callback);
+        this.addCallback("power_wait_flag", callback);
     }
 
     addOnCommStatusUpdate(callback) {
-        this.addCallback('power_comm_status_update', callback)
+        this.addCallback("power_comm_status_update", callback);
     }
 
     addOnVoteCountUpdated(callback) {
-        this.addCallback('vote_count_updated', callback);
+        this.addCallback("vote_count_updated", callback);
     }
 
     addOnVoteUpdated(callback) {
-        this.addCallback('vote_updated', callback);
+        this.addCallback("vote_updated", callback);
     }
 
     //// Game callbacks clearing API.
 
     clearOnClearedCenters() {
-        this.clearCallbacks('cleared_centers');
+        this.clearCallbacks("cleared_centers");
     }
 
     clearOnClearedOrders() {
-        this.clearCallbacks('cleared_orders');
+        this.clearCallbacks("cleared_orders");
     }
 
     clearOnClearedUnits() {
-        this.clearCallbacks('cleared_units');
+        this.clearCallbacks("cleared_units");
     }
 
     clearOnPowersControllers() {
-        this.clearCallbacks('powers_controllers');
+        this.clearCallbacks("powers_controllers");
     }
 
     clearOnGameDeleted() {
-        this.clearCallbacks('game_deleted');
+        this.clearCallbacks("game_deleted");
     }
 
     clearOnGameMessageReceived() {
-        this.clearCallbacks('game_message_received');
+        this.clearCallbacks("game_message_received");
     }
 
     clearOnLogReceived() {
-        this.clearCallbacks('log_received');
+        this.clearCallbacks("log_received");
     }
 
     clearOnRecipientAnnotationReceived() {
-        this.clearCallbacks('recipient_annotation_received');
+        this.clearCallbacks("recipient_annotation_received");
     }
 
     clearOnGameProcessed() {
-        this.clearCallbacks('game_processed');
+        this.clearCallbacks("game_processed");
     }
 
     clearOnGamePhaseUpdate() {
-        this.clearCallbacks('game_phase_update');
+        this.clearCallbacks("game_phase_update");
     }
 
     clearOnGameStatusUpdate() {
-        this.clearCallbacks('game_status_update');
+        this.clearCallbacks("game_status_update");
     }
 
     clearOnOmniscientUpdated() {
-        this.clearCallbacks('omniscient_updated');
+        this.clearCallbacks("omniscient_updated");
     }
 
     clearOnPowerOrdersUpdate() {
-        this.clearCallbacks('power_orders_update');
+        this.clearCallbacks("power_orders_update");
     }
 
     clearOnPowerOrdersFlag() {
-        this.clearCallbacks('power_orders_flag');
+        this.clearCallbacks("power_orders_flag");
     }
 
     clearOnPowerVoteUpdated() {
-        this.clearCallbacks('power_vote_updated');
+        this.clearCallbacks("power_vote_updated");
     }
 
     clearOnPowerWaitFlag() {
-        this.clearCallbacks('power_wait_flag');
+        this.clearCallbacks("power_wait_flag");
     }
 
     clearOnVoteCountUpdated() {
-        this.clearCallbacks('vote_count_updated');
+        this.clearCallbacks("vote_count_updated");
     }
 
     clearOnVoteUpdated() {
-        this.clearCallbacks('vote_updated');
+        this.clearCallbacks("vote_updated");
     }
 }

@@ -52,16 +52,7 @@ export class AdminPowersInfoTable extends React.Component {
         );
     }
 
-    getBodyRow(
-        header,
-        row,
-        rowIndex,
-        wrapper,
-        countries,
-        stances,
-        isBot,
-        player
-    ) {
+    getBodyRow(header, row, rowIndex, wrapper, countries, stances, isBot, player) {
         const wrapped = wrapper(row);
 
         return (
@@ -79,16 +70,7 @@ export class AdminPowersInfoTable extends React.Component {
         return (
             <tbody>
                 {data.map((row, rowIndex) =>
-                    this.getBodyRow(
-                        header,
-                        row,
-                        rowIndex,
-                        wrapper,
-                        countries,
-                        stances,
-                        isBot,
-                        player
-                    )
+                    this.getBodyRow(header, row, rowIndex, wrapper, countries, stances, isBot, player),
                 )}
             </tbody>
         );
@@ -110,7 +92,7 @@ export class AdminPowersInfoTable extends React.Component {
                         this.props.countries,
                         this.props.stances,
                         this.props.isBot,
-                        this.props.player
+                        this.props.player,
                     )}
                 </table>
             </div>

@@ -16,8 +16,7 @@
 // ==============================================================================
 /** Utils. **/
 
-class Dict {
-}
+class Dict {}
 
 export const UTILS = {
     NB_CONNECTION_ATTEMPTS: 12,
@@ -32,8 +31,7 @@ export const UTILS = {
     /** Create an ID string using current time + 5 random integers each with 10 digits. **/
     createID: function () {
         let id = new Date().getTime().toString(10);
-        for (let i = 0; i < 5; ++i)
-            id += UTILS.randomInteger(1e9, 1e10);
+        for (let i = 0; i < 5; ++i) id += UTILS.randomInteger(1e9, 1e10);
         return id;
     },
 
@@ -43,7 +41,7 @@ export const UTILS = {
 
     date: function () {
         const d = new Date();
-        return d.toLocaleString() + '.' + d.getMilliseconds();
+        return d.toLocaleString() + "." + d.getMilliseconds();
     },
 
     microsecondsToDate: function (time) {
@@ -56,12 +54,9 @@ export const UTILS = {
             let b = array.length - 1;
             while (a <= b) {
                 const c = Math.floor((a + b) / 2);
-                if (array[c] === element)
-                    return c;
-                if (array[c] < element)
-                    a = c + 1;
-                else
-                    b = c - 1;
+                if (array[c] === element) return c;
+                if (array[c] < element) a = c + 1;
+                else b = c - 1;
             }
             return -1;
         },
@@ -70,24 +65,18 @@ export const UTILS = {
             let b = array.length - 1;
             while (a <= b) {
                 const c = Math.floor((a + b) / 2);
-                if (array[c] === element)
-                    return c;
-                if (array[c] < element)
-                    a = c + 1;
-                else
-                    b = c - 1;
+                if (array[c] === element) return c;
+                if (array[c] < element) a = c + 1;
+                else b = c - 1;
             }
             // If we go out of loop, then array[b] < element, so we must insert element at position b + 1.
-            if (b < array.length - 1)
-                array.splice(b + 1, 0, element);
-            else
-                array.push(element);
+            if (b < array.length - 1) array.splice(b + 1, 0, element);
+            else array.push(element);
             return b + 1;
-        }
+        },
     },
 
     javascript: {
-
         arrayIsEmpty: function (array) {
             return !(array && array.length);
         },
@@ -98,16 +87,14 @@ export const UTILS = {
 
         clearObject: function (obj) {
             const keys = Object.keys(obj);
-            for (let key of keys)
-                delete obj[key];
+            for (let key of keys) delete obj[key];
         },
 
         /** Create a dictionary from given array, using array elements as dictionary values
          * and array elements's `field` values (element[field]) as dictionary keys. **/
         arrayToDict: function (array, field) {
             const dictionary = {};
-            for (let entry of array)
-                dictionary[entry[field]] = entry;
+            for (let entry of array) dictionary[entry[field]] = entry;
             return dictionary;
         },
 
@@ -116,10 +103,8 @@ export const UTILS = {
         },
 
         extendArrayWithUniqueValues(obj, key, value) {
-            if (!obj.hasOwnProperty(key))
-                obj[key] = [value];
-            else if (!obj[key].includes(value))
-                obj[key].push(value);
+            if (!obj.hasOwnProperty(key)) obj[key] = [value];
+            else if (!obj[key].includes(value)) obj[key].push(value);
         },
 
         extendTreeValue: function (obj, path, value, allowMultipleValues) {
@@ -128,65 +113,58 @@ export const UTILS = {
             const parentPathLength = pathLength - 1;
             for (let i = 0; i < parentPathLength; ++i) {
                 const stepName = path[i];
-                if (!current.hasOwnProperty(stepName))
-                    current[stepName] = new Dict();
+                if (!current.hasOwnProperty(stepName)) current[stepName] = new Dict();
                 current = current[stepName];
             }
             const stepName = path[pathLength - 1];
-            if (!current.hasOwnProperty(stepName))
-                current[stepName] = [];
-            if (allowMultipleValues || !current[stepName].includes(value))
-                current[stepName].push(value);
+            if (!current.hasOwnProperty(stepName)) current[stepName] = [];
+            if (allowMultipleValues || !current[stepName].includes(value)) current[stepName].push(value);
         },
 
         getTreeValue: function (obj, path) {
             let current = obj;
             for (let stepName of path) {
-                if (!current.hasOwnProperty(stepName))
-                    return null;
+                if (!current.hasOwnProperty(stepName)) return null;
                 current = current[stepName];
             }
-            if (current instanceof Dict)
-                return Object.keys(current);
+            if (current instanceof Dict) return Object.keys(current);
             return current;
-        }
+        },
     },
 
     html: {
-
         // Source: https://www.w3schools.com/charsets/ref_utf_geometric.asp
-        UNICODE_LEFT_ARROW: '\u25C0',
-        UNICODE_RIGHT_ARROW: '\u25B6',
-        UNICODE_TOP_ARROW: '\u25BC',
-        UNICODE_BOTTOM_ARROW: '\u25B2',
-        CROSS: '\u00D7',
-        UNICODE_SMALL_RIGHT_ARROW: '\u2192',
-        UNICODE_SMALL_LEFT_ARROW: '\u2190',
+        UNICODE_LEFT_ARROW: "\u25C0",
+        UNICODE_RIGHT_ARROW: "\u25B6",
+        UNICODE_TOP_ARROW: "\u25BC",
+        UNICODE_BOTTOM_ARROW: "\u25B2",
+        CROSS: "\u00D7",
+        UNICODE_SMALL_RIGHT_ARROW: "\u2192",
+        UNICODE_SMALL_LEFT_ARROW: "\u2190",
 
         isSelect: function (element) {
-            return element.tagName.toLowerCase() === 'select';
+            return element.tagName.toLowerCase() === "select";
         },
 
         isInput: function (element) {
-            return element.tagName.toLowerCase() === 'input';
+            return element.tagName.toLowerCase() === "input";
         },
 
         isCheckBox: function (element) {
-            return UTILS.html.isInput(element) && element.type === 'checkbox';
+            return UTILS.html.isInput(element) && element.type === "checkbox";
         },
 
         isRadioButton: function (element) {
-            return UTILS.html.isInput(element) && element.type === 'radio';
+            return UTILS.html.isInput(element) && element.type === "radio";
         },
 
         isTextInput: function (element) {
-            return UTILS.html.isInput(element) && element.type === 'text';
+            return UTILS.html.isInput(element) && element.type === "text";
         },
 
         isPasswordInput: function (element) {
-            return UTILS.html.isInput(element) && element.type === 'password';
-        }
-
+            return UTILS.html.isInput(element) && element.type === "password";
+        },
     },
 
     SuggestionType: {
@@ -202,6 +180,5 @@ export const UTILS = {
     Stance: {
         NON_ALLY: 0,
         ALLY: 1,
-    }
-
+    },
 };

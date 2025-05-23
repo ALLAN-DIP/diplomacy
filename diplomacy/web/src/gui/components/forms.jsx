@@ -15,49 +15,42 @@
 //  with this program.  If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
 import React from "react";
-import {UTILS} from "../../diplomacy/utils/utils";
-import {Button} from "./button";
+import { UTILS } from "../../diplomacy/utils/utils";
+import { Button } from "./button";
 
 export class Forms {
     static createOnChangeCallback(component, callback) {
         return (event) => {
             const value = UTILS.html.isCheckBox(event.target) ? event.target.checked : event.target.value;
             const fieldName = UTILS.html.isRadioButton(event.target) ? event.target.name : event.target.id;
-            const update = {[fieldName]: value};
+            const update = { [fieldName]: value };
             const state = Object.assign({}, component.state, update);
-            if (callback)
-                callback(state);
+            if (callback) callback(state);
             component.setState(state);
         };
     }
 
     static createOnSubmitCallback(component, callback, resetState) {
         return (event) => {
-            if (callback)
-                callback(Object.assign({}, component.state));
-            if (resetState)
-                component.setState(resetState);
+            if (callback) callback(Object.assign({}, component.state));
+            if (resetState) component.setState(resetState);
             event.preventDefault();
         };
     }
 
     static createOnSubmitCallbackWithInit(component, callback, resetState, init) {
         return (event) => {
-            if (callback)
-                callback(Object.assign({}, component.state), init);
-            if (resetState)
-                component.setState(resetState);
+            if (callback) callback(Object.assign({}, component.state), init);
+            if (resetState) component.setState(resetState);
             event.preventDefault();
         };
     }
 
     static createOnResetCallback(component, onChangeCallback, resetState) {
         return (event) => {
-            if (onChangeCallback)
-                onChangeCallback(resetState);
+            if (onChangeCallback) onChangeCallback(resetState);
             component.setState(resetState);
-            if (event && event.preventDefault)
-                event.preventDefault();
+            if (event && event.preventDefault) event.preventDefault();
         };
     }
 
@@ -66,15 +59,15 @@ export class Forms {
     }
 
     static createReset(title, large, onReset) {
-        return <Button key={'reset'} title={title || 'reset'} onClick={onReset} pickEvent={true} large={large}/>;
+        return <Button key={"reset"} title={title || "reset"} onClick={onReset} pickEvent={true} large={large} />;
     }
 
     static createSubmit(title, large, onSubmit) {
-        return <Button key={'submit'} title={title || 'submit'} onClick={onSubmit} pickEvent={true} large={large}/>;
+        return <Button key={"submit"} title={title || "submit"} onClick={onSubmit} pickEvent={true} large={large} />;
     }
 
     static createSubmitWithKey(title, large, onSubmit, key) {
-        return <Button key={key} title={title || 'submit'} onClick={onSubmit} pickEvent={true} large={large}/>;
+        return <Button key={key} title={title || "submit"} onClick={onSubmit} pickEvent={true} large={large} />;
     }
 
     static createButton(title, fn, color, large) {
@@ -82,47 +75,84 @@ export class Forms {
             fn();
             event.preventDefault();
         };
-        return <Button large={large} key={title} color={color} title={title} onClick={wrapFn} pickEvent={true}/>;
+        return <Button large={large} key={title} color={color} title={title} onClick={wrapFn} pickEvent={true} />;
     }
 
     static createCheckbox(id, title, value, onChange) {
-        const input = <input className={'form-check-input'} key={id} type={'checkbox'} id={id} checked={value}
-                             onChange={onChange}/>;
-        const label = <label className={'form-check-label'} key={`label-${id}`} htmlFor={id}>{title}</label>;
+        const input = (
+            <input
+                className={"form-check-input"}
+                key={id}
+                type={"checkbox"}
+                id={id}
+                checked={value}
+                onChange={onChange}
+            />
+        );
+        const label = (
+            <label className={"form-check-label"} key={`label-${id}`} htmlFor={id}>
+                {title}
+            </label>
+        );
         return [input, label];
     }
 
     static createRadio(name, value, title, currentValue, onChange) {
         const id = `[${name}][${value}]`;
-        const input = <input className={'form-check-input'} key={id} type={'radio'}
-                             name={name} value={value} checked={currentValue === value}
-                             id={id} onChange={onChange}/>;
-        const label = <label className={'form-check-label'} key={`label-${id}`} htmlFor={id}>{title || value}</label>;
+        const input = (
+            <input
+                className={"form-check-input"}
+                key={id}
+                type={"radio"}
+                name={name}
+                value={value}
+                checked={currentValue === value}
+                id={id}
+                onChange={onChange}
+            />
+        );
+        const label = (
+            <label className={"form-check-label"} key={`label-${id}`} htmlFor={id}>
+                {title || value}
+            </label>
+        );
         return [input, label];
     }
 
     static createRow(label, input) {
         return (
-            <div className={'form-group row'}>
+            <div className={"form-group row"}>
                 {label}
-                <div className={'col'}>{input}</div>
+                <div className={"col"}>{input}</div>
             </div>
         );
     }
 
     static createLabel(htmFor, title, className) {
-        return <label className={className} htmlFor={htmFor}>{title}</label>;
+        return (
+            <label className={className} htmlFor={htmFor}>
+                {title}
+            </label>
+        );
     }
 
     static createColLabel(htmlFor, title) {
-        return Forms.createLabel(htmlFor, title, 'col');
+        return Forms.createLabel(htmlFor, title, "col");
     }
 
     static createSelectOptions(values, none) {
         const options = values.slice();
-        const components = options.map((option, index) => <option key={index} value={option}>{option}</option>);
+        const components = options.map((option, index) => (
+            <option key={index} value={option}>
+                {option}
+            </option>
+        ));
         if (none) {
-            components.splice(0, 0, [<option key={-1} value={''}>{none === true ? 'observer' : `${none}`}</option>]);
+            components.splice(0, 0, [
+                <option key={-1} value={""}>
+                    {none === true ? "observer" : `${none}`}
+                </option>,
+            ]);
         }
         return components;
     }

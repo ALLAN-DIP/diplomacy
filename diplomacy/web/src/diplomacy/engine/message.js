@@ -14,10 +14,9 @@
 //  You should have received a copy of the GNU Affero General Public License along
 //  with this program.  If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
-const GLOBAL = 'GLOBAL';
+const GLOBAL = "GLOBAL";
 
 export class Message {
-
     constructor(message) {
         Object.assign(this, message);
         this.time_sent = message.time_sent;
@@ -33,5 +32,4 @@ export class Message {
     isGlobal() {
         return this.recipient === GLOBAL;
     }
-
 }

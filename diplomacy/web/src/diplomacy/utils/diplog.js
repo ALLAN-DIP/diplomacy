@@ -34,12 +34,9 @@ export class Diplog {
 
     static printMessages(messages) {
         if (messages) {
-            if (messages.error)
-                Diplog.error(messages.error);
-            if (messages.info)
-                Diplog.info(messages.info);
-            if (messages.success)
-                Diplog.success(messages.success);
+            if (messages.error) Diplog.error(messages.error);
+            if (messages.info) Diplog.info(messages.info);
+            if (messages.success) Diplog.success(messages.success);
         }
     }
 }

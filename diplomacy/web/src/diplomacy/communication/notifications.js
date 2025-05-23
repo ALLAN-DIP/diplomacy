@@ -14,7 +14,7 @@
 //  You should have received a copy of the GNU Affero General Public License along
 //  with this program.  If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
-import {STRINGS} from "../utils/strings";
+import { STRINGS } from "../utils/strings";
 
 /** Notifications. **/
 export const NOTIFICATIONS = {
@@ -37,21 +37,19 @@ export const NOTIFICATIONS = {
         powers_controllers: STRINGS.GAME,
         vote_count_updated: STRINGS.GAME,
         vote_updated: STRINGS.GAME,
-        power_comm_status_update: STRINGS.GAME
+        power_comm_status_update: STRINGS.GAME,
     },
     parse: function (jsonObject) {
-        if (!jsonObject.hasOwnProperty('name'))
-            throw new Error('No name field in expected notification object.');
-        if (!jsonObject.hasOwnProperty('token'))
-            throw new Error('No token field in expected notification object.');
+        if (!jsonObject.hasOwnProperty("name")) throw new Error("No name field in expected notification object.");
+        if (!jsonObject.hasOwnProperty("token")) throw new Error("No token field in expected notification object.");
         if (!NOTIFICATIONS.levels.hasOwnProperty(jsonObject.name))
-            throw new Error('Invalid notification name ' + jsonObject.name);
+            throw new Error("Invalid notification name " + jsonObject.name);
         if (NOTIFICATIONS.levels[jsonObject.name] === STRINGS.GAME) {
-            if (!jsonObject.hasOwnProperty('game_id'))
-                throw new Error('No game_id field in expected game notification object.');
-            if (!jsonObject.hasOwnProperty('game_role'))
-                throw new Error('No game_role field in expected game notification object.');
+            if (!jsonObject.hasOwnProperty("game_id"))
+                throw new Error("No game_id field in expected game notification object.");
+            if (!jsonObject.hasOwnProperty("game_role"))
+                throw new Error("No game_role field in expected game notification object.");
         }
         return jsonObject;
-    }
+    },
 };

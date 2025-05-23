@@ -93,13 +93,7 @@ export class Table extends React.Component {
     }
 
     getBodyLines(header, data, wrapper) {
-        return (
-            <tbody>
-                {data.map((row, rowIndex) =>
-                    this.getBodyRow(header, row, rowIndex, wrapper)
-                )}
-            </tbody>
-        );
+        return <tbody>{data.map((row, rowIndex) => this.getBodyRow(header, row, rowIndex, wrapper))}</tbody>;
     }
 
     render() {
@@ -111,11 +105,7 @@ export class Table extends React.Component {
                         {this.props.caption} ({this.props.data.length})
                     </caption>
                     {this.getHeaderLine(header)}
-                    {this.getBodyLines(
-                        header,
-                        this.props.data,
-                        this.props.wrapper
-                    )}
+                    {this.getBodyLines(header, this.props.data, this.props.wrapper)}
                 </table>
             </div>
         );
