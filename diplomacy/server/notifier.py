@@ -135,7 +135,7 @@ class Notifier:
         :type previous_phase_data: diplomacy.utils.game_phase_data.GamePhaseData
         :type current_phase_data: diplomacy.utils.game_phase_data.GamePhaseData
         """
-        # Send game updates to observers ans omniscient observers..
+        # Send game updates to observers and omniscient observers..
         for game_role, token in server_game.get_observer_addresses():
             yield self._notify(
                 notifications.GameProcessed(
