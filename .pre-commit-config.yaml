@@ -46,6 +46,11 @@ repos:
         name: convert svg maps to react
         language: system
         entry: ./diplomacy/web/convert_svg_maps_to_react.sh
+  # Use mirror for `mypyc`-compiled `black`
+  - repo: https://github.com/psf/black-pre-commit-mirror
+    rev: 25.1.0
+    hooks:
+      - id: black
   - repo: https://github.com/rbubley/mirrors-prettier # Use maintained fork of official mirror
     rev: v3.5.3
     hooks:
