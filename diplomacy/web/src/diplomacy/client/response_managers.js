@@ -15,14 +15,12 @@
 //  with this program.  If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
 /*eslint no-unused-vars: ["error", { "args": "none" }]*/
-import {RESPONSES} from "../communication/responses";
+import { RESPONSES } from "../communication/responses";
 
 /** Default response manager. **/
 function defaultResponseManager(context, response) {
-    if (RESPONSES.isOk(response))
-        return null;
-    if (RESPONSES.isUniqueData(response))
-        return response.data;
+    if (RESPONSES.isOk(response)) return null;
+    if (RESPONSES.isUniqueData(response)) return response.data;
     return response;
 }
 
@@ -69,9 +67,9 @@ export const RESPONSE_MANAGERS = {
         context.game.local.addRecipientAnnotation(annotation);
     },
     send_stance: function (context, response) {
-      const powerName = context.request.power_name;
-      const stance = context.request.stance;
-      context.game.local.addStance(powerName, stance);
+        const powerName = context.request.power_name;
+        const stance = context.request.stance;
+        context.game.local.addStance(powerName, stance);
     },
     send_is_bot: function (context, response) {
         const powerName = context.request.power_name;
@@ -100,7 +98,7 @@ export const RESPONSE_MANAGERS = {
         context.game.local.addLog(message);
     },
     send_order_suggestions: function (context, response) {
-        const power = context.request.power
+        const power = context.request.power;
         const suggestions = context.request.suggestions;
         context.game.local.addOrderSuggestions(power, suggestions);
     },
@@ -111,7 +109,7 @@ export const RESPONSE_MANAGERS = {
             orders: context.request.orders,
             messages: context.request.messages,
             results: context.request.results,
-            logs: context.request.logs
+            logs: context.request.logs,
         });
     },
     set_game_status: function (context, response) {
@@ -121,8 +119,7 @@ export const RESPONSE_MANAGERS = {
         const orders = context.request.orders;
         if (context.game.local.isPlayerGame(context.request.game_role))
             context.game.local.setOrders(context.request.game_role, orders);
-        else
-            context.game.local.setOrders(context.request.power_name, orders);
+        else context.game.local.setOrders(context.request.power_name, orders);
     },
     clear_orders: function (context, response) {
         context.game.local.clearOrders(context.request.power_name);
@@ -137,15 +134,13 @@ export const RESPONSE_MANAGERS = {
         const wait = context.request.wait;
         if (context.game.local.isPlayerGame(context.request.game_role))
             context.game.local.setWait(context.request.game_role, wait);
-        else
-            context.game.local.setWait(context.request.power_name, wait);
+        else context.game.local.setWait(context.request.power_name, wait);
     },
     set_comm_status: function (context, response) {
         const commStatus = context.request.comm_status;
         if (context.game.local.isPlayerGame(context.request.game_role))
             context.game.local.setCommStatus(context.request.game_role, commStatus);
-        else
-            context.game.local.setCommStatus(context.request.power_name, commStatus);
+        else context.game.local.setCommStatus(context.request.power_name, commStatus);
     },
     vote: function (context, response) {
         context.game.local.getRelatedPower().vote = context.request.vote;
@@ -155,8 +150,8 @@ export const RESPONSE_MANAGERS = {
     },
     handleResponse: function (context, response) {
         if (!RESPONSE_MANAGERS.hasOwnProperty(context.request.name))
-            throw new Error('No response handler available for request ' + context.request.name);
+            throw new Error("No response handler available for request " + context.request.name);
         const handler = RESPONSE_MANAGERS[context.request.name];
         return handler(context, response);
-    }
+    },
 };
