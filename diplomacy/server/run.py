@@ -15,17 +15,17 @@
 #  You should have received a copy of the GNU Affero General Public License along
 #  with this program.  If not, see <https://www.gnu.org/licenses/>.
 # =============================================================================
-""" Small module script to quickly start a server with pretty log-printing.
+"""Small module script to quickly start a server with pretty log-printing.
 
-    You can stop the server with keyboard interruption (Ctrl+C). Usage:
+You can stop the server with keyboard interruption (Ctrl+C). Usage:
 
-    .. code-block:: bash
+.. code-block:: bash
 
-        # run on port 8433.
-        python -m diplomacy.server.run
+    # run on port 8433.
+    python -m diplomacy.server.run
 
-        # run on given port.
-        python -m diplomacy.server.run --port=<given port>
+    # run on given port.
+    python -m diplomacy.server.run --port=<given port>
 
 """
 import argparse
@@ -38,28 +38,46 @@ import tornado.web
 import tornado.ioloop
 import json
 
+
 async def main():
-    PARSER = argparse.ArgumentParser(description='Run server.')
-    PARSER.add_argument('--port', '-p', type=int, default=default_port,
-                        help='run on the given port (default: %s)' % default_port)
-    PARSER.add_argument('--daide-ports', '-d', type=str, default=default_daide_ports,
-                        help='run DAIDE servers on the given port range (default: %s)' % default_daide_ports)
-    PARSER.add_argument('--server_dir', '-s', default=None,
-                        help='Save game data and game save files in directory (Default CWD)')
+    PARSER = argparse.ArgumentParser(description="Run server.")
+    PARSER.add_argument(
+        "--port",
+        "-p",
+        type=int,
+        default=default_port,
+        help="run on the given port (default: %s)" % default_port,
+    )
+    PARSER.add_argument(
+        "--daide-ports",
+        "-d",
+        type=str,
+        default=default_daide_ports,
+        help="run DAIDE servers on the given port range (default: %s)" % default_daide_ports,
+    )
+    PARSER.add_argument(
+        "--server_dir",
+        "-s",
+        default=None,
+        help="Save game data and game save files in directory (Default CWD)",
+    )
     ARGS = PARSER.parse_args()
 
     try:
         daide_ports = [int(p) for p in ARGS.daide_ports.split(":")]
-        Server(server_dir=ARGS.server_dir, daide_min_port=daide_ports[0], daide_max_port=daide_ports[1]).start(port=ARGS.port)
-        print('Server started on port %s.' % ARGS.port)
+        Server(
+            server_dir=ARGS.server_dir, daide_min_port=daide_ports[0], daide_max_port=daide_ports[1]
+        ).start(port=ARGS.port)
+        print("Server started on port %s." % ARGS.port)
 
-        #tornado.ioloop.IOLoop.current().start()
+        # tornado.ioloop.IOLoop.current().start()
         await asyncio.Event().wait()
 
     except KeyboardInterrupt:
-        print('Keyboard interruption.')
+        print("Keyboard interruption.")
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     default_port = int(os.environ.get("SERVER_PORT", constants.DEFAULT_PORT))
     default_daide_ports = os.environ.get("DAIDE_PORT_RANGE", constants.DEFAULT_DAIDE_PORT_RANGE)
     loop = asyncio.get_event_loop()

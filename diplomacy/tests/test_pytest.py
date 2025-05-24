@@ -14,10 +14,11 @@
 #  You should have received a copy of the GNU Affero General Public License along
 #  with this program.  If not, see <https://www.gnu.org/licenses/>.
 # ==============================================================================
-""" Pytest checker """
+"""Pytest checker"""
+
 
 # Check that tests are running
 # Avoids pytests not having tests to run
 def test_pytest():
-    """ Should always pass """
+    """Should always pass"""
     assert True

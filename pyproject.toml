@@ -58,6 +58,9 @@ packages = ["diplomacy"]
 [tool.setuptools.dynamic]
 version = {attr = "diplomacy.version.PACKAGE_VERSION"}
 
+[tool.black]
+line-length = 100
+
 [tool.pytest.ini_options]
 addopts = "--verbosity=1 -ra --strict-config --strict-markers --ignore=diplomacy/web/src/diplomacy/maps/tests/ --numprocesses auto"
 filterwarnings = [
