@@ -17,7 +17,6 @@
 """ Module diplomacy, represent strategy game Diplomacy. """
 import logging
 import os
-import coloredlogs
 from .engine.map import Map
 from .engine.power import Power
 from .engine.game import Game
