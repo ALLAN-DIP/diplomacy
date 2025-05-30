@@ -1,4 +1,5 @@
 # syntax=docker/dockerfile:1
+# check=error=true
 
 FROM node:22.16.0-alpine3.21 AS app-builder
 
