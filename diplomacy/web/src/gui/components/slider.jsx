@@ -22,12 +22,7 @@ export class Slider extends React.Component {
                 />
 
                 <p>
-                    <span
-                        id={"stanceValue"}
-                        className={
-                            this.props.clicked ? null : "unclickedSlider"
-                        }
-                    >
+                    <span id={"stanceValue"} className={this.props.clicked ? null : "unclickedSlider"}>
                         {this.props.dict[this.props.stance > 0 ? this.props.stance : 3]}
                     </span>
                 </p>

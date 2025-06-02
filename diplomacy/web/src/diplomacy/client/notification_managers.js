@@ -15,16 +15,15 @@
 //  with this program.  If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
 /*eslint no-unused-vars: ["error", { "args": "none" }]*/
-import {STRINGS} from "../utils/strings";
-import {NOTIFICATIONS} from "../communication/notifications";
-import {Game} from "../engine/game";
+import { STRINGS } from "../utils/strings";
+import { NOTIFICATIONS } from "../communication/notifications";
+import { Game } from "../engine/game";
 
 /** Notification managers. **/
 export const NOTIFICATION_MANAGERS = {
     account_deleted: function (channel, notification) {
         const connection = channel.connection;
-        if (connection.channels.hasOwnProperty(channel.token))
-            delete channel.connection.channels[channel.token];
+        if (connection.channels.hasOwnProperty(channel.token)) delete channel.connection.channels[channel.token];
     },
     cleared_centers: function (game, notification) {
         game.local.clearCenters(notification.power_name);
@@ -36,7 +35,10 @@ export const NOTIFICATION_MANAGERS = {
         game.local.clearUnits(notification.power_name);
     },
     powers_controllers: function (game, notification) {
-        if (game.local.isPlayerGame() && notification.powers[game.local.role] !== game.local.getRelatedPower().getController()) {
+        if (
+            game.local.isPlayerGame() &&
+            notification.powers[game.local.role] !== game.local.getRelatedPower().getController()
+        ) {
             game.channel.game_id_to_instances[game.local.game_id].remove(game.local.role);
             if (!game.channel.game_id_to_instances[game.local.game_id].size())
                 delete game.channel.game_id_to_instances[game.local.game_id];
@@ -64,8 +66,7 @@ export const NOTIFICATION_MANAGERS = {
     game_phase_update: function (game, notification) {
         if (notification.phase_data_type === STRINGS.STATE_HISTORY)
             game.local.extendPhaseHistory(notification.phase_data);
-        else
-            game.local.setPhaseData(notification.phase_data);
+        else game.local.setPhaseData(notification.phase_data);
     },
     game_status_update: function (game, notification) {
         if (game.local.status !== notification.status) {
@@ -76,10 +77,10 @@ export const NOTIFICATION_MANAGERS = {
         if (game.local.isPlayerGame()) return;
         if (game.local.isObserverGame()) {
             if (notification.grade_update !== STRINGS.PROMOTE || notification.game.role !== STRINGS.OMNISCIENT_TYPE)
-                throw new Error('Omniscient updated: expected promotion from observer to omniscient');
+                throw new Error("Omniscient updated: expected promotion from observer to omniscient");
         } else {
             if (notification.grade_update !== STRINGS.DEMOTE || notification.game.role !== STRINGS.OBSERVER_TYPE)
-                throw new Error('Omniscient updated: expected demotion from omniscient to observer.');
+                throw new Error("Omniscient updated: expected demotion from omniscient to observer.");
         }
         const channel = game.channel;
         const oldGame = channel.game_id_to_instances[game.local.game_id].remove(game.local.role);
@@ -115,22 +116,29 @@ export const NOTIFICATION_MANAGERS = {
     },
     handleNotification: function (connection, notification) {
         if (!NOTIFICATION_MANAGERS.hasOwnProperty(notification.name))
-            throw new Error('No notification handler available for notification ' + notification.name);
+            throw new Error("No notification handler available for notification " + notification.name);
         const handler = NOTIFICATION_MANAGERS[notification.name];
         const level = NOTIFICATIONS.levels[notification.name];
         if (!connection.channels.hasOwnProperty(notification.token))
-            throw new Error('Unable to find channel related to notification ' + notification.name);
+            throw new Error("Unable to find channel related to notification " + notification.name);
         let objectToNotify = connection.channels[notification.token];
         if (level === STRINGS.GAME) {
-            if (objectToNotify.game_id_to_instances.hasOwnProperty(notification.game_id)
-                && objectToNotify.game_id_to_instances[notification.game_id].has(notification.game_role))
+            if (
+                objectToNotify.game_id_to_instances.hasOwnProperty(notification.game_id) &&
+                objectToNotify.game_id_to_instances[notification.game_id].has(notification.game_role)
+            )
                 objectToNotify = objectToNotify.game_id_to_instances[notification.game_id].get(notification.game_role);
             else
-                throw new Error('Unable to find game instance related to notification '
-                    + notification.name + '/' + notification.game_id + '/' + notification.game_role);
+                throw new Error(
+                    "Unable to find game instance related to notification " +
+                        notification.name +
+                        "/" +
+                        notification.game_id +
+                        "/" +
+                        notification.game_role,
+                );
         }
         handler(objectToNotify, notification);
-        if (level === STRINGS.GAME)
-            objectToNotify.notify(notification);
-    }
+        if (level === STRINGS.GAME) objectToNotify.notify(notification);
+    },
 };

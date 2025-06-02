@@ -15,8 +15,7 @@
 //  with this program.  If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
 import React from "react";
-import PropTypes from 'prop-types';
-
+import PropTypes from "prop-types";
 
 export class Action extends React.Component {
     // title
@@ -28,11 +27,16 @@ export class Action extends React.Component {
         return (
             <div className="action nav-item" onClick={this.props.onClick}>
                 <div
-                    className={'nav-link' + (this.props.isActive ? ' active' : '') + (this.props.highlight !== null ? ' updated' : '')}>
+                    className={
+                        "nav-link" +
+                        (this.props.isActive ? " active" : "") +
+                        (this.props.highlight !== null ? " updated" : "")
+                    }
+                >
                     {this.props.title}
-                    {this.props.highlight !== null
-                    && this.props.highlight !== undefined
-                    && <span className={'update'}>{this.props.highlight}</span>}
+                    {this.props.highlight !== null && this.props.highlight !== undefined && (
+                        <span className={"update"}>{this.props.highlight}</span>
+                    )}
                 </div>
             </div>
         );
@@ -43,10 +47,10 @@ Action.propTypes = {
     title: PropTypes.string.isRequired,
     onClick: PropTypes.func.isRequired,
     highlight: PropTypes.any,
-    isActive: PropTypes.bool
+    isActive: PropTypes.bool,
 };
 
 Action.defaultProps = {
     highlight: null,
-    isActive: false
+    isActive: false,
 };

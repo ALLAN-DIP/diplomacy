@@ -1,1 +1,1 @@
-export { default as CaptainsLog } from "./CaptainsLog"
+export { default as CaptainsLog } from "./CaptainsLog";

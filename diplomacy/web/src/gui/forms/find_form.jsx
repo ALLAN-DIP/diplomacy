@@ -14,9 +14,9 @@
 //  You should have received a copy of the GNU Affero General Public License along
 //  with this program.  If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
-import React from 'react';
-import {Forms} from "../components/forms";
-import {STRINGS} from "../../diplomacy/utils/strings";
+import React from "react";
+import { Forms } from "../components/forms";
+import { STRINGS } from "../../diplomacy/utils/strings";
 import PropTypes from "prop-types";
 
 export class FindForm extends React.Component {
@@ -27,10 +27,10 @@ export class FindForm extends React.Component {
 
     initState() {
         return {
-            game_id: '',
-            status: '',
+            game_id: "",
+            status: "",
             include_protected: false,
-            for_omniscience: false
+            for_omniscience: false,
         };
     }
 
@@ -40,25 +40,43 @@ export class FindForm extends React.Component {
         return (
             <form>
                 {Forms.createRow(
-                    Forms.createColLabel('game_id', 'game id (should contain):'),
-                    <input className={'form-control'} id={'game_id'} type={'text'}
-                           value={Forms.getValue(this.state, 'game_id')}
-                           onChange={onChange}/>
+                    Forms.createColLabel("game_id", "game id (should contain):"),
+                    <input
+                        className={"form-control"}
+                        id={"game_id"}
+                        type={"text"}
+                        value={Forms.getValue(this.state, "game_id")}
+                        onChange={onChange}
+                    />,
                 )}
                 {Forms.createRow(
-                    Forms.createColLabel('status', 'status:'),
-                    (<select className={'form-control custom-select'}
-                             id={'status'} value={Forms.getValue(this.state, 'status')} onChange={onChange}>
+                    Forms.createColLabel("status", "status:"),
+                    <select
+                        className={"form-control custom-select"}
+                        id={"status"}
+                        value={Forms.getValue(this.state, "status")}
+                        onChange={onChange}
+                    >
                         {Forms.createSelectOptions(STRINGS.ALL_GAME_STATUSES, true)}
-                    </select>)
+                    </select>,
                 )}
-                <div className={'form-check'}>
-                    {Forms.createCheckbox('include_protected', 'include protected games.', Forms.getValue(this.state, 'include_protected'), onChange)}
+                <div className={"form-check"}>
+                    {Forms.createCheckbox(
+                        "include_protected",
+                        "include protected games.",
+                        Forms.getValue(this.state, "include_protected"),
+                        onChange,
+                    )}
                 </div>
-                <div className={'form-check mb-4'}>
-                    {Forms.createCheckbox('for_omniscience', 'for omniscience.', Forms.getValue(this.state, 'for_omniscience'), onChange)}
+                <div className={"form-check mb-4"}>
+                    {Forms.createCheckbox(
+                        "for_omniscience",
+                        "for omniscience.",
+                        Forms.getValue(this.state, "for_omniscience"),
+                        onChange,
+                    )}
                 </div>
-                {Forms.createRow('', Forms.createSubmit('find games', true, onSubmit))}
+                {Forms.createRow("", Forms.createSubmit("find games", true, onSubmit))}
             </form>
         );
     }
@@ -66,5 +84,5 @@ export class FindForm extends React.Component {
 
 FindForm.propTypes = {
     onChange: PropTypes.func,
-    onSubmit: PropTypes.func
+    onSubmit: PropTypes.func,
 };

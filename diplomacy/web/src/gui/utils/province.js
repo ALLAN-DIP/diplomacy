@@ -15,10 +15,10 @@
 //  with this program.  If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
 const ProvinceType = {
-    WATER: 'WATER',
-    COAST: 'COAST',
-    PORT: 'PORT',
-    LAND: 'LAND'
+    WATER: "WATER",
+    COAST: "COAST",
+    PORT: "PORT",
+    LAND: "LAND",
 };
 
 export class Province {
@@ -38,29 +38,28 @@ export class Province {
     }
 
     compareControlType(a, b) {
-        const controlTypeLevels = {C: 0, I: 1, U: 2};
+        const controlTypeLevels = { C: 0, I: 1, U: 2 };
         return controlTypeLevels[a] - controlTypeLevels[b];
     }
 
     __set_controller(controller, controlType) {
         this.controller = controller;
         this.controlType = controlType;
-        for (let coast of Object.values(this.coasts))
-            coast.setController(controller, controlType);
+        for (let coast of Object.values(this.coasts)) coast.setController(controller, controlType);
     }
 
     setController(controller, controlType) {
-        if (!['C', 'I', 'U'].includes(controlType))
+        if (!["C", "I", "U"].includes(controlType))
             throw new Error(`Invalid province control type (${controlType}), expected 'C', 'I' or 'U'.`);
         if (this.controller && this.controller !== controller) {
             const controlTypeComparison = this.compareControlType(controlType, this.controlType);
-            if (controlTypeComparison === 0 && !this.name.endsWith('C'))
-                throw new Error(`Found 2 powers (${this.controller}, ${controller}) trying to control same province ` +
-                    `(${this.name}) with same control type (${controlType} VS ${this.controlType}).`);
-            if (controlTypeComparison > 0)
-                this.__set_controller(controller, controlType);
-        } else
-            this.__set_controller(controller, controlType);
+            if (controlTypeComparison === 0 && !this.name.endsWith("C"))
+                throw new Error(
+                    `Found 2 powers (${this.controller}, ${controller}) trying to control same province ` +
+                        `(${this.name}) with same control type (${controlType} VS ${this.controlType}).`,
+                );
+            if (controlTypeComparison > 0) this.__set_controller(controller, controlType);
+        } else this.__set_controller(controller, controlType);
     }
 
     setCoasts(provinces) {
@@ -75,8 +74,7 @@ export class Province {
     }
 
     setNeighbors(neighborProvinces) {
-        for (let province of neighborProvinces)
-            this.neighbors[province.name] = province;
+        for (let province of neighborProvinces) this.neighbors[province.name] = province;
     }
 
     getLocationNames() {
@@ -86,24 +84,16 @@ export class Province {
     }
 
     getOccupied(powerName) {
-        if (!this.controller)
-            return null;
-        if (powerName && this.controller !== powerName)
-            return null;
-        if (this.unit)
-            return this;
-        for (let coast of Object.values(this.coasts))
-            if (coast.unit)
-                return coast;
+        if (!this.controller) return null;
+        if (powerName && this.controller !== powerName) return null;
+        if (this.unit) return this;
+        for (let coast of Object.values(this.coasts)) if (coast.unit) return coast;
         return null;
     }
 
     getRetreated(powerName) {
-        if (this.retreatController === powerName)
-            return this;
-        for (let coast of Object.values(this.coasts))
-            if (coast.retreatController === powerName)
-                return coast;
+        if (this.retreatController === powerName) return this;
+        for (let coast of Object.values(this.coasts)) if (coast.retreatController === powerName) return coast;
         return null;
     }
 
@@ -124,12 +114,10 @@ export class Province {
         if (!identifiers[id]) {
             for (let alias of this.aliases) {
                 id = this._id(alias);
-                if (identifiers[id])
-                    break;
+                if (identifiers[id]) break;
             }
         }
-        if (!identifiers[id] && this.isCoast())
-            id = this.parent.getID(identifiers);
+        if (!identifiers[id] && this.isCoast()) id = this.parent.getID(identifiers);
         return id;
     }
 }
