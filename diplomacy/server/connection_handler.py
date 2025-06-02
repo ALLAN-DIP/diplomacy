@@ -14,7 +14,7 @@
 #  You should have received a copy of the GNU Affero General Public License along
 #  with this program.  If not, see <https://www.gnu.org/licenses/>.
 # ==============================================================================
-""" Tornado connection handler class, used internally to manage data received by server application. """
+"""Tornado connection handler class, used internally to manage data received by server application."""
 import logging
 
 from urllib.parse import urlparse
@@ -32,11 +32,13 @@ from diplomacy.utils.network_data import NetworkData
 
 LOGGER = logging.getLogger(__name__)
 
-class ConnectionHandler(WebSocketHandler):
-    """ ConnectionHandler class. Properties:
 
-        - server: server object representing running server.
+class ConnectionHandler(WebSocketHandler):
+    """ConnectionHandler class. Properties:
+
+    - server: server object representing running server.
     """
+
     # pylint: disable=abstract-method
 
     def __init__(self, *args, **kwargs):
@@ -44,71 +46,73 @@ class ConnectionHandler(WebSocketHandler):
         super(ConnectionHandler, self).__init__(*args, **kwargs)
 
     def initialize(self, server=None):
-        """ Initialize the connection handler.
+        """Initialize the connection handler.
 
-            :param server: a Server object.
-            :type server: diplomacy.Server
+        :param server: a Server object.
+        :type server: diplomacy.Server
         """
         # pylint: disable=arguments-differ
         if self.server is None:
             self.server = server
 
     def get_compression_options(self):
-        """ Return compression options for the connection (see parent method).
-            Non-None enables compression with default options.
+        """Return compression options for the connection (see parent method).
+        Non-None enables compression with default options.
         """
         return {}
 
     def check_origin(self, origin):
-        """ Return True if we should accept connexion from given origin (str). """
+        """Return True if we should accept connexion from given origin (str)."""
 
         # It seems origin may be 'null', e.g. if client is a web page loaded from disk (`file:///my_test_file.html`).
         # Accept it.
-        if origin == 'null':
+        if origin == "null":
             return True
 
         # Try to check if origin matches host (without regarding port).
         # Adapted from parent method code (tornado 4.5.3).
         parsed_origin = urlparse(origin)
-        origin = parsed_origin.netloc.split(':')[0]
+        origin = parsed_origin.netloc.split(":")[0]
         origin = origin.lower()
 
         # Split host with ':' and keep only first piece to ignore eventual port.
-        host = self.request.headers.get("Host").split(':')[0]
+        host = self.request.headers.get("Host").split(":")[0]
 
         # Allow connections from self-hosted webui clients
         if diplomacy.settings.PERMISSIVE_CLIENT_ORIGIN:
-            hosts = (host, 'localhost', '0.0.0.0', '127.0.0.1')
+            hosts = (host, "localhost", "0.0.0.0", "127.0.0.1")
         else:
-            hosts = (host)
+            hosts = host
         return origin in hosts
 
     def on_close(self):
-        """ Invoked when the socket is closed (see parent method).
-            Detach this connection handler from server users.
+        """Invoked when the socket is closed (see parent method).
+        Detach this connection handler from server users.
         """
         self.server.users.remove_connection(self, remove_tokens=False)
-        LOGGER.info("Removed connection. Remaining %d connection(s).", self.server.users.count_connections())
+        LOGGER.info(
+            "Removed connection. Remaining %d connection(s).", self.server.users.count_connections()
+        )
 
     def write_message(self, message, binary=False):
-        """ Sends the given message to the client of this Web Socket. """
+        """Sends the given message to the client of this Web Socket."""
         if isinstance(message, NetworkData):
             message = message.json()
         return super(ConnectionHandler, self).write_message(message, binary)
 
     @staticmethod
     def translate_notification(notification):
-        """ Translate a notification to an array of notifications.
+        """Translate a notification to an array of notifications.
 
-            :param notification: a notification object to pass to handler function.
-                See diplomacy.communication.notifications for possible notifications.
-            :return: An array of notifications containing a single notification.
+        :param notification: a notification object to pass to handler function.
+            See diplomacy.communication.notifications for possible notifications.
+        :return: An array of notifications containing a single notification.
         """
         return [notification]
 
     @gen.coroutine
     def on_message(self, message):
-        """ Parse given message and manage parsed data (expected a string representation of a request). """
+        """Parse given message and manage parsed data (expected a string representation of a request)."""
         try:
             json_request = json.loads(message)
             if not isinstance(json_request, dict):
@@ -116,8 +120,9 @@ class ConnectionHandler(WebSocketHandler):
         except ValueError as exc:
             # Error occurred because either message is not a JSON string
             # or parsed JSON object is not a dict.
-            response = responses.Error(error_type=exceptions.ResponseException.__name__,
-                                       message=str(exc))
+            response = responses.Error(
+                error_type=exceptions.ResponseException.__name__, message=str(exc)
+            )
         else:
             try:
                 request = requests.parse_dict(json_request)
@@ -131,9 +136,11 @@ class ConnectionHandler(WebSocketHandler):
                     response = responses.Ok(request_id=request.request_id)
 
             except exceptions.ResponseException as exc:
-                response = responses.Error(error_type=type(exc).__name__,
-                                           message=exc.message,
-                                           request_id=json_request.get(strings.REQUEST_ID, None))
+                response = responses.Error(
+                    error_type=type(exc).__name__,
+                    message=exc.message,
+                    request_id=json_request.get(strings.REQUEST_ID, None),
+                )
 
         if response:
             try:
