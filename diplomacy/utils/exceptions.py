@@ -14,110 +14,144 @@
 #  You should have received a copy of the GNU Affero General Public License along
 #  with this program.  If not, see <https://www.gnu.org/licenses/>.
 # ==============================================================================
-""" Exceptions used in diplomacy network code. """
+"""Exceptions used in diplomacy network code."""
+
 
 class DiplomacyException(Exception):
-    """ Diplomacy network code exception. """
+    """Diplomacy network code exception."""
 
-    def __init__(self, message=''):
+    def __init__(self, message=""):
         self.message = (message or self.__doc__).strip()
         super(DiplomacyException, self).__init__(self.message)
 
+
 class AlreadyScheduledException(DiplomacyException):
-    """ Cannot add a data already scheduled. """
+    """Cannot add a data already scheduled."""
+
 
 class CommonKeyException(DiplomacyException):
     """Common key error."""
 
     def __init__(self, key):
-        super(CommonKeyException, self).__init__('Forbidden common key in two dicts (%s)' % key)
+        super(CommonKeyException, self).__init__("Forbidden common key in two dicts (%s)" % key)
+
 
 class KeyException(DiplomacyException):
-    """ Key error. """
+    """Key error."""
 
     def __init__(self, key):
-        super(KeyException, self).__init__('Key error: %s' % key)
+        super(KeyException, self).__init__("Key error: %s" % key)
+
 
 class LengthException(DiplomacyException):
-    """ Length error. """
+    """Length error."""
 
     def __init__(self, expected_length, given_length):
-        super(LengthException, self).__init__('Expected length %d, got %d.' % (expected_length, given_length))
+        super(LengthException, self).__init__(
+            "Expected length %d, got %d." % (expected_length, given_length)
+        )
+
 
 class NaturalIntegerException(DiplomacyException):
-    """ Expected a positive integer (int >= 0). """
+    """Expected a positive integer (int >= 0)."""
 
-    def __init__(self, integer_name=''):
+    def __init__(self, integer_name=""):
         super(NaturalIntegerException, self).__init__(
-            ('Integer error: %s.%s' % (integer_name, self.__doc__)) if integer_name else '')
+            ("Integer error: %s.%s" % (integer_name, self.__doc__)) if integer_name else ""
+        )
+
 
 class NaturalIntegerNotNullException(NaturalIntegerException):
-    """ Expected a strictly positive integer (int > 0). """
+    """Expected a strictly positive integer (int > 0)."""
+
 
 class RandomPowerException(DiplomacyException):
-    """ No enough playable powers to select random powers. """
+    """No enough playable powers to select random powers."""
 
     def __init__(self, nb_powers, nb_available_powers):
-        super(RandomPowerException, self).__init__('Cannot randomly select %s power(s) in %s available power(s).'
-                                                   % (nb_powers, nb_available_powers))
+        super(RandomPowerException, self).__init__(
+            "Cannot randomly select %s power(s) in %s available power(s)."
+            % (nb_powers, nb_available_powers)
+        )
+
 
 class TypeException(DiplomacyException):
-    """ Type error. """
+    """Type error."""
 
     def __init__(self, expected_type, given_type):
-        super(TypeException, self).__init__('Expected type %s, got type %s' % (expected_type, given_type))
+        super(TypeException, self).__init__(
+            "Expected type %s, got type %s" % (expected_type, given_type)
+        )
+
 
 class ValueException(DiplomacyException):
-    """ Value error. """
+    """Value error."""
 
     def __init__(self, expected_values, given_value):
-        super(ValueException, self).__init__('Forbidden value %s, expected: %s'
-                                             % (given_value, ', '.join(str(v) for v in expected_values)))
+        super(ValueException, self).__init__(
+            "Forbidden value %s, expected: %s"
+            % (given_value, ", ".join(str(v) for v in expected_values))
+        )
+
 
 class NotificationException(DiplomacyException):
-    """ Unknown notification. """
+    """Unknown notification."""
+
 
 class ResponseException(DiplomacyException):
-    """ Unknown response. """
+    """Unknown response."""
+
 
 class RequestException(ResponseException):
-    """ Unknown request. """
+    """Unknown request."""
+
 
 class AdminTokenException(ResponseException):
-    """ Invalid token for admin operations. """
+    """Invalid token for admin operations."""
+
 
 class DaidePortException(ResponseException):
-    """ Daide server not started for the game """
+    """Daide server not started for the game"""
+
 
 class GameCanceledException(ResponseException):
-    """ Game was cancelled. """
+    """Game was cancelled."""
+
 
 class GameCreationException(ResponseException):
-    """ Cannot create more games on that server. """
+    """Cannot create more games on that server."""
+
 
 class GameFinishedException(ResponseException):
-    """ This game is finished. """
+    """This game is finished."""
+
 
 class GameIdException(ResponseException):
-    """ Invalid game ID. """
+    """Invalid game ID."""
+
 
 class GameJoinRoleException(ResponseException):
-    """ A token can have only one role inside a game: player, observer or omniscient. """
+    """A token can have only one role inside a game: player, observer or omniscient."""
+
 
 class GameRoleException(ResponseException):
-    """ Game role does not accepts this action. """
+    """Game role does not accepts this action."""
+
 
 class GameMasterTokenException(ResponseException):
-    """ Invalid token for master operations. """
+    """Invalid token for master operations."""
+
 
 class GameNotPlayingException(ResponseException):
-    """ Game not playing. """
+    """Game not playing."""
+
 
 class GameObserverException(ResponseException):
-    """ Disallowed observation for non-master users. """
+    """Disallowed observation for non-master users."""
+
 
 class GamePhaseException(ResponseException):
-    """ Data does not match current game phase. """
+    """Data does not match current game phase."""
 
     def __init__(self, expected=None, given=None):
         message = self.__doc__.strip()
@@ -125,51 +159,68 @@ class GamePhaseException(ResponseException):
         if isinstance(message, bytes):
             message = message.decode()
         if expected is not None:
-            message += ' Expected: %s' % expected
+            message += " Expected: %s" % expected
         if given is not None:
-            message += ' Given: %s' % given
+            message += " Given: %s" % given
         super(GamePhaseException, self).__init__(message)
 
+
 class GamePlayerException(ResponseException):
-    """ Invalid player. """
+    """Invalid player."""
+
 
 class GameRegistrationPasswordException(ResponseException):
-    """ Invalid game registration password. """
+    """Invalid game registration password."""
+
 
 class GameSolitaireException(ResponseException):
-    """ A solitaire game does not accepts players. """
+    """A solitaire game does not accepts players."""
+
 
 class GameTokenException(ResponseException):
-    """ Invalid token for this game. """
+    """Invalid token for this game."""
+
 
 class MapIdException(ResponseException):
-    """ Invalid map ID. """
+    """Invalid map ID."""
+
 
 class MapPowerException(ResponseException):
-    """ Invalid map power. """
+    """Invalid map power."""
 
     def __init__(self, power_name):
-        super(MapPowerException, self).__init__('Invalid map power %s' % power_name)
+        super(MapPowerException, self).__init__("Invalid map power %s" % power_name)
+
 
 class FolderException(ResponseException):
-    """ Given folder not available in server. """
+    """Given folder not available in server."""
+
     def __init__(self, folder_path):
-        super(FolderException, self).__init__('Given folder not available in server: %s' % folder_path)
+        super(FolderException, self).__init__(
+            "Given folder not available in server: %s" % folder_path
+        )
+
 
 class ServerRegistrationException(ResponseException):
-    """ Registration currently not allowed on this server. """
+    """Registration currently not allowed on this server."""
+
 
 class TokenException(ResponseException):
-    """ Invalid token. """
+    """Invalid token."""
+
 
 class UserException(ResponseException):
-    """ Invalid user. """
+    """Invalid user."""
+
 
 class PasswordException(ResponseException):
-    """ Password must not be empty. """
+    """Password must not be empty."""
+
 
 class ServerDirException(ResponseException):
-    """ Error with working folder. """
+    """Error with working folder."""
 
     def __init__(self, server_dir):
-        super(ServerDirException, self).__init__("No server directory available at path %s" % server_dir)
+        super(ServerDirException, self).__init__(
+            "No server directory available at path %s" % server_dir
+        )
