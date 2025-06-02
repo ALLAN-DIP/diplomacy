@@ -14,11 +14,11 @@
 //  You should have received a copy of the GNU Affero General Public License along
 //  with this program.  If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
-import React from 'react';
-import {Forms} from "../components/forms";
-import {UTILS} from "../../diplomacy/utils/utils";
+import React from "react";
+import { Forms } from "../components/forms";
+import { UTILS } from "../../diplomacy/utils/utils";
 import PropTypes from "prop-types";
-import {DipStorage} from "../utils/dipStorage";
+import { DipStorage } from "../utils/dipStorage";
 
 export const API_PORT = 8433;
 
@@ -29,16 +29,11 @@ export class ConnectionForm extends React.Component {
         const initialState = this.initState();
         const savedState = DipStorage.getConnectionForm();
         if (savedState) {
-            if (savedState.hostname)
-                initialState.hostname = savedState.hostname;
-            if (savedState.port)
-                initialState.port = savedState.port;
-            if (savedState.username)
-                initialState.username = savedState.username;
-            if (savedState.password)
-                initialState.password = savedState.password;
-            if (savedState.showServerFields)
-                initialState.showServerFields = savedState.showServerFields;
+            if (savedState.hostname) initialState.hostname = savedState.hostname;
+            if (savedState.port) initialState.port = savedState.port;
+            if (savedState.username) initialState.username = savedState.username;
+            if (savedState.password) initialState.password = savedState.password;
+            if (savedState.showServerFields) initialState.showServerFields = savedState.showServerFields;
         }
         this.state = initialState;
         this.updateServerFieldsView = this.updateServerFieldsView.bind(this);
@@ -49,37 +44,28 @@ export class ConnectionForm extends React.Component {
         return {
             hostname: window.location.hostname,
             port: API_PORT,
-            username: '',
-            password: '',
-            showServerFields: false
+            username: "",
+            password: "",
+            showServerFields: false,
         };
     }
 
     updateServerFieldsView() {
         DipStorage.setConnectionshowServerFields(!this.state.showServerFields);
-        this.setState({showServerFields: !this.state.showServerFields});
+        this.setState({ showServerFields: !this.state.showServerFields });
     }
 
     onChange(newState) {
         const initialState = this.initState();
-        if (newState.hostname !== initialState.hostname)
-            DipStorage.setConnectionHostname(newState.hostname);
-        else
-            DipStorage.setConnectionHostname(null);
-        if (newState.port !== initialState.port)
-            DipStorage.setConnectionPort(newState.port);
-        else
-            DipStorage.setConnectionPort(null);
-        if (newState.username !== initialState.username)
-            DipStorage.setConnectionUsername(newState.username);
-        else
-            DipStorage.setConnectionUsername(null);
-        if (newState.password !== initialState.password)
-            DipStorage.setConnectionPassword(newState.password);
-        else
-            DipStorage.setConnectionPassword(null);
-        if (this.props.onChange)
-            this.props.onChange(newState);
+        if (newState.hostname !== initialState.hostname) DipStorage.setConnectionHostname(newState.hostname);
+        else DipStorage.setConnectionHostname(null);
+        if (newState.port !== initialState.port) DipStorage.setConnectionPort(newState.port);
+        else DipStorage.setConnectionPort(null);
+        if (newState.username !== initialState.username) DipStorage.setConnectionUsername(newState.username);
+        else DipStorage.setConnectionUsername(null);
+        if (newState.password !== initialState.password) DipStorage.setConnectionPassword(newState.password);
+        else DipStorage.setConnectionPassword(null);
+        if (this.props.onChange) this.props.onChange(newState);
     }
 
     render() {
@@ -88,38 +74,64 @@ export class ConnectionForm extends React.Component {
         return (
             <form>
                 {Forms.createRow(
-                    Forms.createColLabel('username', 'username:'),
-                    <input className={'form-control'} type={'text'} id={'username'}
-                           value={Forms.getValue(this.state, 'username')} onChange={onChange}/>
+                    Forms.createColLabel("username", "username:"),
+                    <input
+                        className={"form-control"}
+                        type={"text"}
+                        id={"username"}
+                        value={Forms.getValue(this.state, "username")}
+                        onChange={onChange}
+                    />,
                 )}
                 {Forms.createRow(
-                    Forms.createColLabel('password', 'password:'),
-                    <input className={'form-control'} type={'password'} id={'password'}
-                           value={Forms.getValue(this.state, 'password')} onChange={onChange}/>
+                    Forms.createColLabel("password", "password:"),
+                    <input
+                        className={"form-control"}
+                        type={"password"}
+                        id={"password"}
+                        value={Forms.getValue(this.state, "password")}
+                        onChange={onChange}
+                    />,
                 )}
                 <div>
-                    <div className={this.state.showServerFields ? 'mb-2' : 'mb-4'}>
-                    <span className={'button-server'} onClick={this.updateServerFieldsView}>
-                        server settings {this.state.showServerFields ? UTILS.html.UNICODE_BOTTOM_ARROW : UTILS.html.UNICODE_TOP_ARROW}
-                    </span>
+                    <div className={this.state.showServerFields ? "mb-2" : "mb-4"}>
+                        <span className={"button-server"} onClick={this.updateServerFieldsView}>
+                            server settings{" "}
+                            {this.state.showServerFields
+                                ? UTILS.html.UNICODE_BOTTOM_ARROW
+                                : UTILS.html.UNICODE_TOP_ARROW}
+                        </span>
                     </div>
                     {this.state.showServerFields && (
-                        <div className={'mb-4'}>
+                        <div className={"mb-4"}>
                             {Forms.createRow(
-                                <label className={'col'} htmlFor={'hostname'}>hostname:</label>,
-                                <input className={'form-control'} type={'text'} id={'hostname'}
-                                       value={Forms.getValue(this.state, 'hostname')} onChange={onChange}/>
+                                <label className={"col"} htmlFor={"hostname"}>
+                                    hostname:
+                                </label>,
+                                <input
+                                    className={"form-control"}
+                                    type={"text"}
+                                    id={"hostname"}
+                                    value={Forms.getValue(this.state, "hostname")}
+                                    onChange={onChange}
+                                />,
                             )}
                             {Forms.createRow(
-                                <label className={'col'} htmlFor={'port'}>port:</label>,
-                                <input className={'form-control'} type={'number'} id={'port'}
-                                       value={Forms.getValue(this.state, 'port')}
-                                       onChange={onChange}/>
+                                <label className={"col"} htmlFor={"port"}>
+                                    port:
+                                </label>,
+                                <input
+                                    className={"form-control"}
+                                    type={"number"}
+                                    id={"port"}
+                                    value={Forms.getValue(this.state, "port")}
+                                    onChange={onChange}
+                                />,
                             )}
                         </div>
                     )}
                 </div>
-                {Forms.createRow('', Forms.createSubmit('connect', true, onSubmit))}
+                {Forms.createRow("", Forms.createSubmit("connect", true, onSubmit))}
             </form>
         );
     }
@@ -127,5 +139,5 @@ export class ConnectionForm extends React.Component {
 
 ConnectionForm.propTypes = {
     onChange: PropTypes.func,
-    onSubmit: PropTypes.func
+    onSubmit: PropTypes.func,
 };

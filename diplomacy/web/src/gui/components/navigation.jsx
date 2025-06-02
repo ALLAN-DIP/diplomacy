@@ -15,7 +15,7 @@
 //  with this program.  If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
 import React from "react";
-import Octicon, {Person} from "@primer/octicons-react";
+import Octicon, { Person } from "@primer/octicons-react";
 import PropTypes from "prop-types";
 
 export class Navigation extends React.Component {
@@ -23,44 +23,48 @@ export class Navigation extends React.Component {
         const hasNavigation = this.props.navigation && this.props.navigation.length;
         if (hasNavigation) {
             return (
-                <div className={'title row'}>
-                    <div className={'col-4'}>
+                <div className={"title row"}>
+                    <div className={"col-4"}>
                         <strong>{this.props.title}</strong>
                     </div>
-                    <div className={'col'}>
-                        {this.props.afterTitle ? this.props.afterTitle : ''}
-                    </div>
-                    <div className={'col-3'}>
-                        {this.props.phaseSel ? this.props.phaseSel : ''}
-                    </div>
+                    <div className={"col"}>{this.props.afterTitle ? this.props.afterTitle : ""}</div>
+                    <div className={"col-3"}>{this.props.phaseSel ? this.props.phaseSel : ""}</div>
 
-                    <div className={'col-sm-1'}>
+                    <div className={"col-sm-1"}>
                         {(!hasNavigation && (
-                            <div className={'float-right'}>
+                            <div className={"float-right"}>
                                 <strong>
-                                    <u className={'mr-2'}>{this.props.username}</u>
-                                    <Octicon icon={Person}/>
+                                    <u className={"mr-2"}>{this.props.username}</u>
+                                    <Octicon icon={Person} />
                                 </strong>
                             </div>
                         )) || (
                             <div className="dropdown float-right">
-                                <button className="btn btn-secondary dropdown-toggle" type="button"
-                                        id="dropdownMenuButton" data-toggle="dropdown"
-                                        aria-haspopup="true" aria-expanded="false">
+                                <button
+                                    className="btn btn-secondary dropdown-toggle"
+                                    type="button"
+                                    id="dropdownMenuButton"
+                                    data-toggle="dropdown"
+                                    aria-haspopup="true"
+                                    aria-expanded="false"
+                                >
                                     {(this.props.username && (
                                         <span>
-                                                <u className={'mr-2'}>{this.props.username}</u>
-                                                <Octicon icon={Person}/>
-                                            </span>
-                                    )) || 'Menu'}
+                                            <u className={"mr-2"}>{this.props.username}</u>
+                                            <Octicon icon={Person} />
+                                        </span>
+                                    )) ||
+                                        "Menu"}
                                 </button>
-                                <div className="dropdown-menu dropdown-menu-right"
-                                     aria-labelledby="dropdownMenuButton">
+                                <div className="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton">
                                     {this.props.navigation.map((nav, index) => {
                                         const navTitle = nav[0];
                                         const navAction = nav[1];
-                                        return <span key={index} className="dropdown-item"
-                                                     onClick={navAction}>{navTitle}</span>;
+                                        return (
+                                            <span key={index} className="dropdown-item" onClick={navAction}>
+                                                {navTitle}
+                                            </span>
+                                        );
                                     })}
                                 </div>
                             </div>
@@ -70,7 +74,9 @@ export class Navigation extends React.Component {
             );
         }
         return (
-            <div className={'title'}><strong>{this.props.title}</strong></div>
+            <div className={"title"}>
+                <strong>{this.props.title}</strong>
+            </div>
         );
     }
 }

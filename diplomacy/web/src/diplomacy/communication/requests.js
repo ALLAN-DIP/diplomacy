@@ -14,8 +14,8 @@
 //  You should have received a copy of the GNU Affero General Public License along
 //  with this program.  If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
-import {STRINGS} from "../utils/strings";
-import {UTILS} from "../utils/utils";
+import { STRINGS } from "../utils/strings";
+import { UTILS } from "../utils/utils";
 
 /** Requests. **/
 export const REQUESTS = {
@@ -24,9 +24,9 @@ export const REQUESTS = {
      * Every channel request has at least basic and channel fields.
      * Every game request has at least basic, channel and game fields. **/
     abstract: {
-        basic: {request_id: null, name: null, re_sent: false},
-        channel: {token: null},
-        game: {game_id: null, game_role: null, phase: null},
+        basic: { request_id: null, name: null, re_sent: false },
+        channel: { token: null },
+        game: { game_id: null, game_role: null, phase: null },
     },
 
     /** Request models. A request model is defined with:
@@ -35,69 +35,80 @@ export const REQUESTS = {
      * - request phase dependent (optional, for game requests): boolean (default, true)
      * **/
     models: {
-        sign_in: {level: null, model: {username: null, password: null}},
+        sign_in: { level: null, model: { username: null, password: null } },
         create_game: {
             level: STRINGS.CHANNEL,
             model: {
-                game_id: null, n_controls: null, deadline: 300, registration_password: null,
-                power_name: null, state: null, map_name: 'standard', rules: null, player_type: null
-            }
+                game_id: null,
+                n_controls: null,
+                deadline: 300,
+                registration_password: null,
+                power_name: null,
+                state: null,
+                map_name: "standard",
+                rules: null,
+                player_type: null,
+            },
         },
-        delete_account: {level: STRINGS.CHANNEL, model: {username: null}},
-        get_all_possible_orders: {level: STRINGS.GAME, model: {}},
-        get_available_maps: {level: STRINGS.CHANNEL, model: {}},
-        get_playable_powers: {level: STRINGS.CHANNEL, model: {game_id: null}},
-        join_game: {level: STRINGS.CHANNEL, model: {game_id: null, power_name: null, registration_password: null, player_type: null}},
+        delete_account: { level: STRINGS.CHANNEL, model: { username: null } },
+        get_all_possible_orders: { level: STRINGS.GAME, model: {} },
+        get_available_maps: { level: STRINGS.CHANNEL, model: {} },
+        get_playable_powers: { level: STRINGS.CHANNEL, model: { game_id: null } },
+        join_game: {
+            level: STRINGS.CHANNEL,
+            model: { game_id: null, power_name: null, registration_password: null, player_type: null },
+        },
         list_games: {
             level: STRINGS.CHANNEL,
-            model: {game_id: null, status: null, map_name: null, include_protected: true, for_omniscience: false}
+            model: { game_id: null, status: null, map_name: null, include_protected: true, for_omniscience: false },
         },
-        get_games_info: {level: STRINGS.CHANNEL, model: {games: null}},
-        logout: {level: STRINGS.CHANNEL, model: {}},
-        set_grade: {level: STRINGS.CHANNEL, model: {grade: null, grade_update: null, username: null, game_id: null}},
-        clear_centers: {level: STRINGS.GAME, model: {power_name: null}},
-        clear_orders: {level: STRINGS.GAME, model: {power_name: null}},
-        clear_units: {level: STRINGS.GAME, model: {power_name: null}},
-        delete_game: {level: STRINGS.GAME, phase_dependent: false, model: {}},
+        get_games_info: { level: STRINGS.CHANNEL, model: { games: null } },
+        logout: { level: STRINGS.CHANNEL, model: {} },
+        set_grade: {
+            level: STRINGS.CHANNEL,
+            model: { grade: null, grade_update: null, username: null, game_id: null },
+        },
+        clear_centers: { level: STRINGS.GAME, model: { power_name: null } },
+        clear_orders: { level: STRINGS.GAME, model: { power_name: null } },
+        clear_units: { level: STRINGS.GAME, model: { power_name: null } },
+        delete_game: { level: STRINGS.GAME, phase_dependent: false, model: {} },
         get_phase_history: {
             level: STRINGS.GAME,
             phase_dependent: false,
-            model: {from_phase: null, to_phase: null}
+            model: { from_phase: null, to_phase: null },
         },
-        leave_game: {level: STRINGS.GAME, model: {}},
-        process_game: {level: STRINGS.GAME, model: {}},
-        query_schedule: {level: STRINGS.GAME, model: {}},
-        send_recipient_annotation: {level: STRINGS.GAME, model: {time_sent: null, annotation: null}},
-        send_stance: {level: STRINGS.GAME, model: {power_name: null, stance: null}},
-        send_is_bot: {level: STRINGS.GAME, model: {power_name: null, is_bot: null}},
-        send_commentary_durations: {level: STRINGS.GAME, model: {power_name: null, durations: null}},
-        send_deceiving: {level: STRINGS.GAME, model: {info: null}},
-        send_game_message: {level: STRINGS.GAME, model: {message: null}},
-        send_order_log: {level: STRINGS.GAME, model: {log: null}},
-        send_log_data: {level: STRINGS.GAME, model: {log: null}},
-        send_order_suggestions: {level: STRINGS.GAME, model: {power: null, suggestions: null}},
-        set_dummy_powers: {level: STRINGS.GAME, model: {username: null, power_names: null}},
-        set_game_state: {level: STRINGS.GAME, model: {state: null, orders: null, results: null, messages: null}},
-        set_game_status: {level: STRINGS.GAME, model: {status: null}},
-        set_orders: {level: STRINGS.GAME, model: {power_name: null, orders: null}},
-        set_wait_flag: {level: STRINGS.GAME, model: {power_name: null, wait: null}},
-        set_comm_status: {level: STRINGS.GAME, model: {power_name: null, comm_status: null}},
-        synchronize: {level: STRINGS.GAME, phase_dependent: false, model: {timestamp: null}},
-        vote: {level: STRINGS.GAME, model: {vote: null}},
-        save_game: {level: STRINGS.GAME, model: {}},
+        leave_game: { level: STRINGS.GAME, model: {} },
+        process_game: { level: STRINGS.GAME, model: {} },
+        query_schedule: { level: STRINGS.GAME, model: {} },
+        send_recipient_annotation: { level: STRINGS.GAME, model: { time_sent: null, annotation: null } },
+        send_stance: { level: STRINGS.GAME, model: { power_name: null, stance: null } },
+        send_is_bot: { level: STRINGS.GAME, model: { power_name: null, is_bot: null } },
+        send_commentary_durations: { level: STRINGS.GAME, model: { power_name: null, durations: null } },
+        send_deceiving: { level: STRINGS.GAME, model: { info: null } },
+        send_game_message: { level: STRINGS.GAME, model: { message: null } },
+        send_order_log: { level: STRINGS.GAME, model: { log: null } },
+        send_log_data: { level: STRINGS.GAME, model: { log: null } },
+        send_order_suggestions: { level: STRINGS.GAME, model: { power: null, suggestions: null } },
+        set_dummy_powers: { level: STRINGS.GAME, model: { username: null, power_names: null } },
+        set_game_state: { level: STRINGS.GAME, model: { state: null, orders: null, results: null, messages: null } },
+        set_game_status: { level: STRINGS.GAME, model: { status: null } },
+        set_orders: { level: STRINGS.GAME, model: { power_name: null, orders: null } },
+        set_wait_flag: { level: STRINGS.GAME, model: { power_name: null, wait: null } },
+        set_comm_status: { level: STRINGS.GAME, model: { power_name: null, comm_status: null } },
+        synchronize: { level: STRINGS.GAME, phase_dependent: false, model: { timestamp: null } },
+        vote: { level: STRINGS.GAME, model: { vote: null } },
+        save_game: { level: STRINGS.GAME, model: {} },
     },
 
     isPhaseDependent: function (name) {
-        if (!REQUESTS.models.hasOwnProperty(name))
-            throw new Error('Unknown request name ' + name);
+        if (!REQUESTS.models.hasOwnProperty(name)) throw new Error("Unknown request name " + name);
         const model = REQUESTS.models[name];
-        return (model.level === STRINGS.GAME && (!model.hasOwnProperty('phase_dependent') || model.phase_dependent));
+        return model.level === STRINGS.GAME && (!model.hasOwnProperty("phase_dependent") || model.phase_dependent);
     },
 
     /** Return request level for given request name. Either null, 'channel' or 'game'. **/
     getLevel: function (name) {
-        if (!REQUESTS.models.hasOwnProperty(name))
-            throw new Error('Unknown request name ' + name);
+        if (!REQUESTS.models.hasOwnProperty(name)) throw new Error("Unknown request name " + name);
         return REQUESTS.models[name].level;
     },
 
@@ -107,23 +118,20 @@ export const REQUESTS = {
      * diplomacy.communication.requests about requests definitions, required and optional fields.
      * **/
     create: function (name, parameters) {
-        if (!REQUESTS.models.hasOwnProperty(name))
-            throw new Error('Unknown request name ' + name);
+        if (!REQUESTS.models.hasOwnProperty(name)) throw new Error("Unknown request name " + name);
         let models = null;
         const definition = REQUESTS.models[name];
         if (definition.level === STRINGS.GAME)
             models = [{}, definition.model, REQUESTS.abstract.game, REQUESTS.abstract.channel];
-        else if (definition.level === STRINGS.CHANNEL)
-            models = [{}, definition.model, REQUESTS.abstract.channel];
-        else
-            models = [{}, definition.model];
+        else if (definition.level === STRINGS.CHANNEL) models = [{}, definition.model, REQUESTS.abstract.channel];
+        else models = [{}, definition.model];
         models.push(REQUESTS.abstract.basic);
-        models.push({name: name});
+        models.push({ name: name });
         const request = Object.assign.apply(null, models);
-        if (parameters) for (let parameter of Object.keys(parameters)) if (request.hasOwnProperty(parameter))
-            request[parameter] = parameters[parameter];
-        if (!request.request_id)
-            request.request_id = UTILS.createID();
+        if (parameters)
+            for (let parameter of Object.keys(parameters))
+                if (request.hasOwnProperty(parameter)) request[parameter] = parameters[parameter];
+        if (!request.request_id) request.request_id = UTILS.createID();
         return request;
     },
 };

@@ -10,7 +10,7 @@ export class EquilateralTriangle {
         this.y_C = y_left;
         this.h = this.y_B - this.y_A;
         this.x_O = this.x_A;
-        this.y_O = this.y_A + 2 * this.h / 3;
+        this.y_O = this.y_A + (2 * this.h) / 3;
         this.line_AB_a = (this.y_B - this.y_A) / (this.x_B - this.x_A);
         this.line_AB_b = this.y_B - this.x_B * this.line_AB_a;
         this.line_AC_a = (this.y_C - this.y_A) / (this.x_C - this.x_A);
@@ -30,13 +30,11 @@ export class EquilateralTriangle {
             x = x_M;
         } else {
             const [u, v] = this.__line_OM(x_M, y_M);
-            if (a === u)
-                return [null, null];
+            if (a === u) return [null, null];
             x = (v - b) / (a - u);
         }
         const y = a * x + b;
-        if (this.x_A <= x && x <= this.x_B && this.y_A <= y && y <= this.y_B)
-            return [x, y];
+        if (this.x_A <= x && x <= this.x_B && this.y_A <= y && y <= this.y_B) return [x, y];
         return [null, null];
     }
 
@@ -47,13 +45,11 @@ export class EquilateralTriangle {
             x = x_M;
         } else {
             const [u, v] = this.__line_OM(x_M, y_M);
-            if (a === u)
-                return [null, null];
+            if (a === u) return [null, null];
             x = (v - b) / (a - u);
         }
         const y = a * x + b;
-        if (this.x_C <= x && x <= this.x_A && this.y_A <= y && y <= this.y_C)
-            return [x, y];
+        if (this.x_C <= x && x <= this.x_A && this.y_A <= y && y <= this.y_C) return [x, y];
         return [null, null];
     }
 
@@ -64,21 +60,17 @@ export class EquilateralTriangle {
             x = x_M;
         } else {
             const [a, b] = this.__line_OM(x_M, y_M);
-            if (a === 0)
-                return [null, null];
+            if (a === 0) return [null, null];
             x = (y - b) / a;
         }
-        if (this.x_C <= x && x <= this.x_A)
-            return [x, y];
+        if (this.x_C <= x && x <= this.x_A) return [x, y];
         return [null, null];
     }
 
     intersection(x_M, y_M) {
-        if (this.x_O === x_M && this.y_O === y_M)
-            return [x_M, y_M];
+        if (this.x_O === x_M && this.y_O === y_M) return [x_M, y_M];
         if (this.x_O === x_M) {
-            if (y_M < this.y_O)
-                return [x_M, this.y_A];
+            if (y_M < this.y_O) return [x_M, this.y_A];
             else {
                 // vertical line intersects BC;
                 return [x_M, this.y_C];
@@ -114,8 +106,7 @@ export class EquilateralTriangle {
                 distances.push([d3, p3_x, p3_y]);
             }
             distances.sort();
-            if (distances.length === 0)
-                return [null, null];
+            if (distances.length === 0) return [null, null];
             const output = distances[0];
             output.shift();
             return output;

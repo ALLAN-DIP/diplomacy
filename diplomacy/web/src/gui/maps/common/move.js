@@ -15,18 +15,18 @@
 //  with this program.  If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
 import React from "react";
-import {ARMY, coloredStrokeWidth, getUnitCenter, plainStrokeWidth} from "./common";
+import { ARMY, coloredStrokeWidth, getUnitCenter, plainStrokeWidth } from "./common";
 import PropTypes from "prop-types";
 
 export class Move extends React.Component {
     render() {
-        const opacity = (this.props?.opacity === undefined ? 1 : this.props?.opacity);
+        const opacity = this.props?.opacity === undefined ? 1 : this.props?.opacity;
         const Coordinates = this.props.coordinates;
         const SymbolSizes = this.props.symbolSizes;
         const Colors = this.props.colors;
         const src_loc = this.props.srcLoc;
         const dest_loc = this.props.dstLoc;
-        const is_dislodged = this.props.phaseType === 'R';
+        const is_dislodged = this.props.phaseType === "R";
         const [src_loc_x, src_loc_y] = getUnitCenter(Coordinates, SymbolSizes, src_loc, is_dislodged);
         let [dest_loc_x, dest_loc_y] = getUnitCenter(Coordinates, SymbolSizes, dest_loc, is_dislodged);
         // Adjusting destination
@@ -34,24 +34,32 @@ export class Move extends React.Component {
         const delta_y = dest_loc_y - src_loc_y;
         const vector_length = Math.sqrt(delta_x * delta_x + delta_y * delta_y);
         const delta_dec = parseFloat(SymbolSizes[ARMY].width) / 2 + 2 * coloredStrokeWidth(SymbolSizes);
-        dest_loc_x = '' + Math.round((parseFloat(src_loc_x) + (vector_length - delta_dec) / vector_length * delta_x) * 100.) / 100.;
-        dest_loc_y = '' + Math.round((parseFloat(src_loc_y) + (vector_length - delta_dec) / vector_length * delta_y) * 100.) / 100.;
+        dest_loc_x =
+            "" +
+            Math.round((parseFloat(src_loc_x) + ((vector_length - delta_dec) / vector_length) * delta_x) * 100) / 100;
+        dest_loc_y =
+            "" +
+            Math.round((parseFloat(src_loc_y) + ((vector_length - delta_dec) / vector_length) * delta_y) * 100) / 100;
         return (
             <g opacity={opacity}>
-                <line x1={src_loc_x}
-                      y1={src_loc_y}
-                      x2={dest_loc_x}
-                      y2={dest_loc_y}
-                      className={'varwidthshadow'}
-                      strokeWidth={'' + plainStrokeWidth(SymbolSizes)}/>
-                <line x1={src_loc_x}
-                      y1={src_loc_y}
-                      x2={dest_loc_x}
-                      y2={dest_loc_y}
-                      className={'varwidthorder'}
-                      markerEnd={'url(#arrow)'}
-                      stroke={Colors[this.props.powerName]}
-                      strokeWidth={'' + coloredStrokeWidth(SymbolSizes)}/>
+                <line
+                    x1={src_loc_x}
+                    y1={src_loc_y}
+                    x2={dest_loc_x}
+                    y2={dest_loc_y}
+                    className={"varwidthshadow"}
+                    strokeWidth={"" + plainStrokeWidth(SymbolSizes)}
+                />
+                <line
+                    x1={src_loc_x}
+                    y1={src_loc_y}
+                    x2={dest_loc_x}
+                    y2={dest_loc_y}
+                    className={"varwidthorder"}
+                    markerEnd={"url(#arrow)"}
+                    stroke={Colors[this.props.powerName]}
+                    strokeWidth={"" + coloredStrokeWidth(SymbolSizes)}
+                />
             </g>
         );
     }
@@ -65,5 +73,5 @@ Move.propTypes = {
     coordinates: PropTypes.object.isRequired,
     symbolSizes: PropTypes.object.isRequired,
     colors: PropTypes.object.isRequired,
-    opacity: PropTypes.number
+    opacity: PropTypes.number,
 };

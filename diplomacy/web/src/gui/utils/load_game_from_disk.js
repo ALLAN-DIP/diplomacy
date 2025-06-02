@@ -36,10 +36,8 @@ export function loadGameFromDisk() {
                 gameObject.game_id = `(local) ${savedData.id}`;
                 gameObject.map_name = savedData.map;
                 gameObject.rules = savedData.rules;
-                gameObject.has_initial_orders =
-                    savedData.has_initial_orders || {};
-                gameObject.annotated_messages =
-                    savedData.annotated_messages || {};
+                gameObject.has_initial_orders = savedData.has_initial_orders || {};
+                gameObject.annotated_messages = savedData.annotated_messages || {};
                 gameObject.state_history = {};
                 gameObject.message_history = {};
                 gameObject.order_history = {};
@@ -49,13 +47,13 @@ export function loadGameFromDisk() {
                 gameObject.result_history = {};
                 gameObject.log_history = {};
                 gameObject.order_suggestions = savedData.order_suggestions || {
-                    "AUS": [],
-                    "ENG": [],
-                    "TUR": [],
-                    "ITA": [],
-                    "RUS": [],
-                    "FRA": [],
-                    "GER": [],
+                    AUS: [],
+                    ENG: [],
+                    TUR: [],
+                    ITA: [],
+                    RUS: [],
+                    FRA: [],
+                    GER: [],
                 };
                 gameObject.commentary_durations = savedData.commentary_durations || {};
 
@@ -92,8 +90,7 @@ export function loadGameFromDisk() {
                 }
 
                 // Load latest phase separately and use it later to define the current game phase.
-                const latestPhase =
-                    savedData.phases[savedData.phases.length - 1];
+                const latestPhase = savedData.phases[savedData.phases.length - 1];
                 const latestGameState = latestPhase.state;
                 const latestPhaseOrders = latestPhase.orders || {};
                 const latestPhaseStances = latestPhase.stances || {};
@@ -112,11 +109,9 @@ export function loadGameFromDisk() {
                         latestPhaseLogs[log.time_sent] = log;
                     }
                 }
-                if (!latestGameState.name)
-                    latestGameState.name = latestPhase.name;
+                if (!latestGameState.name) latestGameState.name = latestPhase.name;
                 // TODO: NB: What if latest phase in loaded JSON contains order results? Not sure if it is well handled.
-                gameObject.result_history[latestGameState.name] =
-                    latestPhaseResults;
+                gameObject.result_history[latestGameState.name] = latestPhaseResults;
 
                 gameObject.messages = [];
                 gameObject.logs = [];
@@ -140,7 +135,7 @@ export function loadGameFromDisk() {
                     logs: latestPhaseLogs,
                     stances: latestPhaseStances,
                     isBot: latestPhaseIsBot,
-                    deceiving: latestPhaseDeceiving
+                    deceiving: latestPhaseDeceiving,
                 });
                 onLoad(game);
             };
