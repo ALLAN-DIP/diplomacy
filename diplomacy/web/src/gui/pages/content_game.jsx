@@ -2757,7 +2757,7 @@ export class ContentGame extends React.Component {
                                 "GLOBAL",
                                 `${JSON.stringify(this.state.stances)}`,
                                 null,
-                                "move_advice_request",
+                                STRINGS.MOVE_ADVICE_REQUEST,
                             );
                             this.setState({ stanceChanged: false });
                         }}
