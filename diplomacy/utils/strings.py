@@ -255,6 +255,7 @@ SUGGESTED_MOVE_DISTRIBUTION = "suggested_move_distribution"
 SUGGESTED_MOVE_FULL = "suggested_move_full"
 SUGGESTED_MOVE_OPPONENTS = "suggested_move_opponents"
 SUGGESTED_MOVE_PARTIAL = "suggested_move_partial"
+MOVE_ADVICE_REQUEST = "move_advice_request"
 VIA = "VIA"
 WAIVE = "WAIVE"
 
