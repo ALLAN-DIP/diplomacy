@@ -21,6 +21,7 @@
 """
 # pylint: disable=too-many-lines
 import base64
+import json
 import os
 import logging
 import sys
@@ -964,7 +965,7 @@ class Game(Jsonable):
             return {
                 message.time_sent: message
                 for message in messages.sub(timestamp_from, timestamp_to)
-                if message.is_global() or message.for_observer()
+                if (message.is_global() and message.type is None) or message.for_observer()
             }
 
         # Omniscient observer can see all messages.
@@ -978,10 +979,21 @@ class Game(Jsonable):
             game_role = [game_role]
         elif not isinstance(game_role, list):
             game_role = list(game_role)
+
+        def is_advice_for_role(message: Message) -> bool:
+            """Return True if this message is advice for given game role(s)."""
+            return (
+                message.type in strings.ALL_SUGGESTION_TYPES
+                and json.loads(message.message).get("recipient") in game_role
+            )
+
         return {
             message.time_sent: message
             for message in messages.sub(timestamp_from, timestamp_to)
-            if message.is_global() or message.recipient in game_role or message.sender in game_role
+            if (message.is_global() and message.type is None)
+            or is_advice_for_role(message)
+            or message.recipient in game_role
+            or message.sender in game_role
         }
 
     def get_phase_history(self, from_phase=None, to_phase=None, game_role=None):
