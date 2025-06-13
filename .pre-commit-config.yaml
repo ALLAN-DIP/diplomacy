@@ -2,9 +2,11 @@
 #   pre-commit run --all-files
 # Update this file:
 #   pre-commit autoupdate
+minimum_pre_commit_version: 1.15.0
 default_language_version:
   # Use latest LTS release
   node: 22.16.0
+exclude: ^diplomacy/web/package-lock\.json$
 repos:
   - repo: meta
     hooks:
@@ -16,6 +18,7 @@ repos:
       - id: check-ast
       - id: check-case-conflict
       - id: check-executables-have-shebangs
+      - id: check-illegal-windows-names
       - id: check-json
       - id: check-merge-conflict
       - id: check-shebang-scripts-are-executable
@@ -46,6 +49,14 @@ repos:
         name: convert svg maps to react
         language: system
         entry: ./diplomacy/web/convert_svg_maps_to_react.sh
+  - repo: https://github.com/sirosen/texthooks
+    rev: 0.6.8
+    hooks:
+      - id: alphabetize-codeowners
+      - id: fix-ligatures
+      - id: fix-smartquotes
+      - id: fix-spaces
+      - id: forbid-bidi-controls
   # Use mirror for `mypyc`-compiled `black`
   - repo: https://github.com/psf/black-pre-commit-mirror
     rev: 25.1.0
@@ -55,3 +66,47 @@ repos:
     rev: v3.5.3
     hooks:
       - id: prettier
+  - repo: https://github.com/scop/pre-commit-shfmt
+    rev: v3.11.0-1
+    hooks:
+      - id: shfmt
+        args: [
+            --write,
+            --indent=2,
+            --case-indent, # Switch cases will be indented.
+          ]
+  - repo: https://github.com/igorshubovych/markdownlint-cli
+    rev: v0.44.0
+    hooks:
+      - id: markdownlint
+  - repo: https://github.com/adrienverge/yamllint
+    rev: v1.37.0
+    hooks:
+      - id: yamllint
+        args: [--strict]
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.10.0.1
+    hooks:
+      - id: shellcheck
+  - repo: https://github.com/rhysd/actionlint
+    rev: v1.7.7
+    hooks:
+      - id: actionlint
+  - repo: https://github.com/pypa/dependency-groups
+    rev: 1.3.1
+    hooks:
+      - id: lint-dependency-groups
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.4.1
+    hooks:
+      - id: codespell
+        exclude: ^(diplomacy/maps/(.*\.map|svg/.*\.svg)|diplomacy/tests/network/.*\.json|diplomacy/web/src/gui/maps/(ancmed|modern|pure|standard)/.*)$
+        additional_dependencies:
+          # `tomllib` was added to stdlib in Python 3.11
+          - tomli==2.2.1 ; python_version < "3.11"
+  - repo: https://github.com/lycheeverse/lychee
+    rev: lychee-v0.18.1
+    hooks:
+      - id: lychee
+        # Only run manually because it can have false positives and spurious failures
+        stages: [manual]

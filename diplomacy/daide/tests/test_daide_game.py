@@ -108,7 +108,7 @@ class ClientCommsSimulator:
         while comm_idx < len(self._comms):
             comm = self._comms[comm_idx]
 
-            # Find the request being right after a synchonization point (TME notification)
+            # Find the request being right after a synchronization point (TME notification)
             if not comm.request:
                 comm_idx += 1
                 continue
@@ -123,7 +123,7 @@ class ClientCommsSimulator:
                     comm_idx += 1
                     self._comms.insert(comm_idx, self._comms.pop(next_comm_idx))
 
-                # Synchonization point is a TME notif as it marks the beginning of a phase
+                # Synchronization point is a TME notif as it marks the beginning of a phase
                 if any(resp_notif.startswith("TME") for resp_notif in next_comm.resp_notifs):
                     break
 
@@ -160,9 +160,9 @@ class ClientCommsSimulator:
         return request, comms
 
     def pop_next_resp_notif(self, comms):
-        """Pop the next response or notifcation from a DAIDE communications list
+        """Pop the next response or notification from a DAIDE communications list
 
-        :return: The next response or notifcation along with the updated list of communications
+        :return: The next response or notification along with the updated list of communications
              or None and the updated list of communications
         """
         com = next(iter(comms), None)
@@ -284,7 +284,7 @@ class ClientCommsSimulator:
 
                 while expected_resp_notif is not None:
                     expected_resp_notifs.append(expected_resp_notif)
-                    # Synchonization point is the request being right after a TME notif or
+                    # Synchronization point is the request being right after a TME notif or
                     # the next set of responses / notifications
                     if expected_resp_notif.startswith("TME"):
                         break
@@ -333,7 +333,7 @@ class ClientsCommsSimulator:
 
     @gen.coroutine
     def retrieve_game_port(self, host, port):
-        """Retreive and store the game's port
+        """Retrieve and store the game's port
 
         :param host: the host
         :param port: the port

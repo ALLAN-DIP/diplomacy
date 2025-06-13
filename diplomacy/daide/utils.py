@@ -22,7 +22,7 @@ ClientConnection = namedtuple("ClientConnection", ["username", "daide_user", "to
 
 
 def get_user_connection(server_users, game, connection_handler):
-    """Get the DAIDE user connection informations
+    """Get the DAIDE user connection information
 
     :param server_users: The instance of `diplomacy.server.users` of the game's server
     :param game: The game the user has joined
