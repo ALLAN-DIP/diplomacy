@@ -89,7 +89,7 @@ class ServerGame(Game):
 
         :param phase_data: GamePhaseData object to filter.
         :param role: game role to filter phase data for.
-        :param is_current: Boolean. Indicate if given phase data is for a current phase (True), or for a pase phase.
+        :param is_current: Boolean. Indicate if given phase data is for a current phase (True), or for a past phase.
         :return: a new GamePhaseData object suitable for given game role.
         :type phase_data: GamePhaseData
         """
@@ -141,7 +141,7 @@ class ServerGame(Game):
 
     def game_can_start(self):
         """Return True if server game can start.
-        A game can start if all followings conditions are satisfied:
+        A game can start if all following conditions are satisfied:
 
         - Game has not yet started.
         - Game can start automatically (no rule START_MASTER).

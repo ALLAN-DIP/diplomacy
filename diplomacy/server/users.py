@@ -212,7 +212,7 @@ class Users(Jsonable):
 
         :param username: username to connect
         :param connection_handler: connection handler to link to user
-        :return: a new token generated for connexion
+        :return: a new token generated for connection
         """
         token = self.create_token()
         user = self.users[username]
