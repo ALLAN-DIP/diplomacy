@@ -1,4 +1,5 @@
 # syntax=docker/dockerfile:1
+# check=error=true
 
 FROM node:22.16.0-alpine3.21 AS app-builder
 
@@ -16,7 +17,7 @@ RUN npm run build
 
 FROM python:3.11.12-alpine3.21 AS server
 
-RUN apk upgrade --no-cache
+RUN apk --no-cache upgrade
 
 WORKDIR /app
 
