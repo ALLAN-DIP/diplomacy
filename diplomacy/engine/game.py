@@ -2612,7 +2612,7 @@ class Game(Jsonable):
                             possible_orders[loc].add("WAIVE")
 
         # Returning
-        return {loc: list(possible_orders[loc]) for loc in possible_orders}
+        return {loc: sorted(possible_orders[loc]) for loc in possible_orders}
 
     # ====================================================================
     #   Private Interface - CONVOYS Methods
