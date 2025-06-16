@@ -202,7 +202,7 @@ export class ContentGame extends React.Component {
                 TURKEY: false,
             },
             hoverOrders: [],
-            tabVal: "messages",
+            tabVal: STRINGS.MESSAGES,
             numAllCommentary: 0,
             numReadCommentary: 0,
             showBadge: false,
@@ -749,7 +749,7 @@ export class ContentGame extends React.Component {
     updateTabVal(event, value) {
         const now = Date.now();
 
-        if (value === "messages") {
+        if (value === STRINGS.MESSAGES) {
             // track time spent on commentary
             const timeDiff = now - this.state.lastSwitchPanelTime;
 
@@ -884,7 +884,7 @@ export class ContentGame extends React.Component {
 
     handleExit = () => {
         // Send the commentary durations to the server on exit
-        if (this.state.tabVal === "messages") {
+        if (this.state.tabVal === STRINGS.MESSAGES) {
             return;
         }
         const now = Date.now();
@@ -2151,6 +2151,24 @@ export class ContentGame extends React.Component {
         );
         const curController = engine.powers[role].getController();
 
+        // Use computed property names because there is no other way to use constants as object literal keys
+        // Reference: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Object_initializer#computed_property_names
+        const displayTab = {
+            [STRINGS.MESSAGES]: this.hasSuggestionType(suggestionType, UTILS.SuggestionType.MESSAGE),
+            [STRINGS.COMMENTARY]: this.hasSuggestionType(suggestionType, UTILS.SuggestionType.COMMENTARY),
+            [STRINGS.INTENT_LOG]: isAdmin,
+        };
+
+        // If tab is disabled, choose the first displayed tab
+        if (displayTab[this.state.tabVal] === false) {
+            for (const [key, value] of Object.entries(displayTab)) {
+                if (value === true) {
+                    this.setState({ tabVal: key });
+                    break;
+                }
+            }
+        }
+
         return (
             <Box className={"col-6 mb-4"}>
                 <Grid container spacing={2}>
@@ -2162,23 +2180,27 @@ export class ContentGame extends React.Component {
                                     onChange={this.updateTabVal}
                                     aria-label="basic tabs example"
                                 >
-                                    <Tab2 label="Message Advice" value="messages" />
-                                    {this.hasSuggestionType(suggestionType, UTILS.SuggestionType.COMMENTARY) && (
+                                    {displayTab[STRINGS.MESSAGES] && (
+                                        <Tab2 label="Message Advice" value={STRINGS.MESSAGES} />
+                                    )}
+                                    {displayTab[STRINGS.COMMENTARY] && (
                                         <Tab2
                                             label={
-                                                this.state.showBadge ? (
-                                                    <Badge variant="dot" color="warning"></Badge>
-                                                ) : (
-                                                    <span
-                                                        sx={{
-                                                            marginRight: "8px",
-                                                        }}
-                                                    >
-                                                        Commentary
-                                                    </span>
-                                                )
+                                                <span
+                                                    sx={{
+                                                        marginRight: "8px",
+                                                    }}
+                                                >
+                                                    Commentary
+                                                    {this.state.showBadge && (
+                                                        <>
+                                                            {" "}
+                                                            <Badge variant="dot" color="warning"></Badge>
+                                                        </>
+                                                    )}
+                                                </span>
                                             }
-                                            value="commentary"
+                                            value={STRINGS.COMMENTARY}
                                             onClick={() => {
                                                 if (isCurrent) {
                                                     this.setState({
@@ -2190,10 +2212,12 @@ export class ContentGame extends React.Component {
                                             }}
                                         />
                                     )}
-                                    {isAdmin && <Tab2 label="Captain's Log" value="intent-log" />}
+                                    {displayTab[STRINGS.INTENT_LOG] && (
+                                        <Tab2 label="Captain's Log" value={STRINGS.INTENT_LOG} />
+                                    )}
                                 </Tabs2>
                             </Box>
-                            {this.state.tabVal === "messages" && (
+                            {this.state.tabVal === STRINGS.MESSAGES && (
                                 <ChatContainer
                                     style={{
                                         display: "flex",
@@ -2274,7 +2298,7 @@ export class ContentGame extends React.Component {
                                 </ChatContainer>
                             )}
 
-                            {this.state.tabVal === "commentary" && (
+                            {this.state.tabVal === STRINGS.COMMENTARY && (
                                 <MainContainer responsive>
                                     <ChatContainer>
                                         <ConversationHeader>
@@ -2315,7 +2339,7 @@ export class ContentGame extends React.Component {
                                 </MainContainer>
                             )}
 
-                            {this.state.tabVal === "intent-log" && (
+                            {this.state.tabVal === STRINGS.INTENT_LOG && (
                                 <MainContainer responsive>
                                     <ChatContainer>
                                         <ConversationHeader>

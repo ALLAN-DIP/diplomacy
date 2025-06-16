@@ -49,6 +49,11 @@ export const STRINGS = {
     SUGGESTED_MOVE_OPPONENTS: "suggested_move_opponents",
     SUGGESTED_MOVE_PARTIAL: "suggested_move_partial",
     // Suggestion message types (end)
+    // Centaur tab values (start)
+    MESSAGES: "messages",
+    COMMENTARY: "commentary",
+    INTENT_LOG: "intent-log",
+    // Centaur tab values (end)
     ALL_GAME_STATUSES: ["forming", "active", "paused", "completed", "canceled"],
     ALL_POWER_NAMES: ["AUSTRIA", "ENGLAND", "FRANCE", "GERMANY", "ITALY", "RUSSIA", "TURKEY"],
     RULES: [
