@@ -15,8 +15,8 @@ Use the following steps both for initially deploying and later redeploying the a
   ```
 - Download the latest versions of the required files with the following commands:
   ```bash
-  wget --output-document Caddyfile https://raw.githubusercontent.com/ALLAN-DIP/diplomacy/refs/heads/main/vm_conf/Caddyfile
-  wget --output-document compose.yaml https://raw.githubusercontent.com/ALLAN-DIP/diplomacy/refs/heads/main/vm_conf/compose.yaml
+  wget --output-document Caddyfile https://raw.githubusercontent.com/ALLAN-DIP/diplomacy/refs/heads/alex-dev/vm_conf/Caddyfile
+  wget --output-document compose.yaml https://raw.githubusercontent.com/ALLAN-DIP/diplomacy/refs/heads/alex-dev/vm_conf/compose.yaml
   ```
 - Start the server with the following command:
   ```bash
