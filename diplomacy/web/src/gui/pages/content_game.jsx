@@ -2151,6 +2151,14 @@ export class ContentGame extends React.Component {
         );
         const curController = engine.powers[role].getController();
 
+        // Use computed property names because there is no other way to use constants as object literal keys
+        // Reference: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Object_initializer#computed_property_names
+        const displayTab = {
+            [STRINGS.MESSAGES]: this.hasSuggestionType(suggestionType, UTILS.SuggestionType.MESSAGE),
+            [STRINGS.COMMENTARY]: this.hasSuggestionType(suggestionType, UTILS.SuggestionType.COMMENTARY),
+            [STRINGS.INTENT_LOG]: isAdmin,
+        };
+
         return (
             <Box className={"col-6 mb-4"}>
                 <Grid container spacing={2}>
@@ -2162,10 +2170,10 @@ export class ContentGame extends React.Component {
                                     onChange={this.updateTabVal}
                                     aria-label="basic tabs example"
                                 >
-                                    {this.hasSuggestionType(suggestionType, UTILS.SuggestionType.MESSAGE) && (
+                                    {displayTab[STRINGS.MESSAGES] && (
                                         <Tab2 label="Message Advice" value={STRINGS.MESSAGES} />
                                     )}
-                                    {this.hasSuggestionType(suggestionType, UTILS.SuggestionType.COMMENTARY) && (
+                                    {displayTab[STRINGS.COMMENTARY] && (
                                         <Tab2
                                             label={
                                                 <span
@@ -2194,7 +2202,9 @@ export class ContentGame extends React.Component {
                                             }}
                                         />
                                     )}
-                                    {isAdmin && <Tab2 label="Captain's Log" value={STRINGS.INTENT_LOG} />}
+                                    {displayTab[STRINGS.INTENT_LOG] && (
+                                        <Tab2 label="Captain's Log" value={STRINGS.INTENT_LOG} />
+                                    )}
                                 </Tabs2>
                             </Box>
                             {this.state.tabVal === STRINGS.MESSAGES && (
