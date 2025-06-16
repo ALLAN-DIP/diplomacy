@@ -202,7 +202,7 @@ export class ContentGame extends React.Component {
                 TURKEY: false,
             },
             hoverOrders: [],
-            tabVal: "messages",
+            tabVal: STRINGS.MESSAGES,
             numAllCommentary: 0,
             numReadCommentary: 0,
             showBadge: false,
@@ -749,7 +749,7 @@ export class ContentGame extends React.Component {
     updateTabVal(event, value) {
         const now = Date.now();
 
-        if (value === "messages") {
+        if (value === STRINGS.MESSAGES) {
             // track time spent on commentary
             const timeDiff = now - this.state.lastSwitchPanelTime;
 
@@ -884,7 +884,7 @@ export class ContentGame extends React.Component {
 
     handleExit = () => {
         // Send the commentary durations to the server on exit
-        if (this.state.tabVal === "messages") {
+        if (this.state.tabVal === STRINGS.MESSAGES) {
             return;
         }
         const now = Date.now();
@@ -2163,7 +2163,7 @@ export class ContentGame extends React.Component {
                                     aria-label="basic tabs example"
                                 >
                                     {this.hasSuggestionType(suggestionType, UTILS.SuggestionType.MESSAGE) && (
-                                        <Tab2 label="Message Advice" value="messages" />
+                                        <Tab2 label="Message Advice" value={STRINGS.MESSAGES} />
                                     )}
                                     {this.hasSuggestionType(suggestionType, UTILS.SuggestionType.COMMENTARY) && (
                                         <Tab2
@@ -2182,7 +2182,7 @@ export class ContentGame extends React.Component {
                                                     )}
                                                 </span>
                                             }
-                                            value="commentary"
+                                            value={STRINGS.COMMENTARY}
                                             onClick={() => {
                                                 if (isCurrent) {
                                                     this.setState({
@@ -2194,10 +2194,10 @@ export class ContentGame extends React.Component {
                                             }}
                                         />
                                     )}
-                                    {isAdmin && <Tab2 label="Captain's Log" value="intent-log" />}
+                                    {isAdmin && <Tab2 label="Captain's Log" value={STRINGS.INTENT_LOG} />}
                                 </Tabs2>
                             </Box>
-                            {this.state.tabVal === "messages" && (
+                            {this.state.tabVal === STRINGS.MESSAGES && (
                                 <ChatContainer
                                     style={{
                                         display: "flex",
@@ -2278,7 +2278,7 @@ export class ContentGame extends React.Component {
                                 </ChatContainer>
                             )}
 
-                            {this.state.tabVal === "commentary" && (
+                            {this.state.tabVal === STRINGS.COMMENTARY && (
                                 <MainContainer responsive>
                                     <ChatContainer>
                                         <ConversationHeader>
@@ -2319,7 +2319,7 @@ export class ContentGame extends React.Component {
                                 </MainContainer>
                             )}
 
-                            {this.state.tabVal === "intent-log" && (
+                            {this.state.tabVal === STRINGS.INTENT_LOG && (
                                 <MainContainer responsive>
                                     <ChatContainer>
                                         <ConversationHeader>
