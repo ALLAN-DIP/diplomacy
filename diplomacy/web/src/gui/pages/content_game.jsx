@@ -3229,7 +3229,7 @@ export class ContentGame extends React.Component {
                 </Row>
                 <Row>
                     {!engine.isPlayerGame() && this.renderPowerInfo(engine)}
-                    {localStorage.getItem("username") === "admin" && this.renderLogs(engine, currentPowerName)}
+                    {page.channel.username === "admin" && this.renderLogs(engine, currentPowerName)}
                 </Row>
             </div>
         );
