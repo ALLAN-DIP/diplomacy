@@ -2159,6 +2159,16 @@ export class ContentGame extends React.Component {
             [STRINGS.INTENT_LOG]: isAdmin,
         };
 
+        // If tab is disabled, choose the first displayed tab
+        if (displayTab[this.state.tabVal] === false) {
+            for (const [key, value] of Object.entries(displayTab)) {
+                if (value === true) {
+                    this.setState({ tabVal: key });
+                    break;
+                }
+            }
+        }
+
         return (
             <Box className={"col-6 mb-4"}>
                 <Grid container spacing={2}>
