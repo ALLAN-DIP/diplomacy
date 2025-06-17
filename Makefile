@@ -106,6 +106,11 @@ update-npm:
 	cd diplomacy/web/ && \
 	npm install --force
 
+.PHONY: upgrade-pip
+upgrade-pip:
+	pip install --upgrade pip
+	pip install --upgrade --upgrade-strategy eager -e .[dev]
+
 .PHONY: update-pip
 update-pip:
 	pip install --upgrade pip
