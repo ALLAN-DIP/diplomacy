@@ -8,7 +8,7 @@ This project contains an open-source DATC-compliant Diplomacy game engine, a cli
 
 The complete documentation is available at [diplomacy.readthedocs.io](https://diplomacy.readthedocs.io/).
 
-Update: the documentation isn't updated for the latest changes. See [here](https://fengs-organization-3.gitbook.io/diplomacy-documentation/) for (not all) example usage.
+Update: the documentation isn't updated for the latest changes. See [Feng's Diplomacy Documentation](https://fengs-organization-3.gitbook.io/diplomacy-documentation/) for (not all) example usage.
 
 ## Getting Started
 
