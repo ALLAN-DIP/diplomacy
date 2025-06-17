@@ -1,0 +1,28 @@
+services:
+  caddy:
+    image: caddy:2.10-alpine
+    container_name: caddy
+    pull_policy: always
+    restart: unless-stopped
+    ports:
+      - 80:80
+      - 443:443
+      - 443:443/udp # For HTTPS/3
+      - 8433:8433 # For Diplomacy websockets
+    environment:
+      DOMAIN_NAME: ${DOMAIN_NAME}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - /opt/docker/caddy/config:/config
+      - /opt/docker/caddy/data:/data
+
+  diplomacy:
+    image: ghcr.io/allan-dip/diplomacy:latest
+    container_name: diplomacy
+    pull_policy: always
+    restart: unless-stopped
+    environment:
+      MAPS_TO_LOAD: standard.map
+      SERVER_PORT: 8433
+    volumes:
+      - .cache/diplomacy_maps/:/app/maps/
