@@ -76,11 +76,11 @@ repos:
             --case-indent, # Switch cases will be indented.
           ]
   - repo: https://github.com/igorshubovych/markdownlint-cli
-    rev: v0.44.0
+    rev: v0.45.0
     hooks:
       - id: markdownlint
   - repo: https://github.com/adrienverge/yamllint
-    rev: v1.37.0
+    rev: v1.37.1
     hooks:
       - id: yamllint
         args: [--strict]
@@ -105,7 +105,7 @@ repos:
           # `tomllib` was added to stdlib in Python 3.11
           - tomli==2.2.1 ; python_version < "3.11"
   - repo: https://github.com/lycheeverse/lychee
-    rev: lychee-v0.18.1
+    rev: lychee-v0.19.1
     hooks:
       - id: lychee
         # Only run manually because it can have false positives and spurious failures
