@@ -49,6 +49,7 @@ export const STRINGS = {
     SUGGESTED_MOVE_OPPONENTS: "suggested_move_opponents",
     SUGGESTED_MOVE_PARTIAL: "suggested_move_partial",
     // Suggestion message types (end)
+    MOVE_ADVICE_REQUEST: "move_advice_request",
     // Centaur tab values (start)
     MESSAGES: "messages",
     COMMENTARY: "commentary",
