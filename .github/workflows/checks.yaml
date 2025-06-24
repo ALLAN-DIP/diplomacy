@@ -36,6 +36,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          # Prevent credentials from being accidentally used in other steps
+          persist-credentials: false
 
       - name: Initialize NodeJS environment
         uses: actions/setup-node@v4
@@ -78,6 +81,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          # Prevent credentials from being accidentally used in other steps
+          persist-credentials: false
 
       - name: Initialize Python environment
         uses: actions/setup-python@v5
