@@ -82,7 +82,7 @@ filterwarnings = [
   "ignore:make_current is deprecated; start the event loop first:DeprecationWarning",
   # TODO: Fix warning that shows up in Python 3.11 but not 3.7
   # See https://docs.pytest.org/en/8.3.x/how-to/failures.html#warning-about-unraisable-exceptions-and-unhandled-thread-exceptions
-  "ignore::pytest.PytestUnraisableExceptionWarning",
+  # "ignore::pytest.PytestUnraisableExceptionWarning",
 ]
 log_cli_level = "INFO"
 minversion = "6.0"
