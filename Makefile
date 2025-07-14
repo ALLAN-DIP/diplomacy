@@ -91,6 +91,10 @@ sphinx:
 yamllint:
 	pre-commit run --all-files yamllint
 
+.PHONY: zizmor
+zizmor:
+	pre-commit run --all-files zizmor
+
 .PHONY: check
 check:
 	$(MAKE) precommit
