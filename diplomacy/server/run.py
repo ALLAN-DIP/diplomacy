@@ -34,6 +34,7 @@ import asyncio
 
 from diplomacy import Server
 from diplomacy.utils import constants
+from diplomacy.utils.logger import initialize_logging
 import tornado.web
 import tornado.ioloop
 import json
@@ -78,6 +79,7 @@ async def main():
 
 
 if __name__ == "__main__":
+    initialize_logging()
     default_port = int(os.environ.get("SERVER_PORT", constants.DEFAULT_PORT))
     default_daide_ports = os.environ.get("DAIDE_PORT_RANGE", constants.DEFAULT_DAIDE_PORT_RANGE)
     loop = asyncio.get_event_loop()
