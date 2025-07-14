@@ -239,7 +239,8 @@ def add_to_cache(map_name, max_convoy_length=MAX_CONVOY_LENGTH):
     # Loading from internal cache first
     if os.path.exists(INTERNAL_CACHE_PATH):
         try:
-            cache_data = pickle.load(open(INTERNAL_CACHE_PATH, "rb"))
+            with open(INTERNAL_CACHE_PATH, "rb") as file:
+                cache_data = pickle.load(file)
             if cache_data.get("__version__", "") == __VERSION__:
                 convoy_paths.update(cache_data)
         except (pickle.UnpicklingError, EOFError):
@@ -248,7 +249,8 @@ def add_to_cache(map_name, max_convoy_length=MAX_CONVOY_LENGTH):
     # Loading external cache
     if os.path.exists(EXTERNAL_CACHE_PATH):
         try:
-            cache_data = pickle.load(open(EXTERNAL_CACHE_PATH, "rb"))
+            with open(EXTERNAL_CACHE_PATH, "rb") as file:
+                cache_data = pickle.load(file)
             if cache_data.get("__version__", "") != __VERSION__:
                 print(
                     'Upgrading cache from "%s" to "%s"'
@@ -275,7 +277,8 @@ def add_to_cache(map_name, max_convoy_length=MAX_CONVOY_LENGTH):
         convoy_paths[map_hash] = _build_convoy_paths_cache(map_object, max_convoy_length)
         external_convoy_paths[map_hash] = convoy_paths[map_hash]
         os.makedirs(os.path.dirname(EXTERNAL_CACHE_PATH), exist_ok=True)
-        pickle.dump(external_convoy_paths, open(EXTERNAL_CACHE_PATH, "wb"))
+        with open(EXTERNAL_CACHE_PATH, "wb") as file:
+            pickle.dump(external_convoy_paths, file)
 
     # Returning
     return convoy_paths[map_hash]
@@ -289,7 +292,8 @@ def get_convoy_paths_cache():
     # Loading from internal cache first
     if os.path.exists(INTERNAL_CACHE_PATH):
         try:
-            cache_data = pickle.load(open(INTERNAL_CACHE_PATH, "rb"))
+            with open(INTERNAL_CACHE_PATH, "rb") as file:
+                cache_data = pickle.load(file)
             if cache_data.get("__version__", "") == __VERSION__:
                 disk_convoy_paths.update(cache_data)
         except (pickle.UnpicklingError, EOFError):
@@ -298,7 +302,8 @@ def get_convoy_paths_cache():
     # Loading external cache
     if os.path.exists(EXTERNAL_CACHE_PATH):
         try:
-            cache_data = pickle.load(open(EXTERNAL_CACHE_PATH, "rb"))
+            with open(EXTERNAL_CACHE_PATH, "rb") as file:
+                cache_data = pickle.load(file)
             if cache_data.get("__version__", "") == __VERSION__:
                 disk_convoy_paths.update(cache_data)
         except (pickle.UnpicklingError, EOFError):
