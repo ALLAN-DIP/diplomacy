@@ -13,12 +13,10 @@ def initialize_logging() -> None:
     stream_handler = logging.StreamHandler()
     stream_handler.setLevel(logging.DEBUG)
 
-    # Monkey patch module to show milliseconds
-    logging.Formatter.default_msec_format = "%s.%03d"
-
     formatter = logging.Formatter(
         fmt="[%(asctime)s] [%(levelname)s] [%(name)s[%(process)d]] %(message)s"
     )
+    formatter.default_msec_format = "%s.%03d"
     stream_handler.setFormatter(formatter)
     root.addHandler(stream_handler)
 
