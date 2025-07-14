@@ -152,12 +152,6 @@ class ServerGame(Game):
         """
         return self.is_game_forming and not self.start_master and self.has_expected_controls_count()
 
-    def get_messages(self, game_role, timestamp_from=None, timestamp_to=None):
-        """Return a filtered dict of current messages for given output game role.
-        See method filter_messages() about parameters.
-        """
-        return self.filter_messages(self.messages, game_role, timestamp_from, timestamp_to)
-
     def get_message_history(self, game_role):
         """Return a filtered dict of whole message history for given game role."""
         return {
