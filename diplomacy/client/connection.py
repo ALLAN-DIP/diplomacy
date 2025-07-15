@@ -143,6 +143,9 @@ class Connection:
         lambda self: "%s://%s:%d" % ("wss" if self.use_ssl else "ws", self.hostname, self.port)
     )
 
+    def __del__(self):
+        self.connection.close()
+
     # ===================
     # Public Methods.
     # ===================
