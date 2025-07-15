@@ -94,6 +94,10 @@ class ClientCommsSimulator:
         """Returns if the client has joinded the game"""
         return self._is_game_joined
 
+    def __del__(self):
+        """Clean up socket when instance is garbage collected."""
+        self._stream.close()
+
     def set_comms(self, comms):
         """Set the client's communications.
 
