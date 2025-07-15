@@ -712,7 +712,6 @@ def run(case_data, **server_kwargs):
 
     print()
     io_loop = IOLoop()
-    io_loop.make_current()
     common.Tornado.stop_loop_on_callback_error(io_loop)
     case_data.io_loop = io_loop
     case_data.test_server = Server(**server_kwargs)
@@ -726,7 +725,6 @@ def run(case_data, **server_kwargs):
 
     io_loop.add_callback(coroutine_func)
     case_data.test_server.start(case_data.port, io_loop)
-    case_data.io_loop.clear_current()
     case_data.io_loop.close()
     case_data.test_server.backend.http_server.stop()
 

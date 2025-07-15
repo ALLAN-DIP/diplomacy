@@ -72,7 +72,6 @@ def main():
     )
     args = parser.parse_args()
     io_loop = IOLoop()
-    io_loop.make_current()
 
     @gen.coroutine
     def run():

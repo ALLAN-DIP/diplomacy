@@ -405,7 +405,6 @@ def run_game_data(nb_daide_clients, rules, csv_file):
     """
     server = Server()
     io_loop = IOLoop()
-    io_loop.make_current()
     common.Tornado.stop_loop_on_callback_error(io_loop)
 
     @gen.coroutine
@@ -479,7 +478,6 @@ def run_game_data(nb_daide_clients, rules, csv_file):
             server.backend.http_server.stop()
 
         io_loop.stop()
-        io_loop.clear_current()
         io_loop.close()
 
         server = None
