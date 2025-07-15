@@ -62,11 +62,10 @@ def _display_progress_bar(queue, max_loop_iters):
     :param queue: Multiprocessing queue to display the progress bar
     :param max_loop_iters: The expected maximum number of iterations
     """
-    progress_bar = tqdm.tqdm(total=max_loop_iters)
-    for item in iter(queue.get, None):  # type: int
-        for _ in range(item):
-            progress_bar.update()
-    progress_bar.close()
+    with tqdm.tqdm(total=max_loop_iters) as progress_bar:
+        for item in iter(queue.get, None):  # type: int
+            for _ in range(item):
+                progress_bar.update()
 
 
 def _get_convoy_paths(map_object, start_location, max_convoy_length, queue):
@@ -195,10 +194,9 @@ def _build_convoy_paths_cache(map_object, max_convoy_length):
         if (len(water_locs) <= 30 or max_convoy_length <= MAX_CONVOY_LENGTH)
         else 1
     )
-    pool = multiprocessing.Pool(nb_cores)
-    tasks = [(map_object, coast, max_convoy_length, queue) for coast in coasts]
-    results = pool.starmap(_get_convoy_paths, tasks)
-    pool.close()
+    with multiprocessing.Pool(nb_cores) as pool:
+        tasks = [(map_object, coast, max_convoy_length, queue) for coast in coasts]
+        results = pool.starmap(_get_convoy_paths, tasks)
     results = [item for sublist in results for item in sublist]
     queue.put(None)
     progress_bar.join()
