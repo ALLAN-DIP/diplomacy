@@ -453,13 +453,10 @@ def run_game_data(nb_daide_clients, rules, csv_file):
         comms_simulator = ClientsCommsSimulator(nb_daide_clients, csv_file, game_id, channels)
         yield comms_simulator.retrieve_game_port(HOSTNAME, port)
 
-        # done_future is only used to prevent pylint E1101 errors on daide_future
-        done_future = Future()
         daide_future = comms_simulator.execute()
-        chain_future(daide_future, done_future)
 
         for _ in range(3 + nb_daide_clients):
-            if done_future.done() or server_game.count_controlled_powers() >= (
+            if daide_future.done() or server_game.count_controlled_powers() >= (
                 nb_daide_clients + nb_human_players
             ):
                 break
@@ -468,7 +465,7 @@ def run_game_data(nb_daide_clients, rules, csv_file):
             raise TimeoutError()
 
         # Waiting for process to finish
-        while not done_future.done() and server_game.status == strings.ACTIVE:
+        while not daide_future.done() and server_game.status == strings.ACTIVE:
             yield gen.sleep(2.5)
 
         yield daide_future
