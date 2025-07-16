@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 # check=error=true
 
-FROM node:22.16.0-alpine3.21 AS app-builder
+FROM node:22.17.0-alpine3.22 AS app-builder
 
 WORKDIR /app
 
@@ -15,7 +15,7 @@ COPY diplomacy/maps/ /maps
 
 RUN npm run build
 
-FROM python:3.11.12-alpine3.21 AS server
+FROM python:3.11.13-alpine3.22 AS server
 
 RUN apk --no-cache upgrade
 
