@@ -91,6 +91,10 @@ sphinx:
 yamllint:
 	pre-commit run --all-files yamllint
 
+.PHONY: zizmor
+zizmor:
+	pre-commit run --all-files zizmor
+
 .PHONY: check
 check:
 	$(MAKE) precommit
@@ -105,6 +109,11 @@ check:
 update-npm:
 	cd diplomacy/web/ && \
 	npm install --force
+
+.PHONY: upgrade-pip
+upgrade-pip:
+	pip install --upgrade pip
+	pip install --upgrade --upgrade-strategy eager -e .[dev]
 
 .PHONY: update-pip
 update-pip:
