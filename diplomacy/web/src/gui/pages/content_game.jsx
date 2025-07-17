@@ -1669,31 +1669,7 @@ export class ContentGame extends React.Component {
         const convList = tabNames.map((protagonist) => (
             <Conversation
                 style={{ minWidth: "220px" }}
-                info={
-                    isAdmin && protagonist !== "GLOBAL" ? (
-                        engine.powers[protagonist].getController()
-                    ) : (
-                        <div>
-                            non-ally
-                            <Switch
-                                color="success"
-                                size="small"
-                                onChange={(e) => {
-                                    this.handleStance(
-                                        protagonist,
-                                        e.target.checked ? UTILS.Stance.ALLY : UTILS.Stance.NON_ALLY,
-                                    );
-                                    this.setState({ stanceChanged: true });
-                                    console.log(
-                                        `Stance changed for ${protagonist} to ${e.target.checked ? UTILS.Stance.ALLY : UTILS.Stance.NON_ALLY}`,
-                                    );
-                                }}
-                                checked={this.state.stances[protagonist] === UTILS.Stance.ALLY}
-                            ></Switch>
-                            ally
-                        </div>
-                    )
-                }
+                info={isAdmin && protagonist !== "GLOBAL" ? engine.powers[protagonist].getController() : <></>}
                 className={protagonist === currentTabId ? "cs-conversation--active" : null}
                 onClick={() => {
                     this.onChangeTabCurrentMessages(protagonist);
@@ -2768,26 +2744,6 @@ export class ContentGame extends React.Component {
 
         return (
             <div className={"col-2 mb-4"}>
-                {(fullSuggestionComponent || partialSuggestionComponent) && (
-                    <Button
-                        title={"Get ally-based advice"}
-                        color={"primary"}
-                        onClick={() => {
-                            if (latestMoveSuggestionFull) {
-                                this.handleRecipientAnnotation(latestMoveSuggestionFull.time_sent, "replace");
-                            }
-                            this.sendMessage(
-                                engine.client,
-                                "GLOBAL",
-                                `${JSON.stringify(this.state.stances)}`,
-                                null,
-                                STRINGS.MOVE_ADVICE_REQUEST,
-                            );
-                            this.setState({ stanceChanged: false });
-                        }}
-                        disabled={!this.state.hasInitialOrders && !this.state.stanceChanged}
-                    ></Button>
-                )}
                 <ChatContainer
                     style={{
                         display: "flex",
