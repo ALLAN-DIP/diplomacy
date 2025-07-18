@@ -2981,8 +2981,8 @@ export class ContentGame extends React.Component {
                 displayVisualAdvice: this.hasSuggestionType(
                     suggestionType,
                     UTILS.SuggestionType.MOVE_DISTRIBUTION_VISUAL,
-                )},
-            );
+                ),
+            });
 
             if (allowedPowerOrderTypes.length) {
                 if (this.state.orderBuildingType && allowedPowerOrderTypes.includes(this.state.orderBuildingType))
