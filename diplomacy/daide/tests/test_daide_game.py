@@ -341,7 +341,7 @@ class ClientsCommsSimulator:
         """
         connection = yield connect(host, port)
         self._game_port = yield connection.get_daide_port(self._game_id)
-        yield connection.connection.close()
+        connection.connection.close()
 
     @gen.coroutine
     def execute(self):
