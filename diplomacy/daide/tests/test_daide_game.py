@@ -473,6 +473,8 @@ def run_game_data(nb_daide_clients, rules, csv_file):
 
         yield daide_future
 
+        connection.close()
+
     try:
         io_loop.run_sync(coroutine_func)
 
