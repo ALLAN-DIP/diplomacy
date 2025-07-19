@@ -345,7 +345,7 @@ class ClientsCommsSimulator:
         """
         connection = yield connect(host, port)
         self._game_port = yield connection.get_daide_port(self._game_id)
-        yield connection.close()
+        connection.close()
 
     @gen.coroutine
     def execute(self):
@@ -473,7 +473,7 @@ def run_game_data(nb_daide_clients, rules, csv_file):
 
         yield daide_future
 
-        yield connection.close()
+        connection.close()
 
     try:
         io_loop.run_sync(coroutine_func)
