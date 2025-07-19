@@ -147,9 +147,9 @@ class Connection:
     # Public Methods.
     # ===================
 
-    async def close(self):
-        if self.connection:
-            await self.connection.close()
+    def close(self):
+        if self.connection is not None:
+            self.connection.close()
 
     @gen.coroutine
     def authenticate(self, username, password):
