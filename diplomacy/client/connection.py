@@ -18,12 +18,12 @@
 import logging
 import weakref
 from datetime import timedelta
-from typing import Dict
+from typing import Dict, Optional
 from tornado import gen, ioloop
 from tornado.concurrent import Future
 from tornado.iostream import StreamClosedError
 from tornado.locks import Event
-from tornado.websocket import websocket_connect, WebSocketClosedError
+from tornado.websocket import WebSocketClientConnection, websocket_connect, WebSocketClosedError
 
 import ujson as json
 
@@ -124,7 +124,7 @@ class Connection:
         self.port = port
         self.use_ssl = bool(use_ssl)
 
-        self.connection = None
+        self.connection: Optional[WebSocketClientConnection] = None
         self.connection_count = 0
         self.is_connecting = Event()
         self.is_reconnecting = Event()
