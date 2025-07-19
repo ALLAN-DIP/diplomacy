@@ -147,6 +147,10 @@ class Connection:
     # Public Methods.
     # ===================
 
+    def close(self):
+        if self.connection is not None:
+            self.connection.close()
+
     @gen.coroutine
     def authenticate(self, username, password):
         """Send a :class:`.SignIn` request.
