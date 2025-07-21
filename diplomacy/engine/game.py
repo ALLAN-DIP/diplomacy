@@ -996,6 +996,12 @@ class Game(Jsonable):
             or message.sender in game_role
         }
 
+    def get_messages(self, game_role, timestamp_from=None, timestamp_to=None):
+        """Return a filtered dict of current messages for given output game role.
+        See method filter_messages() about parameters.
+        """
+        return self.filter_messages(self.messages, game_role, timestamp_from, timestamp_to)
+
     def get_phase_history(self, from_phase=None, to_phase=None, game_role=None):
         """Return a list of game phase data from game history between given phases (bounds included).
         Each GamePhaseData object contains game state, messages, orders and order results for a phase.
