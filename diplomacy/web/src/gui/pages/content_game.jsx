@@ -3207,7 +3207,7 @@ export class ContentGame extends React.Component {
             <div>
                 {phasePanel}
                 <Row className={"mb-4"}>
-                    {this.renderTabChat(true, engine, currentPowerName, showMessageAdviceTab ? false : true)}
+                    {this.renderTabChat(true, engine, currentPowerName, !showMessageAdviceTab)}
                     {showMessageAdviceTab && this.renderTabCentaurMessages(true, engine, currentPowerName, false)}
                 </Row>
                 <Row>
