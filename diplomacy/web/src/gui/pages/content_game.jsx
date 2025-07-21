@@ -210,6 +210,8 @@ export class ContentGame extends React.Component {
             lastSwitchPanelTime: Date.now(),
             commentaryTimeSpent: this.props.data.commentary_durations[this.props.data.role] || [],
             stanceChanged: false,
+            displayMoveSuggestionsFull: true,
+            displayMoveSuggestionsPartial: true,
         };
 
         // Bind some class methods to this instance.
@@ -490,6 +492,8 @@ export class ContentGame extends React.Component {
                         visibleDistributionOrder: [],
                         hasInitialOrders: false,
                         hoverOrders: [],
+                        displayMoveSuggestionsFull: true,
+                        displayMoveSuggestionsPartial: true,
                     }).then(() =>
                         this.getPage().info(`Game update (${notification.name}) to ${networkGame.local.phase}.`),
                     );
@@ -673,6 +677,8 @@ export class ContentGame extends React.Component {
             orderDistribution: [],
             hoverDistributionOrder: [],
             visibleDistributionOrder: [],
+            displayMoveSuggestionsFull: true,
+            displayMoveSuggestionsPartial: true,
         });
     }
 
@@ -2487,19 +2493,21 @@ export class ContentGame extends React.Component {
                             <Button
                                 key={"r"}
                                 pickEvent={true}
-                                title={"✕"}
-                                color={"danger"}
+                                title={"-"}
+                                color={"secondary"} // Dark gray
                                 onClick={() => {
                                     this.setState({
                                         hoverOrders: [],
                                     });
-                                    this.handleRecipientAnnotation(latestMoveSuggestionFull.time_sent, "reject");
+                                    this.setState((prevState) => ({
+                                        displayMoveSuggestionsFull: !prevState.displayMoveSuggestionsFull,
+                                    }));
                                 }}
                                 invisible={!(isCurrent && !isAdmin)}
                             ></Button>
                         </div>
                     </div>
-                    {fullSuggestionMessages}
+                    {this.state.displayMoveSuggestionsFull && fullSuggestionMessages}
                 </div>
             );
         }
@@ -2613,16 +2621,18 @@ export class ContentGame extends React.Component {
                             <Button
                                 key={"r"}
                                 pickEvent={true}
-                                title={"✕"}
-                                color={"danger"}
+                                title={"-"}
+                                color={"secondary"} // Dark gray
                                 onClick={() => {
-                                    this.handleRecipientAnnotation(latestMoveSuggestionPartial.time_sent, "reject");
+                                    this.setState((prevState) => ({
+                                        displayMoveSuggestionsPartial: !prevState.displayMoveSuggestionsPartial,
+                                    }));
                                 }}
                                 invisible={!(isCurrent && !isAdmin)}
                             ></Button>
                         </div>
                     </div>
-                    {partialSuggestionMessages}
+                    {this.state.displayMoveSuggestionsPartial && partialSuggestionMessages}
                 </div>
             );
         }
