@@ -733,20 +733,18 @@ export class ContentGame extends React.Component {
     }
 
     toggleMoveSuggestionCollapse(message_time_sent) {
-        this.setState(prevState => {
-            let value = false
-            if (prevState.visibleMoveSuggestions.hasOwnProperty(message_time_sent))
-            {
-                value = !prevState.visibleMoveSuggestions[message_time_sent]
+        this.setState((prevState) => {
+            let value = false;
+            if (prevState.visibleMoveSuggestions.hasOwnProperty(message_time_sent)) {
+                value = !prevState.visibleMoveSuggestions[message_time_sent];
             }
             const newVisibleMoveSuggestions = {
-            ...prevState.visibleMoveSuggestions,
-            // Server ensures that `Message.time_sent` is unique
-            [message_time_sent]: value,
-        };
-            return {visibleMoveSuggestions: newVisibleMoveSuggestions};
-        }
-        );
+                ...prevState.visibleMoveSuggestions,
+                // Server ensures that `Message.time_sent` is unique
+                [message_time_sent]: value,
+            };
+            return { visibleMoveSuggestions: newVisibleMoveSuggestions };
+        });
     }
 
     updateTabVal(event, value) {
@@ -1605,7 +1603,9 @@ export class ContentGame extends React.Component {
         if (suggestionType === STRINGS.SUGGESTED_MOVE_PARTIAL) {
             suggestion.givenMoves = latestMoveSuggestion.parsed.payload.player_orders;
         }
-        suggestion.visible = !this.state.visibleMoveSuggestions.hasOwnProperty(suggestion.time_sent) || this.state.visibleMoveSuggestions[suggestion.time_sent]
+        suggestion.visible =
+            !this.state.visibleMoveSuggestions.hasOwnProperty(suggestion.time_sent) ||
+            this.state.visibleMoveSuggestions[suggestion.time_sent];
         return suggestion;
     }
 
