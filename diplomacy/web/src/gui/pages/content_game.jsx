@@ -210,8 +210,7 @@ export class ContentGame extends React.Component {
             lastSwitchPanelTime: Date.now(),
             commentaryTimeSpent: this.props.data.commentary_durations[this.props.data.role] || [],
             stanceChanged: false,
-            displayMoveSuggestionsFull: true,
-            displayMoveSuggestionsPartial: true,
+            visibleMoveSuggestions: {},
         };
 
         // Bind some class methods to this instance.
@@ -492,8 +491,7 @@ export class ContentGame extends React.Component {
                         visibleDistributionOrder: [],
                         hasInitialOrders: false,
                         hoverOrders: [],
-                        displayMoveSuggestionsFull: true,
-                        displayMoveSuggestionsPartial: true,
+                        visibleMoveSuggestions: {},
                     }).then(() =>
                         this.getPage().info(`Game update (${notification.name}) to ${networkGame.local.phase}.`),
                     );
@@ -677,8 +675,7 @@ export class ContentGame extends React.Component {
             orderDistribution: [],
             hoverDistributionOrder: [],
             visibleDistributionOrder: [],
-            displayMoveSuggestionsFull: true,
-            displayMoveSuggestionsPartial: true,
+            visibleMoveSuggestions: {},
         });
     }
 
@@ -735,6 +732,23 @@ export class ContentGame extends React.Component {
         this.setState({ annotatedMessages: newAnnotatedMessages });
 
         this.sendRecipientAnnotation(engine.client, message_time_sent, annotation);
+    }
+
+    toggleMoveSuggestionCollapse(message_time_sent) {
+        this.setState(prevState => {
+            let value = false
+            if (prevState.visibleMoveSuggestions.hasOwnProperty(message_time_sent))
+            {
+                value = !prevState.visibleMoveSuggestions[message_time_sent]
+            }
+            const newVisibleMoveSuggestions = {
+            ...prevState.visibleMoveSuggestions,
+            // Server ensures that `Message.time_sent` is unique
+            [message_time_sent]: value,
+        };
+            return {visibleMoveSuggestions: newVisibleMoveSuggestions};
+        }
+        );
     }
 
     updateTabVal(event, value) {
@@ -1593,6 +1607,7 @@ export class ContentGame extends React.Component {
         if (suggestionType === STRINGS.SUGGESTED_MOVE_PARTIAL) {
             suggestion.givenMoves = latestMoveSuggestion.parsed.payload.player_orders;
         }
+        suggestion.visible = this.state.visibleMoveSuggestions.hasOwnProperty(suggestion.time_sent) && this.state.visibleMoveSuggestions.hasOwnProperty[suggestion.time_sent]
         return suggestion;
     }
 
@@ -2484,15 +2499,13 @@ export class ContentGame extends React.Component {
                                     this.setState({
                                         hoverOrders: [],
                                     });
-                                    this.setState((prevState) => ({
-                                        displayMoveSuggestionsFull: !prevState.displayMoveSuggestionsFull,
-                                    }));
+                                    this.toggleMoveSuggestionCollapse(latestMoveSuggestionFull.time_sent);
                                 }}
                                 invisible={!(isCurrent && !isAdmin)}
                             ></Button>
                         </div>
                     </div>
-                    {this.state.displayMoveSuggestionsFull && fullSuggestionMessages}
+                    {latestMoveSuggestionFull.visible && fullSuggestionMessages}
                 </div>
             );
         }
@@ -2609,15 +2622,13 @@ export class ContentGame extends React.Component {
                                 title={"-"}
                                 color={"secondary"} // Dark gray
                                 onClick={() => {
-                                    this.setState((prevState) => ({
-                                        displayMoveSuggestionsPartial: !prevState.displayMoveSuggestionsPartial,
-                                    }));
+                                    this.toggleMoveSuggestionCollapse(latestMoveSuggestionPartial.time_sent);
                                 }}
                                 invisible={!(isCurrent && !isAdmin)}
                             ></Button>
                         </div>
                     </div>
-                    {this.state.displayMoveSuggestionsPartial && partialSuggestionMessages}
+                    {latestMoveSuggestionPartial.visible && partialSuggestionMessages}
                 </div>
             );
         }
