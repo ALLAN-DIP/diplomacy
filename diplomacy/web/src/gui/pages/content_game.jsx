@@ -491,7 +491,6 @@ export class ContentGame extends React.Component {
                         visibleDistributionOrder: [],
                         hasInitialOrders: false,
                         hoverOrders: [],
-                        visibleMoveSuggestions: {},
                     }).then(() =>
                         this.getPage().info(`Game update (${notification.name}) to ${networkGame.local.phase}.`),
                     );
@@ -675,7 +674,6 @@ export class ContentGame extends React.Component {
             orderDistribution: [],
             hoverDistributionOrder: [],
             visibleDistributionOrder: [],
-            visibleMoveSuggestions: {},
         });
     }
 
@@ -1607,7 +1605,7 @@ export class ContentGame extends React.Component {
         if (suggestionType === STRINGS.SUGGESTED_MOVE_PARTIAL) {
             suggestion.givenMoves = latestMoveSuggestion.parsed.payload.player_orders;
         }
-        suggestion.visible = this.state.visibleMoveSuggestions.hasOwnProperty(suggestion.time_sent) && this.state.visibleMoveSuggestions[suggestion.time_sent]
+        suggestion.visible = !this.state.visibleMoveSuggestions.hasOwnProperty(suggestion.time_sent) || this.state.visibleMoveSuggestions[suggestion.time_sent]
         return suggestion;
     }
 
