@@ -3280,6 +3280,7 @@ export class ContentGame extends React.Component {
         this.clearScheduleTimeout();
         this.props.data.displayed = false;
         document.onkeydown = null;
+        document.onkeyup = null;
 
         this.handleExit();
         window.removeEventListener("beforeunload", this.handleExit);
