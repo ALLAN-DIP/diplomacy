@@ -2976,13 +2976,13 @@ export class ContentGame extends React.Component {
             const messageChannels = engine.getMessageChannels(currentPowerName, true);
             const suggestionMessages = this.getSuggestionMessages(currentPowerName, messageChannels, engine);
             const suggestionType = this.getSuggestionType(currentPowerName, engine, suggestionMessages);
-
-            this.setState({
-                displayVisualAdvice: this.hasSuggestionType(
-                    suggestionType,
-                    UTILS.SuggestionType.MOVE_DISTRIBUTION_VISUAL,
-                ),
-            });
+            const displayVisualAdvice = this.hasSuggestionType(
+                suggestionType,
+                UTILS.SuggestionType.MOVE_DISTRIBUTION_VISUAL,
+            );
+            if (displayVisualAdvice !== this.state.displayVisualAdvice) {
+                this.setState({ displayVisualAdvice: displayVisualAdvice });
+            }
 
             if (allowedPowerOrderTypes.length) {
                 if (this.state.orderBuildingType && allowedPowerOrderTypes.includes(this.state.orderBuildingType))
