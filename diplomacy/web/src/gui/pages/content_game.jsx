@@ -1166,8 +1166,17 @@ export class ContentGame extends React.Component {
         allOrders[powerName][localOrder.loc] = localOrder;
         state.orders = allOrders;
         this.getPage().success(`Built order: ${orderString}`);
-        engine.setInitialOrders(engine.role);
-        state.hasInitialOrders = true;
+
+        const controllablePowers = engine.getControllablePowers();
+        const currentPowerName = this.state.power || (controllablePowers.length ? controllablePowers[0] : null);
+        const orderableUnits = engine.orderableLocations[currentPowerName].length;
+        const serverOrderLength = Object.keys(allOrders[powerName]).length;
+
+        if (serverOrderLength == orderableUnits) {
+            engine.setInitialOrders(engine.role);
+            state.hasInitialOrders = true;
+        }
+        
         this.setState(state).then(() => {
             this.__store_orders(allOrders);
             this.setOrders();
