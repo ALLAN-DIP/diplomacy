@@ -2282,6 +2282,9 @@ export class ContentGame extends React.Component {
                                         </ConversationHeader>
                                         <MessageList>
                                             {suggestedCommentaryForCurrentPower.map((com, i) => {
+                                                const html = !this.state.hasInitialOrders
+                                                    ? `<div style='color: transparent; text-shadow: 0 0 5px rgba(0, 0, 0, 0.5); user-select: none'>${com.commentary}</div>`
+                                                    : com.commentary;
                                                 return (
                                                     <div
                                                         style={{
@@ -2298,14 +2301,15 @@ export class ContentGame extends React.Component {
                                                                 flexGrow: 1,
                                                             }}
                                                             model={{
-                                                                message: com.commentary,
                                                                 sent: com.time_sent,
                                                                 sender: com.sender,
                                                                 direction: "incoming",
                                                                 position: "single",
                                                             }}
                                                             avatarPosition={"tl"}
-                                                        ></ChatMessage>
+                                                        >
+                                                            <ChatMessage.HtmlContent html={html} />
+                                                        </ChatMessage>
                                                     </div>
                                                 );
                                             })}
