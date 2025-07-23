@@ -2067,7 +2067,7 @@ export class ContentGame extends React.Component {
         );
     }
 
-    renderCentaurMessages(engine, role, isCurrent, isWide) {
+    renderCurrentMessageAdvice(engine, role, isCurrent, isWide) {
         const isAdmin =
             engine.role === "omniscient_type" || engine.role === "master_type" || engine.role === "observer_type";
 
@@ -2354,7 +2354,7 @@ export class ContentGame extends React.Component {
         );
     }
 
-    renderCurrentCentaur(engine, role, isCurrent) {
+    renderCurrentMoveAdvice(engine, role, isCurrent) {
         const isAdmin =
             engine.role === "omniscient_type" || engine.role === "master_type" || engine.role === "observer_type";
 
@@ -2904,16 +2904,16 @@ export class ContentGame extends React.Component {
             : this.renderPastMessages(engine, currentPowerName, isWide);
     }
 
-    renderTabCentaur(toDisplay, initialEngine, role) {
+    renderMoveAdviceTab(toDisplay, initialEngine, role) {
         const { engine, pastPhases, phaseIndex } = this.__get_engine_to_display(initialEngine);
 
-        return this.renderCurrentCentaur(engine, role, pastPhases[phaseIndex] === initialEngine.phase);
+        return this.renderCurrentMoveAdvice(engine, role, pastPhases[phaseIndex] === initialEngine.phase);
     }
 
-    renderTabCentaurMessages(toDisplay, initialEngine, role, isWide) {
+    renderMessageAdviceTab(toDisplay, initialEngine, role, isWide) {
         const { engine, pastPhases, phaseIndex } = this.__get_engine_to_display(initialEngine);
 
-        return this.renderCentaurMessages(engine, role, pastPhases[phaseIndex] === initialEngine.phase, isWide);
+        return this.renderCurrentMessageAdvice(engine, role, pastPhases[phaseIndex] === initialEngine.phase, isWide);
     }
 
     render() {
@@ -3175,7 +3175,7 @@ export class ContentGame extends React.Component {
             </div>
         );
 
-        const moveAdvicePanel = this.renderTabCentaur(true, engine, currentPowerName);
+        const moveAdvicePanel = this.renderMoveAdviceTab(true, engine, currentPowerName);
 
         const { engineCur, pastPhases, phaseIndex } = this.__get_engine_to_display(engine);
         let phasePanel;
@@ -3218,7 +3218,7 @@ export class ContentGame extends React.Component {
                 {phasePanel}
                 <Row className={"mb-4"}>
                     {this.renderTabChat(true, engine, currentPowerName, showMessageAdviceTab ? false : true)}
-                    {showMessageAdviceTab && this.renderTabCentaurMessages(true, engine, currentPowerName, false)}
+                    {showMessageAdviceTab && this.renderMessageAdviceTab(true, engine, currentPowerName, false)}
                 </Row>
                 <Row>
                     {!engine.isPlayerGame() && this.renderPowerInfo(engine)}
