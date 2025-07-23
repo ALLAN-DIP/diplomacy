@@ -1176,7 +1176,7 @@ export class ContentGame extends React.Component {
             engine.setInitialOrders(engine.role);
             state.hasInitialOrders = true;
         }
-        
+
         this.setState(state).then(() => {
             this.__store_orders(allOrders);
             this.setOrders();
