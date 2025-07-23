@@ -2765,11 +2765,13 @@ export class ContentGame extends React.Component {
                         <ConversationHeader.Content userName={`Order Advice`} />
                     </ConversationHeader>
 
-                    {this.state.hasInitialOrders && (<MessageList className="move-suggestion-list">
-                        {fullSuggestionComponent}
-                        {partialSuggestionComponent}
-                        {distributionSuggestionComponent}
-                    </MessageList>)}
+                    {this.state.hasInitialOrders && (
+                        <MessageList className="move-suggestion-list">
+                            {fullSuggestionComponent}
+                            {partialSuggestionComponent}
+                            {distributionSuggestionComponent}
+                        </MessageList>
+                    )}
                 </ChatContainer>
             </div>
         );
