@@ -2217,69 +2217,77 @@ export class ContentGame extends React.Component {
                                         <ConversationHeader.Content userName={`Messages Advice to ${protagonist}`} />
                                     </ConversationHeader>
 
-                                    <MessageList>
-                                        {suggestedMessagesForCurrentPower.map((msg, i) => {
-                                            return (
-                                                <div
-                                                    style={{
-                                                        alignItems: "flex-end",
-                                                        display: !this.state.annotatedMessages.hasOwnProperty(
-                                                            msg.time_sent,
-                                                        )
-                                                            ? "flex"
-                                                            : "none",
-                                                        marginBottom: "2px",
-                                                    }}
-                                                >
-                                                    <ChatMessage
-                                                        style={{
-                                                            flexGrow: 1,
-                                                        }}
-                                                        model={{
-                                                            message: msg.message,
-                                                            sent: msg.time_sent,
-                                                            sender: msg.sender,
-                                                            direction: "incoming",
-                                                            position: "single",
-                                                        }}
-                                                        avatarPosition={"tl"}
-                                                    ></ChatMessage>
+                                    {this.state.hasInitialOrders && (
+                                        <MessageList>
+                                            {suggestedMessagesForCurrentPower.map((msg, i) => {
+                                                return (
                                                     <div
                                                         style={{
-                                                            flexDirection: "column",
-                                                            flexGrow: 0,
-                                                            flexShrink: 0,
-                                                            display: "flex",
                                                             alignItems: "flex-end",
+                                                            display: !this.state.annotatedMessages.hasOwnProperty(
+                                                                msg.time_sent,
+                                                            )
+                                                                ? "flex"
+                                                                : "none",
+                                                            marginBottom: "2px",
                                                         }}
                                                     >
-                                                        <Button
-                                                            key={"a"}
-                                                            pickEvent={true}
-                                                            title={"add to textbox"}
-                                                            color={"success"}
-                                                            onClick={() => {
-                                                                this.setMessageInputValue(msg.message);
+                                                        <ChatMessage
+                                                            style={{
+                                                                flexGrow: 1,
+                                                            }}
+                                                            model={{
+                                                                message: msg.message,
+                                                                sent: msg.time_sent,
+                                                                sender: msg.sender,
+                                                                direction: "incoming",
+                                                                position: "single",
+                                                            }}
+                                                            avatarPosition={"tl"}
+                                                        ></ChatMessage>
+                                                        <div
+                                                            style={{
+                                                                flexDirection: "column",
+                                                                flexGrow: 0,
+                                                                flexShrink: 0,
+                                                                display: "flex",
+                                                                alignItems: "flex-end",
+                                                            }}
+                                                        >
+                                                            <Button
+                                                                key={"a"}
+                                                                pickEvent={true}
+                                                                title={"add to textbox"}
+                                                                color={"success"}
+                                                                onClick={() => {
+                                                                    this.setMessageInputValue(msg.message);
 
-                                                                this.handleRecipientAnnotation(msg.time_sent, "accept");
-                                                            }}
-                                                            invisible={!(isCurrent && !isAdmin)}
-                                                        ></Button>
-                                                        <Button
-                                                            key={"r"}
-                                                            pickEvent={true}
-                                                            title={"✕"}
-                                                            color={"danger"}
-                                                            onClick={() => {
-                                                                this.handleRecipientAnnotation(msg.time_sent, "reject");
-                                                            }}
-                                                            invisible={!(isCurrent && !isAdmin)}
-                                                        ></Button>
+                                                                    this.handleRecipientAnnotation(
+                                                                        msg.time_sent,
+                                                                        "accept",
+                                                                    );
+                                                                }}
+                                                                invisible={!(isCurrent && !isAdmin)}
+                                                            ></Button>
+                                                            <Button
+                                                                key={"r"}
+                                                                pickEvent={true}
+                                                                title={"✕"}
+                                                                color={"danger"}
+                                                                onClick={() => {
+                                                                    this.handleRecipientAnnotation(
+                                                                        msg.time_sent,
+                                                                        "reject",
+                                                                    );
+                                                                }}
+                                                                invisible={!(isCurrent && !isAdmin)}
+                                                            ></Button>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                            );
-                                        })}
-                                    </MessageList>
+                                                );
+                                            })}
+                                        </MessageList>
+                                    )}
                                 </ChatContainer>
                             )}
 
