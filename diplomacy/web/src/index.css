@@ -484,6 +484,6 @@ button.collapsed .roll {
 
 .blurred {
   color: transparent;
-  text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+  text-shadow: 0 0 1em #000;
   user-select: none;
 }
