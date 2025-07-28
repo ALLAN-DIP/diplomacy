@@ -517,6 +517,13 @@ def test_clear_orders():
     game.set_units("AUSTRIA", "A VIE")
     game.set_orders("ITALY", "A VEN - TYR")
     game.set_orders("AUSTRIA", "A VIE - TYR")
+    results = game.get_orders()
+    assert results["ITALY"] == ["A VEN - TYR"]
+    assert results["AUSTRIA"] == ["A VIE - TYR"]
+    game.set_orders("ITALY", [])
+    results = game.get_orders()
+    assert results["ITALY"] == ["A VEN - TYR"]
+    assert results["AUSTRIA"] == ["A VIE - TYR"]
     game.clear_orders()
     game.process()
     results = game.get_order_status()
