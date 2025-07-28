@@ -75,7 +75,11 @@ check-hidden = ""
 addopts = "--verbosity=1 -ra --strict-config --strict-markers --ignore=diplomacy/web/src/diplomacy/maps/tests/ --numprocesses auto"
 filterwarnings = [
   "error",
-  "ignore::DeprecationWarning",
+  # The `make_current` parameter for `IOLoop` was deprecated in `tornado`
+  # in `6.2.0` (the last version to support Python 3.7) but was undeprecated in `6.3.0`.
+  # This specific `DeprecationWarning` needs to be disabled to prevent test failures
+  # in the Python 3.7 CI.
+  "ignore:make_current is deprecated; start the event loop first:DeprecationWarning",
   # TODO: Fix warning that shows up in Python 3.11 but not 3.7
   # See https://docs.pytest.org/en/8.3.x/how-to/failures.html#warning-about-unraisable-exceptions-and-unhandled-thread-exceptions
   "ignore::pytest.PytestUnraisableExceptionWarning",
