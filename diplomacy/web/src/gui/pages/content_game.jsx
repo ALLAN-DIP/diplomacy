@@ -3243,9 +3243,8 @@ export class ContentGame extends React.Component {
         );
 
         const showMessageAdviceTab =
-            (this.hasSuggestionType(suggestionType, UTILS.SuggestionType.MESSAGE) ||
-                this.hasSuggestionType(suggestionType, UTILS.SuggestionType.COMMENTARY)) &&
-            receivedSuggestions.length > 0;
+            this.hasSuggestionType(suggestionType, UTILS.SuggestionType.MESSAGE) ||
+            this.hasSuggestionType(suggestionType, UTILS.SuggestionType.COMMENTARY);
         const gameContent = (
             <div>
                 {phasePanel}
