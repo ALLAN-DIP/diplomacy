@@ -71,7 +71,7 @@ pylint:
 
 .PHONY: pytest
 pytest:
-	pytest
+	python -X dev -bb -X warn_default_encoding -m pytest
 
 .PHONY: shellcheck
 shellcheck:
