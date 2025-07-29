@@ -95,10 +95,8 @@ def is_port_opened(port, hostname="127.0.0.1"):
     :param port: The port to check
     :param hostname: The hostname to check, defaults to '127.0.0.1'
     """
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    if sock.connect_ex((hostname, port)) == 0:
-        return True
-    return False
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+        return sock.connect_ex((hostname, port)) == 0
 
 
 def get_absolute_path(directory=None):
