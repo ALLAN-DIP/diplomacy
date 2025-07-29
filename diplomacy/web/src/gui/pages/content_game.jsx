@@ -697,21 +697,6 @@ export class ContentGame extends React.Component {
         return this.setState({ logData: val });
     }
 
-    handleStance(country, stance) {
-        const engine = this.props.data;
-        const power = engine.getPower(engine.role);
-
-        try {
-            let stanceCopy = Object.assign({}, this.state.stances);
-            stanceCopy[country] = stance;
-            this.setState({ stances: stanceCopy });
-            power.setStances(country, stance);
-            this.sendGameStance(engine.client, engine.role, power.getStances());
-        } catch (e) {
-            this.getPage().error("Will not update stance of a noncontrollable power.");
-        }
-    }
-
     sendOrderLog(networkGame, logType, order) {
         const engine = networkGame.local;
         let message = null;
@@ -3249,7 +3234,7 @@ export class ContentGame extends React.Component {
             <div>
                 {phasePanel}
                 <Row className={"mb-4"}>
-                    {this.renderTabChat(true, engine, currentPowerName, showMessageAdviceTab ? false : true)}
+                    {this.renderTabChat(true, engine, currentPowerName, !showMessageAdviceTab)}
                     {showMessageAdviceTab && this.renderMessageAdviceTab(true, engine, currentPowerName, false)}
                 </Row>
                 <Row>
@@ -3327,6 +3312,7 @@ export class ContentGame extends React.Component {
         this.clearScheduleTimeout();
         this.props.data.displayed = false;
         document.onkeydown = null;
+        document.onkeyup = null;
 
         this.handleExit();
         window.removeEventListener("beforeunload", this.handleExit);
