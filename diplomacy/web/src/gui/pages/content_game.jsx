@@ -1842,6 +1842,7 @@ export class ContentGame extends React.Component {
                                             );
                                             this.setMessageInputValue("");
                                         }}
+                                        disabled={!this.state.hasInitialOrders}
                                     ></Button>
                                     <Button
                                         key={"f"}
@@ -1858,6 +1859,7 @@ export class ContentGame extends React.Component {
                                             );
                                             this.setMessageInputValue("");
                                         }}
+                                        disabled={!this.state.hasInitialOrders}
                                     ></Button>
                                 </Row>
                             )}
