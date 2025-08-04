@@ -2267,6 +2267,7 @@ export class ContentGame extends React.Component {
                                                                         "accept",
                                                                     );
                                                                 }}
+                                                                disabled={!this.state.hasInitialOrders}
                                                                 invisible={!(isCurrent && !isAdmin)}
                                                             ></Button>
                                                             <Button
@@ -2280,6 +2281,7 @@ export class ContentGame extends React.Component {
                                                                         "reject",
                                                                     );
                                                                 }}
+                                                                disabled={!this.state.hasInitialOrders}
                                                                 invisible={!(isCurrent && !isAdmin)}
                                                             ></Button>
                                                         </div>
