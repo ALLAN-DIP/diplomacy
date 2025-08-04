@@ -1842,6 +1842,7 @@ export class ContentGame extends React.Component {
                                             );
                                             this.setMessageInputValue("");
                                         }}
+                                        disabled={!this.state.hasInitialOrders}
                                     ></Button>
                                     <Button
                                         key={"f"}
@@ -1858,6 +1859,7 @@ export class ContentGame extends React.Component {
                                             );
                                             this.setMessageInputValue("");
                                         }}
+                                        disabled={!this.state.hasInitialOrders}
                                     ></Button>
                                 </Row>
                             )}
@@ -2267,6 +2269,7 @@ export class ContentGame extends React.Component {
                                                                         "accept",
                                                                     );
                                                                 }}
+                                                                disabled={!this.state.hasInitialOrders}
                                                                 invisible={!(isCurrent && !isAdmin)}
                                                             ></Button>
                                                             <Button
@@ -2280,6 +2283,7 @@ export class ContentGame extends React.Component {
                                                                         "reject",
                                                                     );
                                                                 }}
+                                                                disabled={!this.state.hasInitialOrders}
                                                                 invisible={!(isCurrent && !isAdmin)}
                                                             ></Button>
                                                         </div>
@@ -3263,7 +3267,7 @@ export class ContentGame extends React.Component {
         this.props.data.displayed = true;
 
         document.onkeydown = (event) => {
-            if (event.key === "Shift" && !event.repeat) {
+            if (event.key === "Shift" && !event.repeat && this.state.hasInitialOrders) {
                 this.setState({
                     shiftKeyPressed: true,
                     orderDistribution: [],
