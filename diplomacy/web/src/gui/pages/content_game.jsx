@@ -2755,7 +2755,20 @@ export class ContentGame extends React.Component {
                 );
             });
 
-            distributionSuggestionComponent = <div>{distributionMessages}</div>;
+            distributionSuggestionComponent = (
+                <div>
+                    <ChatMessage
+                        style={{ flexGrow: 1 }}
+                        model={{
+                            message: `Order probabilities for ${orderDistribution.province}:`,
+                            direction: "incoming",
+                            position: "single",
+                        }}
+                        avatarPosition={"tl"}
+                    ></ChatMessage>
+                    {distributionMessages}
+                </div>
+            );
         }
 
         if (
