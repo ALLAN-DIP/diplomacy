@@ -211,6 +211,7 @@ def on_power_orders_update(game, notification):
     :type game: diplomacy.client.network_game.NetworkGame
     :type notification: diplomacy.communication.notifications.PowerOrdersUpdate
     """
+    game.get_power(notification.power_name).clear_orders()
     Game.set_orders(game, notification.power_name, notification.orders)
 
 
