@@ -320,7 +320,7 @@ class PowerOrdersUpdate(_GameNotification):
     }
 
     def __init__(self, **kwargs):
-        self.orders = None  # type: set
+        self.orders = None  # type: list
         super(PowerOrdersUpdate, self).__init__(**kwargs)
 
 
