@@ -476,6 +476,8 @@ button.collapsed .roll {
 .move-suggestion-list > .cs-message-list__scroll-wrapper {
   padding-left: 0.25em;
   padding-right: 0.25em;
+  /* Not clear why, but needed for scrolling on overflow to work */
+  position: absolute;
 }
 
 /** Page login. **/
