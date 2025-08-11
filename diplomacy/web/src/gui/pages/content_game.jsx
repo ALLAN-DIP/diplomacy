@@ -2398,6 +2398,14 @@ export class ContentGame extends React.Component {
             moveSuggestionForCurrentPower,
             STRINGS.SUGGESTED_MOVE_PARTIAL,
         );
+        // Don't display partial order advice if full order advice is newer
+        if (
+            latestMoveSuggestionFull !== null &&
+            latestMoveSuggestionPartial !== null &&
+            latestMoveSuggestionFull.time_sent > latestMoveSuggestionPartial.time_sent
+        ) {
+            latestMoveSuggestionPartial = null;
+        }
 
         let fullSuggestionComponent = null;
         let partialSuggestionComponent = null;
