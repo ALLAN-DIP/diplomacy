@@ -2242,7 +2242,7 @@ export class ContentGame extends React.Component {
                                                                 message: msg.message,
                                                                 sent: msg.time_sent,
                                                                 sender: msg.sender,
-                                                                direction: "incoming",
+                                                                direction: "outgoing",
                                                                 position: "single",
                                                             }}
                                                             avatarPosition={"tl"}
