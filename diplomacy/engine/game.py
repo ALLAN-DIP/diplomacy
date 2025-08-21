@@ -28,6 +28,7 @@ import sys
 import time
 import random
 from copy import deepcopy
+from typing import List, Optional, Union
 
 from diplomacy import settings
 import diplomacy.utils.errors as err
@@ -1842,7 +1843,13 @@ class Game(Jsonable):
         # Clearing cache
         self.clear_cache()
 
-    def set_orders(self, power_name, orders, expand=True, replace=True):
+    def set_orders(
+        self,
+        power_name: str,
+        orders: Union[List[str], str],
+        expand: bool = True,
+        replace: bool = True,
+    ) -> None:
         """Sets the current orders for a power
 
         :param power_name: The name of the power (e.g. 'FRANCE')
@@ -1948,7 +1955,7 @@ class Game(Jsonable):
                 power.clear_centers()
         self.clear_cache()
 
-    def clear_orders(self, power_name=None):
+    def clear_orders(self, power_name: Optional[str] = None) -> None:
         """Clears the power's orders
 
         :param power_name:  Optional. The name of the power to clear (e.g. 'FRANCE') or will clear orders for
@@ -3924,7 +3931,9 @@ class Game(Jsonable):
     # ====================================================================
     #   Private Interface - ORDER Submission methods
     # ====================================================================
-    def _add_order(self, power, word, expand=True, replace=True):
+    def _add_order(
+        self, power: Optional[Power], word: List[str], expand: bool = True, replace: bool = True
+    ) -> None:
         """Adds an order for a power
         :param power: The power instance issuing the order
         :param word: The order (e.g. ['A', 'PAR', '-', 'MAR'])
@@ -3992,7 +4001,9 @@ class Game(Jsonable):
         # Returning nothing
         return None
 
-    def _update_orders(self, power, orders, expand=True, replace=True):
+    def _update_orders(
+        self, power: Optional[Power], orders: List[str], expand: bool = True, replace: bool = True
+    ) -> Union[List[str], int, None]:
         """Updates the orders of a power
 
         :param power: The power instance (or None if updating multiple instances)
