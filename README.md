@@ -22,6 +22,23 @@ pip install 'diplomacy @ git+https://git@github.com/ALLAN-DIP/diplomacy.git'
 
 The package has been tested with Python 3.7 and 3.11, and it should work with all versions between them.
 
+## Web interface
+
+It is also possible to install a web interface in React to play against bots and/or other humans and to visualize games.
+
+The web interface can be built and run with Docker:
+
+```shell
+make build
+docker compose up --detach
+```
+
+The web interface will be accessible at <http://localhost:3000>.
+
+To login, users can use admin/password or username/password. Additional users can be created by logging in with a username that does not exist in the database.
+
+![Screenshot of the web interface with an in-progress game](docs/images/web_interface.png)
+
 ### Running a game
 
 The following script plays a game locally by submitting random valid orders until the game is completed.
@@ -59,23 +76,6 @@ while not game.is_game_done:
 # Alternatively, we can do >> file.write(json.dumps(to_saved_game_format(game)))
 to_saved_game_format(game, output_path='game.json')
 ```
-
-## Web interface
-
-It is also possible to install a web interface in React to play against bots and/or other humans and to visualize games.
-
-The web interface can be built and run with Docker:
-
-```shell
-make build
-docker compose up --detach
-```
-
-The web interface will be accessible at <http://localhost:3000>.
-
-To login, users can use admin/password or username/password. Additional users can be created by logging in with a username that does not exist in the database.
-
-![Screenshot of the web interface with an in-progress game](docs/images/web_interface.png)
 
 ### Visualizing a game
 
