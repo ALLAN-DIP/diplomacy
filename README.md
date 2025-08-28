@@ -22,11 +22,11 @@ pip install 'diplomacy @ git+https://git@github.com/ALLAN-DIP/diplomacy.git'
 
 The package has been tested with Python 3.7 and 3.11, and it should work with all versions between them.
 
-## Web interface
+## Game server
 
-It is also possible to install a web interface in React to play against bots and/or other humans and to visualize games.
+It is possible to run a game server, which includes a web interface, to play against bots and/or other humans and to visualize games.
 
-The web interface can be built and run with Docker:
+The server can be built and run with Docker:
 
 ```shell
 make build
@@ -35,7 +35,7 @@ docker compose up --detach
 
 The web interface will be accessible at <http://localhost:3000>.
 
-To login, users can use admin/password or username/password. Additional users can be created by logging in with a username that does not exist in the database.
+To log in, users can use `admin`/`password` (special admin mode) or `username`/`password`. Additional users can be created by logging in with a username that does not exist in the database.
 
 ![Screenshot of the web interface with an in-progress game](docs/images/web_interface.png)
 
