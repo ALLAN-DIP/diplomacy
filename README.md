@@ -1,4 +1,4 @@
-# Diplomacy: DATC-Compliant Game Engine [![Build Status](https://travis-ci.org/diplomacy/diplomacy.svg?branch=master)](https://travis-ci.org/diplomacy/diplomacy) [![Documentation Status](https://readthedocs.org/projects/diplomacy/badge/?version=latest)](https://diplomacy.readthedocs.io/en/latest/?badge=latest)
+# Diplomacy: DATC-Compliant Game Engine
 
 This project contains an open-source DATC-compliant Diplomacy game engine, a client-server architecture for network play, a web interface to play against bots and to visualize games, and a DAIDE-compatible adapter to connect DAIDE bots to the server.
 
@@ -21,6 +21,23 @@ pip install 'diplomacy @ git+https://git@github.com/ALLAN-DIP/diplomacy.git'
 ```
 
 The package has been tested with Python 3.7 and 3.11, and it should work with all versions between them.
+
+## Game server
+
+It is possible to run a game server, which includes a web interface, to play against bots and/or other humans and to visualize games.
+
+The server can be built and run with Docker:
+
+```shell
+make build
+docker compose up --detach
+```
+
+The web interface will be accessible at <http://localhost:3000>.
+
+To log in, users can use `admin`/`password` (special admin mode) or `username`/`password`. Additional users can be created by logging in with a username that does not exist in the database.
+
+![Screenshot of the web interface with an in-progress game](docs/images/web_interface.png)
 
 ### Running a game
 
@@ -59,23 +76,6 @@ while not game.is_game_done:
 # Alternatively, we can do >> file.write(json.dumps(to_saved_game_format(game)))
 to_saved_game_format(game, output_path='game.json')
 ```
-
-## Web interface
-
-It is also possible to install a web interface in React to play against bots and/or other humans and to visualize games.
-
-The web interface can be built and run with Docker:
-
-```shell
-make build
-docker compose up --detach
-```
-
-The web interface will be accessible at <http://localhost:3000>.
-
-To login, users can use admin/password or username/password. Additional users can be created by logging in with a username that does not exist in the database.
-
-![Screenshot of the web interface with an in-progress game](docs/images/web_interface.png)
 
 ### Visualizing a game
 
