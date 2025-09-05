@@ -84,8 +84,8 @@ class SuggestionType(IntFlag):
         """Parse string representation of flags into an enum.
 
         For example:
-        >>> SuggestionType.parse("MOVE|MESSAGE")
-        <SuggestionType.MOVE|MESSAGE: 3>
+        >>> SuggestionType.parse("MESSAGE|MOVE")
+        <SuggestionType.MESSAGE|MOVE: 3>
         """
         names = string.split("|")
         value = SuggestionType.NONE
@@ -97,7 +97,16 @@ class SuggestionType(IntFlag):
         """Convert enum to a parseable string representation.
 
         For example:
-        >>> (SuggestionType.MOVE | SuggestionType.MESSAGE).to_parsable()
-        'MOVE|MESSAGE'
+        >>> (SuggestionType.MESSAGE | SuggestionType.MOVE).to_parsable()
+        'MESSAGE|MOVE'
         """
-        return str(self)[len(self.__class__.__name__) + 1 :]
+        # Short circuit because Python 3.11 and later
+        # don't include `0` values in `__iter__()` output
+        if self == self.NONE:
+            return self.NONE.name
+
+        names = [item.name for item in self.__class__ if item in self]
+        # `NONE` is trivially included in each enum, so manually remove it
+        if self.NONE.name in names:
+            names.remove(self.NONE.name)
+        return "|".join(names)
