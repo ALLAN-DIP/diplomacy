@@ -16,6 +16,7 @@
 # ==============================================================================
 """Tornado connection handler class, used internally to manage data received by server application."""
 import logging
+import os
 
 from urllib.parse import urlparse
 from tornado import gen
@@ -72,8 +73,8 @@ class ConnectionHandler(WebSocketHandler):
         # Try to check if origin matches host (without regarding port).
         # Adapted from parent method code (tornado 4.5.3).
         parsed_origin = urlparse(origin)
-        origin = parsed_origin.netloc.split(":")[0]
-        origin = origin.lower()
+        origin_val = parsed_origin.netloc.split(":")[0]
+        origin_val = origin_val.lower()
 
         # Split host with ':' and keep only first piece to ignore eventual port.
         host = self.request.headers.get("Host").split(":")[0]
@@ -82,8 +83,23 @@ class ConnectionHandler(WebSocketHandler):
         if diplomacy.settings.PERMISSIVE_CLIENT_ORIGIN:
             hosts = (host, "localhost", "0.0.0.0", "127.0.0.1")
         else:
-            hosts = host
-        return origin in hosts
+            hosts = [host]
+        
+        # Add allowed origins from environment variable
+        allowed_origins = os.environ.get("ALLOWED_ORIGINS", "")
+        # DEBUG: Log allowed origins raw value
+        LOGGER.info(f"Allowed origins env var: '{allowed_origins}'")
+
+        if allowed_origins:
+            hosts = list(hosts) + [o.strip() for o in allowed_origins.split(",") if o.strip()]
+
+        is_allowed = origin_val in hosts
+        if not is_allowed:
+            LOGGER.warning("Origin check failed. Origin: %s (parsed: %s), Host: %s, Allowed: %s", origin, origin_val, host, hosts)
+        else:
+            LOGGER.info("Origin check passed. Origin: %s (parsed: %s), Host: %s", origin, origin_val, host)
+        
+        return is_allowed
 
     def on_close(self):
         """Invoked when the socket is closed (see parent method).

@@ -20,7 +20,7 @@ import { UTILS } from "../../diplomacy/utils/utils";
 import PropTypes from "prop-types";
 import { DipStorage } from "../utils/dipStorage";
 
-export const API_PORT = 8433;
+export const API_PORT = 443;
 
 export class ConnectionForm extends React.Component {
     constructor(props) {
@@ -41,9 +41,24 @@ export class ConnectionForm extends React.Component {
     }
 
     initState() {
+        let defaultHostname = "diplomacy-api.feng-gu.com";
+        let defaultPort = 443;
+
+        // Only use localhost when accessing from local machine
+        // All external access should go through Cloudflare tunnel
+        const currentHostname = window.location.hostname;
+        if (
+            currentHostname === "localhost" ||
+            currentHostname === "127.0.0.1" ||
+            currentHostname === "0.0.0.0"
+        ) {
+            defaultHostname = "localhost";
+            defaultPort = 8433;
+        }
+
         return {
-            hostname: window.location.hostname,
-            port: API_PORT,
+            hostname: defaultHostname,
+            port: defaultPort,
             username: "",
             password: "",
             showServerFields: false,

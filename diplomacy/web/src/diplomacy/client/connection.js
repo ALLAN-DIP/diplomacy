@@ -103,14 +103,14 @@ class Reconnection {
                         context.future.setException(
                             new Error(
                                 "Game " +
-                                    context.request.game_id +
-                                    ": request " +
-                                    context.request.name +
-                                    ": request phase " +
-                                    request_phase +
-                                    " does not match current server game phase " +
-                                    server_phase +
-                                    ".",
+                                context.request.game_id +
+                                ": request " +
+                                context.request.name +
+                                ": request phase " +
+                                request_phase +
+                                " does not match current server game phase " +
+                                server_phase +
+                                ".",
                             ),
                         );
                         keep = false;
@@ -121,10 +121,10 @@ class Reconnection {
         }
         Diplog.info(
             "Keep " +
-                Object.keys(requestsToSendUpdated).length +
-                "/" +
-                Object.keys(this.connection.requestsToSend).length +
-                " old request(s) to send.",
+            Object.keys(requestsToSendUpdated).length +
+            "/" +
+            Object.keys(this.connection.requestsToSend).length +
+            " old request(s) to send.",
         );
         this.connection.requestsToSend = requestsToSendUpdated;
 
@@ -175,8 +175,7 @@ class ConnectionProcessing {
             if (this.attemptIndex === UTILS.NB_CONNECTION_ATTEMPTS) {
                 this.connection.isConnecting.set(
                     new Error(
-                        `${this.connection.isReconnecting.isWaiting() ? "Reconnection" : "Connection"} failed after ${
-                            UTILS.NB_CONNECTION_ATTEMPTS
+                        `${this.connection.isReconnecting.isWaiting() ? "Reconnection" : "Connection"} failed after ${UTILS.NB_CONNECTION_ATTEMPTS
                         } attempts.`,
                     ),
                 );
@@ -184,10 +183,10 @@ class ConnectionProcessing {
             }
             this.logger.warn(
                 "Connection failing (attempt " +
-                    this.attemptIndex +
-                    "/" +
-                    UTILS.NB_CONNECTION_ATTEMPTS +
-                    "), retrying ...",
+                this.attemptIndex +
+                "/" +
+                UTILS.NB_CONNECTION_ATTEMPTS +
+                "), retrying ...",
             );
             ++this.attemptIndex;
             setTimeout(this.tryConnect, 0);
@@ -255,7 +254,9 @@ export class Connection {
     }
 
     getUrl() {
-        return this.protocol + "://" + this.hostname + ":" + this.port;
+        // Only include port if it's specified (not empty string)
+        // This allows Cloudflare tunnels to work on default HTTPS port
+        return this.protocol + "://" + this.hostname + (this.port ? ":" + this.port : "");
     }
 
     onSocketMessage(messageEvent) {
