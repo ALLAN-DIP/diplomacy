@@ -44,6 +44,15 @@ class Reconnection {
         };
     }
 
+    genSyncErrorCallback(game) {
+        const reconnection = this;
+        return (error) => {
+            Diplog.error(`Failed to synchronize game ${game.local.game_id}: ${error}`);
+            ++reconnection.n_synchronized_games;
+            if (reconnection.n_synchronized_games === reconnection.n_expected_games) reconnection.syncDone();
+        };
+    }
+
     reconnect() {
         for (let waitingContext of Object.values(this.connection.requestsWaitingResponses))
             waitingContext.request.re_sent = true;
@@ -79,7 +88,10 @@ class Reconnection {
         if (this.n_expected_games) {
             for (let channel of Object.values(this.connection.channels))
                 for (let gis of Object.values(channel.game_id_to_instances))
-                    for (let game of gis.getGames()) game.synchronize().then(this.genSyncCallback(game));
+                    for (let game of gis.getGames())
+                        game.synchronize()
+                            .then(this.genSyncCallback(game))
+                            .catch(this.genSyncErrorCallback(game));
         } else {
             this.syncDone();
         }
