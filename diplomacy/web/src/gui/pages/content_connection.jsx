@@ -34,10 +34,16 @@ export class ContentConnection extends React.Component {
         for (let fieldName of ["hostname", "port", "username", "password", "showServerFields"])
             if (!data.hasOwnProperty(fieldName)) return page.error(`Missing ${fieldName}, got ${JSON.stringify(data)}`);
         page.info("Connecting ...");
-        if (this.connection) {
-            this.connection.currentConnectionProcessing.stop();
+        if (page.connection) {
+            page.connection.close();
         }
-        this.connection = new Connection(data.hostname, data.port, window.location.protocol.toLowerCase() === "https:");
+        if (this.connection) {
+            this.connection.close();
+            if (this.connection.currentConnectionProcessing) {
+                this.connection.currentConnectionProcessing.stop();
+            }
+        }
+        this.connection = new Connection(data.hostname, data.port, window.location.protocol.toLowerCase() === "https:" || data.port == 443);
         this.connection.onReconnectionError = page.onReconnectionError;
         // Page is passed as logger object (with methods info(), error(), success()) when connecting.
         this.connection
@@ -49,8 +55,6 @@ export class ContentConnection extends React.Component {
                 page.connection
                     .authenticate(data.username, data.password)
                     .then((channel) => {
-                        window.localStorage.setItem("hostname", data.hostname);
-                        window.localStorage.setItem("username", data.username);
                         page.channel = channel;
                         return channel.getAvailableMaps();
                     })
@@ -95,19 +99,6 @@ export class ContentConnection extends React.Component {
 
     componentDidMount() {
         window.scrollTo(0, 0);
-        const hasUserCredentials = window.localStorage.getItem("hostname");
-        if (hasUserCredentials) {
-            const storage = DipStorage.getConnectionForm();
-            const username = storage.username;
-            const password = storage.password;
-            this.onSubmit({
-                hostname: window.location.hostname,
-                port: API_PORT,
-                username: username,
-                password: password,
-                showServerFields: false,
-            });
-        }
     }
 }
 

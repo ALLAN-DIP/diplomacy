@@ -29,8 +29,8 @@ export class ConnectionForm extends React.Component {
         const initialState = this.initState();
         const savedState = DipStorage.getConnectionForm();
         if (savedState) {
-            if (savedState.hostname) initialState.hostname = savedState.hostname;
-            if (savedState.port) initialState.port = savedState.port;
+            // Only load credentials from storage, not hostname/port
+            // Always use the defaults for hostname/port to ensure correct endpoint
             if (savedState.username) initialState.username = savedState.username;
             if (savedState.password) initialState.password = savedState.password;
             if (savedState.showServerFields) initialState.showServerFields = savedState.showServerFields;
@@ -38,6 +38,22 @@ export class ConnectionForm extends React.Component {
         this.state = initialState;
         this.updateServerFieldsView = this.updateServerFieldsView.bind(this);
         this.onChange = this.onChange.bind(this);
+    }
+
+    componentDidMount() {
+        // Auto-submit if credentials are saved in local storage
+        const savedState = DipStorage.getConnectionForm();
+        if (savedState && savedState.username && savedState.password && this.props.onSubmit) {
+            // Use setTimeout to ensure the component is fully mounted
+            // Always use the production API endpoint for auto-submit
+            setTimeout(() => {
+                this.props.onSubmit({
+                    ...this.state,
+                    hostname: this.state.hostname,
+                    port: this.state.port
+                });
+            }, 100);
+        }
     }
 
     initState() {
@@ -52,8 +68,8 @@ export class ConnectionForm extends React.Component {
             currentHostname === "127.0.0.1" ||
             currentHostname === "0.0.0.0"
         ) {
-            defaultHostname = "localhost";
-            defaultPort = 8433;
+            defaultHostname = "diplomacy-api";
+            defaultPort = 443;
         }
 
         return {

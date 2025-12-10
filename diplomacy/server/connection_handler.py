@@ -91,7 +91,10 @@ class ConnectionHandler(WebSocketHandler):
         LOGGER.info(f"Allowed origins env var: '{allowed_origins}'")
 
         if allowed_origins:
-            hosts = list(hosts) + [o.strip() for o in allowed_origins.split(",") if o.strip()]
+            env_origins = [o.strip() for o in allowed_origins.split(",") if o.strip()]
+            if "*" in env_origins:
+                return True
+            hosts = list(hosts) + env_origins
 
         is_allowed = origin_val in hosts
         if not is_allowed:

@@ -370,6 +370,6 @@ export class Connection {
 
     close() {
         this.closed = true;
-        this.socket.close();
+        if (this.socket) this.socket.close();
     }
 }
