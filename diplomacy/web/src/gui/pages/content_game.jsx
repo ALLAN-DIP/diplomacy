@@ -46,10 +46,15 @@ import { SvgPure } from "../maps/pure/SvgPure";
 import { MapData } from "../utils/map_data";
 import { Queue } from "../../diplomacy/utils/queue";
 import "@chatscope/chat-ui-kit-styles/dist/default/styles.min.css";
+import "./content_game.css";
 import { default as Tabs2 } from "@mui/material/Tabs";
 import { default as Tab2 } from "@mui/material/Tab";
 import Box from "@mui/material/Box";
 import Badge from "@mui/material/Badge";
+import Card from "@mui/material/Card";
+import CardContent from "@mui/material/CardContent";
+import Paper from "@mui/material/Paper";
+import Typography from "@mui/material/Typography";
 
 
 import {
@@ -1788,10 +1793,10 @@ export class ContentGame extends React.Component {
         const phaseType = engine.getPhaseType();
 
         return (
-            <Box className={isWide ? "col-12 mb-4" : "col-6 mb-4"} style={{ height: "500px" }}>
-                <Grid container spacing={2}>
-                    <Grid item xs={12} sx={{ height: "100%" }}>
-                        <Box sx={{ width: "100%", height: "550px" }}>
+            <Box className={isWide ? "col-12 mb-4" : "col-6 mb-4"}>
+                <Card elevation={3} sx={{ borderRadius: 2, overflow: 'hidden', height: '550px' }}>
+                    <CardContent sx={{ p: 0, height: '100%', '&:last-child': { pb: 0 } }}>
+                        <Box sx={{ width: "100%", height: "100%" }}>
                             <MainContainer responsive>
                                 <Sidebar position="left" scrollable={true}>
                                     <ConversationList>{convList}</ConversationList>
@@ -1861,8 +1866,8 @@ export class ContentGame extends React.Component {
                                 </Row>
                             )}
                         </Box>
-                    </Grid>
-                </Grid>
+                    </CardContent>
+                </Card>
             </Box>
         );
     }

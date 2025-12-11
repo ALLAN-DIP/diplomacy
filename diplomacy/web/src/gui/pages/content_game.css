@@ -1,0 +1,260 @@
+/* Content Game - Minimalistic Styling Enhancements */
+
+/* ============================================
+   Panel & Card Improvements
+   ============================================ */
+
+.panel-orders {
+    padding: 20px !important;
+    border-radius: 6px !important;
+}
+
+
+
+/* ============================================
+   Typography Enhancements
+   ============================================ */
+
+.panel-orders strong,
+.power-name {
+    font-weight: 600 !important;
+    color: #2d3748 !important;
+}
+
+.history-current-orders {
+    background: #f8f9fa;
+    padding: 12px 16px;
+    border-radius: 4px;
+    margin-bottom: 16px;
+    border-left: 3px solid #6c757d;
+    font-weight: 500;
+    color: #495057;
+}
+
+/* ============================================
+   Orders Styling
+   ============================================ */
+
+.orders {
+    margin-top: 16px;
+}
+
+.orders>div {
+    padding: 10px 12px;
+    margin-bottom: 6px;
+}
+
+
+
+/* ============================================
+   Past Orders Display
+   ============================================ */
+
+.past-orders {
+    padding: 16px;
+    background: #ffffff;
+    border-radius: 12px;
+    /* Removed box-shadow for minimalistic approach */
+}
+
+.past-power-name {
+    font-weight: 600 !important;
+    font-size: 0.95rem;
+    color: #343a40 !important;
+    padding: 10px 0 !important;
+}
+
+.past-power-orders {
+    padding: 6px 0 !important;
+}
+
+.past-power-orders>div {
+    padding: 6px 10px;
+    margin-bottom: 4px;
+    background: #f8f9fa;
+    border-radius: 3px;
+    border-left: 2px solid #adb5bd;
+}
+
+
+
+.order-result {
+    margin-left: 8px;
+    font-size: 0.875rem;
+    font-style: italic;
+    color: #6c757d;
+}
+
+.order-result .success {
+    color: #28a745 !important;
+    font-weight: 500;
+}
+
+/* ============================================
+   Form Controls Enhancement
+   ============================================ */
+
+.form-current-power {
+    background: #ffffff;
+    padding: 12px 16px;
+    border-radius: 4px;
+    /* Removed box-shadow for minimalistic approach */
+    margin-bottom: 12px;
+}
+
+
+
+
+
+.form-current-power .custom-control-label {
+    font-weight: 500;
+    color: #495057;
+}
+
+/* ============================================
+   Chat Container Improvements
+   ============================================ */
+
+
+
+.cs-message {
+    margin-bottom: 8px !important;
+}
+
+.cs-message__content {
+    border-radius: 6px !important;
+    /* Removed box-shadow for minimalistic approach */
+}
+
+.cs-conversation-header {
+    padding: 12px 16px !important;
+}
+
+.move-suggestion-list {
+    padding: 10px;
+}
+
+/* ============================================
+   Table Styling
+   ============================================ */
+
+.table-responsive {
+    border-radius: 6px;
+    overflow: hidden;
+    /* Removed box-shadow for minimalistic approach */
+}
+
+.table-striped {
+    margin-bottom: 0 !important;
+}
+
+.table-striped thead th {
+    padding: 12px 14px !important;
+    font-weight: 600 !important;
+}
+
+
+
+
+
+.table-striped td {
+    padding: 10px 14px !important;
+    vertical-align: middle !important;
+}
+
+/* ============================================
+   No Data States
+   ============================================ */
+
+.no-orders,
+.no-data,
+.forming {
+    text-align: center;
+    padding: 32px 20px;
+    background: #f8f9fa;
+    border-radius: 6px;
+    color: #6c757d;
+    font-size: 1.05rem;
+    font-weight: 500;
+    /* Removed box-shadow for minimalistic approach */
+    margin: 16px 0;
+}
+
+/* ============================================
+   Button Enhancements
+   ============================================ */
+
+.btn {
+    font-weight: 500 !important;
+    border-radius: 4px !important;
+}
+
+
+
+.btn:active {
+    transform: translateY(0);
+}
+
+/* ============================================
+   Navigation Bar
+   ============================================ */
+
+nav.navbar {
+    /* Removed box-shadow for minimalistic approach */
+    background: #ffffff !important;
+}
+
+nav.navbar .navbar-brand {
+    font-weight: 700 !important;
+    color: #2d3748 !important;
+}
+
+/* ============================================
+   Row Spacing
+   ============================================ */
+
+.row.mb-4 {
+    margin-bottom: 1.5rem !important;
+}
+
+/* ============================================
+   Scrollbar Styling
+   ============================================ */
+
+.panel-orders *::-webkit-scrollbar,
+.orders::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.panel-orders *::-webkit-scrollbar-track,
+.orders::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.panel-orders *::-webkit-scrollbar-thumb,
+.orders::-webkit-scrollbar-thumb {
+    background: #ced4da;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.panel-orders *::-webkit-scrollbar-thumb:hover,
+.orders::-webkit-scrollbar-thumb:hover {
+    background: #adb5bd;
+}
+
+/* ============================================
+   Responsive Adjustments
+   ============================================ */
+
+@media (max-width: 768px) {
+    .panel-orders {
+        padding: 14px !important;
+    }
+
+    .form-current-power {
+        padding: 10px 14px;
+    }
+}
