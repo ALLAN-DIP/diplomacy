@@ -16,16 +16,22 @@
 // ==============================================================================
 /** Main class to use to create app GUI. **/
 
-import React from "react";
+import React, { Suspense } from "react";
+
 import { Switch, Route, withRouter, Redirect } from "react-router-dom";
-import { ContentConnection } from "./content_connection";
+
 import { UTILS } from "../../diplomacy/utils/utils";
 import { Diplog } from "../../diplomacy/utils/diplog";
 import { DipStorage } from "../utils/dipStorage";
 import { PageContext } from "../components/page_context";
-import { ContentGames } from "./content_games";
 import { loadGameFromDisk } from "../utils/load_game_from_disk";
-import { ContentGame } from "./content_game";
+
+// Lazy load components for code splitting
+
+const ContentConnection = React.lazy(() => import("./content_connection").then(module => ({ default: module.ContentConnection })));
+const ContentGames = React.lazy(() => import("./content_games").then(module => ({ default: module.ContentGames })));
+const ContentGame = React.lazy(() => import("./content_game").then(module => ({ default: module.ContentGame })));
+
 import { confirmAlert } from "react-confirm-alert";
 import "react-confirm-alert/src/react-confirm-alert.css";
 
@@ -386,16 +392,25 @@ class PageBase extends React.Component {
                             {errorMessage}
                         </div>
                     </div>
-                    <Switch>
-                        <Route exact path="/" component={ContentConnection} />
-                        <Route path="/games" render={() => this.channel ? <ContentGames myGames={this.getMyGames()} gamesFound={this.getGamesFound()} /> : <Redirect to="/" />} />
-                        <Route path="/game/:gameId" render={(props) => {
-                            if (!this.channel) return <Redirect to="/" />;
-                            const game = this.getGame(props.match.params.gameId);
-                            return game ? <ContentGame data={game} /> : <Redirect to="/games" />;
-                        }} />
-                        <Redirect to="/" />
-                    </Switch>
+                    <Suspense fallback={
+                        <div className="loading-fallback">
+                            <div className="spinner-border text-primary" role="status">
+                                <span className="sr-only">Loading...</span>
+                            </div>
+                        </div>
+                    }>
+                        <Switch>
+                            <Route exact path="/" component={ContentConnection} />
+                            <Route path="/games" render={() => this.channel ? <ContentGames myGames={this.getMyGames()} gamesFound={this.getGamesFound()} /> : <Redirect to="/" />} />
+                            <Route path="/game/:gameId" render={(props) => {
+                                if (!this.channel) return <Redirect to="/" />;
+                                const game = this.getGame(props.match.params.gameId);
+                                return game ? <ContentGame data={game} /> : <Redirect to="/games" />;
+                            }} />
+                            <Redirect to="/" />
+                        </Switch>
+                    </Suspense>
+
                 </div>
             </PageContext.Provider>
         );

@@ -1,7 +1,6 @@
 services:
   diplomacy:
     image: ghcr.io/allan-dip/diplomacy:${TAG:-latest}
-    platform: linux/amd64
     container_name: diplomacy
     restart: unless-stopped
     pull_policy: ${PULL_POLICY:-missing}

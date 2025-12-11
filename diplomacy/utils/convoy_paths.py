@@ -18,6 +18,7 @@
 - Contains utilities to generate all the possible convoy paths for a given map
 """
 import collections
+from functools import lru_cache
 import hashlib
 import glob
 import logging
@@ -197,7 +198,10 @@ def _build_convoy_paths_cache(map_object, max_convoy_length):
     with multiprocessing.Pool(nb_cores) as pool:
         tasks = [(map_object, coast, max_convoy_length, queue) for coast in coasts]
         results = pool.starmap(_get_convoy_paths, tasks)
-    results = [item for sublist in results for item in sublist]
+    
+    # Use itertools.chain for more efficient flattening instead of list comprehension
+    from itertools import chain
+    results = list(chain.from_iterable(results))
     queue.put(None)
     progress_bar.join()
 
@@ -211,6 +215,8 @@ def _build_convoy_paths_cache(map_object, max_convoy_length):
     return buckets
 
 
+
+@lru_cache(maxsize=32)
 def get_file_md5(file_path):
     """Calculates a file MD5 hash
 

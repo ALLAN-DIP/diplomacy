@@ -439,89 +439,21 @@ class Game(Jsonable):
 
         self.stances = {}
         self.stance_history = {}
-        self.is_bot = {
-            "AUSTRIA": {
-                "AUSTRIA": False,
-                "ENGLAND": False,
-                "FRANCE": False,
-                "GERMANY": False,
-                "ITALY": False,
-                "RUSSIA": False,
-                "TURKEY": False,
-            },
-            "ENGLAND": {
-                "AUSTRIA": False,
-                "ENGLAND": False,
-                "FRANCE": False,
-                "GERMANY": False,
-                "ITALY": False,
-                "RUSSIA": False,
-                "TURKEY": False,
-            },
-            "FRANCE": {
-                "AUSTRIA": False,
-                "ENGLAND": False,
-                "FRANCE": False,
-                "GERMANY": False,
-                "ITALY": False,
-                "RUSSIA": False,
-                "TURKEY": False,
-            },
-            "GERMANY": {
-                "AUSTRIA": False,
-                "ENGLAND": False,
-                "FRANCE": False,
-                "GERMANY": False,
-                "ITALY": False,
-                "RUSSIA": False,
-                "TURKEY": False,
-            },
-            "ITALY": {
-                "AUSTRIA": False,
-                "ENGLAND": False,
-                "FRANCE": False,
-                "GERMANY": False,
-                "ITALY": False,
-                "RUSSIA": False,
-                "TURKEY": False,
-            },
-            "RUSSIA": {
-                "AUSTRIA": False,
-                "ENGLAND": False,
-                "FRANCE": False,
-                "GERMANY": False,
-                "ITALY": False,
-                "RUSSIA": False,
-                "TURKEY": False,
-            },
-            "TURKEY": {
-                "AUSTRIA": False,
-                "ENGLAND": False,
-                "FRANCE": False,
-                "GERMANY": False,
-                "ITALY": False,
-                "RUSSIA": False,
-                "TURKEY": False,
-            },
-        }
+        
+        # Use defaultdict for lazy initialization instead of pre-populating all power combinations
+        # This defers memory allocation until actually needed
+        from collections import defaultdict
+        self.is_bot = defaultdict(lambda: defaultdict(lambda: False))
         self.is_bot_history = {}
-        self.deceiving = {}
+        self.deceiving = defaultdict(lambda: defaultdict(lambda: False))
         self.deceiving_history = {}
         self.order_log_history = {}
         self.order_logs = {}
         self.has_initial_orders = {}
         self.annotated_messages = {}
-        self.order_suggestions = {
-            "AUS": [],
-            "ENG": [],
-            "TUR": [],
-            "ITA": [],
-            "RUS": [],
-            "FRA": [],
-            "GER": [],
-        }
+        self.order_suggestions = defaultdict(list)
+        self.commentary_durations = defaultdict(list)
 
-        self.commentary_durations = {}
 
         # Caches
         self._unit_owner_cache = None  # {(unit, coast_required): owner}

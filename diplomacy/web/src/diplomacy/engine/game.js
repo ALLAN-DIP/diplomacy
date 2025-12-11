@@ -345,7 +345,8 @@ export class Game {
     }
 
     addOrderSuggestions(power, suggestions) {
-        console.log("added for " + power + ": " + suggestions);
+        // Order suggestions can be processed here if needed
+        // Removed console.log for production optimization
     }
 
     assertPlayerGame(powerName) {

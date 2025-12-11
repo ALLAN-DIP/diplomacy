@@ -20,7 +20,6 @@ export class PlayerPowersInfoTable extends React.Component {
     constructor(props) {
         super(props);
         if (!this.props.wrapper) this.props.wrapper = defaultWrapper;
-        console.log(this.props);
     }
 
     getHeader(columns) {
