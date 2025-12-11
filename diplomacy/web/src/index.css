@@ -34,7 +34,7 @@ span.dropdown-item {
   text-overflow: initial;
 }
 
-.top-msg .msg + .msg {
+.top-msg .msg+.msg {
   border-left: 1px solid black;
 }
 
@@ -57,8 +57,10 @@ span.dropdown-item {
   width: 100%;
   height: auto;
   /* Disable user text selection (from https://stackoverflow.com/questions/826782/how-to-disable-text-selection-highlighting/4407335#4407335) */
-  -webkit-user-select: none; /* Safari */
-  user-select: none; /* All other mainstream browsers */
+  -webkit-user-select: none;
+  /* Safari */
+  user-select: none;
+  /* All other mainstream browsers */
 }
 
 .history-current-orders {
@@ -81,9 +83,9 @@ main {
   padding: 10px;
 }
 
-.power-actions-form button + button,
-.panel-orders .bar button + button,
-.games-form button + button {
+.power-actions-form button+button,
+.panel-orders .bar button+button,
+.games-form button+button {
   margin-left: 0.5rem;
 }
 
@@ -122,9 +124,6 @@ span.power-name {
   width: 10rem;
 }
 
-.form-current-power {
-  display: inline-block;
-}
 
 .page-messages {
   position: fixed;
@@ -191,16 +190,16 @@ span.power-name {
   font-weight: bold;
 }
 
-.past-orders .row .past-power-orders > div:before {
+.past-orders .row .past-power-orders>div:before {
   content: "\2192";
   margin-right: 1em;
 }
 
-.bar > * {
+.bar>* {
   display: inline-block;
 }
 
-.page > main > .title {
+.page>main>.title {
   border-bottom: 1px solid silver;
   padding-bottom: 10px;
   margin-bottom: 10px;
@@ -240,7 +239,7 @@ span.power-name {
   padding: 10px;
 }
 
-.panel-orders > .bar {
+.panel-orders>.bar {
   border-top: 1px solid silver;
   border-left: 1px solid silver;
   border-right: 1px solid silver;
@@ -251,7 +250,7 @@ span.power-name {
   border-right: 1px solid silver;
 }
 
-.panel-orders .summary > span + span:before {
+.panel-orders .summary>span+span:before {
   content: ", ";
 }
 
@@ -398,11 +397,11 @@ span.power-name {
   color: rgb(140, 140, 140);
 }
 
-.game-message-wrapper + .game-message-wrapper {
+.game-message-wrapper+.game-message-wrapper {
   padding-top: 5px;
 }
 
-.game-message-wrapper.other-phase + .game-message-wrapper.new-phase {
+.game-message-wrapper.other-phase+.game-message-wrapper.new-phase {
   margin-top: 5px;
 }
 
@@ -450,7 +449,7 @@ button.collapsed .roll {
   display: flex;
 }
 
-.send-buttons > * {
+.send-buttons>* {
   height: 40px;
   display: flex;
 }
@@ -463,17 +462,17 @@ button.collapsed .roll {
   flex: 1;
 }
 
-.truth-button > * {
+.truth-button>* {
   background-color: rgb(65, 172, 35);
   flex: 1;
 }
 
-.deception-button > * {
+.deception-button>* {
   background-color: crimson;
   flex: 1;
 }
 
-.move-suggestion-list > .cs-message-list__scroll-wrapper {
+.move-suggestion-list>.cs-message-list__scroll-wrapper {
   padding-left: 0.25em;
   padding-right: 0.25em;
   /* Not clear why, but needed for scrolling on overflow to work */

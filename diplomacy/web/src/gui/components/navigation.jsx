@@ -23,52 +23,42 @@ export class Navigation extends React.Component {
         const hasNavigation = this.props.navigation && this.props.navigation.length;
         if (hasNavigation) {
             return (
-                <div className={"title row"}>
-                    <div className={"col-4"}>
+                <div className={"title game-header"}>
+                    <div className={"game-header-main"}>
                         <strong>{this.props.title}</strong>
-                    </div>
-                    <div className={"col"}>{this.props.afterTitle ? this.props.afterTitle : ""}</div>
-                    <div className={"col-3"}>{this.props.phaseSel ? this.props.phaseSel : ""}</div>
-
-                    <div className={"col-sm-1"}>
-                        {(!hasNavigation && (
-                            <div className={"float-right"}>
-                                <strong>
-                                    <u className={"mr-2"}>{this.props.username}</u>
-                                    <PersonIcon />
-                                </strong>
-                            </div>
-                        )) || (
-                                <div className="dropdown float-right">
-                                    <button
-                                        className="btn btn-secondary dropdown-toggle"
-                                        type="button"
-                                        id="dropdownMenuButton"
-                                        data-toggle="dropdown"
-                                        aria-haspopup="true"
-                                        aria-expanded="false"
-                                    >
-                                        {(this.props.username && (
-                                            <span>
-                                                <u className={"mr-2"}>{this.props.username}</u>
-                                                <PersonIcon />
+                        {this.props.afterTitle ? this.props.afterTitle : ""}
+                        {this.props.phaseSel ? this.props.phaseSel : ""}
+                        <div className={"game-header-user"}>
+                            <div className="dropdown">
+                                <button
+                                    className="btn btn-secondary dropdown-toggle"
+                                    type="button"
+                                    id="dropdownMenuButton"
+                                    data-toggle="dropdown"
+                                    aria-haspopup="true"
+                                    aria-expanded="false"
+                                >
+                                    {(this.props.username && (
+                                        <span>
+                                            <u className={"mr-2"}>{this.props.username}</u>
+                                            <PersonIcon />
+                                        </span>
+                                    )) ||
+                                        "Menu"}
+                                </button>
+                                <div className="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton">
+                                    {this.props.navigation.map((nav, index) => {
+                                        const navTitle = nav[0];
+                                        const navAction = nav[1];
+                                        return (
+                                            <span key={index} className="dropdown-item" onClick={navAction}>
+                                                {navTitle}
                                             </span>
-                                        )) ||
-                                            "Menu"}
-                                    </button>
-                                    <div className="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton">
-                                        {this.props.navigation.map((nav, index) => {
-                                            const navTitle = nav[0];
-                                            const navAction = nav[1];
-                                            return (
-                                                <span key={index} className="dropdown-item" onClick={navAction}>
-                                                    {navTitle}
-                                                </span>
-                                            );
-                                        })}
-                                    </div>
+                                        );
+                                    })}
                                 </div>
-                            )}
+                            </div>
+                        </div>
                     </div>
                 </div>
             );

@@ -3076,61 +3076,63 @@ export class ContentGame extends React.Component {
 
         const navAfterTitle = (
             <form className="form-inline form-current-power">
-                <div className="custom-control custom-control-inline">
-                    Map size:
-                    <label className="sr-only" htmlFor="map-size">
-                        map size
-                    </label>
-                    <select
-                        className="form-control custom-select custom-control-inline"
-                        id="map-size"
-                        value={Object.keys(possibleMapSizes).find(
-                            (key) => possibleMapSizes[key] === this.state.mapSize,
-                        )}
-                        onChange={(event) => {
-                            this.setState({
-                                mapSize: possibleMapSizes[event.target.value],
-                            });
-                        }}
-                    >
-                        {Object.keys(possibleMapSizes).map((key) => (
-                            <option key={key} value={key}>
-                                {key.charAt(0).toUpperCase() + key.slice(1)}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-
-                {(controllablePowers.length === 1 && <span className="power-name">{controllablePowers[0]}</span>) || (
-                    <div className="custom-control custom-control-inline">
-                        <label className="sr-only" htmlFor="current-power">
-                            power
+                <div className="game-controls-group">
+                    <div className="custom-control custom-control-inline map-size-control">
+                        <label className="control-label" htmlFor="map-size">
+                            Map size:
                         </label>
                         <select
-                            className="form-control custom-select custom-control-inline"
-                            id="current-power"
-                            value={currentPowerName}
-                            onChange={this.onChangeCurrentPower}
+                            className="form-control custom-select"
+                            id="map-size"
+                            value={Object.keys(possibleMapSizes).find(
+                                (key) => possibleMapSizes[key] === this.state.mapSize,
+                            )}
+                            onChange={(event) => {
+                                this.setState({
+                                    mapSize: possibleMapSizes[event.target.value],
+                                });
+                            }}
                         >
-                            {controllablePowers.map((powerName) => (
-                                <option key={powerName} value={powerName}>
-                                    {powerName}
+                            {Object.keys(possibleMapSizes).map((key) => (
+                                <option key={key} value={key}>
+                                    {key.charAt(0).toUpperCase() + key.slice(1)}
                                 </option>
                             ))}
                         </select>
                     </div>
-                )}
-                <div className="custom-control custom-control-inline custom-checkbox">
-                    <input
-                        className="custom-control-input"
-                        id="show-abbreviations"
-                        type="checkbox"
-                        checked={this.state.showAbbreviations}
-                        onChange={this.onChangeShowAbbreviations}
-                    />
-                    <label className="custom-control-label" htmlFor="show-abbreviations">
-                        Show abbreviations
-                    </label>
+
+                    {(controllablePowers.length === 1 && <span className="power-name">{controllablePowers[0]}</span>) || (
+                        <div className="custom-control custom-control-inline power-select-control">
+                            <label className="sr-only" htmlFor="current-power">
+                                power
+                            </label>
+                            <select
+                                className="form-control custom-select"
+                                id="current-power"
+                                value={currentPowerName}
+                                onChange={this.onChangeCurrentPower}
+                            >
+                                {controllablePowers.map((powerName) => (
+                                    <option key={powerName} value={powerName}>
+                                        {powerName}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                    )}
+
+                    <div className="custom-control custom-control-inline custom-checkbox abbreviations-control">
+                        <input
+                            className="custom-control-input"
+                            id="show-abbreviations"
+                            type="checkbox"
+                            checked={this.state.showAbbreviations}
+                            onChange={this.onChangeShowAbbreviations}
+                        />
+                        <label className="custom-control-label" htmlFor="show-abbreviations">
+                            Show abbreviations
+                        </label>
+                    </div>
                 </div>
             </form>
         );
