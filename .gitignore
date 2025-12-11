@@ -133,3 +133,6 @@ events.out.*
 
 nohup.out
 pyrightconfig.json
+
+# Cloudflare
+cloudflared-config/
