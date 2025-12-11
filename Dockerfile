@@ -21,21 +21,26 @@ RUN apk --no-cache upgrade
 
 WORKDIR /app
 
-RUN pip install --no-cache-dir pip==25.1.1 \
-    && pip uninstall --yes setuptools wheel
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
-# Install required packages
-COPY diplomacy/version.py diplomacy/version.py
-COPY pyproject.toml .
-COPY requirements-lock.txt .
-RUN pip install --no-cache-dir -e . -c requirements-lock.txt
+# Compile bytecode to improve startup time
+ENV UV_COMPILE_BYTECODE=1
 
-# Copy remaining files
+# Copy the dependency management files
+COPY pyproject.toml uv.lock ./
+
+# Install dependencies into a virtual environment
+# We use --frozen to ensure we install exactly what is in uv.lock
+RUN uv sync --frozen --no-install-project --no-dev
+
+# Copy the project source
 COPY diplomacy/ diplomacy/
 COPY README.md .
+COPY diplomacy/version.py diplomacy/version.py
 
-# Re-install so `pip` stores all metadata properly
-RUN pip install --no-cache-dir --no-deps -e .
+# Install the project itself
+RUN uv sync --frozen --no-dev
+
 
 COPY --from=app-builder /app/build /app/diplomacy/web/build
 
@@ -45,6 +50,9 @@ EXPOSE 80
 EXPOSE 8433
 # DAIDE server
 EXPOSE 8434-8600
+
+# Place .venv/bin at the front of the PATH
+ENV PATH="/app/.venv/bin:$PATH"
 
 CMD ["sh", "-c", "python -m http.server 80 --directory diplomacy/web/build/ & python -m diplomacy.server.run"]
 
