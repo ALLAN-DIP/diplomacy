@@ -52,7 +52,7 @@ export class AdminPowersInfoTable extends React.Component {
         );
     }
 
-    getBodyRow(header, row, rowIndex, wrapper, countries, stances, isBot, player) {
+    getBodyRow(header, row, rowIndex, wrapper, _countries, _stances, _isBot, _player) {
         const wrapped = wrapper(row);
 
         return (
@@ -108,4 +108,6 @@ AdminPowersInfoTable.propTypes = {
     data: PropTypes.array,
     stances: PropTypes.object,
     isBot: PropTypes.object,
+    player: PropTypes.object,
+    countries: PropTypes.object,
 };

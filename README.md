@@ -26,6 +26,8 @@ The package has been tested with Python 3.7 and 3.11, and it should work with al
 
 It is possible to run a game server, which includes a web interface, to play against bots and/or other humans and to visualize games.
 
+### Using Docker
+
 The server can be built and run with Docker:
 
 ```shell
@@ -34,6 +36,24 @@ docker compose up --detach
 ```
 
 The web interface will be accessible at <http://localhost:3000>.
+
+### Local Development
+
+For local development of the web interface, we use [Bun](https://bun.sh) as the package manager:
+
+```shell
+cd diplomacy/web
+
+# Install dependencies (requires Bun to be installed)
+bun install
+
+# Start development server
+bun start
+```
+
+The development server will be accessible at <http://localhost:3000>.
+
+### Authentication
 
 To log in, users can use `admin`/`password` (special admin mode) or `username`/`password`. Additional users can be created by logging in with a username that does not exist in the database.
 

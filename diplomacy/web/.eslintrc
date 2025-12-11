@@ -10,16 +10,28 @@
         }
     },
     "env": {
-        "es6":     true,
+        "es6": true,
         "browser": true,
-        "node":    true,
-        "mocha":   true
+        "node": true,
+        "mocha": true
     },
     "extends": [
         "eslint:recommended",
         "plugin:react/recommended"
     ],
     "rules": {
-        "semi": [2, "always", { "omitLastInOneLineBlock": true}]
+        "no-prototype-builtins": "warn",
+        "react/jsx-key": "warn",
+        "react/no-unknown-property": "warn",
+        "react/prop-types": "warn",
+        "no-unused-vars": "warn",
+        "react/no-unescaped-entities": "warn",
+        "semi": [
+            2,
+            "always",
+            {
+                "omitLastInOneLineBlock": true
+            }
+        ]
     }
 }

@@ -16,7 +16,7 @@
 // ==============================================================================
 /** Utils. **/
 
-class Dict {}
+class Dict { }
 
 export const UTILS = {
     NB_CONNECTION_ATTEMPTS: 12,
@@ -103,7 +103,7 @@ export const UTILS = {
         },
 
         extendArrayWithUniqueValues(obj, key, value) {
-            if (!obj.hasOwnProperty(key)) obj[key] = [value];
+            if (!Object.prototype.hasOwnProperty.call(obj, key)) obj[key] = [value];
             else if (!obj[key].includes(value)) obj[key].push(value);
         },
 
@@ -113,18 +113,18 @@ export const UTILS = {
             const parentPathLength = pathLength - 1;
             for (let i = 0; i < parentPathLength; ++i) {
                 const stepName = path[i];
-                if (!current.hasOwnProperty(stepName)) current[stepName] = new Dict();
+                if (!Object.prototype.hasOwnProperty.call(current, stepName)) current[stepName] = new Dict();
                 current = current[stepName];
             }
             const stepName = path[pathLength - 1];
-            if (!current.hasOwnProperty(stepName)) current[stepName] = [];
+            if (!Object.prototype.hasOwnProperty.call(current, stepName)) current[stepName] = [];
             if (allowMultipleValues || !current[stepName].includes(value)) current[stepName].push(value);
         },
 
         getTreeValue: function (obj, path) {
             let current = obj;
             for (let stepName of path) {
-                if (!current.hasOwnProperty(stepName)) return null;
+                if (!Object.prototype.hasOwnProperty.call(current, stepName)) return null;
                 current = current[stepName];
             }
             if (current instanceof Dict) return Object.keys(current);

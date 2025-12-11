@@ -55,7 +55,7 @@ export class Forms {
     }
 
     static getValue(fieldValues, fieldName, defaultValue) {
-        return fieldValues.hasOwnProperty(fieldName) ? fieldValues[fieldName] : defaultValue;
+        return Object.prototype.hasOwnProperty.call(fieldValues, fieldName) ? fieldValues[fieldName] : defaultValue;
     }
 
     static createReset(title, large, onReset) {

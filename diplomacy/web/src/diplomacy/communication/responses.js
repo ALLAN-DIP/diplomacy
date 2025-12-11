@@ -35,7 +35,7 @@ export const RESPONSES = {
         "data_saved_game",
     ]),
     parse: function (jsonObject) {
-        if (!jsonObject.hasOwnProperty("name")) throw new Error("No name field in expected response object");
+        if (!Object.prototype.hasOwnProperty.call(jsonObject, "name")) throw new Error("No name field in expected response object");
         if (!RESPONSES.names.has(jsonObject.name)) throw new Error("Invalid response name " + jsonObject.name);
         if (jsonObject.name === STRINGS.ERROR) throw new Error(jsonObject.name + ": " + jsonObject.message);
         return jsonObject;
@@ -45,6 +45,6 @@ export const RESPONSES = {
     },
     isUniqueData: function (response) {
         // Expected only 3 fields: name, request_id, data.
-        return response.hasOwnProperty("data") && Object.keys(response).length === 3;
+        return Object.prototype.hasOwnProperty.call(response, "data") && Object.keys(response).length === 3;
     },
 };

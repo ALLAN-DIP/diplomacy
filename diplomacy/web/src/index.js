@@ -14,8 +14,10 @@
 //  You should have received a copy of the GNU Affero General Public License along
 //  with this program.  If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
+import "./polyfill";
 import React from "react";
-import ReactDOM from "react-dom";
+import ReactDOM from "react-dom/client";
+import { BrowserRouter } from 'react-router-dom';
 import { Page } from "./gui/pages/page";
 import "popper.js";
 import "bootstrap/dist/js/bootstrap";
@@ -24,4 +26,11 @@ import "./index.css";
 
 // ========================================
 
-ReactDOM.render(<Page />, document.getElementById("root"));
+const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(
+    <React.StrictMode>
+        <BrowserRouter>
+            <Page />
+        </BrowserRouter>
+    </React.StrictMode>
+);

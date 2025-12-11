@@ -17,6 +17,7 @@
 /** Main class to use to create app GUI. **/
 
 import React from "react";
+import { Switch, Route, withRouter, Redirect } from "react-router-dom";
 import { ContentConnection } from "./content_connection";
 import { UTILS } from "../../diplomacy/utils/utils";
 import { Diplog } from "../../diplomacy/utils/diplog";
@@ -28,7 +29,7 @@ import { ContentGame } from "./content_game";
 import { confirmAlert } from "react-confirm-alert";
 import "react-confirm-alert/src/react-confirm-alert.css";
 
-export class Page extends React.Component {
+class PageBase extends React.Component {
     constructor(props) {
         super(props);
         this.connection = null;
@@ -103,29 +104,42 @@ export class Page extends React.Component {
     load(name, body, messages) {
         const newState = {};
         if (messages) {
-            for (let key of ["error", "info", "success"]) newState[key] = Page.wrapMessage(messages[key]);
+            for (let key of ["error", "info", "success"]) newState[key] = PageBase.wrapMessage(messages[key]);
         }
         Diplog.printMessages(newState);
         newState.name = name;
         newState.body = body;
+
+        if (name === "games") {
+            this.props.history.push("/games");
+        } else if (name && name.startsWith("game: ")) {
+            const gameId = name.substring(6);
+            this.props.history.push(`/game/${gameId}`);
+        }
+
         return this.setState(newState);
     }
 
     loadGames(messages) {
-        return this.load(
-            "games",
-            <ContentGames myGames={this.getMyGames()} gamesFound={this.getGamesFound()} />,
-            messages,
-        );
+        if (messages) {
+            const newState = {};
+            for (let key of ["error", "info", "success"]) newState[key] = PageBase.wrapMessage(messages[key]);
+            Diplog.printMessages(newState);
+            this.setState(newState);
+        }
+        this.setState({ name: "games" });
+        this.props.history.push("/games");
     }
 
     loadGameFromDisk() {
         return loadGameFromDisk()
-            .then((game) =>
-                this.load(`game: ${game.game_id}`, <ContentGame data={game} />, {
-                    success: `Game loaded from disk: ${game.game_id}`,
-                }),
-            )
+            .then((game) => {
+                this.success(`Game loaded from disk: ${game.game_id}`);
+                // Add to games found so it can be resolved by getGame
+                this.addGamesFound([game]);
+                this.setState({ name: `game: ${game.game_id}` });
+                this.props.history.push(`/game/${game.game_id}`);
+            })
             .catch(this.error);
     }
 
@@ -141,7 +155,7 @@ export class Page extends React.Component {
         this.connection = null;
         this.channel = null;
         this.availableMaps = null;
-        const message = Page.wrapMessage(error ? `${error.toString()}` : `Disconnected from channel and server.`);
+        const message = PageBase.wrapMessage(error ? `${error.toString()}` : `Disconnected from channel and server.`);
         Diplog.success(message);
         return this.setState({
             error: error ? message : null,
@@ -152,7 +166,7 @@ export class Page extends React.Component {
             // When disconnected, remove all games previously loaded.
             games: {},
             myGames: {},
-        });
+        }).then(() => this.props.history.push("/"));
     }
 
     logout() {
@@ -171,19 +185,19 @@ export class Page extends React.Component {
     //// Methods to be used to set page title and messages.
 
     error(message) {
-        message = Page.wrapMessage(message);
+        message = PageBase.wrapMessage(message);
         Diplog.error(message);
         return this.setState({ error: message });
     }
 
     info(message) {
-        message = Page.wrapMessage(message);
+        message = PageBase.wrapMessage(message);
         Diplog.info(message);
         return this.setState({ info: message });
     }
 
     success(message) {
-        message = Page.wrapMessage(message);
+        message = PageBase.wrapMessage(message);
         Diplog.success(message);
         return this.setState({ success: message });
     }
@@ -200,7 +214,7 @@ export class Page extends React.Component {
         let gamesFound = null;
         for (let gameToAdd of gamesToAdd) {
             myGames[gameToAdd.game_id] = gameToAdd;
-            if (this.state.games.hasOwnProperty(gameToAdd.game_id)) {
+            if (Object.prototype.hasOwnProperty.call(this.state.games, gameToAdd.game_id)) {
                 if (!gamesFound) gamesFound = Object.assign({}, this.state.games);
                 gamesFound[gameToAdd.game_id] = gameToAdd;
             }
@@ -210,22 +224,22 @@ export class Page extends React.Component {
     }
 
     getGame(gameID) {
-        if (this.state.myGames.hasOwnProperty(gameID)) return this.state.myGames[gameID];
+        if (Object.prototype.hasOwnProperty.call(this.state.myGames, gameID)) return this.state.myGames[gameID];
         return this.state.games[gameID];
     }
 
     getMyGames() {
-        return Page.__sort_games(Object.values(this.state.myGames));
+        return PageBase.__sort_games(Object.values(this.state.myGames));
     }
 
     getGamesFound() {
-        return Page.__sort_games(Object.values(this.state.games));
+        return PageBase.__sort_games(Object.values(this.state.games));
     }
 
     addGamesFound(gamesToAdd) {
         const gamesFound = {};
         for (let game of gamesToAdd) {
-            gamesFound[game.game_id] = this.state.myGames.hasOwnProperty(game.game_id)
+            gamesFound[game.game_id] = Object.prototype.hasOwnProperty.call(this.state.myGames, game.game_id)
                 ? this.state.myGames[game.game_id]
                 : game;
         }
@@ -233,7 +247,7 @@ export class Page extends React.Component {
     }
 
     leaveGame(gameID) {
-        if (this.state.myGames.hasOwnProperty(gameID)) {
+        if (Object.prototype.hasOwnProperty.call(this.state.myGames, gameID)) {
             const game = this.state.myGames[gameID];
             if (game.client) {
                 return game.client
@@ -296,16 +310,16 @@ export class Page extends React.Component {
 
     _add_to_my_games(game) {
         const myGames = Object.assign({}, this.state.myGames);
-        const gamesFound = this.state.games.hasOwnProperty(game.game_id)
+        const gamesFound = Object.prototype.hasOwnProperty.call(this.state.games, game.game_id)
             ? Object.assign({}, this.state.games)
             : this.state.games;
         myGames[game.game_id] = game;
-        if (gamesFound.hasOwnProperty(game.game_id)) gamesFound[game.game_id] = game;
+        if (Object.prototype.hasOwnProperty.call(gamesFound, game.game_id)) gamesFound[game.game_id] = game;
         return { myGames: myGames, games: gamesFound };
     }
 
     _remove_from_my_games(gameID) {
-        if (this.state.myGames.hasOwnProperty(gameID)) {
+        if (Object.prototype.hasOwnProperty.call(this.state.myGames, gameID)) {
             const games = Object.assign({}, this.state.myGames);
             delete games[gameID];
             DipStorage.removeUserGame(this.channel.username, gameID);
@@ -316,7 +330,7 @@ export class Page extends React.Component {
     }
 
     _remove_from_games(gameID) {
-        if (this.state.games.hasOwnProperty(gameID)) {
+        if (Object.prototype.hasOwnProperty.call(this.state.games, gameID)) {
             const games = Object.assign({}, this.state.games);
             delete games[gameID];
             return games;
@@ -337,7 +351,7 @@ export class Page extends React.Component {
     }
 
     hasMyGame(gameID) {
-        return this.state.myGames.hasOwnProperty(gameID);
+        return Object.prototype.hasOwnProperty.call(this.state.myGames, gameID);
     }
 
     //// Render method.
@@ -372,9 +386,20 @@ export class Page extends React.Component {
                             {errorMessage}
                         </div>
                     </div>
-                    {this.state.body || Page.defaultPage()}
+                    <Switch>
+                        <Route exact path="/" component={ContentConnection} />
+                        <Route path="/games" render={() => this.channel ? <ContentGames myGames={this.getMyGames()} gamesFound={this.getGamesFound()} /> : <Redirect to="/" />} />
+                        <Route path="/game/:gameId" render={(props) => {
+                            if (!this.channel) return <Redirect to="/" />;
+                            const game = this.getGame(props.match.params.gameId);
+                            return game ? <ContentGame data={game} /> : <Redirect to="/games" />;
+                        }} />
+                        <Redirect to="/" />
+                    </Switch>
                 </div>
             </PageContext.Provider>
         );
     }
 }
+
+export const Page = withRouter(PageBase);

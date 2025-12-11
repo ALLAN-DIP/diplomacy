@@ -45,12 +45,12 @@ import { SvgModern } from "../maps/modern/SvgModern";
 import { SvgPure } from "../maps/pure/SvgPure";
 import { MapData } from "../utils/map_data";
 import { Queue } from "../../diplomacy/utils/queue";
-import styles from "@chatscope/chat-ui-kit-styles/dist/default/styles.min.css";
+import "@chatscope/chat-ui-kit-styles/dist/default/styles.min.css";
 import { default as Tabs2 } from "@mui/material/Tabs";
 import { default as Tab2 } from "@mui/material/Tab";
 import Box from "@mui/material/Box";
 import Badge from "@mui/material/Badge";
-import Switch from "@mui/material/Switch";
+
 
 import {
     MainContainer,
@@ -75,7 +75,7 @@ import TUR from "../assets/TUR.png";
 import GLOBAL from "../assets/GLOBAL.png";
 import Grid from "@mui/material/Grid";
 import { Tooltip } from "@mui/material";
-import Octicon, { Question } from "@primer/octicons-react";
+import { QuestionIcon } from "@primer/octicons-react";
 
 const POWER_ICONS = {
     AUSTRIA: AUS,
@@ -144,10 +144,10 @@ export class ContentGame extends React.Component {
         // Load local orders from local storage (if available).
         const savedOrders = this.props.data.client
             ? DipStorage.getUserGameOrders(
-                  this.props.data.client.channel.username,
-                  this.props.data.game_id,
-                  this.props.data.phase,
-              )
+                this.props.data.client.channel.username,
+                this.props.data.game_id,
+                this.props.data.phase,
+            )
             : null;
 
         let orders = null;
@@ -428,7 +428,7 @@ export class ContentGame extends React.Component {
                     this.schedule_timeout_id = setInterval(this.updateDeadlineTimer, schedule.time_unit * 1000);
             })
             .catch(() => {
-                if (this.props.data.hasOwnProperty("deadline_timer")) delete this.props.data.deadline_timer;
+                if (Object.prototype.hasOwnProperty.call(this.props.data, "deadline_timer")) delete this.props.data.deadline_timer;
                 this.clearScheduleTimeout();
             });
     }
@@ -456,7 +456,7 @@ export class ContentGame extends React.Component {
     notifiedPowersControllers(networkGame, notification) {
         if (
             networkGame.local.isPlayerGame() &&
-            (!networkGame.channel.game_id_to_instances.hasOwnProperty(networkGame.local.game_id) ||
+            (!Object.prototype.hasOwnProperty.call(networkGame.channel.game_id_to_instances, networkGame.local.game_id) ||
                 !networkGame.channel.game_id_to_instances[networkGame.local.game_id].has(networkGame.local.role))
         ) {
             // This power game is now invalid.
@@ -522,12 +522,12 @@ export class ContentGame extends React.Component {
         let protagonist = notification.message.sender;
         if (notification.message.recipient === "GLOBAL") protagonist = notification.message.recipient;
         const messageHighlights = Object.assign({}, this.state.messageHighlights);
-        if (!messageHighlights.hasOwnProperty(protagonist)) {
+        if (!Object.prototype.hasOwnProperty.call(messageHighlights, protagonist)) {
             messageHighlights[protagonist] = 1;
         } else {
             ++messageHighlights[protagonist];
         }
-        if (!messageHighlights.hasOwnProperty("messages")) {
+        if (!Object.prototype.hasOwnProperty.call(messageHighlights, "messages")) {
             messageHighlights["messages"] = 1;
         } else {
             ++messageHighlights["messages"];
@@ -735,7 +735,7 @@ export class ContentGame extends React.Component {
     toggleMoveSuggestionCollapse(message_time_sent) {
         this.setState((prevState) => {
             let value = false;
-            if (prevState.visibleMoveSuggestions.hasOwnProperty(message_time_sent)) {
+            if (Object.prototype.hasOwnProperty.call(prevState.visibleMoveSuggestions, message_time_sent)) {
                 value = !prevState.visibleMoveSuggestions[message_time_sent];
             }
             const newVisibleMoveSuggestions = {
@@ -954,7 +954,7 @@ export class ContentGame extends React.Component {
                     for (let localOrder of Object.values(localPowerOrders)) {
                         localOrder.local =
                             !serverPowerOrders ||
-                            !serverPowerOrders.hasOwnProperty(localOrder.loc) ||
+                            !Object.prototype.hasOwnProperty.call(serverPowerOrders, localOrder.loc) ||
                             serverPowerOrders[localOrder.loc].order !== localOrder.order;
                     }
                 }
@@ -991,7 +991,7 @@ export class ContentGame extends React.Component {
         const serverOrders = this.props.data.getServerOrders();
         const engine = this.props.data;
         const allOrders = this.__get_orders(engine);
-        if (!allOrders.hasOwnProperty(powerName)) {
+        if (!Object.prototype.hasOwnProperty.call(allOrders, powerName)) {
             return this.getPage().error(`Unknown power ${powerName}.`);
         }
         allOrders[powerName] = serverOrders[powerName];
@@ -1019,8 +1019,8 @@ export class ContentGame extends React.Component {
     async onRemoveOrder(powerName, order) {
         const orders = this.__get_orders(this.props.data);
         if (
-            orders.hasOwnProperty(powerName) &&
-            orders[powerName].hasOwnProperty(order.loc) &&
+            Object.prototype.hasOwnProperty.call(orders, powerName) &&
+            Object.prototype.hasOwnProperty.call(orders[powerName], order.loc) &&
             orders[powerName][order.loc].order === order.order
         ) {
             this.sendOrderLog(this.props.data.client, "remove", order.order);
@@ -1042,7 +1042,7 @@ export class ContentGame extends React.Component {
         if (currentPowerName) {
             const engine = this.props.data;
             const allOrders = this.__get_orders(engine);
-            if (!allOrders.hasOwnProperty(currentPowerName)) {
+            if (!Object.prototype.hasOwnProperty.call(allOrders, currentPowerName)) {
                 this.getPage().error(`Unknown power ${currentPowerName}.`);
                 return;
             }
@@ -1156,7 +1156,7 @@ export class ContentGame extends React.Component {
         const engine = this.props.data;
         const localOrder = new Order(orderString, true);
         let allOrders = this.__get_orders(engine);
-        if (!allOrders.hasOwnProperty(powerName)) {
+        if (!Object.prototype.hasOwnProperty.call(allOrders, powerName)) {
             Diplog.warn(`Unknown power ${powerName}.`);
             return this.setState(state);
         }
@@ -1306,7 +1306,7 @@ export class ContentGame extends React.Component {
             if (message.recipient === "GLOBAL") protagonist = message.recipient;
             this.getPage().load(`game: ${this.props.data.game_id}`, <ContentGame data={this.props.data} />);
             if (
-                this.state.messageHighlights.hasOwnProperty(protagonist) &&
+                Object.prototype.hasOwnProperty.call(this.state.messageHighlights, protagonist) &&
                 this.state.messageHighlights[protagonist] > 0
             ) {
                 const messageHighlights = Object.assign({}, this.state.messageHighlights);
@@ -1367,7 +1367,7 @@ export class ContentGame extends React.Component {
                     // if the message is from self or is annotated, don't blur
                     if (
                         currentMessage.sender === controlledPower ||
-                        this.state.annotatedMessages.hasOwnProperty(currentMessage.time_sent)
+                        Object.prototype.hasOwnProperty.call(this.state.annotatedMessages, currentMessage.time_sent)
                     ) {
                         blurredMessages.push(currentMessage);
                     } else {
@@ -1382,7 +1382,7 @@ export class ContentGame extends React.Component {
 
                         if (
                             currentMessage.sender !== controlledPower &&
-                            !this.state.annotatedMessages.hasOwnProperty(currentMessage.time_sent)
+                            !Object.prototype.hasOwnProperty.call(this.state.annotatedMessages, currentMessage.time_sent)
                         ) {
                             hideMessage = true;
                         }
@@ -1512,7 +1512,7 @@ export class ContentGame extends React.Component {
                     message.sender === protagonist &&
                     message.recipient === controlledPower &&
                     !message.recipient_annotation &&
-                    !this.state.annotatedMessages.hasOwnProperty(message.time_sent)
+                    !Object.prototype.hasOwnProperty.call(this.state.annotatedMessages, message.time_sent)
                 ) {
                     count++;
                 }
@@ -1590,7 +1590,7 @@ export class ContentGame extends React.Component {
         if (latestMoveSuggestion) {
             const sent_time = latestMoveSuggestion.time_sent;
             if (
-                this.state.annotatedMessages.hasOwnProperty(sent_time) &&
+                Object.prototype.hasOwnProperty.call(this.state.annotatedMessages, sent_time) &&
                 (this.state.annotatedMessages[sent_time] === "reject" ||
                     this.state.annotatedMessages[sent_time] === "replace")
             ) {
@@ -1611,7 +1611,7 @@ export class ContentGame extends React.Component {
             suggestion.givenMoves = latestMoveSuggestion.parsed.payload.player_orders;
         }
         suggestion.visible =
-            !this.state.visibleMoveSuggestions.hasOwnProperty(suggestion.time_sent) ||
+            !Object.prototype.hasOwnProperty.call(this.state.visibleMoveSuggestions, suggestion.time_sent) ||
             this.state.visibleMoveSuggestions[suggestion.time_sent];
         return suggestion;
     }
@@ -1621,7 +1621,7 @@ export class ContentGame extends React.Component {
             (msg) =>
                 msg.type === STRINGS.SUGGESTED_MESSAGE &&
                 msg.parsed.payload.recipient === protagonist &&
-                (isAdmin || !this.state.annotatedMessages.hasOwnProperty(msg.time_sent)),
+                (isAdmin || !Object.prototype.hasOwnProperty.call(this.state.annotatedMessages, msg.time_sent)),
         );
 
         const suggestedMessages = receivedSuggestions.map((msg) => {
@@ -1639,7 +1639,7 @@ export class ContentGame extends React.Component {
         const receivedSuggestions = globalMessages.filter(
             (msg) =>
                 msg.type === STRINGS.SUGGESTED_COMMENTARY &&
-                (isAdmin || !this.state.annotatedMessages.hasOwnProperty(msg.time_sent)),
+                (isAdmin || !Object.prototype.hasOwnProperty.call(this.state.annotatedMessages, msg.time_sent)),
         );
 
         const suggestedCommentary = receivedSuggestions.map((msg) => {
@@ -1752,7 +1752,7 @@ export class ContentGame extends React.Component {
                                     value="yes"
                                     name={messageId}
                                     checked={
-                                        this.state.annotatedMessages.hasOwnProperty(msg.time_sent) &&
+                                        Object.prototype.hasOwnProperty.call(this.state.annotatedMessages, msg.time_sent) &&
                                         this.state.annotatedMessages[msg.time_sent] === "yes"
                                     }
                                     onChange={() => {
@@ -1770,7 +1770,7 @@ export class ContentGame extends React.Component {
                                     value="none"
                                     name={messageId}
                                     checked={
-                                        this.state.annotatedMessages.hasOwnProperty(msg.time_sent) &&
+                                        Object.prototype.hasOwnProperty.call(this.state.annotatedMessages, msg.time_sent) &&
                                         this.state.annotatedMessages[msg.time_sent] === "None"
                                     }
                                     onChange={() => this.handleRecipientAnnotation(msg.time_sent, "None")}
@@ -1815,13 +1815,13 @@ export class ContentGame extends React.Component {
                                             (!this.state.hasInitialOrders ||
                                                 (this.__get_orders(engine)[currentPowerName] &&
                                                     Object.keys(this.__get_orders(engine)[currentPowerName]).length <
-                                                        engine.orderableLocations[currentPowerName].length))
+                                                    engine.orderableLocations[currentPowerName].length))
                                         }
                                         placeholder={
                                             phaseType === "M" &&
-                                            (!this.state.hasInitialOrders ||
-                                                (this.__get_orders(engine)[currentPowerName] &&
-                                                    Object.keys(this.__get_orders(engine)[currentPowerName]).length <
+                                                (!this.state.hasInitialOrders ||
+                                                    (this.__get_orders(engine)[currentPowerName] &&
+                                                        Object.keys(this.__get_orders(engine)[currentPowerName]).length <
                                                         engine.orderableLocations[currentPowerName].length))
                                                 ? "You need to set orders for all units before sending messages."
                                                 : ""
@@ -2004,7 +2004,7 @@ export class ContentGame extends React.Component {
             if (orderResult) {
                 const pieces = order.split(/ +/);
                 const unit = `${pieces[0]} ${pieces[1]}`;
-                if (orderResult.hasOwnProperty(unit)) {
+                if (Object.prototype.hasOwnProperty.call(orderResult, unit)) {
                     const resultsToParse = orderResult[unit];
                     if (!resultsToParse.length) resultsToParse.push("");
                     const results = [];
@@ -2226,7 +2226,7 @@ export class ContentGame extends React.Component {
                                                     <div
                                                         style={{
                                                             alignItems: "flex-end",
-                                                            display: !this.state.annotatedMessages.hasOwnProperty(
+                                                            display: !Object.prototype.hasOwnProperty.call(this.state.annotatedMessages,
                                                                 msg.time_sent,
                                                             )
                                                                 ? "flex"
@@ -2310,7 +2310,7 @@ export class ContentGame extends React.Component {
                                                     <div
                                                         style={{
                                                             alignItems: "flex-end",
-                                                            display: !this.state.annotatedMessages.hasOwnProperty(
+                                                            display: !Object.prototype.hasOwnProperty.call(this.state.annotatedMessages,
                                                                 com.time_sent,
                                                             )
                                                                 ? "flex"
@@ -2335,7 +2335,7 @@ export class ContentGame extends React.Component {
                                                 );
                                             })}
                                         </MessageList>
-                                        {}
+                                        { }
                                     </ChatContainer>
                                 </MainContainer>
                             )}
@@ -2668,7 +2668,7 @@ export class ContentGame extends React.Component {
             var orderDistribution = this.state.orderDistribution[0];
             var distributionMoves = new Array(Object.keys(orderDistribution.distribution).length);
             for (var order in orderDistribution.distribution) {
-                if (!orderDistribution.distribution.hasOwnProperty(order)) {
+                if (!Object.prototype.hasOwnProperty.call(orderDistribution.distribution, order)) {
                     continue;
                 }
                 distributionMoves[orderDistribution.distribution[order].rank] =
@@ -2921,7 +2921,7 @@ export class ContentGame extends React.Component {
                                 onUpdate={this.setOrders}
                                 onProcess={
                                     !this.props.data.isPlayerGame() &&
-                                    this.props.data.observer_level === STRINGS.MASTER_TYPE
+                                        this.props.data.observer_level === STRINGS.MASTER_TYPE
                                         ? this.onProcessGame
                                         : null
                                 }
@@ -3058,14 +3058,12 @@ export class ContentGame extends React.Component {
             const merged = new Set(Object.values(orderTypeToLocs).flat());
             const unitsWithoutOrders = new Set([...merged].filter((x) => !Object.keys(powerOrders).includes(x)));
             if (unitsWithoutOrders.size === 0 || merged.size === unitsWithoutOrders.size) {
-                numOrderText = `[${Object.keys(powerOrders).length}/${
-                    engine.orderableLocations[currentPowerName].length
-                }] set.`;
+                numOrderText = `[${Object.keys(powerOrders).length}/${engine.orderableLocations[currentPowerName].length
+                    }] set.`;
             } else {
                 const unitsWithoutOrdersArray = Array.from(unitsWithoutOrders);
-                numOrderText = `[${Object.keys(powerOrders).length}/${
-                    engine.orderableLocations[currentPowerName].length
-                }] set. Need: ${unitsWithoutOrdersArray.join(", ")}`;
+                numOrderText = `[${Object.keys(powerOrders).length}/${engine.orderableLocations[currentPowerName].length
+                    }] set. Need: ${unitsWithoutOrdersArray.join(", ")}`;
             }
         }
 
@@ -3158,7 +3156,7 @@ export class ContentGame extends React.Component {
                     >
                         {/* Tooltip does not display without using `<span>` here */}
                         <span>
-                            <Octicon icon={Question} />
+                            <QuestionIcon />
                         </span>
                     </Tooltip>
                 </>,
@@ -3245,7 +3243,7 @@ export class ContentGame extends React.Component {
             (msg) =>
                 msg.type &&
                 (msg.type === STRINGS.SUGGESTED_COMMENTARY || msg.type === STRINGS.SUGGESTED_MESSAGE) &&
-                (isAdmin || !this.state.annotatedMessages.hasOwnProperty(msg.time_sent)),
+                (isAdmin || !Object.prototype.hasOwnProperty.call(this.state.annotatedMessages, msg.time_sent)),
         );
 
         const showMessageAdviceTab =
@@ -3300,7 +3298,7 @@ export class ContentGame extends React.Component {
             // Try to prevent scrolling when pressing keys Home and End.
             if (["home", "end"].includes(event.key.toLowerCase())) {
                 // Try to prevent scrolling.
-                if (event.hasOwnProperty("cancelBubble")) event.cancelBubble = true;
+                if (Object.prototype.hasOwnProperty.call(event, "cancelBubble")) event.cancelBubble = true;
                 if (event.stopPropagation) event.stopPropagation();
                 if (event.preventDefault) event.preventDefault();
             }

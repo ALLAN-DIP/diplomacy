@@ -55,7 +55,7 @@ export class Tabs extends React.Component {
                             tabName,
                             active === tabName,
                             this.props.onChange,
-                            (this.props.highlights.hasOwnProperty(tabName) && this.props.highlights[tabName]) || null,
+                            (Object.prototype.hasOwnProperty.call(this.props.highlights, tabName) && this.props.highlights[tabName]) || null,
                         ),
                     )}
                 </nav>

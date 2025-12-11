@@ -15,7 +15,7 @@
 //  with this program.  If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
 import React from "react";
-import Octicon, { Person } from "@primer/octicons-react";
+import { PersonIcon } from "@primer/octicons-react";
 import PropTypes from "prop-types";
 
 export class Navigation extends React.Component {
@@ -35,40 +35,40 @@ export class Navigation extends React.Component {
                             <div className={"float-right"}>
                                 <strong>
                                     <u className={"mr-2"}>{this.props.username}</u>
-                                    <Octicon icon={Person} />
+                                    <PersonIcon />
                                 </strong>
                             </div>
                         )) || (
-                            <div className="dropdown float-right">
-                                <button
-                                    className="btn btn-secondary dropdown-toggle"
-                                    type="button"
-                                    id="dropdownMenuButton"
-                                    data-toggle="dropdown"
-                                    aria-haspopup="true"
-                                    aria-expanded="false"
-                                >
-                                    {(this.props.username && (
-                                        <span>
-                                            <u className={"mr-2"}>{this.props.username}</u>
-                                            <Octicon icon={Person} />
-                                        </span>
-                                    )) ||
-                                        "Menu"}
-                                </button>
-                                <div className="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton">
-                                    {this.props.navigation.map((nav, index) => {
-                                        const navTitle = nav[0];
-                                        const navAction = nav[1];
-                                        return (
-                                            <span key={index} className="dropdown-item" onClick={navAction}>
-                                                {navTitle}
+                                <div className="dropdown float-right">
+                                    <button
+                                        className="btn btn-secondary dropdown-toggle"
+                                        type="button"
+                                        id="dropdownMenuButton"
+                                        data-toggle="dropdown"
+                                        aria-haspopup="true"
+                                        aria-expanded="false"
+                                    >
+                                        {(this.props.username && (
+                                            <span>
+                                                <u className={"mr-2"}>{this.props.username}</u>
+                                                <PersonIcon />
                                             </span>
-                                        );
-                                    })}
+                                        )) ||
+                                            "Menu"}
+                                    </button>
+                                    <div className="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton">
+                                        {this.props.navigation.map((nav, index) => {
+                                            const navTitle = nav[0];
+                                            const navAction = nav[1];
+                                            return (
+                                                <span key={index} className="dropdown-item" onClick={navAction}>
+                                                    {navTitle}
+                                                </span>
+                                            );
+                                        })}
+                                    </div>
                                 </div>
-                            </div>
-                        )}
+                            )}
                     </div>
                 </div>
             );
@@ -85,5 +85,6 @@ Navigation.propTypes = {
     title: PropTypes.string.isRequired,
     afterTitle: PropTypes.object,
     navigation: PropTypes.array,
+    phaseSel: PropTypes.object,
     username: PropTypes.string,
 };
