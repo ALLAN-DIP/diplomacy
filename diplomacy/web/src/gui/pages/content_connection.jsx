@@ -16,7 +16,7 @@
 // ==============================================================================
 import React from "react";
 import { Connection } from "../../diplomacy/client/connection";
-import { API_PORT, ConnectionForm } from "../forms/connection_form";
+import { ConnectionForm } from "../forms/connection_form";
 import { DipStorage } from "../utils/dipStorage";
 import { Helmet } from "react-helmet";
 import { Navigation } from "../components/navigation";

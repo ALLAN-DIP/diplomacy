@@ -115,10 +115,7 @@ const TABLE_POWER_VIEW = {
     comm_status: ["Comm. Status", 4],
 };
 
-const PRETTY_ROLES = {
-    [STRINGS.OMNISCIENT_TYPE]: "Omnicient",
-    [STRINGS.OBSERVER_TYPE]: "Observer",
-};
+
 
 const MAP_COMPONENTS = {
     ancmed: SvgAncMed,
@@ -769,7 +766,7 @@ export class ContentGame extends React.Component {
         return this.setState({ tabVal: value, lastSwitchPanelTime: now });
     }
 
-    updateReadCommentary(event) {
+    updateReadCommentary() {
         const numAllCommentary = this.state.numAllCommentary;
         return this.setState({
             numReadCommentary: numAllCommentary,
@@ -1404,7 +1401,7 @@ export class ContentGame extends React.Component {
         const currentTabId = this.state.tabPastMessages || tabNames[0];
 
         const convList = tabNames.map((protagonist) => (
-            <div style={{ minWidth: "220px" }}>
+            <div key={protagonist} style={{ minWidth: "220px" }}>
                 <Conversation
                     className={protagonist === currentTabId ? "cs-conversation--active" : null}
                     onClick={() => {
@@ -1504,7 +1501,7 @@ export class ContentGame extends React.Component {
         const controlledPower = this.getCurrentPowerName();
         let count = 0;
 
-        for (const [_, messages] of Object.entries(messageChannels)) {
+        for (const [, messages] of Object.entries(messageChannels)) {
             for (let idx in messages) {
                 const message = messages[idx];
 
@@ -1988,7 +1985,7 @@ export class ContentGame extends React.Component {
     }
 
     renderTabResults(toDisplay, initialEngine) {
-        const { engine, pastPhases, phaseIndex } = this.__get_engine_to_display(initialEngine);
+        const { engine } = this.__get_engine_to_display(initialEngine);
         let orders = {};
         let orderResult = null;
         if (engine.order_history.contains(engine.phase)) orders = engine.order_history.get(engine.phase);
@@ -2069,7 +2066,7 @@ export class ContentGame extends React.Component {
         );
     }
 
-    renderCurrentMessageAdvice(engine, role, isCurrent, isWide) {
+    renderCurrentMessageAdvice(engine, role, isCurrent) {
         const isAdmin =
             engine.role === "omniscient_type" || engine.role === "master_type" || engine.role === "observer_type";
 
@@ -2174,7 +2171,7 @@ export class ContentGame extends React.Component {
                                         <Tab2
                                             label={
                                                 <span
-                                                    sx={{
+                                                    style={{
                                                         marginRight: "8px",
                                                     }}
                                                 >
@@ -2221,9 +2218,10 @@ export class ContentGame extends React.Component {
 
                                     {this.state.hasInitialOrders && (
                                         <MessageList>
-                                            {suggestedMessagesForCurrentPower.map((msg, i) => {
+                                            {suggestedMessagesForCurrentPower.map((msg, msgIndex) => {
                                                 return (
                                                     <div
+                                                        key={msgIndex}
                                                         style={{
                                                             alignItems: "flex-end",
                                                             display: !Object.prototype.hasOwnProperty.call(this.state.annotatedMessages,
@@ -2302,12 +2300,13 @@ export class ContentGame extends React.Component {
                                             <ConversationHeader.Content userName={"Commentary"} />
                                         </ConversationHeader>
                                         <MessageList>
-                                            {suggestedCommentaryForCurrentPower.map((com, i) => {
+                                            {suggestedCommentaryForCurrentPower.map((com, comIndex) => {
                                                 const html = !this.state.hasInitialOrders
                                                     ? `<div class="blurred">${com.commentary}</div>`
                                                     : com.commentary;
                                                 return (
                                                     <div
+                                                        key={comIndex}
                                                         style={{
                                                             alignItems: "flex-end",
                                                             display: !Object.prototype.hasOwnProperty.call(this.state.annotatedMessages,
@@ -2412,9 +2411,10 @@ export class ContentGame extends React.Component {
         let distributionSuggestionComponent = null;
 
         if (latestMoveSuggestionFull) {
-            const fullSuggestionMessages = latestMoveSuggestionFull.moves.map((move, index) => {
+            const fullSuggestionMessages = latestMoveSuggestionFull.moves.map((move, moveIndex) => {
                 return (
                     <div
+                        key={moveIndex}
                         style={{
                             display: "flex",
                             alignItems: "flex-end",
@@ -2538,9 +2538,10 @@ export class ContentGame extends React.Component {
         }
 
         if (latestMoveSuggestionPartial) {
-            const partialSuggestionMessages = latestMoveSuggestionPartial.moves.map((move, index) => {
+            const partialSuggestionMessages = latestMoveSuggestionPartial.moves.map((move, moveIndex) => {
                 return (
                     <div
+                        key={moveIndex}
                         style={{
                             display: "flex",
                             alignItems: "flex-end",
@@ -2678,6 +2679,7 @@ export class ContentGame extends React.Component {
                 return (
                     /** reused the component structure used by the full suggestion/partial suggestion components*/
                     <div
+                        key={move}
                         style={{
                             display: "flex",
                             alignItems: "flex-end",
@@ -3145,7 +3147,7 @@ export class ContentGame extends React.Component {
                             <>
                                 <p>
                                     Hold <kbd>Shift</kbd> and click on a province to display recommended/predicted
-                                    orders for the province's unit.
+                                    orders for the province&apos;s unit.
                                 </p>
                                 <p>Click the province a second time to place an order.</p>
                                 <p>
@@ -3214,7 +3216,7 @@ export class ContentGame extends React.Component {
 
         const moveAdvicePanel = this.renderMoveAdviceTab(true, engine, currentPowerName);
 
-        const { engineCur, pastPhases, phaseIndex } = this.__get_engine_to_display(engine);
+        const { pastPhases, phaseIndex } = this.__get_engine_to_display(engine);
         let phasePanel;
         if (pastPhases[phaseIndex] === engine.phase) {
             if (hasTabCurrentPhase) {
@@ -3239,12 +3241,7 @@ export class ContentGame extends React.Component {
 
         const isAdmin = engine.role === "omniscient_type" || engine.role === "master_type";
 
-        const receivedSuggestions = advice.filter(
-            (msg) =>
-                msg.type &&
-                (msg.type === STRINGS.SUGGESTED_COMMENTARY || msg.type === STRINGS.SUGGESTED_MESSAGE) &&
-                (isAdmin || !Object.prototype.hasOwnProperty.call(this.state.annotatedMessages, msg.time_sent)),
-        );
+
 
         const showMessageAdviceTab =
             this.hasSuggestionType(suggestionType, UTILS.SuggestionType.MESSAGE) ||

@@ -25,6 +25,7 @@ import { Diplog } from "../../diplomacy/utils/diplog";
 import { DipStorage } from "../utils/dipStorage";
 import { PageContext } from "../components/page_context";
 import { loadGameFromDisk } from "../utils/load_game_from_disk";
+import PropTypes from "prop-types";
 
 // Lazy load components for code splitting
 
@@ -416,5 +417,11 @@ class PageBase extends React.Component {
         );
     }
 }
+
+PageBase.propTypes = {
+    history: PropTypes.shape({
+        push: PropTypes.func.isRequired,
+    }).isRequired,
+};
 
 export const Page = withRouter(PageBase);

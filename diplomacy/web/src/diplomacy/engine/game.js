@@ -297,7 +297,7 @@ export class Game {
         this.commentary_durations[powerName].push(durations);
     }
 
-    addDeceiving(_controlledPower, _targetPower, _deceiving) {
+    addDeceiving() {
         //console.log('addDeceiving', controlledPower, targetPower, deceiving)
     }
 
@@ -344,7 +344,7 @@ export class Game {
         this.logs.put(message.time_sent, message);
     }
 
-    addOrderSuggestions(power, suggestions) {
+    addOrderSuggestions() {
         // Order suggestions can be processed here if needed
         // Removed console.log for production optimization
     }
@@ -593,7 +593,7 @@ export class Game {
         return orders;
     }
 
-    getLogsForPowerByPhase(role, _all) {
+    getLogsForPowerByPhase(role) {
         let logList = [];
         role = role || this.role;
         let powerLogs = [];
