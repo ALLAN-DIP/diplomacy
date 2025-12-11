@@ -68,8 +68,8 @@ export class ConnectionForm extends React.Component {
             currentHostname === "127.0.0.1" ||
             currentHostname === "0.0.0.0"
         ) {
-            defaultHostname = "diplomacy-api";
-            defaultPort = 443;
+            defaultHostname = "localhost";
+            defaultPort = 8433;
         }
 
         return {

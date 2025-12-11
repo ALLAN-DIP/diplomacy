@@ -119,9 +119,12 @@ class PageBase extends React.Component {
 
         if (name === "games") {
             this.props.history.push("/games");
+            DipStorage.setCurrentPath("/games");
         } else if (name && name.startsWith("game: ")) {
             const gameId = name.substring(6);
-            this.props.history.push(`/game/${gameId}`);
+            const gamePath = `/game/${gameId}`;
+            this.props.history.push(gamePath);
+            DipStorage.setCurrentPath(gamePath);
         }
 
         return this.setState(newState);
@@ -162,6 +165,7 @@ class PageBase extends React.Component {
         this.connection = null;
         this.channel = null;
         this.availableMaps = null;
+        DipStorage.clearCurrentPath();
         const message = PageBase.wrapMessage(error ? `${error.toString()}` : `Disconnected from channel and server.`);
         Diplog.success(message);
         return this.setState({
@@ -406,7 +410,7 @@ class PageBase extends React.Component {
                             <Route path="/game/:gameId" render={(props) => {
                                 if (!this.channel) return <Redirect to="/" />;
                                 const game = this.getGame(props.match.params.gameId);
-                                return game ? <ContentGame data={game} /> : <Redirect to="/games" />;
+                                return game && game.client ? <ContentGame data={game} /> : <Redirect to="/games" />;
                             }} />
                             <Redirect to="/" />
                         </Switch>

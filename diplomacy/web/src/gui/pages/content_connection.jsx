@@ -73,7 +73,25 @@ export class ContentConnection extends React.Component {
                             page.success("Found " + gamesInfo.length + " user games.");
                             page.updateMyGames(gamesInfo);
                         }
-                        page.loadGames({ success: `Account ${data.username} connected.` });
+
+                        // Check if there's a saved path to redirect to after login
+                        const savedPath = DipStorage.getCurrentPath();
+                        if (savedPath && savedPath !== "/") {
+                            // Clear the saved path to prevent stale redirects
+                            DipStorage.clearCurrentPath();
+                            // Update state name to match the saved path
+                            if (savedPath.startsWith("/game/")) {
+                                const gameId = savedPath.substring(6);
+                                page.setState({ name: `game: ${gameId}` });
+                            } else if (savedPath === "/games") {
+                                page.setState({ name: "games" });
+                            }
+                            // Redirect to the saved path
+                            page.props.history.push(savedPath);
+                            page.success(`Account ${data.username} connected.`);
+                        } else {
+                            page.loadGames({ success: `Account ${data.username} connected.` });
+                        }
                     })
                     .catch((error) => {
                         page.error("Error while authenticating: " + error + " Please re-try.");

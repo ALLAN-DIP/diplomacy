@@ -145,4 +145,21 @@ export class DipStorage {
         }
         DipStorage.save();
     }
+
+    static setCurrentPath(path) {
+        DipStorage.load();
+        STORAGE.global.currentPath = path;
+        DipStorage.save();
+    }
+
+    static getCurrentPath() {
+        DipStorage.load();
+        return STORAGE.global.currentPath || null;
+    }
+
+    static clearCurrentPath() {
+        DipStorage.load();
+        STORAGE.global.currentPath = null;
+        DipStorage.save();
+    }
 }
