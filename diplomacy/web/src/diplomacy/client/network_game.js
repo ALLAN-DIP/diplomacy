@@ -49,8 +49,12 @@ export class NetworkGame {
 
     notify(notification) {
         if (Object.prototype.hasOwnProperty.call(this.notificationCallbacks, notification.name)) {
-            for (let callback of this.notificationCallbacks[notification.name])
-                setTimeout(() => callback(this, notification), 0);
+            const callbacks = this.notificationCallbacks[notification.name];
+            const game = this;
+            setTimeout(() => {
+                for (let callback of callbacks)
+                    callback(game, notification);
+            }, 0);
         }
     }
 
