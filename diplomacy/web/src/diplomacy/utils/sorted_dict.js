@@ -22,29 +22,25 @@ function defaultComparableKey(key) {
 
 export class SortedDict {
     constructor(dct, keyFn) {
-        this.__real_keys = [];
         this.__keys = [];
-        this.__values = [];
+        this.__data = []; // [{realKey, value}] — co-located to reduce array mutations per op
         this.__key_fn = keyFn || defaultComparableKey;
         if (dct) for (let key of Object.keys(dct)) this.put(key, dct[key]);
     }
 
     clear() {
-        this.__real_keys = [];
         this.__keys = [];
-        this.__values = [];
+        this.__data = [];
     }
 
     put(key, value) {
         const realKey = key;
         key = this.__key_fn(key);
         const position = UTILS.binarySearch.insert(this.__keys, key);
-        if (position === this.__values.length) {
-            this.__values.push(value);
-            this.__real_keys.push(realKey);
-        } else if (this.__values[position] !== value) {
-            this.__values.splice(position, 0, value);
-            this.__real_keys.splice(position, 0, realKey);
+        if (position === this.__data.length) {
+            this.__data.push({ realKey, value });
+        } else if (this.__data[position].value !== value) {
+            this.__data.splice(position, 0, { realKey, value });
         }
         return position;
     }
@@ -54,8 +50,7 @@ export class SortedDict {
         const position = UTILS.binarySearch.find(this.__keys, key);
         if (position < 0) return null;
         this.__keys.splice(position, 1);
-        this.__real_keys.splice(position, 1);
-        return this.__values.splice(position, 1)[0];
+        return this.__data.splice(position, 1)[0].value;
     }
 
     contains(key) {
@@ -65,7 +60,7 @@ export class SortedDict {
     get(key) {
         const position = UTILS.binarySearch.find(this.__keys, this.__key_fn(key));
         if (position < 0) return null;
-        return this.__values[position];
+        return this.__data[position].value;
     }
 
     indexOf(key) {
@@ -73,11 +68,11 @@ export class SortedDict {
     }
 
     keyFromIndex(index) {
-        return this.__real_keys[index];
+        return this.__data[index].realKey;
     }
 
     valueFromIndex(index) {
-        return this.__values[index];
+        return this.__data[index].value;
     }
 
     size() {
@@ -86,27 +81,26 @@ export class SortedDict {
 
     lastKey() {
         if (!this.__keys.length) throw new Error("Sorted dict is empty.");
-        return this.__real_keys[this.__keys.length - 1];
+        return this.__data[this.__data.length - 1].realKey;
     }
 
     lastValue() {
         if (!this.__keys.length) throw new Error("Sorted dict is empty.");
-        return this.__values[this.__values.length - 1];
+        return this.__data[this.__data.length - 1].value;
     }
 
     keys() {
-        return this.__real_keys.slice();
+        return this.__data.map((d) => d.realKey);
     }
 
     values() {
-        return this.__values.slice();
+        return this.__data.map((d) => d.value);
     }
 
     toDict() {
-        const len = this.__real_keys.length;
         const dict = {};
-        for (let i = 0; i < len; ++i) {
-            dict[this.__real_keys[i]] = this.__values[i];
+        for (let { realKey, value } of this.__data) {
+            dict[realKey] = value;
         }
         return dict;
     }
