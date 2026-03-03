@@ -258,15 +258,8 @@ class Connection:
 
         if request_id:
             if request_id not in self.requests_waiting_responses:
-                # Response received before the request was marked as 'waiting responses'
-                # Waiting 5 secs to make sure this is not a race condition before aborting
-                for _ in range(10):
-                    yield gen.sleep(0.5)
-                    if request_id in self.requests_waiting_responses:
-                        break
-                else:
-                    LOGGER.error("Unknown request.")
-                    return
+                LOGGER.error("Unknown request.")
+                return
             request_context = self.requests_waiting_responses.pop(
                 request_id
             )  # type: RequestFutureContext
@@ -360,6 +353,8 @@ class Connection:
             """
             exception = write_future.exception()
             if exception is not None:
+                # Clean up the early registration made in on_connected.
+                self.requests_waiting_responses.pop(request_context.request_id, None)
                 future.set_exception(exception)
             else:
                 future.set_result(write_future.result())
@@ -383,6 +378,10 @@ class Connection:
                     # Transfer exception to returned future.
                     future.set_exception(exc)
                 else:
+                    # Register before the write future completes so that any response
+                    # arriving before on_message_written fires can be matched immediately,
+                    # eliminating the race condition that previously required polling.
+                    self.requests_waiting_responses[request_context.request_id] = request_context
                     write_future.add_done_callback(on_message_written)
 
         # 1)    Synchronize requests just wait for connection.
@@ -585,12 +584,11 @@ class _MessageWrittenCallback:
         self.request_context = request_context
 
     def callback(self, msg_future):
-        """Called when request is effectively written on socket, and move the request
-        from `request to send` to `request assumed sent`.
+        """Called when the write_request future resolves. Handles write errors only;
+        registration into requests_waiting_responses is done earlier in write_request
+        to eliminate the race condition where a fast server response arrives before
+        this callback fires.
         """
-        # Remove request context from `requests to send` in any case.
-        connection = self.request_context.connection  # type: Connection
-        request_id = self.request_context.request_id
         exception = msg_future.exception()
         if exception is not None:
             if isinstance(exception, (WebSocketClosedError, StreamClosedError)):
@@ -604,5 +602,3 @@ class _MessageWrittenCallback:
             else:
                 LOGGER.error("Fatal error occurred while writing a request.")
                 self.request_context.future.set_exception(exception)
-        else:
-            connection.requests_waiting_responses[request_id] = self.request_context
