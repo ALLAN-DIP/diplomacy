@@ -42,6 +42,8 @@ export function comparablePhase(shortPhaseName) {
     return phaseYear * 100 + seasonOrder[phaseSeason] * 10 + stepOrder[phaseStep];
 }
 
+const _orderTreeCache = new WeakMap();
+
 export class Game {
     constructor(gameData) {
         ////// Instead of using: `Object.assign(this, gameState)`,
@@ -195,7 +197,10 @@ export class Game {
         return this.countControlledPowers();
     }
 
-    static createOrdersTree(possibleOrders, tree, locToTypes) {
+    static createOrdersTree(possibleOrders) {
+        if (_orderTreeCache.has(possibleOrders)) return _orderTreeCache.get(possibleOrders);
+        const tree = {};
+        const locToTypes = {};
         for (let orders of Object.values(possibleOrders)) {
             for (let order of orders) {
                 // We ignore WAIVE order.
@@ -257,6 +262,9 @@ export class Game {
                 }
             }
         }
+        const result = { tree, locToTypes };
+        _orderTreeCache.set(possibleOrders, result);
+        return result;
     }
 
     extendPhaseHistory(phaseData) {
@@ -673,9 +681,9 @@ export class Game {
     setPossibleOrders(possibleOrders) {
         this.possibleOrders = possibleOrders.possible_orders;
         this.orderableLocations = possibleOrders.orderable_locations;
-        this.ordersTree = {};
-        this.orderableLocToTypes = {};
-        Game.createOrdersTree(this.possibleOrders, this.ordersTree, this.orderableLocToTypes);
+        const { tree, locToTypes } = Game.createOrdersTree(this.possibleOrders);
+        this.ordersTree = tree;
+        this.orderableLocToTypes = locToTypes;
     }
 
     getOrderTypeToLocs(powerName) {
