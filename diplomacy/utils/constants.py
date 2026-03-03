@@ -53,6 +53,11 @@ PRIVATE_BOT_PASSWORD = (
 # Time to wait to let a bot set orders for a dummy power.
 PRIVATE_BOT_TIMEOUT_SECONDS = 60
 
+# Number of concurrent notification-sender coroutines running on the IO loop.
+# Each worker independently dequeues and writes one notification at a time; while
+# one is suspended on a slow write_message, the others can service other sockets.
+N_NOTIFICATION_WORKERS = 4
+
 # Default rules used to construct a Game object when no rules are provided.
 DEFAULT_GAME_RULES = ("SOLITAIRE", "NO_PRESS", "IGNORE_ERRORS", "POWER_CHOICE")
 

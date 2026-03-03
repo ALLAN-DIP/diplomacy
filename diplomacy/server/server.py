@@ -517,7 +517,11 @@ class Server:
         Must be called once per server before starting IO loop.
         """
         io_loop.add_callback(self._task_save_database)
-        io_loop.add_callback(self._task_send_notifications)
+        # Spin up N_NOTIFICATION_WORKERS independent consumer coroutines so that
+        # while one is suspended waiting for a slow write_message to complete,
+        # the others can service notifications for other sockets concurrently.
+        for _ in range(constants.N_NOTIFICATION_WORKERS):
+            io_loop.add_callback(self._task_send_notifications)
         # These both coroutines are used to manage games.
         io_loop.add_callback(self.games_scheduler.process_tasks)
         io_loop.add_callback(self.games_scheduler.schedule)
