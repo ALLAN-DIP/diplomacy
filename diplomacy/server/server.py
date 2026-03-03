@@ -55,6 +55,7 @@ These are public configurable server attributes. They are saved on disk at each 
   when they are canceled (default False)
 
 """
+import asyncio
 import atexit
 import base64
 import logging
@@ -487,6 +488,23 @@ class Server:
         # Game must be stopped if not active.
         return not server_game.is_game_active
 
+    def _flush_to_disk(self, server_data, games):
+        """Synchronous helper: write a pre-snapshotted set of pending writes to disk.
+        Designed to be called in a thread pool (via run_in_executor) so that file
+        I/O does not stall the event loop.
+
+        :param server_data: server data dict to persist, or None if no update pending.
+        :param games: dict mapping game_id to game dict to persist.
+        """
+        if server_data is not None:
+            save_json_on_disk(self._get_server_data_filename(), server_data)
+            LOGGER.info("Saved server.json.")
+        ensure_path(self.games_path)
+        for game_id, game_dict in games.items():
+            game_path = os.path.join(self.games_path, "%s.json" % game_id)
+            save_json_on_disk(game_path, game_dict)
+            LOGGER.info("Game data saved: %s", game_id)
+
     @gen.coroutine
     def _task_save_database(self):
         """IO loop callable: save database and loaded games periodically.
@@ -495,7 +513,17 @@ class Server:
         LOGGER.info("Waiting for save events.")
         while True:
             yield gen.sleep(self.backup_delay_seconds)
-            self.backup_now()
+            # Snapshot and clear the pending state on the event loop thread to
+            # avoid races, then flush to disk in a thread pool so blocking file
+            # I/O does not stall the event loop between iterations.
+            server_data = self.backup_server
+            games = dict(self.backup_games)
+            self.backup_server = None
+            self.backup_games.clear()
+            if server_data is not None or games:
+                yield asyncio.get_event_loop().run_in_executor(
+                    None, self._flush_to_disk, server_data, games
+                )
 
     @gen.coroutine
     def _task_send_notifications(self):
