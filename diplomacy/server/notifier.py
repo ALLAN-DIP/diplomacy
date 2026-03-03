@@ -93,7 +93,7 @@ class Notifier:
 
     @gen.coroutine
     def _notify_game(self, server_game, notification_class, **kwargs):
-        """Send a game notification.
+        """Send a game notification to all reception addresses in parallel.
         Game token, game ID and game role will be automatically provided to notification object.
 
         :param server_game: game to notify
@@ -101,16 +101,18 @@ class Notifier:
         :param kwargs: (optional) other notification parameters
         :type server_game: diplomacy.server.server_game.ServerGame
         """
-        for game_role, token in server_game.get_reception_addresses():
-            yield self._notify(
+        yield gen.multi([
+            self._notify(
                 notification_class(
                     token=token, game_id=server_game.game_id, game_role=game_role, **kwargs
                 )
             )
+            for game_role, token in server_game.get_reception_addresses()
+        ])
 
     @gen.coroutine
     def _notify_power(self, game_id, power, notification_class, **kwargs):
-        """Send a notification to all tokens of a power.
+        """Send a notification to all tokens of a power in parallel.
         Automatically add token, game ID and game role to notification parameters.
 
         :param game_id: power game ID.
@@ -119,10 +121,12 @@ class Notifier:
         :param kwargs: (optional) other notification parameters.
         :type power: diplomacy.Power
         """
-        for token in power.tokens:
-            yield self._notify(
+        yield gen.multi([
+            self._notify(
                 notification_class(token=token, game_id=game_id, game_role=power.name, **kwargs)
             )
+            for token in power.tokens
+        ])
 
     @gen.coroutine
     def notify_game_processed(self, server_game, previous_phase_data, current_phase_data):
@@ -135,57 +139,55 @@ class Notifier:
         :type previous_phase_data: diplomacy.utils.game_phase_data.GamePhaseData
         :type current_phase_data: diplomacy.utils.game_phase_data.GamePhaseData
         """
-        # Send game updates to observers and omniscient observers..
+        coroutines = []
+
+        # Pre-compute filtered phase data once per role type (all observers share the same view).
+        observer_prev = server_game.filter_phase_data(previous_phase_data, strings.OBSERVER_TYPE, False)
+        observer_curr = server_game.filter_phase_data(current_phase_data, strings.OBSERVER_TYPE, True)
         for game_role, token in server_game.get_observer_addresses():
-            yield self._notify(
+            coroutines.append(self._notify(
                 notifications.GameProcessed(
                     token=token,
                     game_id=server_game.game_id,
                     game_role=game_role,
-                    previous_phase_data=server_game.filter_phase_data(
-                        previous_phase_data, strings.OBSERVER_TYPE, False
-                    ),
-                    current_phase_data=server_game.filter_phase_data(
-                        current_phase_data, strings.OBSERVER_TYPE, True
-                    ),
+                    previous_phase_data=observer_prev,
+                    current_phase_data=observer_curr,
                 )
-            )
+            ))
+
+        omniscient_prev = server_game.filter_phase_data(previous_phase_data, strings.OMNISCIENT_TYPE, False)
+        omniscient_curr = server_game.filter_phase_data(current_phase_data, strings.OMNISCIENT_TYPE, True)
         for game_role, token in server_game.get_omniscient_addresses():
-            yield self._notify(
+            coroutines.append(self._notify(
                 notifications.GameProcessed(
                     token=token,
                     game_id=server_game.game_id,
                     game_role=game_role,
-                    previous_phase_data=server_game.filter_phase_data(
-                        previous_phase_data, strings.OMNISCIENT_TYPE, False
-                    ),
-                    current_phase_data=server_game.filter_phase_data(
-                        current_phase_data, strings.OMNISCIENT_TYPE, True
-                    ),
+                    previous_phase_data=omniscient_prev,
+                    current_phase_data=omniscient_curr,
                 )
-            )
-        # Send game updates to powers.
+            ))
+
+        # Power game-processed notifications and wait flags are independent across powers.
         for power in server_game.powers.values():
-            yield self._notify_power(
+            coroutines.append(self._notify_power(
                 server_game.game_id,
                 power,
                 notifications.GameProcessed,
-                previous_phase_data=server_game.filter_phase_data(
-                    previous_phase_data, power.name, False
-                ),
-                current_phase_data=server_game.filter_phase_data(
-                    current_phase_data, power.name, True
-                ),
-            )
-        # Also send wait flag for each power.
-        for power in server_game.powers.values():
-            yield self.notify_power_wait_flag(server_game, power, power.wait)
+                previous_phase_data=server_game.filter_phase_data(previous_phase_data, power.name, False),
+                current_phase_data=server_game.filter_phase_data(current_phase_data, power.name, True),
+            ))
+            coroutines.append(self.notify_power_wait_flag(server_game, power, power.wait))
+
+        yield gen.multi(coroutines)
 
     @gen.coroutine
     def notify_account_deleted(self, username):
         """Notify all tokens of given username about account deleted."""
-        for token_to_notify in self.server.users.get_tokens(username):
-            yield self._notify(notifications.AccountDeleted(token=token_to_notify))
+        yield gen.multi([
+            self._notify(notifications.AccountDeleted(token=token_to_notify))
+            for token_to_notify in self.server.users.get_tokens(username)
+        ])
 
     @gen.coroutine
     def notify_game_deleted(self, server_game):
@@ -231,35 +233,39 @@ class Notifier:
         """
         phase_data = server_game.get_phase_data()
         state_type = strings.STATE
-        # Notify omniscient tokens.
-        yield self.notify_game_addresses(
-            server_game.game_id,
-            server_game.get_omniscient_addresses(),
-            notifications.GamePhaseUpdate,
-            phase_data=server_game.filter_phase_data(
-                phase_data, strings.OMNISCIENT_TYPE, is_current=True
-            ),
-            phase_data_type=state_type,
-        )
-        # Notify observer tokens.
-        yield self.notify_game_addresses(
-            server_game.game_id,
-            server_game.get_observer_addresses(),
-            notifications.GamePhaseUpdate,
-            phase_data=server_game.filter_phase_data(
-                phase_data, strings.OBSERVER_TYPE, is_current=True
-            ),
-            phase_data_type=state_type,
-        )
-        # Notify power addresses.
-        for power_name in server_game.get_map_power_names():
-            yield self.notify_game_addresses(
+
+        # All recipient groups (omniscient, observer, per-power) are independent.
+        coroutines = [
+            self.notify_game_addresses(
                 server_game.game_id,
-                server_game.get_power_addresses(power_name),
+                server_game.get_omniscient_addresses(),
                 notifications.GamePhaseUpdate,
-                phase_data=server_game.filter_phase_data(phase_data, power_name, is_current=True),
+                phase_data=server_game.filter_phase_data(
+                    phase_data, strings.OMNISCIENT_TYPE, is_current=True
+                ),
                 phase_data_type=state_type,
+            ),
+            self.notify_game_addresses(
+                server_game.game_id,
+                server_game.get_observer_addresses(),
+                notifications.GamePhaseUpdate,
+                phase_data=server_game.filter_phase_data(
+                    phase_data, strings.OBSERVER_TYPE, is_current=True
+                ),
+                phase_data_type=state_type,
+            ),
+        ]
+        for power_name in server_game.get_map_power_names():
+            coroutines.append(
+                self.notify_game_addresses(
+                    server_game.game_id,
+                    server_game.get_power_addresses(power_name),
+                    notifications.GamePhaseUpdate,
+                    phase_data=server_game.filter_phase_data(phase_data, power_name, is_current=True),
+                    phase_data_type=state_type,
+                )
             )
+        yield gen.multi(coroutines)
 
     @gen.coroutine
     def notify_game_vote_updated(self, server_game):
@@ -269,37 +275,47 @@ class Notifier:
         :param server_game: game to notify
         :type server_game: diplomacy.server.server_game.ServerGame
         """
+        coroutines = []
+
+        count_voted = server_game.count_voted()
+        count_expected = server_game.count_controlled_powers()
+
         # Notify observers about vote count changed.
         for game_role, token in server_game.get_observer_addresses():
-            yield self._notify(
+            coroutines.append(self._notify(
                 notifications.VoteCountUpdated(
                     token=token,
                     game_id=server_game.game_id,
                     game_role=game_role,
-                    count_voted=server_game.count_voted(),
-                    count_expected=server_game.count_controlled_powers(),
+                    count_voted=count_voted,
+                    count_expected=count_expected,
                 )
-            )
+            ))
+
         # Notify omniscient observers about power vote changed.
+        vote = {power.name: power.vote for power in server_game.powers.values()}
         for game_role, token in server_game.get_omniscient_addresses():
-            yield self._notify(
+            coroutines.append(self._notify(
                 notifications.VoteUpdated(
                     token=token,
                     game_id=server_game.game_id,
                     game_role=game_role,
-                    vote={power.name: power.vote for power in server_game.powers.values()},
+                    vote=vote,
                 )
-            )
-        # Notify each power about its own changes.
+            ))
+
+        # Notify each power about its own vote changes.
         for power in server_game.powers.values():
-            yield self._notify_power(
+            coroutines.append(self._notify_power(
                 server_game.game_id,
                 power,
                 notifications.PowerVoteUpdated,
-                count_voted=server_game.count_voted(),
-                count_expected=server_game.count_controlled_powers(),
+                count_voted=count_voted,
+                count_expected=count_expected,
                 vote=power.vote,
-            )
+            ))
+
+        yield gen.multi(coroutines)
 
     @gen.coroutine
     def notify_power_orders_update(self, server_game, power, orders):
@@ -311,34 +327,39 @@ class Notifier:
         :type server_game: diplomacy.server.server_game.ServerGame
         :type power: diplomacy.Power
         """
-        yield self._notify_power(
-            server_game.game_id,
-            power,
-            notifications.PowerOrdersUpdate,
-            power_name=power.name,
-            orders=orders,
-        )
-        addresses = list(server_game.get_omniscient_addresses()) + list(
-            server_game.get_observer_addresses()
-        )
-        yield self.notify_game_addresses(
-            server_game.game_id,
-            addresses,
-            notifications.PowerOrdersUpdate,
-            power_name=power.name,
-            orders=orders,
-        )
         other_powers_addresses = []
         for other_power_name in server_game.powers:
             if other_power_name != power.name:
                 other_powers_addresses.extend(server_game.get_power_addresses(other_power_name))
-        yield self.notify_game_addresses(
-            server_game.game_id,
-            other_powers_addresses,
-            notifications.PowerOrdersFlag,
-            power_name=power.name,
-            order_is_set=power.order_is_set,
+
+        addresses = list(server_game.get_omniscient_addresses()) + list(
+            server_game.get_observer_addresses()
         )
+
+        # All three recipient groups are independent; notify them in parallel.
+        yield gen.multi([
+            self._notify_power(
+                server_game.game_id,
+                power,
+                notifications.PowerOrdersUpdate,
+                power_name=power.name,
+                orders=orders,
+            ),
+            self.notify_game_addresses(
+                server_game.game_id,
+                addresses,
+                notifications.PowerOrdersUpdate,
+                power_name=power.name,
+                orders=orders,
+            ),
+            self.notify_game_addresses(
+                server_game.game_id,
+                other_powers_addresses,
+                notifications.PowerOrdersFlag,
+                power_name=power.name,
+                order_is_set=power.order_is_set,
+            ),
+        ])
 
     @gen.coroutine
     def notify_power_wait_flag(self, server_game, power, wait_flag):
@@ -410,17 +431,17 @@ class Notifier:
         :type server_game: diplomacy.server.server_game.ServerGame
         """
         power_from = server_game.get_power(log.sender)
-        # send notification
-        yield self._notify_power(
-            server_game.game_id, power_from, notifications.LogDataReceived, log=log
-        )
-
-        for game_role, token in server_game.get_omniscient_addresses():
-            yield self._notify(
-                notifications.LogDataReceived(
-                    token=token, game_id=server_game.game_id, game_role=game_role, log=log
+        yield gen.multi(
+            [self._notify_power(server_game.game_id, power_from, notifications.LogDataReceived, log=log)]
+            + [
+                self._notify(
+                    notifications.LogDataReceived(
+                        token=token, game_id=server_game.game_id, game_role=game_role, log=log
+                    )
                 )
-            )
+                for game_role, token in server_game.get_omniscient_addresses()
+            ]
+        )
 
     @gen.coroutine
     def notify_game_message(self, server_game, game_message):
@@ -432,46 +453,54 @@ class Notifier:
         :type server_game: diplomacy.server.server_game.ServerGame
         """
         if game_message.is_global():
-            yield self._notify_game(
-                server_game, notifications.GameMessageReceived, message=game_message
-            )
-            for game_role, token in server_game.get_omniscient_addresses():
-                yield self._notify(
-                    notifications.GameMessageReceived(
-                        token=token,
-                        game_id=server_game.game_id,
-                        game_role=game_role,
-                        message=game_message,
+            yield gen.multi(
+                [self._notify_game(server_game, notifications.GameMessageReceived, message=game_message)]
+                + [
+                    self._notify(
+                        notifications.GameMessageReceived(
+                            token=token,
+                            game_id=server_game.game_id,
+                            game_role=game_role,
+                            message=game_message,
+                        )
                     )
-                )
+                    for game_role, token in server_game.get_omniscient_addresses()
+                ]
+            )
         else:
             power_from = server_game.get_power(game_message.sender)
             power_to = server_game.get_power(game_message.recipient)
-            yield self._notify_power(
-                server_game.game_id,
-                power_from,
-                notifications.GameMessageReceived,
-                message=game_message,
-            )
-            yield self._notify_power(
-                server_game.game_id,
-                power_to,
-                notifications.GameMessageReceived,
-                message=game_message,
-            )
-            for game_role, token in server_game.get_omniscient_addresses():
-                yield self._notify(
-                    notifications.GameMessageReceived(
-                        token=token,
-                        game_id=server_game.game_id,
-                        game_role=game_role,
+            yield gen.multi(
+                [
+                    self._notify_power(
+                        server_game.game_id,
+                        power_from,
+                        notifications.GameMessageReceived,
                         message=game_message,
+                    ),
+                    self._notify_power(
+                        server_game.game_id,
+                        power_to,
+                        notifications.GameMessageReceived,
+                        message=game_message,
+                    ),
+                ]
+                + [
+                    self._notify(
+                        notifications.GameMessageReceived(
+                            token=token,
+                            game_id=server_game.game_id,
+                            game_role=game_role,
+                            message=game_message,
+                        )
                     )
-                )
+                    for game_role, token in server_game.get_omniscient_addresses()
+                ]
+            )
 
     @gen.coroutine
     def notify_game_addresses(self, game_id, addresses, notification_class, **kwargs):
-        """Notify addresses of a game with a notification.
+        """Notify addresses of a game with a notification in parallel.
         Game ID is automatically provided to notification.
         Token and game role are automatically provided to notifications from given addresses.
 
@@ -480,7 +509,9 @@ class Notifier:
         :param notification_class: class of notification to send
         :param kwargs: (optional) other parameters for notification
         """
-        for game_role, token in addresses:
-            yield self._notify(
+        yield gen.multi([
+            self._notify(
                 notification_class(token=token, game_id=game_id, game_role=game_role, **kwargs)
             )
+            for game_role, token in addresses
+        ])
