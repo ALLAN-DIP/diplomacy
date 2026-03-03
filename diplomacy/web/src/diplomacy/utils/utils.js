@@ -103,8 +103,8 @@ export const UTILS = {
         },
 
         extendArrayWithUniqueValues(obj, key, value) {
-            if (!Object.prototype.hasOwnProperty.call(obj, key)) obj[key] = [value];
-            else if (!obj[key].includes(value)) obj[key].push(value);
+            if (!Object.prototype.hasOwnProperty.call(obj, key)) obj[key] = new Set([value]);
+            else obj[key].add(value);
         },
 
         extendTreeValue: function (obj, path, value, allowMultipleValues) {
