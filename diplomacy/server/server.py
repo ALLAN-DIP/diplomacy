@@ -918,9 +918,10 @@ class Server:
         """
         self.users.disconnect_token(token)
         for server_game in self.games.values():  # type: ServerGame
-            server_game.remove_token(token)
-            self.stop_game_if_needed(server_game)
-            self.save_game(server_game)
+            if server_game.has_token(token):
+                server_game.remove_token(token)
+                self.stop_game_if_needed(server_game)
+                self.save_game(server_game)
         self.save_data()
 
     def assert_token(self, token, connection_handler):
