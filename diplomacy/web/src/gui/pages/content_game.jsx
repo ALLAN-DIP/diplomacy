@@ -34,6 +34,7 @@ import { Navigation } from "../components/navigation";
 import { PageContext } from "../components/page_context";
 import PropTypes from "prop-types";
 import { Help } from "../components/help";
+import { MessageInputArea } from "../components/MessageInputArea";
 import { Tab } from "../components/tab";
 import { Button } from "../components/button";
 import { saveGameToDisk } from "../utils/saveGameToDisk";
@@ -169,6 +170,7 @@ export class ContentGame extends React.Component {
             }
         }
         this.schedule_timeout_id = null;
+        this.messageInputRef = React.createRef();
 
         this.state = {
             tabMain: null,
@@ -189,7 +191,6 @@ export class ContentGame extends React.Component {
             orderBuildingPath: [],
             showAbbreviations: true,
             mapSize: 6,
-            message: "",
             logData: "",
             hasInitialOrders: this.props.data.getInitialOrders(this.props.data.role),
             annotatedMessages: this.props.data.getAnnotatedMessages(),
@@ -692,7 +693,7 @@ export class ContentGame extends React.Component {
     }
 
     setMessageInputValue(val) {
-        return this.setState({ message: val });
+        if (this.messageInputRef.current) this.messageInputRef.current.setValue(val);
     }
 
     setlogDataInputValue(val) {
@@ -1806,64 +1807,20 @@ export class ContentGame extends React.Component {
                                 </ChatContainer>
                             </MainContainer>
                             {engine.isPlayerGame() && (
-                                <Row>
-                                    <textarea
-                                        style={{ resize: "both" }}
-                                        cols={30}
-                                        onChange={(val) => this.setMessageInputValue(val.target.value)}
-                                        value={this.state.message}
-                                        disabled={
-                                            phaseType === "M" &&
-                                            (!this.state.hasInitialOrders ||
-                                                (this.__get_orders(engine)[currentPowerName] &&
-                                                    Object.keys(this.__get_orders(engine)[currentPowerName]).length <
-                                                    engine.orderableLocations[currentPowerName].length))
-                                        }
-                                        placeholder={
-                                            phaseType === "M" &&
-                                                (!this.state.hasInitialOrders ||
-                                                    (this.__get_orders(engine)[currentPowerName] &&
-                                                        Object.keys(this.__get_orders(engine)[currentPowerName]).length <
-                                                        engine.orderableLocations[currentPowerName].length))
-                                                ? "You need to set orders for all units before sending messages."
-                                                : ""
-                                        }
-                                    />
-                                    <Button
-                                        key={"t"}
-                                        pickEvent={true}
-                                        title={"Truth"}
-                                        color={"success"}
-                                        onClick={() => {
-                                            this.sendMessage(
-                                                engine.client,
-                                                currentTabId,
-                                                this.state.message,
-                                                "Truth",
-                                                null,
-                                            );
-                                            this.setMessageInputValue("");
-                                        }}
-                                        disabled={!this.state.hasInitialOrders}
-                                    ></Button>
-                                    <Button
-                                        key={"f"}
-                                        pickEvent={true}
-                                        title={"Lie"}
-                                        color={"danger"}
-                                        onClick={() => {
-                                            this.sendMessage(
-                                                engine.client,
-                                                currentTabId,
-                                                this.state.message,
-                                                "Lie",
-                                                null,
-                                            );
-                                            this.setMessageInputValue("");
-                                        }}
-                                        disabled={!this.state.hasInitialOrders}
-                                    ></Button>
-                                </Row>
+                                <MessageInputArea
+                                    ref={this.messageInputRef}
+                                    sendMessage={this.sendMessage}
+                                    networkGame={engine.client}
+                                    currentTabId={currentTabId}
+                                    disabled={
+                                        phaseType === "M" &&
+                                        (!this.state.hasInitialOrders ||
+                                            (this.__get_orders(engine)[currentPowerName] &&
+                                                Object.keys(this.__get_orders(engine)[currentPowerName]).length <
+                                                engine.orderableLocations[currentPowerName].length))
+                                    }
+                                    hasInitialOrders={this.state.hasInitialOrders}
+                                />
                             )}
                         </Box>
                     </CardContent>
