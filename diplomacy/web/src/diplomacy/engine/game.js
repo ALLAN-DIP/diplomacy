@@ -630,7 +630,7 @@ export class Game {
             if (this.logs.size() && !this.log_history.contains(this.phase)) logList.push(this.logs);
         } else {
             if (this.logs.size()) logList = [this.logs];
-            else if (this.log_history.contains(this.phase)) logList = this.log_history.get(this.phase);
+            else if (this.log_history.contains(this.phase)) logList = [this.log_history.get(this.phase)];
         }
         for (let logs of logList) {
             for (let log of logs.values()) {
@@ -648,13 +648,13 @@ export class Game {
     getMessageChannels(role, all) {
         const messageChannels = {};
         role = role || this.role;
-        let messagesToShow = null;
+        let messagesToShow = [];
         if (all) {
             messagesToShow = this.message_history.values();
             if (this.messages.size() && !this.message_history.contains(this.phase)) messagesToShow.push(this.messages);
         } else {
             if (this.messages.size()) messagesToShow = [this.messages];
-            else if (this.message_history.contains(this.phase)) messagesToShow = this.message_history.get(this.phase);
+            else if (this.message_history.contains(this.phase)) messagesToShow = [this.message_history.get(this.phase)];
         }
         for (let messages of messagesToShow) {
             for (let message of messages.values()) {
