@@ -410,7 +410,7 @@ class PageBase extends React.Component {
                             <Route path="/game/:gameId" render={(props) => {
                                 if (!this.channel) return <Redirect to="/" />;
                                 const game = this.getGame(props.match.params.gameId);
-                                return game && game.client ? <ContentGame data={game} /> : <Redirect to="/games" />;
+                                return game ? <ContentGame data={game} /> : <Redirect to="/games" />;
                             }} />
                             <Redirect to="/" />
                         </Switch>
