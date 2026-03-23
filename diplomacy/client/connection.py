@@ -200,8 +200,9 @@ class Connection:
         # Create a connection (currently using websockets).
         self.connection = None
         for attempt_index in range(constants.NB_CONNECTION_ATTEMPTS):
+            future_connection = websocket_connect(self.url)
+
             try:
-                future_connection = websocket_connect(self.url)
                 self.connection = yield gen.with_timeout(
                     timedelta(seconds=constants.ATTEMPT_DELAY_SECONDS), future_connection
                 )
@@ -213,6 +214,13 @@ class Connection:
                 ConnectionRefusedError,
                 ConnectionResetError,
             ) as ex:
+                # cancel/close future to free
+                future_connection.cancel()
+                if future_connection.done() and not future_connection.cancelled():
+                    ws = future_connection.result() if future_connection.exception() is None else None
+                    if ws is not None:
+                        ws.close()
+
                 if attempt_index + 1 == constants.NB_CONNECTION_ATTEMPTS:
                     raise ex
                 LOGGER.warning("Connection failing (attempt %d), retrying.", attempt_index + 1)
