@@ -35,7 +35,7 @@ export function loadGameFromDisk() {
                 const gameObject = {};
                 gameObject.game_id = `(local) ${savedData.id}`;
                 gameObject.map_name = savedData.map;
-                gameObject.rules = savedData.rules;
+                gameObject.rules = savedData.rules || [];
                 gameObject.has_initial_orders = savedData.has_initial_orders || {};
                 gameObject.annotated_messages = savedData.annotated_messages || {};
                 gameObject.state_history = {};
