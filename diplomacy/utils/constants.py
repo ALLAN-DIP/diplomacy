@@ -58,6 +58,11 @@ PRIVATE_BOT_TIMEOUT_SECONDS = 60
 # one is suspended on a slow write_message, the others can service other sockets.
 N_NOTIFICATION_WORKERS = 4
 
+# Cap on pending notifications queued for delivery. When the queue is full,
+# new notifications are dropped (with a warning) rather than blocking producers,
+# which would stall request handling under load.
+NOTIFICATION_QUEUE_MAX_SIZE = 10000
+
 # Default rules used to construct a Game object when no rules are provided.
 DEFAULT_GAME_RULES = ("SOLITAIRE", "NO_PRESS", "IGNORE_ERRORS", "POWER_CHOICE")
 

@@ -17,6 +17,8 @@
 """Tornado connection handler class, used internally to manage data received by server application."""
 import logging
 import os
+import time
+from collections import deque
 
 from urllib.parse import urlparse
 from tornado import gen
@@ -33,6 +35,31 @@ from diplomacy.utils.network_data import NetworkData
 
 LOGGER = logging.getLogger(__name__)
 
+MAX_JSON_DEPTH = 32
+
+# Per-connection sliding-window rate limit. Log-only for now: excess requests
+# are still processed, but emit a warning so we can size the limit before
+# turning enforcement on.
+RATE_LIMIT_WINDOW_SECONDS = 1.0
+RATE_LIMIT_MAX_REQUESTS = 60
+
+
+def _check_json_depth(obj, max_depth=MAX_JSON_DEPTH):
+    """Iteratively verify nested dict/list depth does not exceed max_depth."""
+    stack = [(obj, 1)]
+    while stack:
+        current, depth = stack.pop()
+        if depth > max_depth:
+            raise ValueError("JSON payload exceeds maximum nesting depth of %d." % max_depth)
+        if isinstance(current, dict):
+            for value in current.values():
+                if isinstance(value, (dict, list)):
+                    stack.append((value, depth + 1))
+        elif isinstance(current, list):
+            for value in current:
+                if isinstance(value, (dict, list)):
+                    stack.append((value, depth + 1))
+
 
 class ConnectionHandler(WebSocketHandler):
     """ConnectionHandler class. Properties:
@@ -44,6 +71,8 @@ class ConnectionHandler(WebSocketHandler):
 
     def __init__(self, *args, **kwargs):
         self.server = None
+        self._request_times = deque()
+        self._rate_limit_warned = False
         super(ConnectionHandler, self).__init__(*args, **kwargs)
 
     def initialize(self, server=None):
@@ -129,13 +158,38 @@ class ConnectionHandler(WebSocketHandler):
         """
         return [notification]
 
+    def _check_rate_limit(self):
+        """Record this request and warn (once per breach) if the per-connection
+        rate exceeds RATE_LIMIT_MAX_REQUESTS within RATE_LIMIT_WINDOW_SECONDS.
+        Log-only — does not reject the request.
+        """
+        now = time.monotonic()
+        cutoff = now - RATE_LIMIT_WINDOW_SECONDS
+        while self._request_times and self._request_times[0] < cutoff:
+            self._request_times.popleft()
+        self._request_times.append(now)
+        if len(self._request_times) > RATE_LIMIT_MAX_REQUESTS:
+            if not self._rate_limit_warned:
+                remote_ip = getattr(self.request, "remote_ip", "unknown")
+                LOGGER.warning(
+                    "Connection from %s exceeded rate limit (%d requests in %.1fs).",
+                    remote_ip,
+                    len(self._request_times),
+                    RATE_LIMIT_WINDOW_SECONDS,
+                )
+                self._rate_limit_warned = True
+        else:
+            self._rate_limit_warned = False
+
     @gen.coroutine
     def on_message(self, message):
         """Parse given message and manage parsed data (expected a string representation of a request)."""
+        self._check_rate_limit()
         try:
             json_request = json.loads(message)
             if not isinstance(json_request, dict):
                 raise ValueError("Unable to convert a JSON string to a dictionary.")
+            _check_json_depth(json_request)
         except ValueError as exc:
             # Error occurred because either message is not a JSON string
             # or parsed JSON object is not a dict.

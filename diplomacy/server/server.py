@@ -271,7 +271,7 @@ class Server:
         self.daide_max_port = daide_max_port
 
         # Data in memory (not stored on disk).
-        self.notifications = Queue()
+        self.notifications = Queue(maxsize=constants.NOTIFICATION_QUEUE_MAX_SIZE)
         self.games_scheduler = Scheduler(1, self._process_game)
         self.backup_server = None
         self.backup_games = {}
@@ -581,7 +581,7 @@ class Server:
             "xsrf_cookies": True,
             "websocket_ping_interval": self.ping_seconds,
             "websocket_ping_timeout": 2 * self.ping_seconds,
-            "websocket_max_message_size": 1000 * 1024 * 1024,
+            "websocket_max_message_size": 5 * 1024 * 1024,
         }
         self.backend = _ServerBackend()
         self.backend.application = tornado.web.Application(handlers, **settings)

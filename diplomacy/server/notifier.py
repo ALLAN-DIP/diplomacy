@@ -15,10 +15,15 @@
 #  with this program.  If not, see <https://www.gnu.org/licenses/>.
 # ==============================================================================
 """Server notifier class. Used to send server notifications, allowing to ignore some addresses."""
+import logging
+
 from tornado import gen
+from tornado.queues import QueueFull
 
 from diplomacy.communication import notifications
 from diplomacy.utils import strings
+
+LOGGER = logging.getLogger(__name__)
 
 
 class Notifier:
@@ -87,9 +92,17 @@ class Notifier:
             translated_notifications = connection_handler.translate_notification(notification)
             if translated_notifications:
                 for translated_notification in translated_notifications:
-                    yield self.server.notifications.put(
-                        (connection_handler, translated_notification)
-                    )
+                    try:
+                        self.server.notifications.put_nowait(
+                            (connection_handler, translated_notification)
+                        )
+                    except QueueFull:
+                        LOGGER.warning(
+                            "Notification queue full (>=%d pending); dropping %s for token %s.",
+                            self.server.notifications.maxsize,
+                            type(translated_notification).__name__,
+                            notification.token,
+                        )
 
     @gen.coroutine
     def _notify_game(self, server_game, notification_class, **kwargs):
