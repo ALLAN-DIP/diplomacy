@@ -53,8 +53,26 @@ export class Forms {
             const fieldName = UTILS.html.isRadioButton(event.target) ? event.target.name : event.target.id;
             const update = { [fieldName]: value };
             const state = Object.assign({}, component.state, update);
-            if (callback) callback(state);
             component.setState(state);
+            if (callback) callback(state);
+        };
+    }
+
+    static createDebouncedOnChangeCallback(component, callback, delay = 150) {
+        let timer = null;
+        return (event) => {
+            // Read synchronously — event target is nullified after the event cycle
+            const value = UTILS.html.isCheckBox(event.target) ? event.target.checked : event.target.value;
+            const fieldName = UTILS.html.isRadioButton(event.target) ? event.target.name : event.target.id;
+            const update = { [fieldName]: value };
+            // Update local state immediately so the input stays responsive
+            const state = Object.assign({}, component.state, update);
+            component.setState(state);
+            // Debounce the external callback (validation, network calls, etc.)
+            clearTimeout(timer);
+            timer = setTimeout(() => {
+                if (callback) callback(Object.assign({}, component.state));
+            }, delay);
         };
     }
 
@@ -170,8 +188,8 @@ export class Forms {
 
     static createSelectOptions(values, none) {
         const options = values.slice();
-        const components = options.map((option, index) => (
-            <option key={index} value={option}>
+        const components = options.map((option) => (
+            <option key={option} value={option}>
                 {option}
             </option>
         ));

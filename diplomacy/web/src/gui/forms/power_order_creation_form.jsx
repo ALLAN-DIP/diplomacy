@@ -35,13 +35,22 @@ export const PowerOrderCreationForm = ({
 }) => {
     const [state, adapter] = useFormAdapter({ order_type: orderType });
 
-    const onChange = Forms.createOnChangeCallback(adapter, onChangeProp);
-    const onReset = Forms.createOnResetCallback(adapter, onChangeProp, { order_type: orderType });
-    const onSetOrderType = (letter) => {
-        adapter.setState({ order_type: letter }, () => {
-            if (onChangeProp) onChangeProp(adapter.state);
-        });
-    };
+    const onChange = React.useCallback(
+        Forms.createOnChangeCallback(adapter, onChangeProp),
+        [adapter, onChangeProp],
+    );
+    const onReset = React.useCallback(
+        Forms.createOnResetCallback(adapter, onChangeProp, { order_type: orderType }),
+        [adapter, onChangeProp, orderType],
+    );
+    const onSetOrderType = React.useCallback(
+        (letter) => {
+            adapter.setState({ order_type: letter }, () => {
+                if (onChangeProp) onChangeProp(adapter.state);
+            });
+        },
+        [adapter, onChangeProp],
+    );
 
     let title = "";
     let titleClass = "mr-4";
@@ -50,8 +59,8 @@ export const PowerOrderCreationForm = ({
     if (orderTypes.length) {
         title = "Create order:";
         header.push(
-            ...orderTypes.map((orderLetter, index) => (
-                <div key={index} className={"form-check-inline"}>
+            ...orderTypes.map((orderLetter) => (
+                <div key={orderLetter} className={"form-check-inline"}>
                     {Forms.createRadio(
                         "order_type",
                         orderLetter,
@@ -111,9 +120,9 @@ export const PowerOrderCreationForm = ({
                     power.wait ? "success" : "danger",
                 )}
                 <HotKey keys={["escape"]} onKeysCoincide={onReset} />
-                {orderTypes.map((letter, index) => (
+                {orderTypes.map((letter) => (
                     <HotKey
-                        key={index}
+                        key={letter}
                         keys={[letter.toLowerCase()]}
                         onKeysCoincide={() => onSetOrderType(letter)}
                     />
