@@ -25,9 +25,9 @@ Server coroutines used here are usually:
 - notifications sending
 """
 # pylint:disable=too-many-lines
+import asyncio
 import logging
 
-from tornado import gen
 from tornado.concurrent import Future
 
 from diplomacy.communication import notifications, requests, responses
@@ -35,7 +35,7 @@ from diplomacy.server.notifier import Notifier
 from diplomacy.server.server_game import ServerGame
 from diplomacy.server.request_manager_utils import (
     SynchronizedData,
-    log_future_exception,
+    fire_and_forget,
     verify_request,
     transfer_special_tokens,
     assert_game_not_finished,
@@ -264,7 +264,7 @@ def on_delete_game(server, request, connection_handler):
         server, request, connection_handler, observer_role=False, power_role=False
     )
     server.delete_game(level.game)
-    server.unschedule_game(level.game).add_done_callback(log_future_exception)
+    fire_and_forget(server.unschedule_game(level.game))
     Notifier(server, ignore_tokens=[request.token]).notify_game_deleted(level.game)
 
 
@@ -827,12 +827,11 @@ def on_process_game(server, request, connection_handler):
     if level.game.status == strings.FORMING:
         level.game.set_status(strings.ACTIVE)
     level.game.clear_initial_orders()
-    server.force_game_processing(level.game).add_done_callback(log_future_exception)
+    fire_and_forget(server.force_game_processing(level.game))
     server.save_game(level.game)
 
 
-@gen.coroutine
-def on_query_schedule(server, request, connection_handler):
+async def on_query_schedule(server, request, connection_handler):
     """Manage request QuerySchedule.
 
     :param server: server which receives the request.
@@ -843,7 +842,7 @@ def on_query_schedule(server, request, connection_handler):
     :type request: diplomacy.communication.requests.QuerySchedule
     """
     level = verify_request(server, request, connection_handler, require_master=False)
-    schedule_event = yield server.games_scheduler.get_info(level.game)
+    schedule_event = await server.games_scheduler.get_info(level.game)
     if not schedule_event:
         raise exceptions.ResponseException("Game not scheduled.")
     return responses.DataGameSchedule(
@@ -1103,17 +1102,17 @@ def on_set_game_status(server, request, connection_handler):
         level.game.set_status(status)
         if status == strings.COMPLETED:
             phase_data_before_draw, phase_data_after_draw = level.game.draw()
-            server.unschedule_game(level.game).add_done_callback(log_future_exception)
+            fire_and_forget(server.unschedule_game(level.game))
             Notifier(server).notify_game_processed(
                 level.game, phase_data_before_draw, phase_data_after_draw
             )
         else:
             if status == strings.ACTIVE:
-                server.schedule_game(level.game).add_done_callback(log_future_exception)
+                fire_and_forget(server.schedule_game(level.game))
             elif status == strings.PAUSED:
-                server.unschedule_game(level.game).add_done_callback(log_future_exception)
+                fire_and_forget(server.unschedule_game(level.game))
             elif status == strings.CANCELED:
-                server.unschedule_game(level.game).add_done_callback(log_future_exception)
+                fire_and_forget(server.unschedule_game(level.game))
                 if server.remove_canceled_games:
                     server.delete_game(level.game)
             Notifier(server, ignore_addresses=[request.address_in_game]).notify_game_status(
@@ -1292,7 +1291,7 @@ def on_set_orders(server, request, connection_handler):
             level.game, level.game.get_power(level.power_name), request.wait
         )
     if level.game.does_not_wait():
-        server.force_game_processing(level.game).add_done_callback(log_future_exception)
+        fire_and_forget(server.force_game_processing(level.game))
     server.save_game(level.game)
 
 
@@ -1339,7 +1338,7 @@ def on_set_wait_flag(server, request, connection_handler):
         level.game, level.game.get_power(level.power_name), request.wait
     )
     if level.game.does_not_wait():
-        server.force_game_processing(level.game).add_done_callback(log_future_exception)
+        fire_and_forget(server.force_game_processing(level.game))
     server.save_game(level.game)
 
 
@@ -1511,7 +1510,7 @@ def on_vote(server, request, connection_handler):
     if level.game.has_draw_vote():
         # Votes allows to draw the game.
         phase_data_before_draw, phase_data_after_draw = level.game.draw()
-        server.unschedule_game(level.game).add_done_callback(log_future_exception)
+        fire_and_forget(server.unschedule_game(level.game))
         Notifier(server).notify_game_processed(
             level.game, phase_data_before_draw, phase_data_after_draw
         )
@@ -1577,8 +1576,8 @@ def handle_request(server, request, connection_handler):
     request_handler_fn = MAPPING.get(type(request), None)
     if not request_handler_fn:
         raise exceptions.RequestException()
-    if gen.is_coroutine_function(request_handler_fn):
-        # Throw the future returned by this coroutine.
+    if asyncio.iscoroutinefunction(request_handler_fn):
+        # Return the coroutine returned by this async function.
         return request_handler_fn(server, request, connection_handler)
     # Create and return a future.
     future = Future()

@@ -36,8 +36,7 @@ from diplomacy.utils import exceptions, strings, constants
 LOGGER = logging.getLogger(__name__)
 
 
-@gen.coroutine
-def connect(hostname, port, use_ssl=False):
+async def connect(hostname, port, use_ssl=False):
     """Connect to given hostname and port.
 
     :param hostname: a hostname
@@ -50,7 +49,7 @@ def connect(hostname, port, use_ssl=False):
     :rtype: Connection
     """
     connection = Connection(hostname, port, use_ssl)
-    yield connection._connect("Trying to connect.")  # pylint: disable=protected-access
+    await connection._connect("Trying to connect.")  # pylint: disable=protected-access
     return connection
 
 
@@ -152,8 +151,7 @@ class Connection:
         if self.connection is not None:
             self.connection.close()
 
-    @gen.coroutine
-    def authenticate(self, username, password):
+    async def authenticate(self, username, password):
         """Send a :class:`.SignIn` request.
         User will be created on the server automatically if it doesn't exist.
 
@@ -165,10 +163,9 @@ class Connection:
         :rtype: diplomacy.client.channel.Channel
         """
         request = requests.SignIn(username=username, password=password)
-        return (yield self.send(request))
+        return await self.send(request)
 
-    @gen.coroutine
-    def get_daide_port(self, game_id):
+    async def get_daide_port(self, game_id):
         """Send a :class:`.GetDaidePort` request.
 
         :param game_id: game id for which to retrieve the DAIDE port.
@@ -177,14 +174,13 @@ class Connection:
         :rtype: int
         """
         request = requests.GetDaidePort(game_id=game_id)
-        return (yield self.send(request))
+        return await self.send(request)
 
     # ===================
     # Private Methods
     # ===================
 
-    @gen.coroutine
-    def _connect(self, message=None):
+    async def _connect(self, message=None):
         """Create (force) a tornado websocket connection. Try NB_CONNECTION_ATTEMPTS attempts,
         waiting for ATTEMPT_DELAY_SECONDS seconds between 2 attempts.
         Raise an exception if it cannot connect.
@@ -207,7 +203,7 @@ class Connection:
                     connect_timeout=constants.ATTEMPT_DELAY_SECONDS,
                     request_timeout=constants.ATTEMPT_DELAY_SECONDS,
                 )
-                self.connection = yield websocket_connect(req)
+                self.connection = await websocket_connect(req)
                 break
             except (
                 gen.TimeoutError,
@@ -220,7 +216,7 @@ class Connection:
                 if attempt_index + 1 == constants.NB_CONNECTION_ATTEMPTS:
                     raise ex
                 LOGGER.warning("Connection failing (attempt %d), retrying.", attempt_index + 1)
-                yield gen.sleep(constants.ATTEMPT_DELAY_SECONDS)
+                await gen.sleep(constants.ATTEMPT_DELAY_SECONDS)
 
         if not self.connection_count:
             # Start receiving messages as soon as we are connected.
@@ -232,17 +228,15 @@ class Connection:
 
         LOGGER.info("Connection succeeds.")
 
-    @gen.coroutine
-    def _reconnect(self):
+    async def _reconnect(self):
         """Reconnect."""
         # We are reconnecting.
         self.is_reconnecting.clear()
-        yield self._connect("Trying to reconnect.")
+        await self._connect("Trying to reconnect.")
         # We will be reconnected when method Reconnection.sync_done() will finish.
         _Reconnection(self).reconnect()
 
-    @gen.coroutine
-    def _on_socket_message(self, socket_message):
+    async def _on_socket_message(self, socket_message):
         """Manage given socket_message (string),
         that may be a string representation of either a request or a notification.
         """
@@ -287,18 +281,17 @@ class Connection:
         else:
             LOGGER.error("Unknown socket message.")
 
-    @gen.coroutine
-    def _handle_socket_messages(self):
+    async def _handle_socket_messages(self):
         """Main looping method used to received connection messages."""
         while True:
-            msg = yield self.connection.read_message()
+            msg = await self.connection.read_message()
             if msg is None:
                 # Reconnect.
                 LOGGER.error("Disconnected.")
-                yield self._reconnect()
+                await self._reconnect()
             else:
                 # Check response format and run callback (if defined).
-                yield self._on_socket_message(msg)
+                await self._on_socket_message(msg)
 
     def _handle_unknown_token(self, token):
         """Notify server about an unknown channel token.

@@ -15,8 +15,8 @@
 #  with this program.  If not, see <https://www.gnu.org/licenses/>.
 # ==============================================================================
 """Tornado stream wrapper, used internally to abstract a DAIDE stream connection from a WebSocketConnection."""
+import asyncio
 import logging
-from tornado import gen
 from tornado.concurrent import Future
 from tornado.iostream import StreamClosedError
 from diplomacy.daide import notifications, request_managers, responses
@@ -106,13 +106,12 @@ class ConnectionHandler:
         self._NAME_VARIANTS_POOL.append(self._name_variant)
         self._name_variant = None
 
-    @gen.coroutine
-    def close_connection(self):
+    async def close_connection(self):
         """Close the connection with the client"""
         try:
             message = DiplomacyMessage()
             message.content = bytes(responses.TurnOffResponse())
-            yield self.write_message(message)
+            await self.write_message(message)
             self.stream.close()
         except StreamClosedError:
             LOGGER.error("Stream is closed.")
@@ -127,11 +126,10 @@ class ConnectionHandler:
             "Removed connection. Remaining %d connection(s).", self.server.users.count_connections()
         )
 
-    @gen.coroutine
-    def read_stream(self):
+    async def read_stream(self):
         """Read the next message from the stream"""
         messages = []
-        in_message = yield DaideMessage.from_stream(self.stream)
+        in_message = await DaideMessage.from_stream(self.stream)
 
         if in_message and in_message.is_valid:
             message_handler = self.message_mapping.get(in_message.message_type, None)
@@ -140,8 +138,8 @@ class ConnectionHandler:
                     "Unrecognized DAIDE message type [{}]".format(in_message.message_type)
                 )
 
-            if gen.is_coroutine_function(message_handler):
-                messages = yield message_handler(in_message)
+            if asyncio.iscoroutinefunction(message_handler):
+                messages = await message_handler(in_message)
             else:
                 messages = message_handler(in_message)
         elif in_message:
@@ -150,7 +148,7 @@ class ConnectionHandler:
             messages = [err_message]
 
         for message in messages:
-            yield self.write_message(message)
+            await self.write_message(message)
 
     # Added for compatibility with WebSocketHandler interface
     def write_message(self, message, binary=True):
@@ -186,8 +184,7 @@ class ConnectionHandler:
         LOGGER.info("[%d] initial message", self._socket_no)
         return [RepresentationMessage()]
 
-    @gen.coroutine
-    def _on_diplomacy_message(self, in_message):
+    async def _on_diplomacy_message(self, in_message):
         """Handle a diplomacy message"""
         messages = []
         request = RequestBuilder.from_bytes(in_message.content)
@@ -195,7 +192,7 @@ class ConnectionHandler:
         try:
             LOGGER.info("[%d] request:[%s]", self._socket_no, bytes_to_str(in_message.content))
             request.game_id = self.game_id
-            message_responses = yield request_managers.handle_request(self.server, request, self)
+            message_responses = await request_managers.handle_request(self.server, request, self)
         except exceptions.ResponseException:
             message_responses = [responses.REJ(bytes(request))]
 

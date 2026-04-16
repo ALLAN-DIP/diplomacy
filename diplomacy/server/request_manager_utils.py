@@ -17,6 +17,7 @@
 """Utility classes and functions used for request management.
 Put here to avoid having file request_managers.py with too many lines.
 """
+import asyncio
 import logging
 from collections.__init__ import namedtuple
 
@@ -34,6 +35,13 @@ def log_future_exception(future):
         future.result()
     except Exception:
         LOGGER.exception("Fire-and-forget async operation failed")
+
+
+def fire_and_forget(coro):
+    """Schedule a coroutine as fire-and-forget, logging any exception it raises."""
+    task = asyncio.ensure_future(coro)
+    task.add_done_callback(log_future_exception)
+    return task
 
 
 class SynchronizedData(namedtuple("SynchronizedData", ("timestamp", "order", "type", "data"))):

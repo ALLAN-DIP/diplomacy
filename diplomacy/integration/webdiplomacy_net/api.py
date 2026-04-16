@@ -19,7 +19,6 @@ import logging
 import os
 from socket import herror, gaierror, timeout
 from urllib.parse import urlencode
-from tornado import gen
 from tornado.httpclient import HTTPRequest
 from tornado.simple_httpclient import HTTPTimeoutError, HTTPStreamClosedError
 import ujson as json
@@ -47,8 +46,7 @@ API_WEBDIPLOMACY_NET = os.environ.get("API_WEBDIPLOMACY", "https://webdiplomacy.
 class API(BaseAPI):
     """API to interact with webdiplomacy.net"""
 
-    @gen.coroutine
-    def list_games_with_players_in_cd(self):
+    async def list_games_with_players_in_cd(self):
         """Lists the game on the standard map where a player is in CD (civil disorder)
         and the bots needs to submit orders
 
@@ -60,7 +58,7 @@ class API(BaseAPI):
 
         # Sending request
         try:
-            response = yield self._send_get_request(url)
+            response = await self._send_get_request(url)
         except HTTP_ERRORS as err:
             LOGGER.error('Unable to connect to server. Error raised is: "%s"', repr(err))
             return return_val
@@ -92,8 +90,7 @@ class API(BaseAPI):
         # Returning
         return return_val
 
-    @gen.coroutine
-    def list_games_with_missing_orders(self):
+    async def list_games_with_missing_orders(self):
         """Lists of the game on the standard where the user has not submitted orders yet.
 
         :return: List of :class:`.GameIdCountryId` tuples  [(game_id, country_id), (game_id, country_id)]
@@ -104,7 +101,7 @@ class API(BaseAPI):
 
         # Sending request
         try:
-            response = yield self._send_get_request(url)
+            response = await self._send_get_request(url)
         except HTTP_ERRORS as err:
             LOGGER.error('Unable to connect to server. Error raised is: "%s"', repr(err))
             return return_val
@@ -136,8 +133,7 @@ class API(BaseAPI):
         # Returning
         return return_val
 
-    @gen.coroutine
-    def get_game_and_power(self, game_id, country_id, max_phases=None):
+    async def get_game_and_power(self, game_id, country_id, max_phases=None):
         """Returns the game and the power we are playing
 
         :param game_id: The id of the game object (integer)
@@ -161,7 +157,7 @@ class API(BaseAPI):
 
         # Sending request
         try:
-            response = yield self._send_get_request(url)
+            response = await self._send_get_request(url)
         except HTTP_ERRORS as err:
             LOGGER.error('Unable to connect to server. Error raised is: "%s"', repr(err))
             return return_val
@@ -191,8 +187,7 @@ class API(BaseAPI):
         # Returning
         return return_val
 
-    @gen.coroutine
-    def set_orders(self, game, power_name, orders, wait=None):
+    async def set_orders(self, game, power_name, orders, wait=None):
         """Submits orders back to the server
 
         :param game: A :class:`diplomacy.engine.game.Game` object representing the current state of the game
@@ -262,7 +257,7 @@ class API(BaseAPI):
 
         # Sending request
         try:
-            response = yield self._send_post_request(url, body)
+            response = await self._send_post_request(url, body)
         except HTTP_ERRORS as err:
             LOGGER.error('Unable to connect to server. Error raised is: "%s"', repr(err))
             return False
@@ -324,8 +319,7 @@ class API(BaseAPI):
         return all_orders_set
 
     # ---- Helper methods ----
-    @gen.coroutine
-    def _send_get_request(self, url):
+    async def _send_get_request(self, url):
         """Helper method to send a get request to the API endpoint"""
         http_request = HTTPRequest(
             url=url,
@@ -335,11 +329,10 @@ class API(BaseAPI):
             request_timeout=self.request_timeout,
             user_agent=API_USER_AGENT,
         )
-        http_response = yield self.http_client.fetch(http_request, raise_error=False)
+        http_response = await self.http_client.fetch(http_request, raise_error=False)
         return http_response
 
-    @gen.coroutine
-    def _send_post_request(self, url, body):
+    async def _send_post_request(self, url, body):
         """Helper method to send a post request to the API endpoint"""
         http_request = HTTPRequest(
             url=url,
@@ -350,5 +343,5 @@ class API(BaseAPI):
             request_timeout=self.request_timeout,
             user_agent=API_USER_AGENT,
         )
-        http_response = yield self.http_client.fetch(http_request, raise_error=False)
+        http_response = await self.http_client.fetch(http_request, raise_error=False)
         return http_response

@@ -21,8 +21,6 @@
 """
 import logging
 
-from tornado import gen
-
 from diplomacy.communication import requests
 from diplomacy.utils import strings, common
 
@@ -54,8 +52,7 @@ def _req_fn(request_class, local_req_fn=None, **request_args):
         else ""
     )
 
-    @gen.coroutine
-    def func(self, game=None, **kwargs):
+    async def func(self, game=None, **kwargs):
         """Send an instance of request_class with given kwargs and game object.
         :param self: Channel object who sends the request.
         :param game: (optional) a NetworkGame object (required for game requests).
@@ -80,7 +77,7 @@ def _req_fn(request_class, local_req_fn=None, **request_args):
             if local_ret is not None:
                 return local_ret
         request = request_class(**kwargs)
-        return (yield self.connection.send(request, game))
+        return await self.connection.send(request, game)
 
     func.__request_name__ = request_class.__name__
     func.__request_params__ = str_params

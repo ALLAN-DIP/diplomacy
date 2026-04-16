@@ -18,7 +18,6 @@
 from abc import ABCMeta, abstractmethod
 from enum import Enum
 import logging
-from tornado import gen
 
 # Constants
 DAIDE_VERSION = 1
@@ -65,14 +64,12 @@ class DaideMessage(metaclass=ABCMeta):
         self.content = b""
 
     @abstractmethod
-    @gen.coroutine
-    def build(self, stream, remaining_length):
+    async def build(self, stream, remaining_length):
         """Builds a message from a stream and its declared length"""
         raise NotImplementedError()
 
     @staticmethod
-    @gen.coroutine
-    def from_stream(stream):
+    async def from_stream(stream):
         """Builds a message from the stream
 
         :param stream: An opened Tornado stream.
@@ -81,7 +78,7 @@ class DaideMessage(metaclass=ABCMeta):
         if stream.reading():
             return None
 
-        data = yield stream.read_bytes(4)  # Message type, Pad, Remaining Length (2x)
+        data = await stream.read_bytes(4)  # Message type, Pad, Remaining Length (2x)
 
         # Parsing data
         message_type = data[0]
@@ -102,7 +99,7 @@ class DaideMessage(metaclass=ABCMeta):
 
         # Otherwise, return message
         message = message_cls()
-        yield message.build(stream, remaining_length)
+        await message.build(stream, remaining_length)
         return message
 
 
@@ -128,8 +125,7 @@ class InitialMessage(DaideMessage):
             ]
         )  # Magic Number (2 bytes)
 
-    @gen.coroutine
-    def build(self, stream, remaining_length):
+    async def build(self, stream, remaining_length):
         """Builds a message from a stream and its declared length"""
         # Checking length
         if remaining_length != 4:
@@ -140,7 +136,7 @@ class InitialMessage(DaideMessage):
             return
 
         # Getting data and validating version
-        data = yield stream.read_bytes(remaining_length)  # Version (x2) - Magic Number (x2)
+        data = await stream.read_bytes(remaining_length)  # Version (x2) - Magic Number (x2)
         version = data[0] * 256 + data[1]
         magic_number = data[2] * 256 + data[3]
 
@@ -173,11 +169,10 @@ class RepresentationMessage(DaideMessage):
             [MessageType.REPRESENTATION.value, 0, 0, 0]  # Message Type  # Padding
         )  # Remaining length (2 bytes)
 
-    @gen.coroutine
-    def build(self, stream, remaining_length):
+    async def build(self, stream, remaining_length):
         """Builds a message from a stream and its declared length"""
         if remaining_length:
-            yield stream.read_bytes(remaining_length)
+            await stream.read_bytes(remaining_length)
         self.is_valid = False
         self.error_code = ErrorCode.RM_SENT_BY_CLIENT
 
@@ -205,17 +200,16 @@ class DiplomacyMessage(DaideMessage):
 
         return header + self.content
 
-    @gen.coroutine
-    def build(self, stream, remaining_length):
+    async def build(self, stream, remaining_length):
         """Builds a message from a stream and its declared length"""
         if remaining_length < 2 or remaining_length % 2 == 1:
             self.is_valid = False
             if remaining_length:
-                yield stream.read_bytes(remaining_length)
+                await stream.read_bytes(remaining_length)
             LOGGER.warning("Got a diplomacy message of length %d. Ignoring.", remaining_length)
 
         # Getting data
-        self.content = yield stream.read_bytes(remaining_length)
+        self.content = await stream.read_bytes(remaining_length)
 
 
 class FinalMessage(DaideMessage):
@@ -231,11 +225,10 @@ class FinalMessage(DaideMessage):
             [MessageType.FINAL.value, 0, 0, 0]  # Message Type  # Padding
         )  # Remaining length (2 bytes)
 
-    @gen.coroutine
-    def build(self, stream, remaining_length):
+    async def build(self, stream, remaining_length):
         """Builds a message from a stream and its declared length"""
         if remaining_length:
-            yield stream.read_bytes(remaining_length)
+            await stream.read_bytes(remaining_length)
 
 
 class ErrorMessage(DaideMessage):
@@ -259,14 +252,13 @@ class ErrorMessage(DaideMessage):
             ]
         )  # Error code (2 bytes)
 
-    @gen.coroutine
-    def build(self, stream, remaining_length):
+    async def build(self, stream, remaining_length):
         """Builds a message from a stream and its declared length"""
         if remaining_length != 2:
             self.is_valid = False
-            yield stream.read_bytes(remaining_length)
+            await stream.read_bytes(remaining_length)
             return
 
         # Parsing error
-        data = yield stream.read_bytes(remaining_length)
+        data = await stream.read_bytes(remaining_length)
         self.error_code = ErrorCode(data[1])

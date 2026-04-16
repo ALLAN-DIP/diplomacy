@@ -26,7 +26,8 @@ To set unit as a minute, create Scheduler with unit_in_seconds = 60.
 To set unit as a second, create Scheduler with unit_in_seconds = 1.
     In such case, a task with deadline 2 means 2 seconds to wait to process this task.
 """
-from tornado import gen
+import asyncio
+
 from tornado.locks import Lock
 from tornado.queues import Queue
 
@@ -173,16 +174,14 @@ class Scheduler:
         self.data_in_queue[task.data] = task
         self.tasks_queue.put_nowait(task)
 
-    @gen.coroutine
-    def has_data(self, data):
+    async def has_data(self, data):
         """Return True if given data is associated to any task."""
-        with (yield self.lock.acquire()):
+        async with self.lock:
             return data in self.data_in_heap or data in self.data_in_queue
 
-    @gen.coroutine
-    def get_info(self, data):
+    async def get_info(self, data):
         """Return info about scheduling for given data, or None if data is not found."""
-        with (yield self.lock.acquire()):
+        async with self.lock:
             deadline = None  # type: _Deadline
             if data in self.data_in_heap:
                 deadline = self.data_in_heap[data]
@@ -197,8 +196,7 @@ class Scheduler:
                 )
         return None
 
-    @gen.coroutine
-    def add_data(self, data, nb_units_to_wait):
+    async def add_data(self, data, nb_units_to_wait):
         """Add data with a non-null deadline. For null deadlines, use no_wait().
 
         :param data: data to add
@@ -206,14 +204,13 @@ class Scheduler:
         """
         if not isinstance(nb_units_to_wait, int) or nb_units_to_wait <= 0:
             raise exceptions.NaturalIntegerNotNullException()
-        with (yield self.lock.acquire()):
+        async with self.lock:
             if data in self.data_in_heap or data in self.data_in_queue:
                 raise exceptions.AlreadyScheduledException()
             # Add task to scheduler.
             self.data_in_heap[data] = _Deadline(self.current_time, nb_units_to_wait)
 
-    @gen.coroutine
-    def no_wait(self, data, nb_units_to_wait, processing_validator):
+    async def no_wait(self, data, nb_units_to_wait, processing_validator):
         """Add a data to be processed the sooner.
 
         :param data: data to add
@@ -224,7 +221,7 @@ class Scheduler:
         """
         if not isinstance(nb_units_to_wait, int) or nb_units_to_wait < 0:
             raise exceptions.NaturalIntegerException()
-        with (yield self.lock.acquire()):
+        async with self.lock:
             if data in self.data_in_heap:
                 # Move data from heap to queue with new delay.
                 del self.data_in_heap[data]
@@ -236,20 +233,18 @@ class Scheduler:
                 # Add data to queue.
                 self._enqueue(_ImmediateTask(data, nb_units_to_wait, processing_validator))
 
-    @gen.coroutine
-    def remove_data(self, data):
+    async def remove_data(self, data):
         """Remove a data (and all associated tasks) from scheduler."""
-        with (yield self.lock.acquire()):
+        async with self.lock:
             if data in self.data_in_heap:
                 del self.data_in_heap[data]
             elif data in self.data_in_queue:
                 # Remove task from data_in_queue and invalidate it in queue.
                 self.data_in_queue.pop(data).valid = False
 
-    @gen.coroutine
-    def _step(self):
+    async def _step(self):
         """Compute a step (check and enqueue tasks to run now) in scheduler."""
-        with (yield self.lock.acquire()):
+        async with self.lock:
             self.current_time += 1
             while self.data_in_heap:
                 deadline, data = self.data_in_heap.smallest()
@@ -258,17 +253,15 @@ class Scheduler:
                 del self.data_in_heap[data]
                 self._enqueue(_Task(data, deadline))
 
-    @gen.coroutine
-    def schedule(self):
+    async def schedule(self):
         """Main scheduler method (callback to register in ioloop). Wait for unit seconds and
         run tasks after each wait time.
         """
         while True:
-            yield gen.sleep(self.unit)
-            yield self._step()
+            await asyncio.sleep(self.unit)
+            await self._step()
 
-    @gen.coroutine
-    def process_tasks(self):
+    async def process_tasks(self):
         """Main task processing method (callback to register in ioloop). Consume and process tasks in queue
         and reschedule processed tasks when relevant.
 
@@ -278,17 +271,17 @@ class Scheduler:
         (True means `task definitively done`) AND if task deadline is not null.
         """
         while True:
-            task = yield self.tasks_queue.get()  # type: _Task
+            task = await self.tasks_queue.get()  # type: _Task
             try:
                 if task.valid and (
                     not isinstance(task, _ImmediateTask) or task.can_still_process()
                 ):
-                    if gen.is_coroutine_function(self.callback_process):
-                        remove_data = yield self.callback_process(task.data)
+                    if asyncio.iscoroutinefunction(self.callback_process):
+                        remove_data = await self.callback_process(task.data)
                     else:
                         remove_data = self.callback_process(task.data)
                     remove_data = remove_data or not task.deadline.delay
-                    with (yield self.lock.acquire()):
+                    async with self.lock:
                         del self.data_in_queue[task.data]
                         if not remove_data:
                             self.data_in_heap[task.data] = _Deadline(

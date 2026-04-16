@@ -16,14 +16,13 @@
 # ==============================================================================
 """Test server game in real environment with test data in files `{15, 20, 23}.json`."""
 # pylint: disable=unused-argument
+import asyncio
 import logging
 import os
 import random
 from typing import Dict
 
 import pytest
-from tornado import gen
-from tornado.concurrent import Future
 from tornado.ioloop import IOLoop
 
 import ujson as json
@@ -186,8 +185,7 @@ class CaseData:
         """Tell Tornado that a power game is finished."""
         self.future_games_ended[power_name].set_result(None)
 
-    @gen.coroutine
-    def on_power_phase_update(self, game, notification=None):
+    async def on_power_phase_update(self, game, notification=None):
         """User game notification callback for game phase updated.
 
         :param game: game
@@ -203,10 +201,9 @@ class CaseData:
             self.terminate_game(game.data.power_name)
             print("Game fully terminated at phase", game.phase)
         else:
-            yield verify_current_phase(game)
+            await verify_current_phase(game)
 
-    @gen.coroutine
-    def on_power_state_update(self, game, notification):
+    async def on_power_state_update(self, game, notification):
         """User game notification callback for game state update.
 
         :param game: game
@@ -215,11 +212,10 @@ class CaseData:
         :type notification: diplomacy.communication.notifications.GamePhaseUpdate
         """
         if notification.phase_data_type == strings.PHASE:
-            yield self.on_power_phase_update(game, None)
+            await self.on_power_phase_update(game, None)
 
 
-@gen.coroutine
-def send_messages_if_needed(game, expected_messages):
+async def send_messages_if_needed(game, expected_messages):
     """Take messages to send in top of given messages list and send them.
 
     :param game: a NetworkGame object.
@@ -234,14 +230,14 @@ def send_messages_if_needed(game, expected_messages):
         for message in expected_messages.next_messages_to_send:
             if message.recipient == GLOBAL:
                 print("%s/sending global message (time %d)" % (power_name, message.time_sent))
-                yield game.send_game_message(message=game.new_global_message(message.message))
+                await game.send_game_message(message=game.new_global_message(message.message))
                 print("%s/sent global message (time %d)" % (power_name, message.time_sent))
             else:
                 print(
                     "%s/sending message to %s (time %d)"
                     % (power_name, message.recipient, message.time_sent)
                 )
-                yield game.send_game_message(
+                await game.send_game_message(
                     message=game.new_power_message(message.recipient, message.message)
                 )
                 print(
@@ -251,8 +247,7 @@ def send_messages_if_needed(game, expected_messages):
         expected_messages.next_messages_to_send.clear()
 
 
-@gen.coroutine
-def send_current_orders(game):
+async def send_current_orders(game):
     """Send expected orders for current phase.
 
     :param game: a Network game object.
@@ -279,7 +274,7 @@ def send_current_orders(game):
             orders_to_send,
         )
     )
-    yield game.set_orders(orders=orders_to_send)
+    await game.set_orders(orders=orders_to_send)
     print(
         "%s/sent orders for phase %s"
         % (expected_data.power_name, expected_data.expected_phase.name)
@@ -505,8 +500,7 @@ def on_admin_game_status_update(admin_game, notification):
     print("(admin game) game status of %s updated to %s" % (admin_game.role, admin_game.status))
 
 
-@gen.coroutine
-def play_phase(game, expected_messages):
+async def play_phase(game, expected_messages):
     """Play a phase for a user game:
 
     #. Send messages
@@ -519,15 +513,14 @@ def play_phase(game, expected_messages):
     :type expected_messages: ExpectedMessages
     """
     while expected_messages.has_messages_to_send():
-        yield gen.sleep(10e-6)
-        yield send_messages_if_needed(game, expected_messages)
+        await asyncio.sleep(10e-6)
+        await send_messages_if_needed(game, expected_messages)
     while expected_messages.has_messages_to_receive():
-        yield gen.sleep(10e-6)
-    yield send_current_orders(game)
+        await asyncio.sleep(10e-6)
+    await send_current_orders(game)
 
 
-@gen.coroutine
-def on_game_status_update(game, notification):
+async def on_game_status_update(game, notification):
     """User game notification callback for game status update.
     Used to start the game locally when game started on server.
 
@@ -542,11 +535,10 @@ def on_game_status_update(game, notification):
         # Game started on server.
         expected_data.playing = True
         print("Playing.")
-        yield play_phase(game, expected_data.messages)
+        await play_phase(game, expected_data.messages)
 
 
-@gen.coroutine
-def verify_current_phase(game):
+async def verify_current_phase(game):
     """Check and play current phase.
 
     :param game: a NetWork game object.
@@ -572,7 +564,7 @@ def verify_current_phase(game):
         raise AssertionError(str(expected_data.expected_phase.name), str(game.current_short_phase))
 
     if game.is_game_active:
-        yield play_phase(game, expected_messages)
+        await play_phase(game, expected_messages)
 
 
 def get_user_game_fn(case_data, power_name):
@@ -584,10 +576,9 @@ def get_user_game_fn(case_data, power_name):
     :type case_data: CaseData
     """
 
-    @gen.coroutine
-    def load_fn():
+    async def load_fn():
         """Coroutine for loading power game for given power name."""
-        yield load_power_game(case_data, power_name)
+        await load_power_game(case_data, power_name)
 
     return load_fn
 
@@ -607,8 +598,7 @@ def get_future_game_done_fn(power_name):
     return game_done_fn
 
 
-@gen.coroutine
-def load_power_game(case_data, power_name):
+async def load_power_game(case_data, power_name):
     """Load and play a power game from admin game for given power name.
 
     :type case_data: CaseData
@@ -617,10 +607,10 @@ def load_power_game(case_data, power_name):
 
     username = "user_%s" % power_name
     password = "password_%s" % power_name
-    user_channel = yield case_data.connection.authenticate(username, password)
+    user_channel = await case_data.connection.authenticate(username, password)
     print("User", username, "connected.")
 
-    user_game = yield user_channel.join_game(
+    user_game = await user_channel.join_game(
         game_id=case_data.admin_game.game_id, power_name=power_name
     )
     assert user_game.is_player_game()
@@ -642,11 +632,10 @@ def load_power_game(case_data, power_name):
     # Save expected data into attribute user_game.data.
     user_game.data = ExpectedData(power_name=power_name, phases=case_data.phases, phase_index=0)
     # Start to play and test game.
-    yield verify_current_phase(user_game)
+    await verify_current_phase(user_game)
 
 
-@gen.coroutine
-def main(case_data):
+async def main(case_data):
     """Test real game environment with one game and all power controlled (no dummy powers).
     This method may be called form a non-test code to run a real game case.
 
@@ -658,11 +647,11 @@ def main(case_data):
     # ================
     if case_data.admin_channel is None:
         LOGGER.info("Creating connection, admin channel and admin game.")
-        case_data.connection = yield connect(case_data.hostname, case_data.port)
-        case_data.admin_channel = yield case_data.connection.authenticate("admin", "password")
+        case_data.connection = await connect(case_data.hostname, case_data.port)
+        case_data.admin_channel = await case_data.connection.authenticate("admin", "password")
         # NB: For all test cases, first game state should be default game engine state when starting.
         # So, we don't need to pass game state of first expected phase when creating a server game.
-        case_data.admin_game = yield case_data.admin_channel.create_game(
+        case_data.admin_game = await case_data.admin_channel.create_game(
             map_name=case_data.map_name, rules=case_data.rules, deadline=0
         )
         assert case_data.admin_game.power_choice
@@ -680,14 +669,14 @@ def main(case_data):
     # ==========
 
     # Get available maps to retrieve map power names.
-    available_maps = yield case_data.admin_channel.get_available_maps()
+    available_maps = await case_data.admin_channel.get_available_maps()
     print(
         "Map: %s, powers:" % case_data.map_name,
         ", ".join(power_name for power_name in sorted(available_maps[case_data.map_name])),
     )
     # Load one game per power name.
     for power_name in available_maps[case_data.map_name]["powers"]:
-        case_data.future_games_ended[power_name] = Future()
+        case_data.future_games_ended[power_name] = asyncio.Future()
         case_data.future_games_ended[power_name].add_done_callback(
             get_future_game_done_fn(power_name)
         )
@@ -695,9 +684,9 @@ def main(case_data):
 
     # Wait to let power games play.
     print("Running ...")
-    yield case_data.future_games_ended
+    await asyncio.gather(*case_data.future_games_ended.values())
     print("All game terminated. Just wait a little ...")
-    yield gen.sleep(2)
+    await asyncio.sleep(2)
     print("End running.")
 
 
@@ -716,10 +705,9 @@ def run(case_data, **server_kwargs):
     case_data.io_loop = io_loop
     case_data.test_server = Server(**server_kwargs)
 
-    @gen.coroutine
-    def coroutine_func():
+    async def coroutine_func():
         """Concrete call to main function."""
-        yield main(case_data)
+        await main(case_data)
         case_data.io_loop.stop()
         print("Finished", case_data.case_name, "at", common.timestamp_microseconds())
 

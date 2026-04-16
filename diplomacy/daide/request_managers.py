@@ -15,9 +15,8 @@
 #  with this program.  If not, see <https://www.gnu.org/licenses/>.
 # ==============================================================================
 """DAIDE request managers"""
+import asyncio
 import random
-from tornado import gen
-from tornado.concurrent import Future
 from diplomacy.communication import requests as internal_requests
 from diplomacy.daide import (
     ADM_MESSAGE_ENABLED,
@@ -41,8 +40,7 @@ from diplomacy.utils.order_results import OK
 # =================
 
 
-@gen.coroutine
-def on_name_request(server, request, connection_handler, game):
+async def on_name_request(server, request, connection_handler, game):
     """Manage NME request
 
     :param server: server which receives the request
@@ -61,7 +59,7 @@ def on_name_request(server, request, connection_handler, game):
     if not connection_handler.token:
         sign_in_request = internal_requests.SignIn(username=username, password="1234")
         try:
-            token_response = yield internal_request_managers.handle_request(
+            token_response = await internal_request_managers.handle_request(
                 server, sign_in_request, connection_handler
             )
             connection_handler.token = token_response.data
@@ -100,8 +98,7 @@ def on_observer_request(server, request, connection_handler, game):
     return [responses.REJ(bytes(request))]  # No DAIDE observeres allowed
 
 
-@gen.coroutine
-def on_i_am_request(server, request, connection_handler, game):
+async def on_i_am_request(server, request, connection_handler, game):
     """Manage IAM request
 
     :param server: server which receives the request
@@ -133,7 +130,7 @@ def on_i_am_request(server, request, connection_handler, game):
     if not connection_handler.token:
         sign_in_request = internal_requests.SignIn(username=username, password="1234")
         try:
-            token_response = yield internal_request_managers.handle_request(
+            token_response = await internal_request_managers.handle_request(
                 server, sign_in_request, connection_handler
             )
             connection_handler.token = token_response.data
@@ -147,7 +144,7 @@ def on_i_am_request(server, request, connection_handler, game):
         token=connection_handler.token,
     )
 
-    yield internal_request_managers.handle_request(server, join_game_request, connection_handler)
+    await internal_request_managers.handle_request(server, join_game_request, connection_handler)
 
     return [responses.YES(bytes(request))]
 
@@ -296,8 +293,7 @@ def on_history_request(server, request, connection_handler, game):
     return history_responses
 
 
-@gen.coroutine
-def on_submit_orders_request(server, request, connection_handler, game):
+async def on_submit_orders_request(server, request, connection_handler, game):
     """Manage SUB request
 
     :param server: server which receives the request
@@ -338,7 +334,7 @@ def on_submit_orders_request(server, request, connection_handler, game):
             phase=request.phase,
             token=request.token,
         )
-        yield internal_request_managers.handle_request(
+        await internal_request_managers.handle_request(
             server, set_orders_request, connection_handler
         )
 
@@ -364,7 +360,7 @@ def on_submit_orders_request(server, request, connection_handler, game):
         phase=request.phase,
         token=request.token,
     )
-    yield internal_request_managers.handle_request(server, set_orders_request, connection_handler)
+    await internal_request_managers.handle_request(server, set_orders_request, connection_handler)
 
     # Returning results and missing orders
     order_responses.append(responses.MIS(game.get_current_phase(), power))
@@ -386,8 +382,7 @@ def on_missing_orders_request(server, request, connection_handler, game):
     return [responses.MIS(game.get_current_phase(), game.get_power(power_name))]
 
 
-@gen.coroutine
-def on_go_flag_request(server, request, connection_handler, game):
+async def on_go_flag_request(server, request, connection_handler, game):
     """Manage GOF request
 
     :param server: server which receives the request
@@ -406,7 +401,7 @@ def on_go_flag_request(server, request, connection_handler, game):
         phase=game.get_current_phase(),
         token=token,
     )
-    yield internal_request_managers.handle_request(
+    await internal_request_managers.handle_request(
         server, set_wait_flag_request, connection_handler
     )
 
@@ -419,7 +414,7 @@ def on_go_flag_request(server, request, connection_handler, game):
             phase=game.get_current_phase(),
             token=token,
         )
-        yield internal_request_managers.handle_request(
+        await internal_request_managers.handle_request(
             server, set_orders_request, connection_handler
         )
 
@@ -439,8 +434,7 @@ def on_time_to_deadline_request(server, request, connection_handler, game):
     return [responses.REJ(bytes(request))]
 
 
-@gen.coroutine
-def on_draw_request(server, request, connection_handler, game):
+async def on_draw_request(server, request, connection_handler, game):
     """Manage DRW request
 
     :param server: server which receives the request
@@ -459,13 +453,12 @@ def on_draw_request(server, request, connection_handler, game):
         game_id=game.game_id,
         token=token,
     )
-    yield internal_request_managers.handle_request(server, vote_request, connection_handler)
+    await internal_request_managers.handle_request(server, vote_request, connection_handler)
 
     return [responses.YES(bytes(request))]
 
 
-@gen.coroutine
-def on_send_message_request(server, request, connection_handler, game):
+async def on_send_message_request(server, request, connection_handler, game):
     """Manage SND request
 
     :param server: server which receives the request
@@ -498,15 +491,14 @@ def on_send_message_request(server, request, connection_handler, game):
             game_id=game.game_id,
             token=token,
         )
-        yield internal_request_managers.handle_request(
+        await internal_request_managers.handle_request(
             server, send_game_message_request, connection_handler
         )
 
     return [responses.YES(bytes(request))]
 
 
-@gen.coroutine
-def on_not_request(server, request, connection_handler, game):
+async def on_not_request(server, request, connection_handler, game):
     """Manage NOT request
 
     :param server: server which receives the request
@@ -532,7 +524,7 @@ def on_not_request(server, request, connection_handler, game):
                 phase=game.get_current_phase(),
                 token=token,
             )
-            yield internal_request_managers.handle_request(
+            await internal_request_managers.handle_request(
                 server, clear_orders_request, connection_handler
             )
             response = responses.YES(bytes(request))
@@ -547,7 +539,7 @@ def on_not_request(server, request, connection_handler, game):
             phase=game.get_current_phase(),
             token=token,
         )
-        yield internal_request_managers.handle_request(
+        await internal_request_managers.handle_request(
             server, set_wait_flag_request, connection_handler
         )
         response = responses.YES(bytes(request))
@@ -566,15 +558,14 @@ def on_not_request(server, request, connection_handler, game):
             game_id=game.game_id,
             token=token,
         )
-        yield internal_request_managers.handle_request(server, vote_request, connection_handler)
+        await internal_request_managers.handle_request(server, vote_request, connection_handler)
         response = responses.YES(bytes(request))
 
     # Returning response
     return [response if response else responses.REJ(bytes(request))]
 
 
-@gen.coroutine
-def on_accept_request(server, request, connection_handler, game):
+async def on_accept_request(server, request, connection_handler, game):
     """Manage YES request
 
     :param server: server which receives the request
@@ -622,7 +613,7 @@ def on_accept_request(server, request, connection_handler, game):
             join_game_request = internal_requests.JoinGame(
                 game_id=game.game_id, power_name=power_name, registration_password=None, token=token
             )
-            yield internal_request_managers.handle_request(
+            await internal_request_managers.handle_request(
                 server, join_game_request, connection_handler
             )
 
@@ -714,14 +705,14 @@ MAPPING = {
 }
 
 
-def handle_request(server, request, connection_handler):
-    """(coroutine) Find request handler function for associated request, run it and return its result.
+async def handle_request(server, request, connection_handler):
+    """Find request handler function for associated request, run it and return its result.
 
     :param server: a Server object to pass to handler function.
     :param request: a request object to pass to handler function.
         See diplomacy.communication.requests for possible requests.
     :param connection_handler: a ConnectionHandler object to pass to handler function.
-    :return: (future) either None or a response object.
+    :return: either None or a response object.
         See module diplomacy.communication.responses for possible responses.
     """
     request_handler_fn = MAPPING.get(type(request), None)
@@ -732,19 +723,8 @@ def handle_request(server, request, connection_handler):
 
     # Game not found
     if not game or game.is_game_completed or game.is_game_canceled:
-        future = Future()
-        future.set_result([responses.REJ(bytes(request))])
-        return future
+        return [responses.REJ(bytes(request))]
 
-    if gen.is_coroutine_function(request_handler_fn):
-        # Throw the future returned by this coroutine.
-        return request_handler_fn(server, request, connection_handler, game)
-    # Create and return a future.
-    future = Future()
-    try:
-        result = request_handler_fn(server, request, connection_handler, game)
-        future.set_result(result)
-    except exceptions.DiplomacyException as exc:
-        future.set_exception(exc)
-
-    return future
+    if asyncio.iscoroutinefunction(request_handler_fn):
+        return await request_handler_fn(server, request, connection_handler, game)
+    return request_handler_fn(server, request, connection_handler, game)

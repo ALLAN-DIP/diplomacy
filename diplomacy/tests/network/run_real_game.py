@@ -41,7 +41,6 @@ For help: ::
 
 """
 import argparse
-from tornado import gen
 from tornado.ioloop import IOLoop
 
 from diplomacy.tests.network import test_real_game
@@ -73,12 +72,11 @@ def main():
     args = parser.parse_args()
     io_loop = IOLoop()
 
-    @gen.coroutine
-    def run():
+    async def run():
         """Run all tests consecutively in one call."""
         tests = set(args.cases) if args.cases else {"1", "2", "3"}
         for test_case in list(sorted(tests)):
-            yield launch_case("%s.json" % test_case, args.port, io_loop)
+            await launch_case("%s.json" % test_case, args.port, io_loop)
 
     io_loop.run_sync(run)
 

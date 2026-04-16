@@ -21,7 +21,6 @@ import time
 from collections import deque
 
 from urllib.parse import urlparse
-from tornado import gen
 from tornado.websocket import WebSocketHandler, WebSocketClosedError
 
 import ujson as json
@@ -181,8 +180,7 @@ class ConnectionHandler(WebSocketHandler):
         else:
             self._rate_limit_warned = False
 
-    @gen.coroutine
-    def on_message(self, message):
+    async def on_message(self, message):
         """Parse given message and manage parsed data (expected a string representation of a request)."""
         self._check_rate_limit()
         try:
@@ -208,7 +206,7 @@ class ConnectionHandler(WebSocketHandler):
                     # Link request token to this connection handler.
                     self.server.users.attach_connection_handler(request.token, self)
 
-                response = yield request_managers.handle_request(self.server, request, self)
+                response = await request_managers.handle_request(self.server, request, self)
                 if response is None:
                     response = responses.Ok(request_id=request.request_id)
 
@@ -232,7 +230,7 @@ class ConnectionHandler(WebSocketHandler):
 
         if response:
             try:
-                yield self.write_message(response.json())
+                await self.write_message(response.json())
 
             except WebSocketClosedError:
                 LOGGER.error("WebSocketClosedError: %s", response.json())

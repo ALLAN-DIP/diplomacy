@@ -15,8 +15,8 @@
 #  with this program.  If not, see <https://www.gnu.org/licenses/>.
 # ==============================================================================
 """Parallel server to receive DAIDE communications"""
+import asyncio
 import logging
-from tornado import gen
 from tornado.iostream import StreamClosedError
 from tornado.tcpserver import TCPServer
 from diplomacy.daide.connection_handler import ConnectionHandler
@@ -52,11 +52,10 @@ class Server(TCPServer):
     def stop(self):
         """Stop the server and close all connections"""
         for connection_handler in self._registered_connections.values():
-            connection_handler.close_connection()
+            asyncio.ensure_future(connection_handler.close_connection())
         super(Server, self).stop()
 
-    @gen.coroutine
-    def handle_stream(self, stream, address):
+    async def handle_stream(self, stream, address):
         """Handle an open stream
 
         :param stream: the stream to handle
@@ -70,7 +69,7 @@ class Server(TCPServer):
 
         try:
             while not handler.stream.closed():
-                yield handler.read_stream()
+                await handler.read_stream()
         except StreamClosedError:
             LOGGER.error("[%s] disconnected", str(address))
 

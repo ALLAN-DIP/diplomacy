@@ -67,7 +67,6 @@ from typing import Dict, Set, List
 
 import tornado
 import tornado.web
-from tornado import gen
 from tornado.ioloop import IOLoop
 from tornado.iostream import StreamClosedError
 from tornado.queues import Queue
@@ -80,7 +79,7 @@ from diplomacy.communication import notifications
 from diplomacy.daide.server import Server as DaideServer
 from diplomacy.server.connection_handler import ConnectionHandler
 from diplomacy.server.notifier import Notifier
-from diplomacy.server.request_manager_utils import log_future_exception
+from diplomacy.server.request_manager_utils import fire_and_forget
 from diplomacy.server.scheduler import Scheduler
 from diplomacy.server.server_game import ServerGame
 from diplomacy.server.users import Users
@@ -442,8 +441,7 @@ class Server:
         self._backup_server_data_now(force=force)
         self._backup_games_now(force=force)
 
-    @gen.coroutine
-    def _process_game(self, server_game):
+    async def _process_game(self, server_game):
         """Process given game and send relevant notifications.
 
         :param server_game: server game to process
@@ -480,7 +478,7 @@ class Server:
 
         # Game was processed normally.
         # Send game updates to powers, observers and omniscient observers.
-        yield notifier.notify_game_processed(server_game, previous_phase_data, current_phase_data)
+        notifier.notify_game_processed(server_game, previous_phase_data, current_phase_data)
 
         # If game is completed, we must close associated DAIDE port.
         if server_game.is_game_done:
@@ -506,14 +504,13 @@ class Server:
             save_json_on_disk(game_path, game_dict)
             LOGGER.info("Game data saved: %s", game_id)
 
-    @gen.coroutine
-    def _task_save_database(self):
+    async def _task_save_database(self):
         """IO loop callable: save database and loaded games periodically.
         Data to save are checked every BACKUP_DELAY_SECONDS seconds.
         """
         LOGGER.info("Waiting for save events.")
         while True:
-            yield gen.sleep(self.backup_delay_seconds)
+            await asyncio.sleep(self.backup_delay_seconds)
             # Snapshot and clear the pending state on the event loop thread to
             # avoid races, then flush to disk in a thread pool so blocking file
             # I/O does not stall the event loop between iterations.
@@ -522,18 +519,17 @@ class Server:
             self.backup_server = None
             self.backup_games.clear()
             if server_data is not None or games:
-                yield asyncio.get_event_loop().run_in_executor(
+                await asyncio.get_event_loop().run_in_executor(
                     None, self._flush_to_disk, server_data, games
                 )
 
-    @gen.coroutine
-    def _task_send_notifications(self):
+    async def _task_send_notifications(self):
         """IO loop callback: consume notifications and send it."""
         LOGGER.info("Waiting for notifications to send.")
         while True:
-            connection_handler, notification = yield self.notifications.get()
+            connection_handler, notification = await self.notifications.get()
             try:
-                yield connection_handler.write_message(notification)
+                await connection_handler.write_message(notification)
             except WebSocketClosedError:
                 LOGGER.error("Websocket was closed while sending a notification.")
             except StreamClosedError:
@@ -791,7 +787,7 @@ class Server:
                 # Game must be scheduled only if active.
                 if server_game.is_game_active:
                     LOGGER.debug("Game loaded and scheduled: %s", server_game.game_id)
-                    self.schedule_game(server_game).add_done_callback(log_future_exception)
+                    fire_and_forget(self.schedule_game(server_game))
         return server_game
 
     def delete_game(self, server_game):
@@ -816,36 +812,33 @@ class Server:
         # Stop DAIDE server associated to this game.
         self.stop_daide_server(server_game.game_id)
 
-    @gen.coroutine
-    def schedule_game(self, server_game):
+    async def schedule_game(self, server_game):
         """Add a game to scheduler only if game has a deadline and is not already scheduled.
         To add games without deadline, use force_game_processing().
 
         :param server_game: game
         :type server_game: ServerGame
         """
-        if not (yield self.games_scheduler.has_data(server_game)) and server_game.deadline:
-            yield self.games_scheduler.add_data(server_game, server_game.deadline)
+        if not (await self.games_scheduler.has_data(server_game)) and server_game.deadline:
+            await self.games_scheduler.add_data(server_game, server_game.deadline)
 
-    @gen.coroutine
-    def unschedule_game(self, server_game):
+    async def unschedule_game(self, server_game):
         """Remove a game from scheduler.
 
         :param server_game: game
         :type server_game: ServerGame
         """
-        if (yield self.games_scheduler.has_data(server_game)):
-            yield self.games_scheduler.remove_data(server_game)
+        if await self.games_scheduler.has_data(server_game):
+            await self.games_scheduler.remove_data(server_game)
 
-    @gen.coroutine
-    def force_game_processing(self, server_game):
+    async def force_game_processing(self, server_game):
         """Add a game to scheduler to be processed as soon as possible.
         Use this method instead of schedule_game() to explicitly add games with null deadline.
 
         :param server_game: game
         :type server_game: ServerGame
         """
-        yield self.games_scheduler.no_wait(
+        await self.games_scheduler.no_wait(
             server_game, server_game.deadline, lambda g: g.does_not_wait()
         )
 
@@ -856,7 +849,7 @@ class Server:
         :type server_game: ServerGame
         """
         server_game.set_status(strings.ACTIVE)
-        self.schedule_game(server_game).add_done_callback(log_future_exception)
+        fire_and_forget(self.schedule_game(server_game))
         Notifier(self).notify_game_status(server_game)
 
     def stop_game_if_needed(self, server_game):
@@ -879,7 +872,7 @@ class Server:
                     break
             if stop_game:
                 server_game.set_status(strings.FORMING)
-                self.unschedule_game(server_game).add_done_callback(log_future_exception)
+                fire_and_forget(self.unschedule_game(server_game))
                 Notifier(self).notify_game_status(server_game)
 
     def user_is_master(self, username, server_game):

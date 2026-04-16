@@ -15,6 +15,7 @@
 #  with this program.  If not, see <https://www.gnu.org/licenses/>.
 # ==============================================================================
 """Tests for complete DAIDE games"""
+import asyncio
 from collections import namedtuple
 import logging
 import os
@@ -22,8 +23,6 @@ import random
 import signal
 
 import pytest
-from tornado import gen
-from tornado.concurrent import chain_future, Future
 from tornado.ioloop import IOLoop
 from tornado.iostream import StreamClosedError
 from tornado.tcpclient import TCPClient
@@ -186,36 +185,33 @@ class ClientCommsSimulator:
 
         return resp_notif, comms
 
-    @gen.coroutine
-    def connect(self, game_port):
+    async def connect(self, game_port):
         """Connect to the DAIDE server
 
         :param game_port: the DAIDE game's port
         """
-        self._stream = yield TCPClient().connect("localhost", game_port)
+        self._stream = await TCPClient().connect("localhost", game_port)
         LOGGER.info("Connected to %d", game_port)
         message = messages.InitialMessage()
-        yield self._stream.write(bytes(message))
-        yield messages.DaideMessage.from_stream(self._stream)
+        await self._stream.write(bytes(message))
+        await messages.DaideMessage.from_stream(self._stream)
 
-    @gen.coroutine
-    def send_request(self, request):
+    async def send_request(self, request):
         """Sends a request
 
         :param request: the request to send
         """
         message = messages.DiplomacyMessage()
         message.content = str_to_bytes(request)
-        yield self._stream.write(bytes(message))
+        await self._stream.write(bytes(message))
 
-    @gen.coroutine
-    def validate_resp_notifs(self, expected_resp_notifs):
+    async def validate_resp_notifs(self, expected_resp_notifs):
         """Validate that expected response / notifications are received regardless of the order
 
         :param expected_resp_notifs: the response / notifications to receive
         """
         while expected_resp_notifs:
-            resp_notif_message = yield messages.DaideMessage.from_stream(self._stream)
+            resp_notif_message = await messages.DaideMessage.from_stream(self._stream)
 
             resp_notif = bytes_to_str(resp_notif_message.content)
             if Token(from_bytes=resp_notif_message.content[:2]) == tokens.HLO:
@@ -239,8 +235,7 @@ class ClientCommsSimulator:
             assert resp_notif in expected_resp_notifs
             expected_resp_notifs.remove(resp_notif)
 
-    @gen.coroutine
-    def execute_phase(self, game_id, channels):
+    async def execute_phase(self, game_id, channels):
         """Execute a single communications phase
 
         :param game_id: The game id of the current game
@@ -259,25 +254,25 @@ class ClientCommsSimulator:
                     games = {}
                     for power_name, channel in channels.items():
                         if power_name == BOT_KEYWORD:
-                            all_dummy_power_names = yield channel.get_dummy_waiting_powers(
+                            all_dummy_power_names = await channel.get_dummy_waiting_powers(
                                 buffer_size=100
                             )
                             for dummy_name in all_dummy_power_names.get(game_id, []):
-                                games[dummy_name] = yield channel.join_game(
+                                games[dummy_name] = await channel.join_game(
                                     game_id=game_id, power_name=dummy_name
                                 )
                         else:
-                            games[power_name] = yield channel.join_game(
+                            games[power_name] = await channel.join_game(
                                 game_id=game_id, power_name=power_name
                             )
 
                     # Submitting orders
                     for power_name, game in games.items():
-                        yield game.set_orders(power_name=power_name, orders=[], wait=False)
+                        await game.set_orders(power_name=power_name, orders=[], wait=False)
 
                 # Sending request
                 if request is not None:
-                    yield self.send_request(request)
+                    await self.send_request(request)
 
                 expected_resp_notifs = []
                 expected_resp_notif, self._comms = self.pop_next_resp_notif(self._comms)
@@ -291,14 +286,9 @@ class ClientCommsSimulator:
                     expected_resp_notif, self._comms = self.pop_next_resp_notif(self._comms)
 
                 if expected_resp_notifs:
-                    future = self.validate_resp_notifs(expected_resp_notifs)
-
-                    @gen.coroutine
-                    def validate_resp_notifs():
-                        yield future
-
-                    run_with_timeout(validate_resp_notifs, 1)
-                    yield future
+                    await asyncio.wait_for(
+                        self.validate_resp_notifs(expected_resp_notifs), timeout=1
+                    )
                     break
 
         except StreamClosedError as err:
@@ -331,20 +321,18 @@ class ClientsCommsSimulator:
         self._game_id = game_id
         self._channels = channels
 
-    @gen.coroutine
-    def retrieve_game_port(self, host, port):
+    async def retrieve_game_port(self, host, port):
         """Retrieve and store the game's port
 
         :param host: the host
         :param port: the port
         :param game_id: the game id
         """
-        connection = yield connect(host, port)
-        self._game_port = yield connection.get_daide_port(self._game_id)
+        connection = await connect(host, port)
+        self._game_port = await connection.get_daide_port(self._game_id)
         connection.close()
 
-    @gen.coroutine
-    def execute(self):
+    async def execute(self):
         """Executes the communications between clients"""
         try:
             # Synchronize clients joining the game
@@ -362,19 +350,19 @@ class ClientsCommsSimulator:
                     and len(self._clients) < self._nb_clients
                 ):
                     client = ClientCommsSimulator(next_comm.client_id)
-                    yield client.connect(self._game_port)
+                    await client.connect(self._game_port)
                     self._clients[next_comm.client_id] = client
 
                 for client in self._clients.values():
                     request, self._comms = client.pop_next_request(self._comms)
 
                     if request is not None:
-                        yield client.send_request(request)
+                        await client.send_request(request)
 
                     expected_resp_notif, self._comms = client.pop_next_resp_notif(self._comms)
 
                     while expected_resp_notif is not None:
-                        yield client.validate_resp_notifs([expected_resp_notif])
+                        await client.validate_resp_notifs([expected_resp_notif])
                         expected_resp_notif, self._comms = client.pop_next_resp_notif(self._comms)
 
         except StreamClosedError as err:
@@ -386,13 +374,15 @@ class ClientsCommsSimulator:
             client.set_comms(self._comms)
             execution_running.append(client.execute_phase(self._game_id, self._channels))
 
-        execution_running = yield execution_running
+        execution_running = await asyncio.gather(*execution_running)
 
         while any(execution_running):
-            execution_running = yield [
-                client.execute_phase(self._game_id, self._channels)
-                for client in self._clients.values()
-            ]
+            execution_running = await asyncio.gather(
+                *[
+                    client.execute_phase(self._game_id, self._channels)
+                    for client in self._clients.values()
+                ]
+            )
 
         assert all(not client.comms for client in self._clients.values())
 
@@ -407,8 +397,7 @@ def run_game_data(nb_daide_clients, rules, csv_file):
     io_loop = IOLoop()
     common.Tornado.stop_loop_on_callback_error(io_loop)
 
-    @gen.coroutine
-    def coroutine_func():
+    async def coroutine_func():
         """Concrete call to main function."""
         port = random.randint(9000, 9999)
 
@@ -439,35 +428,35 @@ def run_game_data(nb_daide_clients, rules, csv_file):
         bot_password = constants.PRIVATE_BOT_PASSWORD
 
         # Connecting
-        connection = yield connect(HOSTNAME, port)
-        human_channel = yield connection.authenticate(human_username, human_password)
-        bot_channel = yield connection.authenticate(bot_username, bot_password)
+        connection = await connect(HOSTNAME, port)
+        human_channel = await connection.authenticate(human_username, human_password)
+        bot_channel = await connection.authenticate(bot_username, bot_password)
 
         # Joining human to game
         channels = {BOT_KEYWORD: bot_channel}
         if nb_human_players:
-            yield human_channel.join_game(game_id=game_id, power_name="AUSTRIA")
+            await human_channel.join_game(game_id=game_id, power_name="AUSTRIA")
             channels["AUSTRIA"] = human_channel
 
         comms_simulator = ClientsCommsSimulator(nb_daide_clients, csv_file, game_id, channels)
-        yield comms_simulator.retrieve_game_port(HOSTNAME, port)
+        await comms_simulator.retrieve_game_port(HOSTNAME, port)
 
-        daide_future = comms_simulator.execute()
+        daide_future = asyncio.ensure_future(comms_simulator.execute())
 
         for _ in range(3 + nb_daide_clients):
             if daide_future.done() or server_game.count_controlled_powers() >= (
                 nb_daide_clients + nb_human_players
             ):
                 break
-            yield gen.sleep(2.5)
+            await asyncio.sleep(2.5)
         else:
             raise TimeoutError()
 
         # Waiting for process to finish
         while not daide_future.done() and server_game.status == strings.ACTIVE:
-            yield gen.sleep(2.5)
+            await asyncio.sleep(2.5)
 
-        yield daide_future
+        await daide_future
 
     try:
         io_loop.run_sync(coroutine_func)

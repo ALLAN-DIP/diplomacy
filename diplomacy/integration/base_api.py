@@ -17,7 +17,6 @@
 """Contains the base API class"""
 from abc import ABCMeta, abstractmethod
 import logging
-from tornado import gen
 from tornado.httpclient import AsyncHTTPClient
 from diplomacy.utils.export import load_saved_games_from_disk
 
@@ -43,9 +42,8 @@ class BaseAPI(metaclass=ABCMeta):
         self.connect_timeout = connect_timeout
         self.request_timeout = request_timeout
 
-    @gen.coroutine
     @abstractmethod
-    def get_game_and_power(self, game_file):
+    async def get_game_and_power(self, game_file):
         """Returns the game and the power we are playing
         *Arguments are specific to each implementation.*
 
@@ -55,9 +53,8 @@ class BaseAPI(metaclass=ABCMeta):
         """
         return load_saved_games_from_disk(game_file)
 
-    @gen.coroutine
     @abstractmethod
-    def set_orders(self, game, power_name, orders, wait=None):
+    async def set_orders(self, game, power_name, orders, wait=None):
         """Submits orders back to the server
 
         :param game: A diplomacy.Game object representing the current state of the game
