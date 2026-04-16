@@ -18,33 +18,22 @@ import React from "react";
 import { SelectLocationForm } from "../forms/select_location_form";
 import { SelectViaForm } from "../forms/select_via_form";
 import { Order } from "../utils/order";
-import { Row, Col } from "../components/layouts";
+import { Row } from "../components/layouts";
 import { extendOrderBuilding, ORDER_BUILDER, POSSIBLE_ORDERS } from "../utils/order_building";
-import { PowerOrderCreationForm } from "../forms/power_order_creation_form";
 import { UTILS } from "../../diplomacy/utils/utils";
 import { Message } from "../../diplomacy/engine/message";
-import { PowerOrders } from "../components/power_orders";
 import { STRINGS } from "../../diplomacy/utils/strings";
 import { Diplog } from "../../diplomacy/utils/diplog";
-import { AdminPowersInfoTable } from "../components/admin_powers_info_table";
-import { PowerView } from "../utils/power_view";
 import { DipStorage } from "../utils/dipStorage";
 import Helmet from "react-helmet";
 import { Navigation } from "../components/navigation";
 import { PageContext } from "../components/page_context";
 import PropTypes from "prop-types";
 import { Help } from "../components/help";
-import { MessageInputArea } from "../components/MessageInputArea";
 import { Tab } from "../components/tab";
 import { Button } from "../components/button";
 import { saveGameToDisk } from "../utils/saveGameToDisk";
 import { Game } from "../../diplomacy/engine/game";
-import { PowerOrdersActionBar } from "../components/power_orders_actions_bar";
-import { SvgStandard } from "../maps/standard/SvgStandard";
-import { SvgAncMed } from "../maps/ancmed/SvgAncMed";
-import { SvgModern } from "../maps/modern/SvgModern";
-import { SvgPure } from "../maps/pure/SvgPure";
-import { MapData } from "../utils/map_data";
 import { Queue } from "../../diplomacy/utils/queue";
 import "@chatscope/chat-ui-kit-styles/dist/default/styles.min.css";
 import "./content_game.css";
@@ -52,48 +41,22 @@ import { default as Tabs2 } from "@mui/material/Tabs";
 import { default as Tab2 } from "@mui/material/Tab";
 import Box from "@mui/material/Box";
 import Badge from "@mui/material/Badge";
-import Card from "@mui/material/Card";
-import CardContent from "@mui/material/CardContent";
-import Paper from "@mui/material/Paper";
-import Typography from "@mui/material/Typography";
-
-
+import Grid from "@mui/material/Grid";
 import {
     MainContainer,
     ChatContainer,
     MessageList,
     MessageSeparator,
     MessageInput,
-    Sidebar,
-    ConversationList,
-    Conversation,
     ConversationHeader,
-    Avatar,
     Message as ChatMessage,
 } from "@chatscope/chat-ui-kit-react";
-import AUS from "../assets/AUS.png";
-import ENG from "../assets/ENG.png";
-import FRA from "../assets/FRA.png";
-import GER from "../assets/GER.png";
-import ITA from "../assets/ITA.png";
-import RUS from "../assets/RUS.png";
-import TUR from "../assets/TUR.png";
-import GLOBAL from "../assets/GLOBAL.png";
-import Grid from "@mui/material/Grid";
-import { Tooltip } from "@mui/material";
-import { QuestionIcon } from "@primer/octicons-react";
 
-const POWER_ICONS = {
-    AUSTRIA: AUS,
-    ENGLAND: ENG,
-    FRANCE: FRA,
-    GERMANY: GER,
-    ITALY: ITA,
-    RUSSIA: RUS,
-    TURKEY: TUR,
-    Centaur: GLOBAL,
-    omniscient_type: GLOBAL,
-};
+// Subcomponents
+import { MapContainer } from "../components/map_container";
+import { OrderPanel } from "../components/order_panel";
+import { ChatPanel } from "../components/chat_panel";
+import { PowerInfoPanel, LogsPanel } from "../components/stats_panel";
 
 const HotKey = require("react-shortcut");
 
@@ -112,30 +75,6 @@ const HotKey = require("react-shortcut");
  * {orders}  {}         1 (different, user wants to delete all server orders, will result to "no-orders")
  * {orders}  {orders}   same if we have exactly same orders on both server and local
  * */
-
-const TABLE_POWER_VIEW = {
-    name: ["Power", 0],
-    controller: ["Controller", 1],
-    order_is_set: ["With orders", 2],
-    wait: ["Ready", 3],
-    comm_status: ["Comm. Status", 4],
-};
-
-
-
-const MAP_COMPONENTS = {
-    ancmed: SvgAncMed,
-    standard: SvgStandard,
-    modern: SvgModern,
-    pure: SvgPure,
-};
-
-function getMapComponent(mapName) {
-    for (let rootMap of Object.keys(MAP_COMPONENTS)) {
-        if (mapName.indexOf(rootMap) === 0) return MAP_COMPONENTS[rootMap];
-    }
-    throw new Error(`Un-implemented map: ${mapName}`);
-}
 
 function noPromise() {
     return new Promise((resolve) => resolve());
@@ -249,7 +188,6 @@ export class ContentGame extends React.Component {
         this.onSelectVia = this.onSelectVia.bind(this);
         this.onSetEmptyOrdersSet = this.onSetEmptyOrdersSet.bind(this);
         this.reloadServerOrders = this.reloadServerOrders.bind(this);
-        this.renderOrders = this.renderOrders.bind(this);
         this.sendMessage = this.sendMessage.bind(this);
         this.sendLogData = this.sendLogData.bind(this);
         this.sendOrderLog = this.sendOrderLog.bind(this);
@@ -1328,26 +1266,6 @@ export class ContentGame extends React.Component {
     }
 
     // [ Rendering methods.
-    renderOrders(engine, currentPowerName) {
-        const serverOrders = this.props.data.getServerOrders();
-        const orders = this.__get_orders(engine);
-        const wait = ContentGame.getServerWaitFlags(engine);
-
-        const render = [];
-        render.push(
-            <PowerOrders
-                key={currentPowerName}
-                name={currentPowerName}
-                wait={wait[currentPowerName]}
-                orders={orders[currentPowerName]}
-                serverCount={
-                    serverOrders[currentPowerName] ? UTILS.javascript.count(serverOrders[currentPowerName]) : -1
-                }
-                onRemove={this.onRemoveOrder}
-            />,
-        );
-        return render;
-    }
 
     blurMessages(engine, messageChannels) {
         /* add a *hide* key to decide whether to blur a message */
@@ -1398,81 +1316,30 @@ export class ContentGame extends React.Component {
         return blurredMessageChannels;
     }
 
-    renderPastMessages(engine, role, isWide) {
-        const messageChannels = engine.getMessageChannels(role, true);
-        const filteredMessageChannels = this.blurMessages(engine, messageChannels);
-        const tabNames = [];
-        for (let powerName of Object.keys(engine.powers)) if (powerName !== role) tabNames.push(powerName);
-        tabNames.sort();
-        const currentTabId = this.state.tabPastMessages || tabNames[0];
-
-        const convList = tabNames.map((protagonist) => (
-            <div key={protagonist} style={{ minWidth: "220px" }}>
-                <Conversation
-                    className={protagonist === currentTabId ? "cs-conversation--active" : null}
-                    onClick={() => {
-                        this.onChangeTabPastMessages(protagonist);
-                    }}
-                    key={protagonist}
-                    name={protagonist}
-                    unreadCnt={this.countUnreadMessages(engine, role, protagonist)}
-                    unreadDot={this.hasUnreadAdvice(engine, role, protagonist)}
-                >
-                    <Avatar src={POWER_ICONS[protagonist]} name={protagonist} size="sm" />
-                </Conversation>
-            </div>
-        ));
-
-        const renderedMessages = [];
-        let protagonist = currentTabId;
-
-        let msgs = filteredMessageChannels[protagonist];
-        let sender = "";
-        let rec = "";
-        let dir = "";
-        let curPhase = "";
-        let prevPhase = "";
-
-        for (let m in msgs) {
-            let msg = msgs[m];
-            sender = msg.sender;
-            rec = msg.recipient;
-            curPhase = msg.phase;
-            if (curPhase !== prevPhase) {
-                renderedMessages.push(<MessageSeparator>{curPhase}</MessageSeparator>);
-                prevPhase = curPhase;
-            }
-
-            if (role === sender) dir = "outgoing";
-            if (role === rec) dir = "incoming";
-            const html = msg.hide ? `<div class="blurred">${msg.message}</div>` : msg.message;
-            renderedMessages.push(
-                <ChatMessage
-                    model={{
-                        sent: msg.time_sent,
-                        sender: sender,
-                        direction: dir,
-                        position: "single",
-                    }}
-                    avatarPosition={dir === "outgoing" ? "tr" : "tl"}
-                >
-                    <Avatar src={POWER_ICONS[sender]} name={sender} size="sm" />
-                    <ChatMessage.HtmlContent html={html} />
-                </ChatMessage>,
-            );
-        }
-
+    renderChatPanel(engine, role, isWide, isCurrent) {
+        const currentPowerName = this.getCurrentPowerName();
         return (
-            <div className={isWide ? "col-12" : "col-6"} style={{ height: "500px" }}>
-                <MainContainer responsive>
-                    <Sidebar style={{ maxWidth: "220px" }} position="left" scrollable={false}>
-                        <ConversationList>{convList}</ConversationList>
-                    </Sidebar>
-                    <ChatContainer>
-                        <MessageList>{renderedMessages}</MessageList>
-                    </ChatContainer>
-                </MainContainer>
-            </div>
+            <ChatPanel
+                ref={this.messageInputRef}
+                engine={engine}
+                role={role}
+                isWide={isWide}
+                isCurrent={isCurrent}
+                currentPowerName={currentPowerName}
+                tabCurrentMessages={this.state.tabCurrentMessages}
+                tabPastMessages={this.state.tabPastMessages}
+                annotatedMessages={this.state.annotatedMessages}
+                hasInitialOrders={this.state.hasInitialOrders}
+                messageHighlights={this.state.messageHighlights}
+                onChangeTabCurrentMessages={this.onChangeTabCurrentMessages}
+                onChangeTabPastMessages={this.onChangeTabPastMessages}
+                sendMessage={this.sendMessage}
+                handleRecipientAnnotation={this.handleRecipientAnnotation}
+                blurMessages={this.blurMessages.bind(this)}
+                countUnreadMessages={this.countUnreadMessages.bind(this)}
+                hasUnreadAdvice={this.hasUnreadAdvice.bind(this)}
+                getOrders={this.__get_orders.bind(this)}
+            />
         );
     }
 
@@ -1665,229 +1532,9 @@ export class ContentGame extends React.Component {
         return suggestedCommentary;
     }
 
-    renderCurrentMessages(engine, role, isWide) {
-        const isAdmin =
-            engine.role === "omniscient_type" || engine.role === "master_type" || engine.role === "observer_type";
+    // renderCurrentMessages and renderPastMessages are now handled by ChatPanel subcomponent via renderChatPanel()
 
-        const controllablePowers = engine.getControllablePowers();
-        const currentPowerName = this.state.power || (controllablePowers.length ? controllablePowers[0] : null);
-
-        const messageChannels = engine.getMessageChannels(role, true);
-
-        const filteredMessageChannels = this.blurMessages(engine, messageChannels);
-        const tabNames = [];
-        for (let powerName of Object.keys(engine.powers)) if (powerName !== role) tabNames.push(powerName);
-        tabNames.sort();
-        const currentTabId = this.state.tabCurrentMessages || tabNames[0];
-
-        const convList = tabNames.map((protagonist) => (
-            <Conversation
-                style={{ minWidth: "220px" }}
-                info={isAdmin && protagonist !== "GLOBAL" ? engine.powers[protagonist].getController() : <></>}
-                className={protagonist === currentTabId ? "cs-conversation--active" : null}
-                onClick={() => {
-                    this.onChangeTabCurrentMessages(protagonist);
-                }}
-                key={protagonist}
-                name={protagonist}
-                unreadCnt={this.countUnreadMessages(engine, role, protagonist)}
-                unreadDot={this.hasUnreadAdvice(engine, role, protagonist)}
-            >
-                <Avatar src={POWER_ICONS[protagonist]} name={protagonist} size="sm" />
-            </Conversation>
-        ));
-
-        const renderedMessages = [];
-        let protagonist = currentTabId;
-
-        let msgs = filteredMessageChannels[protagonist];
-        let sender = "";
-        let rec = "";
-        let dir = "";
-        let curPhase = "";
-        let prevPhase = "";
-
-        for (let m in msgs) {
-            let msg = msgs[m];
-            sender = msg.sender;
-            rec = msg.recipient;
-            curPhase = msg.phase;
-            const html = msg.hide ? `<div class="blurred">${msg.message}</div>` : msg.message;
-
-            if (curPhase !== prevPhase) {
-                renderedMessages.push(<MessageSeparator key={msg.phase}>{curPhase}</MessageSeparator>);
-                prevPhase = curPhase;
-            }
-            let messageId = msg.sender + "-" + msg.time_sent.toString();
-
-            if (role === sender) dir = "outgoing";
-            if (role === rec) dir = "incoming";
-
-            renderedMessages.push(
-                <ChatMessage
-                    model={{
-                        sent: msg.time_sent,
-                        sender: sender,
-                        direction: dir,
-                        position: "single",
-                    }}
-                    avatarPosition={dir === "outgoing" ? "tr" : "tl"}
-                    key={`${sender}-${rec}-${m}`}
-                >
-                    <Avatar src={POWER_ICONS[sender]} name={sender} size="sm" />
-                    <ChatMessage.HtmlContent html={html} />
-                </ChatMessage>,
-            );
-
-            if (dir === "incoming") {
-                renderedMessages.push(
-                    <div
-                        style={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                        }}
-                    >
-                        Is the above message deceptive?
-                        <div id={messageId}>
-                            <Col>
-                                <input
-                                    type="radio"
-                                    value="yes"
-                                    name={messageId}
-                                    checked={
-                                        Object.prototype.hasOwnProperty.call(this.state.annotatedMessages, msg.time_sent) &&
-                                        this.state.annotatedMessages[msg.time_sent] === "yes"
-                                    }
-                                    onChange={() => {
-                                        this.handleRecipientAnnotation(msg.time_sent, "yes");
-                                    }}
-                                    disabled={
-                                        engine.role === "omniscient_type" ||
-                                        engine.role === "observer_type" ||
-                                        engine.role === "master_type"
-                                    }
-                                />
-                                yes&nbsp;
-                                <input
-                                    type="radio"
-                                    value="none"
-                                    name={messageId}
-                                    checked={
-                                        Object.prototype.hasOwnProperty.call(this.state.annotatedMessages, msg.time_sent) &&
-                                        this.state.annotatedMessages[msg.time_sent] === "None"
-                                    }
-                                    onChange={() => this.handleRecipientAnnotation(msg.time_sent, "None")}
-                                    disabled={
-                                        engine.role === "omniscient_type" ||
-                                        engine.role === "observer_type" ||
-                                        engine.role === "master_type"
-                                    }
-                                />
-                                no
-                            </Col>
-                        </div>
-                    </div>,
-                );
-            }
-        }
-
-        const phaseType = engine.getPhaseType();
-
-        return (
-            <Box className={isWide ? "col-12 mb-4" : "col-6 mb-4"}>
-                <Card elevation={3} sx={{ borderRadius: 2, overflow: 'hidden', height: '550px' }}>
-                    <CardContent sx={{ p: 0, height: '100%', '&:last-child': { pb: 0 } }}>
-                        <Box sx={{ width: "100%", height: "100%" }}>
-                            <MainContainer responsive>
-                                <Sidebar position="left" scrollable={true}>
-                                    <ConversationList>{convList}</ConversationList>
-                                </Sidebar>
-                                <ChatContainer>
-                                    <MessageList>{renderedMessages}</MessageList>
-                                </ChatContainer>
-                            </MainContainer>
-                            {engine.isPlayerGame() && (
-                                <MessageInputArea
-                                    ref={this.messageInputRef}
-                                    sendMessage={this.sendMessage}
-                                    networkGame={engine.client}
-                                    currentTabId={currentTabId}
-                                    disabled={
-                                        phaseType === "M" &&
-                                        (!this.state.hasInitialOrders ||
-                                            (this.__get_orders(engine)[currentPowerName] &&
-                                                Object.keys(this.__get_orders(engine)[currentPowerName]).length <
-                                                engine.orderableLocations[currentPowerName].length))
-                                    }
-                                    hasInitialOrders={this.state.hasInitialOrders}
-                                />
-                            )}
-                        </Box>
-                    </CardContent>
-                </Card>
-            </Box>
-        );
-    }
-
-    renderMapForResults(gameEngine, showOrders) {
-        const Map = getMapComponent(gameEngine.map_name);
-        return (
-            <div id="past-map" key="past-map">
-                <Map
-                    game={gameEngine}
-                    showAbbreviations={this.state.showAbbreviations}
-                    mapData={new MapData(this.getMapInfo(gameEngine.map_name), gameEngine)}
-                    onError={this.getPage().error}
-                    orders={
-                        (showOrders &&
-                            gameEngine.order_history.contains(gameEngine.phase) &&
-                            gameEngine.order_history.get(gameEngine.phase)) ||
-                        null
-                    }
-                    onHover={showOrders ? this.displayLocationOrders : null}
-                    onSelectVia={this.onSelectVia}
-                />
-            </div>
-        );
-    }
-
-    renderMapForCurrent(gameEngine, powerName, orderType, orderPath) {
-        const Map = getMapComponent(gameEngine.map_name);
-        const rawOrders = this.__get_orders(gameEngine);
-        const orders = {};
-        for (let entry of Object.entries(rawOrders)) {
-            orders[entry[0]] = [];
-            if (entry[1]) {
-                for (let orderObject of Object.values(entry[1])) orders[entry[0]].push(orderObject.order);
-            }
-        }
-        for (let oo of this.state.hoverOrders) {
-            orders[powerName].push(oo);
-        }
-
-        return (
-            <div id="current-map" key="current-map">
-                <Map
-                    game={gameEngine}
-                    showAbbreviations={this.state.showAbbreviations}
-                    mapData={new MapData(this.getMapInfo(gameEngine.map_name), gameEngine)}
-                    onError={this.getPage().error}
-                    orderBuilding={ContentGame.getOrderBuilding(powerName, orderType, orderPath)}
-                    onOrderBuilding={this.onOrderBuilding}
-                    onOrderBuilt={this.onOrderBuilt}
-                    orders={orders}
-                    shiftKeyPressed={this.state.shiftKeyPressed}
-                    onChangeOrderDistribution={this.onChangeOrderDistribution}
-                    orderDistribution={this.state.orderDistribution}
-                    displayVisualAdvice={this.state.displayVisualAdvice}
-                    visibleDistributionOrder={this.state.visibleDistributionOrder}
-                    hoverDistributionOrder={this.state.hoverDistributionOrder}
-                    onSelectLocation={this.onSelectLocation}
-                    onSelectVia={this.onSelectVia}
-                />
-            </div>
-        );
-    }
+    // renderMapForResults and renderMapForCurrent are now handled by MapContainer subcomponent
 
     __get_engine_to_display(initialEngine) {
         const pastPhases = initialEngine.state_history.values().map((state) => state.name);
@@ -2016,7 +1663,16 @@ export class ContentGame extends React.Component {
                         {this.state.historyCurrentOrders && (
                             <div className={"history-current-orders"}>{this.state.historyCurrentOrders.join(", ")}</div>
                         )}
-                        {this.renderMapForResults(engine, this.state.historyShowOrders)}
+                        <MapContainer
+                            mode="results"
+                            gameEngine={engine}
+                            mapInfo={this.getMapInfo(engine.map_name)}
+                            showAbbreviations={this.state.showAbbreviations}
+                            onError={this.getPage().error}
+                            showOrders={this.state.historyShowOrders}
+                            onHover={this.displayLocationOrders}
+                            onSelectVia={this.onSelectVia}
+                        />
                     </div>
                     <div className={"col-4"}>{orderView}</div>
                 </Row>
@@ -2778,84 +2434,6 @@ export class ContentGame extends React.Component {
         );
     }
 
-    renderPowerInfo(engine) {
-        const powerNames = Object.keys(engine.powers);
-
-        function isNotSelf(power) {
-            return engine.role !== power;
-        }
-
-        const filteredPowerNames = powerNames.filter(isNotSelf);
-        const filteredPowers = filteredPowerNames.map((pn) => engine.powers[pn]);
-
-        powerNames.sort();
-        filteredPowerNames.sort();
-
-        const currentPowerName =
-            this.state.power || (engine.getControllablePowers().length && engine.getControllablePowers()[0]);
-
-        return engine.role === "omniscient_type" || engine.role === "observer_type" || engine.role === "master_type" ? (
-            <div className={"col-lg-6 col-md-12"}>
-                <div className={"table-responsive"}>
-                    <AdminPowersInfoTable
-                        className={"table table-striped table-sm"}
-                        caption={"Powers info"}
-                        columns={TABLE_POWER_VIEW}
-                        data={filteredPowers}
-                        wrapper={PowerView.wrap}
-                        countries={filteredPowerNames}
-                        player={currentPowerName}
-                    />
-                </div>
-            </div>
-        ) : (
-            <div></div>
-        );
-    }
-
-    renderLogs(engine, role) {
-        const curController = engine.powers[role].getController();
-
-        const powerLogs = engine.getLogsForPower(role, true);
-        let renderedLogs = [];
-        let curPhase = "";
-        let prevPhase = "";
-        powerLogs.forEach((log) => {
-            if (log.phase !== prevPhase) {
-                curPhase = log.phase;
-                renderedLogs.push(<MessageSeparator>{curPhase}</MessageSeparator>);
-
-                prevPhase = curPhase;
-            }
-
-            renderedLogs.push(
-                // eslint-disable-next-line react/jsx-key
-                <ChatMessage
-                    model={{
-                        message: log.message,
-                        sent: log.time_sent,
-                        sender: role,
-                        direction: "outgoing",
-                        position: "single",
-                    }}
-                ></ChatMessage>,
-            );
-        });
-
-        return (
-            <div style={{ height: "500px" }}>
-                <MainContainer responsive>
-                    <ChatContainer>
-                        <ConversationHeader>
-                            <ConversationHeader.Content userName={curController} />
-                        </ConversationHeader>
-                        <MessageList>{renderedLogs}</MessageList>
-                    </ChatContainer>
-                </MainContainer>
-            </div>
-        );
-    }
-
     renderTabCurrentPhase(
         toDisplay,
         engine,
@@ -2863,34 +2441,41 @@ export class ContentGame extends React.Component {
         orderType,
         orderPath,
         currentPowerName,
-        currentTabOrderCreation,
+        orderPanel,
         moveAdvicePanel,
     ) {
-        const powerNames = Object.keys(engine.powers);
-        powerNames.sort();
-
         return (
             <Tab id={"tab-current-phase"} display={toDisplay}>
                 <Row>
                     <div className={`col-${this.state.mapSize}`}>
-                        {this.renderMapForCurrent(engine, powerName, orderType, orderPath)}
+                        <MapContainer
+                            mode="current"
+                            gameEngine={engine}
+                            mapInfo={this.getMapInfo(engine.map_name)}
+                            showAbbreviations={this.state.showAbbreviations}
+                            onError={this.getPage().error}
+                            powerName={powerName}
+                            orderType={orderType}
+                            orderPath={orderPath}
+                            orders={this.__get_orders(engine)}
+                            hoverOrders={this.state.hoverOrders}
+                            shiftKeyPressed={this.state.shiftKeyPressed}
+                            onOrderBuilding={this.onOrderBuilding}
+                            onOrderBuilt={this.onOrderBuilt}
+                            onChangeOrderDistribution={this.onChangeOrderDistribution}
+                            orderDistribution={this.state.orderDistribution}
+                            displayVisualAdvice={this.state.displayVisualAdvice}
+                            visibleDistributionOrder={this.state.visibleDistributionOrder}
+                            hoverDistributionOrder={this.state.hoverDistributionOrder}
+                            onSelectLocation={this.onSelectLocation}
+                            onSelectVia={this.onSelectVia}
+                            getOrderBuilding={ContentGame.getOrderBuilding}
+                        />
                     </div>
                     <div className={moveAdvicePanel ? "col-4" : "col-6"}>
                         {/* Orders. */}
                         <div className={"panel-orders mb-4"} style={{ maxHeight: "500px", overflowY: "auto" }}>
-                            {currentTabOrderCreation ? <div className="mb-4">{currentTabOrderCreation}</div> : ""}
-                            <PowerOrdersActionBar
-                                onReset={this.reloadServerOrders}
-                                onDeleteAll={this.onRemoveAllCurrentPowerOrders}
-                                onUpdate={this.setOrders}
-                                onProcess={
-                                    !this.props.data.isPlayerGame() &&
-                                        this.props.data.observer_level === STRINGS.MASTER_TYPE
-                                        ? this.onProcessGame
-                                        : null
-                                }
-                            />
-                            <div className={"orders"}>{this.renderOrders(this.props.data, powerName)}</div>
+                            {orderPanel ? <div className="mb-4">{orderPanel}</div> : ""}
                         </div>
                     </div>
                     {moveAdvicePanel}
@@ -2901,10 +2486,10 @@ export class ContentGame extends React.Component {
 
     renderTabChat(toDisplay, initialEngine, currentPowerName, isWide) {
         const { engine, pastPhases, phaseIndex } = this.__get_engine_to_display(initialEngine);
+        const isCurrent = pastPhases[phaseIndex] === initialEngine.phase;
+        const displayEngine = isCurrent ? initialEngine : engine;
 
-        return pastPhases[phaseIndex] === initialEngine.phase
-            ? this.renderCurrentMessages(initialEngine, currentPowerName, isWide)
-            : this.renderPastMessages(engine, currentPowerName, isWide);
+        return this.renderChatPanel(displayEngine, currentPowerName, isWide, isCurrent);
     }
 
     renderMoveAdviceTab(toDisplay, initialEngine, role) {
@@ -3015,22 +2600,6 @@ export class ContentGame extends React.Component {
 
         const suggestionType = this.getSuggestionType(currentPowerName, engine, suggestionMessages);
 
-        // orderable locations and units with no orders
-        let numOrderText = "";
-
-        if (phaseType === "M" && orderTypeToLocs) {
-            const merged = new Set(Object.values(orderTypeToLocs).flat());
-            const unitsWithoutOrders = new Set([...merged].filter((x) => !Object.keys(powerOrders).includes(x)));
-            if (unitsWithoutOrders.size === 0 || merged.size === unitsWithoutOrders.size) {
-                numOrderText = `[${Object.keys(powerOrders).length}/${engine.orderableLocations[currentPowerName].length
-                    }] set.`;
-            } else {
-                const unitsWithoutOrdersArray = Array.from(unitsWithoutOrders);
-                numOrderText = `[${Object.keys(powerOrders).length}/${engine.orderableLocations[currentPowerName].length
-                    }] set. Need: ${unitsWithoutOrdersArray.join(", ")}`;
-            }
-        }
-
         const navAfterTitle = (
             <form className="form-inline form-current-power">
                 <div className="game-controls-group">
@@ -3094,88 +2663,33 @@ export class ContentGame extends React.Component {
             </form>
         );
 
-        const suggestionTypeDisplay = [];
-        if (this.hasSuggestionType(suggestionType, UTILS.SuggestionType.MESSAGE)) suggestionTypeDisplay.push("message");
-        if (this.hasSuggestionType(suggestionType, UTILS.SuggestionType.MOVE)) suggestionTypeDisplay.push("order");
-        if (this.hasSuggestionType(suggestionType, UTILS.SuggestionType.COMMENTARY))
-            suggestionTypeDisplay.push("commentary");
-        if (
-            this.hasSuggestionType(suggestionType, UTILS.SuggestionType.MOVE_DISTRIBUTION_TEXTUAL) ||
-            this.hasSuggestionType(suggestionType, UTILS.SuggestionType.MOVE_DISTRIBUTION_VISUAL)
-        )
-            suggestionTypeDisplay.push(
-                <>
-                    order probability{" "}
-                    <Tooltip
-                        title={
-                            <>
-                                <p>
-                                    Hold <kbd>Shift</kbd> and click on a province to display recommended/predicted
-                                    orders for the province&apos;s unit.
-                                </p>
-                                <p>Click the province a second time to place an order.</p>
-                                <p>
-                                    Release <kbd>Shift</kbd> to clear all selections.
-                                </p>
-                            </>
-                        }
-                    >
-                        {/* Tooltip does not display without using `<span>` here */}
-                        <span>
-                            <QuestionIcon />
-                        </span>
-                    </Tooltip>
-                </>,
-            );
-
-        const currentTabOrderCreation = hasTabCurrentPhase && (
-            <div>
-                <PowerOrderCreationForm
-                    orderType={orderBuildingType}
-                    orderTypes={allowedPowerOrderTypes}
-                    onChange={this.onChangeOrderType}
-                    onPass={() => this.onSetEmptyOrdersSet(currentPowerName)}
-                    onSetWaitFlag={() => this.setWaitFlag(!currentPower.wait)}
-                    onVote={this.vote}
-                    role={engine.role}
-                    power={currentPower}
-                />
-                {(allowedPowerOrderTypes.length && (
-                    <span>
-                        <strong>Orderable locations</strong>: {orderTypeToLocs[orderBuildingType].join(", ")}
-                    </span>
-                )) || <strong>&nbsp;No orderable location.</strong>}
-                {phaseType === "A" &&
-                    ((buildCount === null && <strong>&nbsp;(unknown build count)</strong>) ||
-                        (buildCount === 0 ? (
-                            <strong>&nbsp;(nothing to build or disband)</strong>
-                        ) : buildCount > 0 ? (
-                            <strong>
-                                &nbsp;({buildCount} unit{buildCount > 1 && "s"} may be built)
-                            </strong>
-                        ) : (
-                            <strong>
-                                &nbsp;({-buildCount} unit
-                                {buildCount < -1 && "s"} to disband)
-                            </strong>
-                        )))}
-                {phaseType === "M" && <div>{numOrderText}</div>}
-                {suggestionType === null && <div>No advice assigned</div>}
-                {suggestionType !== null && suggestionType === UTILS.SuggestionType.NONE && (
-                    <div>No advice this turn</div>
-                )}
-                {suggestionType !== null && suggestionType !== UTILS.SuggestionType.NONE && (
-                    <div>
-                        You are getting advice:{" "}
-                        {/* `reduce()` call used to "`join()`" React elements
-                        (from https://stackoverflow.com/questions/34034038/how-to-render-react-components-by-using-map-and-join/35840806#35840806)
-                        */}
-                        {suggestionTypeDisplay.reduce((accu, elem) => {
-                            return accu === null ? [elem] : [...accu, ", ", elem];
-                        }, null)}
-                    </div>
-                )}
-            </div>
+        const orderPanelElement = hasTabCurrentPhase && (
+            <OrderPanel
+                engine={engine}
+                currentPowerName={currentPowerName}
+                currentPower={currentPower}
+                orderBuildingType={orderBuildingType}
+                allowedPowerOrderTypes={allowedPowerOrderTypes}
+                orderTypeToLocs={orderTypeToLocs}
+                phaseType={phaseType}
+                buildCount={buildCount}
+                suggestionType={suggestionType}
+                powerOrders={powerOrders}
+                serverOrders={this.props.data.getServerOrders()}
+                orders={this.__get_orders(engine)}
+                wait={ContentGame.getServerWaitFlags(engine)}
+                onChangeOrderType={this.onChangeOrderType}
+                onSetEmptyOrdersSet={this.onSetEmptyOrdersSet}
+                setWaitFlag={this.setWaitFlag}
+                vote={this.vote}
+                onRemoveOrder={this.onRemoveOrder}
+                onReloadServerOrders={this.reloadServerOrders}
+                onRemoveAllCurrentPowerOrders={this.onRemoveAllCurrentPowerOrders}
+                onSetOrders={this.setOrders}
+                onProcessGame={this.onProcessGame}
+                isPlayerGame={this.props.data.isPlayerGame()}
+                observerLevel={this.props.data.observer_level}
+            />
         );
 
         const moveAdvicePanel = this.renderMoveAdviceTab(true, engine, currentPowerName);
@@ -3191,7 +2705,7 @@ export class ContentGame extends React.Component {
                     orderBuildingType,
                     this.state.orderBuildingPath,
                     currentPowerName,
-                    currentTabOrderCreation,
+                    orderPanelElement,
                     moveAdvicePanel,
                 );
             } else if (hasTabPhaseHistory) {
@@ -3201,11 +2715,7 @@ export class ContentGame extends React.Component {
             phasePanel = this.renderTabResults(true, engine);
         }
 
-        const advice = this.getSuggestionMessages(currentPowerName, messageChannels, engine);
-
         const isAdmin = engine.role === "omniscient_type" || engine.role === "master_type";
-
-
 
         const showMessageAdviceTab =
             this.hasSuggestionType(suggestionType, UTILS.SuggestionType.MESSAGE) ||
@@ -3218,8 +2728,18 @@ export class ContentGame extends React.Component {
                     {showMessageAdviceTab && this.renderMessageAdviceTab(true, engine, currentPowerName, false)}
                 </Row>
                 <Row>
-                    {!engine.isPlayerGame() && this.renderPowerInfo(engine)}
-                    {page.channel.username === "admin" && this.renderLogs(engine, currentPowerName)}
+                    {!engine.isPlayerGame() && (
+                        <PowerInfoPanel engine={engine} currentPowerName={currentPowerName} />
+                    )}
+                    {page.channel.username === "admin" && (
+                        <LogsPanel
+                            engine={engine}
+                            role={currentPowerName}
+                            logData={this.state.logData}
+                            setLogDataInputValue={this.setlogDataInputValue.bind(this)}
+                            sendLogData={this.sendLogData}
+                        />
+                    )}
                 </Row>
             </div>
         );

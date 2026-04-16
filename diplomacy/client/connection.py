@@ -21,6 +21,7 @@ from datetime import timedelta
 from typing import Dict, Optional
 from tornado import gen, ioloop
 from tornado.concurrent import Future
+from tornado.httpclient import HTTPError as HTTPClientError, HTTPRequest
 from tornado.iostream import StreamClosedError
 from tornado.locks import Event
 from tornado.websocket import WebSocketClientConnection, websocket_connect, WebSocketClosedError
@@ -200,27 +201,22 @@ class Connection:
         # Create a connection (currently using websockets).
         self.connection = None
         for attempt_index in range(constants.NB_CONNECTION_ATTEMPTS):
-            future_connection = websocket_connect(self.url)
-
             try:
-                self.connection = yield gen.with_timeout(
-                    timedelta(seconds=constants.ATTEMPT_DELAY_SECONDS), future_connection
+                req = HTTPRequest(
+                    self.url,
+                    connect_timeout=constants.ATTEMPT_DELAY_SECONDS,
+                    request_timeout=constants.ATTEMPT_DELAY_SECONDS,
                 )
+                self.connection = yield websocket_connect(req)
                 break
             except (
                 gen.TimeoutError,
+                HTTPClientError,
                 ConnectionAbortedError,
                 ConnectionError,
                 ConnectionRefusedError,
                 ConnectionResetError,
             ) as ex:
-                # cancel/close future to free
-                future_connection.cancel()
-                if future_connection.done() and not future_connection.cancelled():
-                    ws = future_connection.result() if future_connection.exception() is None else None
-                    if ws is not None:
-                        ws.close()
-
                 if attempt_index + 1 == constants.NB_CONNECTION_ATTEMPTS:
                     raise ex
                 LOGGER.warning("Connection failing (attempt %d), retrying.", attempt_index + 1)
