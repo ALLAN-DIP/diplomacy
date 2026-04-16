@@ -34,83 +34,56 @@ function defaultWrapper(data) {
     return new DefaultWrapper(data);
 }
 
-export class Table extends React.Component {
-    // className
-    // caption
-    // columns : {name: [title, order]}
-    // data: [objects with expected column names]
-    // wrapper: (optional) function to use to wrap one data entry into an object before accessing fields.
-    // Must return an instance with a method get(name).
-    // If provided: wrapper(data_entry).get(field_name)
-    // else: data_entry[field_name]
-
-    constructor(props) {
-        super(props);
-        if (!this.props.wrapper) this.props.wrapper = defaultWrapper;
+function getHeader(columns) {
+    const header = [];
+    for (let entry of Object.entries(columns)) {
+        const name = entry[0];
+        const title = entry[1][0];
+        const order = entry[1][1];
+        header.push([order, name, title]);
     }
-
-    getHeader(columns) {
-        const header = [];
-        for (let entry of Object.entries(columns)) {
-            const name = entry[0];
-            const title = entry[1][0];
-            const order = entry[1][1];
-            header.push([order, name, title]);
-        }
-        header.sort((a, b) => {
-            let t = a[0] - b[0];
-            if (t === 0) t = a[1].localeCompare(b[1]);
-            if (t === 0) t = a[2].localeCompare(b[2]);
-            return t;
-        });
-
-        return header;
-    }
-
-    getHeaderLine(header) {
-        return (
-            <thead className={"thead-light"}>
-                <tr>
-                    {header.map((column, colIndex) => (
-                        <th key={colIndex}>{column[2]}</th>
-                    ))}
-                </tr>
-            </thead>
-        );
-    }
-
-    getBodyRow(header, row, rowIndex, wrapper) {
-        const wrapped = wrapper(row);
-        return (
-            <tr key={rowIndex}>
-                {header.map((headerColumn, colIndex) => (
-                    <td className={"align-middle"} key={colIndex}>
-                        {wrapped.get(headerColumn[1])}
-                    </td>
-                ))}
-            </tr>
-        );
-    }
-
-    getBodyLines(header, data, wrapper) {
-        return <tbody>{data.map((row, rowIndex) => this.getBodyRow(header, row, rowIndex, wrapper))}</tbody>;
-    }
-
-    render() {
-        const header = this.getHeader(this.props.columns, this.props.caption);
-        return (
-            <div className={"table-responsive"}>
-                <table className={this.props.className}>
-                    <caption>
-                        {this.props.caption} ({this.props.data.length})
-                    </caption>
-                    {this.getHeaderLine(header)}
-                    {this.getBodyLines(header, this.props.data, this.props.wrapper)}
-                </table>
-            </div>
-        );
-    }
+    header.sort((a, b) => {
+        let t = a[0] - b[0];
+        if (t === 0) t = a[1].localeCompare(b[1]);
+        if (t === 0) t = a[2].localeCompare(b[2]);
+        return t;
+    });
+    return header;
 }
+
+export const Table = ({ className, caption, columns, data, wrapper = defaultWrapper }) => {
+    const header = getHeader(columns);
+    return (
+        <div className={"table-responsive"}>
+            <table className={className}>
+                <caption>
+                    {caption} ({data.length})
+                </caption>
+                <thead className={"thead-light"}>
+                    <tr>
+                        {header.map((column, colIndex) => (
+                            <th key={colIndex}>{column[2]}</th>
+                        ))}
+                    </tr>
+                </thead>
+                <tbody>
+                    {data.map((row, rowIndex) => {
+                        const wrapped = wrapper(row);
+                        return (
+                            <tr key={rowIndex}>
+                                {header.map((headerColumn, colIndex) => (
+                                    <td className={"align-middle"} key={colIndex}>
+                                        {wrapped.get(headerColumn[1])}
+                                    </td>
+                                ))}
+                            </tr>
+                        );
+                    })}
+                </tbody>
+            </table>
+        </div>
+    );
+};
 
 Table.propTypes = {
     wrapper: PropTypes.func,

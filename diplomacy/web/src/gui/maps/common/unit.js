@@ -18,30 +18,28 @@ import React from "react";
 import { ARMY, FLEET } from "./common";
 import PropTypes from "prop-types";
 
-export class Unit extends React.Component {
-    render() {
-        const Coordinates = this.props.coordinates;
-        const SymbolSizes = this.props.symbolSizes;
-        const split_unit = this.props.unit.split(/ +/);
-        const unit_type = split_unit[0];
-        const loc = split_unit[1];
-        const dislogged_type = this.props.isDislodged ? "disl" : "unit";
-        const symbol = unit_type === "F" ? FLEET : ARMY;
-        const loc_x = Coordinates[loc][dislogged_type][0];
-        const loc_y = Coordinates[loc][dislogged_type][1];
-        return (
-            <use
-                href={`#${this.props.isDislodged ? "Dislodged" : ""}${symbol}`}
-                x={loc_x}
-                y={loc_y}
-                id={`${this.props.isDislodged ? "dislodged_" : ""}unit_${loc}`}
-                width={SymbolSizes[symbol].width * 1.3}
-                height={SymbolSizes[symbol].height * 1.3}
-                className={`unit${this.props.powerName.toLowerCase()}`}
-            />
-        );
-    }
-}
+export const Unit = ({ coordinates, symbolSizes, unit, isDislodged, powerName }) => {
+    const Coordinates = coordinates;
+    const SymbolSizes = symbolSizes;
+    const split_unit = unit.split(/ +/);
+    const unit_type = split_unit[0];
+    const loc = split_unit[1];
+    const dislogged_type = isDislodged ? "disl" : "unit";
+    const symbol = unit_type === "F" ? FLEET : ARMY;
+    const loc_x = Coordinates[loc][dislogged_type][0];
+    const loc_y = Coordinates[loc][dislogged_type][1];
+    return (
+        <use
+            href={`#${isDislodged ? "Dislodged" : ""}${symbol}`}
+            x={loc_x}
+            y={loc_y}
+            id={`${isDislodged ? "dislodged_" : ""}unit_${loc}`}
+            width={SymbolSizes[symbol].width * 1.3}
+            height={SymbolSizes[symbol].height * 1.3}
+            className={`unit${powerName.toLowerCase()}`}
+        />
+    );
+};
 
 Unit.propTypes = {
     unit: PropTypes.string.isRequired,

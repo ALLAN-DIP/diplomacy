@@ -36,17 +36,13 @@ import { Convoy } from "../common/convoy";
 import { Build } from "../common/build";
 import { Disband } from "../common/disband";
 
-export class SvgModern extends React.Component {
-    constructor(props) {
-        super(props);
-        this.onClick = this.onClick.bind(this);
-        this.onHover = this.onHover.bind(this);
+export const SvgModern = (props) => {
+
+const onClick = (event) => {
+        if (props.orderBuilding) return handleClickedID(getClickedID(event));
     }
-    onClick(event) {
-        if (this.props.orderBuilding) return this.handleClickedID(getClickedID(event));
-    }
-    onHover(event) {
-        return this.handleHoverID(getClickedID(event));
+    const onHover = (event) => {
+        return handleHoverID(getClickedID(event));
     }
 
     /**
@@ -54,13 +50,13 @@ export class SvgModern extends React.Component {
      * @param orderBuilding
      * @param {Province} province - province hovered upon
      */
-    onPrediction(orderBuilding, province) {
-        const localGame = this.props.game; // Game Object
+    const onPrediction = (orderBuilding, province) => {
+        const localGame = props.game; // Game Object
         const phaseType = localGame.phase.slice(-1); // 'M'/'A'/'R' - movement/adjustment/retreat
         const requestedPower = orderBuilding.power;
         var requestedProvince = "";
         const provinceController = province.controller;
-        const powers = Object.values(this.props.game.powers).map((power) => power.name);
+        const powers = Object.values(props.game.powers).map((power) => power.name);
 
         /* Get correct naming of province*/
         if (phaseType === "M") {
@@ -84,7 +80,7 @@ export class SvgModern extends React.Component {
         } else {
             /* ADJUSTMENT PHASE */
             const orderTypes = POSSIBLE_ORDERS["A"];
-            const possibleOrders = this.props.game.ordersTree;
+            const possibleOrders = props.game.ordersTree;
             const orderableLocations = new Set();
 
             for (const type of orderTypes) {
@@ -111,31 +107,31 @@ export class SvgModern extends React.Component {
             }
         }
         if (requestedProvince === "") {
-            this.props.onError(`No orderable locations at province ${province.name}`);
-            return this.props.onChangeOrderDistribution(requestedPower, null, provinceController);
+            props.onError(`No orderable locations at province ${province.name}`);
+            return props.onChangeOrderDistribution(requestedPower, null, provinceController);
         }
 
-        for (var orderDist of this.props.orderDistribution) {
+        for (var orderDist of props.orderDistribution) {
             if (orderDist.province === requestedProvince) {
                 return false; // advice is already displayed
             }
         }
 
-        this.props.onChangeOrderDistribution(requestedPower, requestedProvince, provinceController);
+        props.onChangeOrderDistribution(requestedPower, requestedProvince, provinceController);
         return true;
     }
 
-    handleClickedID(id) {
-        const province = this.props.mapData.getProvince(id);
+    const handleClickedID = (id) => {
+        const province = props.mapData.getProvince(id);
         if (!province) throw new Error(`Cannot find a province named ${id}`);
 
-        const orderBuilding = this.props.orderBuilding;
-        if (this.props.shiftKeyPressed) {
-            if (this.onPrediction(orderBuilding, province)) {
+        const orderBuilding = props.orderBuilding;
+        if (props.shiftKeyPressed) {
+            if (onPrediction(orderBuilding, province)) {
                 return;
             }
         }
-        if (!orderBuilding.builder) return this.props.onError("No orderable locations.");
+        if (!orderBuilding.builder) return props.onError("No orderable locations.");
         const stepLength = orderBuilding.builder.steps.length;
         if (orderBuilding.path.length >= stepLength)
             throw new Error(
@@ -146,7 +142,7 @@ export class SvgModern extends React.Component {
         const lengthAfterClick = orderBuilding.path.length + 1;
         let validLocations = [];
         const testedPath = [orderBuilding.type].concat(orderBuilding.path);
-        const value = UTILS.javascript.getTreeValue(this.props.game.ordersTree, testedPath);
+        const value = UTILS.javascript.getTreeValue(props.game.ordersTree, testedPath);
         if (value !== null) {
             const checker = orderBuilding.builder.steps[lengthAfterClick - 1];
             try {
@@ -156,10 +152,10 @@ export class SvgModern extends React.Component {
                     if (value.includes(possibleLocation)) validLocations.push(possibleLocation);
                 }
             } catch (error) {
-                return this.props.onError(error);
+                return props.onError(error);
             }
         }
-        if (!validLocations.length) return this.props.onError("Disallowed.");
+        if (!validLocations.length) return props.onError("Disallowed.");
 
         if (validLocations.length > 1 && orderBuilding.type === "S" && orderBuilding.path.length >= 2) {
             /* We are building a support order and we have a multiple choice for a location.        */
@@ -195,8 +191,8 @@ export class SvgModern extends React.Component {
         }
 
         if (validLocations.length > 1) {
-            if (this.props.onSelectLocation) {
-                return this.props.onSelectLocation(
+            if (props.onSelectLocation) {
+                return props.onSelectLocation(
                     validLocations,
                     orderBuilding.power,
                     orderBuilding.type,
@@ -210,11 +206,11 @@ export class SvgModern extends React.Component {
         let orderBuildingType = orderBuilding.type;
         if (lengthAfterClick === stepLength && orderBuildingType === "M") {
             const moveOrderPath = ["M"].concat(orderBuilding.path, validLocations[0]);
-            const moveTypes = UTILS.javascript.getTreeValue(this.props.game.ordersTree, moveOrderPath);
+            const moveTypes = UTILS.javascript.getTreeValue(props.game.ordersTree, moveOrderPath);
             if (moveTypes !== null) {
-                if (moveTypes.length === 2 && this.props.onSelectVia) {
+                if (moveTypes.length === 2 && props.onSelectVia) {
                     /* This move can be done either regularly or VIA a fleet. Let user choose. */
-                    return this.props.onSelectVia(validLocations[0], orderBuilding.power, orderBuilding.path);
+                    return props.onSelectVia(validLocations[0], orderBuilding.power, orderBuilding.path);
                 } else {
                     orderBuildingType = moveTypes[0];
                 }
@@ -225,23 +221,23 @@ export class SvgModern extends React.Component {
             orderBuildingType,
             orderBuilding.path,
             validLocations[0],
-            this.props.onOrderBuilding,
-            this.props.onOrderBuilt,
-            this.props.onError,
+            props.onOrderBuilding,
+            props.onOrderBuilt,
+            props.onError,
         );
     }
-    handleHoverID(id) {
-        if (this.props.onHover) {
-            const province = this.props.mapData.getProvince(id);
+    const handleHoverID = (id) => {
+        if (props.onHover) {
+            const province = props.mapData.getProvince(id);
             if (province) {
-                this.props.onHover(province.name, this.getRelatedOrders(province.name));
+                props.onHover(province.name, getRelatedOrders(province.name));
             }
         }
     }
-    getRelatedOrders(name) {
+    const getRelatedOrders = (name) => {
         const orders = [];
-        if (this.props.orders) {
-            for (let powerOrders of Object.values(this.props.orders)) {
+        if (props.orders) {
+            for (let powerOrders of Object.values(props.orders)) {
                 if (powerOrders) {
                     for (let order of powerOrders) {
                         const pieces = order.split(/ +/);
@@ -252,10 +248,10 @@ export class SvgModern extends React.Component {
         }
         return orders;
     }
-    getNeighbors(extraLocation) {
-        const selectedPath = [this.props.orderBuilding.type].concat(this.props.orderBuilding.path);
+    const getNeighbors = (extraLocation) => {
+        const selectedPath = [props.orderBuilding.type].concat(props.orderBuilding.path);
         if (extraLocation) selectedPath.push(extraLocation);
-        const possibleNeighbors = UTILS.javascript.getTreeValue(this.props.game.ordersTree, selectedPath);
+        const possibleNeighbors = UTILS.javascript.getTreeValue(props.game.ordersTree, selectedPath);
         const neighbors = possibleNeighbors ? possibleNeighbors.map((neighbor) => parseLocation(neighbor)) : [];
         return neighbors.length ? neighbors : null;
     }
@@ -269,7 +265,7 @@ export class SvgModern extends React.Component {
      * @param {string} key - The keycode for react component to have unique key
      * @returns renderComponents - Json object that stores the order component into the corresponding order rendering list
      */
-    renderOrder(order, powerName, game, opacity = undefined, key = "O") {
+    const renderOrder = (order, powerName, game, opacity = undefined, key = "O") => {
         var renderComponents = {
             renderedOrders: [],
             renderedOrders2: [],
@@ -400,8 +396,7 @@ export class SvgModern extends React.Component {
         return renderComponents;
     }
 
-    render() {
-        const classes = {
+    const classes = {
             _ada: "nopower",
             _adr: "water",
             _aeg: "water",
@@ -549,9 +544,9 @@ export class SvgModern extends React.Component {
             CurrentPhase: "currentphasetext",
             MouseLayer: "invisibleContent",
         };
-        const game = this.props.game;
-        const mapData = this.props.mapData;
-        const orders = this.props.orders;
+        const game = props.game;
+        const mapData = props.mapData;
+        const orders = props.orders;
 
         /* Current phase. */
         const current_phase = game.phase[0] === "?" || game.phase === "COMPLETED" ? "FINAL" : game.phase;
@@ -610,7 +605,7 @@ export class SvgModern extends React.Component {
                 if (orders) {
                     const powerOrders = (orders && Object.prototype.hasOwnProperty.call(orders, power.name) && orders[power.name]) || [];
                     for (let order of powerOrders) {
-                        const component = this.renderOrder(order, power.name, game);
+                        const component = renderOrder(order, power.name, game);
                         renderedOrders.push(...component.renderedOrders);
                         renderedOrders2.push(...component.renderedOrders2);
                         renderedHighestOrders.push(...component.renderedHighestOrders);
@@ -619,13 +614,13 @@ export class SvgModern extends React.Component {
             }
 
         /* If can display visual distribution advice, push the corresponding advice order components for rendering */
-        if (this.props.orderDistribution && this.props.displayVisualAdvice) {
-            for (var provinceDistribution of this.props.orderDistribution) {
+        if (props.orderDistribution && props.displayVisualAdvice) {
+            for (var provinceDistribution of props.orderDistribution) {
                 var orderDistribution = provinceDistribution.distribution;
                 var provincePower = provinceDistribution.power;
                 for (var order in orderDistribution) {
                     if (Object.prototype.hasOwnProperty.call(orderDistribution, order)) {
-                        const component = this.renderOrder(
+                        const component = renderOrder(
                             order,
                             provincePower,
                             game,
@@ -640,9 +635,9 @@ export class SvgModern extends React.Component {
             }
         }
 
-        if (this.props.hoverDistributionOrder) {
-            for (const orderObj of this.props.hoverDistributionOrder) {
-                const component = this.renderOrder(orderObj.order, orderObj.power, game, 1, "H");
+        if (props.hoverDistributionOrder) {
+            for (const orderObj of props.hoverDistributionOrder) {
+                const component = renderOrder(orderObj.order, orderObj.power, game, 1, "H");
                 renderedOrders.push(...component.renderedOrders);
                 renderedOrders2.push(...component.renderedOrders2);
                 renderedHighestOrders.push(...component.renderedHighestOrders);
@@ -650,26 +645,26 @@ export class SvgModern extends React.Component {
         }
 
         /** For textual advice, user is able to show or hide an advice order*/
-        if (this.props.visibleDistributionOrder) {
-            for (const orderObj of this.props.visibleDistributionOrder) {
-                const component = this.renderOrder(orderObj.order, orderObj.power, game, 1, "V");
+        if (props.visibleDistributionOrder) {
+            for (const orderObj of props.visibleDistributionOrder) {
+                const component = renderOrder(orderObj.order, orderObj.power, game, 1, "V");
                 renderedOrders.push(...component.renderedOrders);
                 renderedOrders2.push(...component.renderedOrders2);
                 renderedHighestOrders.push(...component.renderedHighestOrders);
             }
         }
 
-        if (this.props.orderBuilding && this.props.orderBuilding.path.length) {
-            const clicked = parseLocation(this.props.orderBuilding.path[0]);
-            const province = this.props.mapData.getProvince(clicked);
+        if (props.orderBuilding && props.orderBuilding.path.length) {
+            const clicked = parseLocation(props.orderBuilding.path[0]);
+            const province = props.mapData.getProvince(clicked);
             if (!province) throw new Error("Unknown clicked province " + clicked);
             const clickedID = province.getID(classes);
             if (!clicked) throw new Error(`Unknown path (${clickedID}) for province (${clicked}).`);
             classes[clickedID] = "provinceRed";
-            const neighbors = this.getNeighbors();
+            const neighbors = getNeighbors();
             if (neighbors) {
                 for (let neighbor of neighbors) {
-                    const neighborProvince = this.props.mapData.getProvince(neighbor);
+                    const neighborProvince = props.mapData.getProvince(neighbor);
                     if (!neighborProvince) throw new Error("Unknown neighbor province " + neighbor);
                     const neighborID = neighborProvince.getID(classes);
                     if (!neighborID)
@@ -679,7 +674,7 @@ export class SvgModern extends React.Component {
             }
         }
 
-        if (this.props.showAbbreviations === false) {
+        if (props.showAbbreviations === false) {
             classes["BriefLabelLayer"] = "visibilityHidden";
         }
 
@@ -1227,175 +1222,175 @@ export class SvgModern extends React.Component {
                 <text className={classes['CurrentNote2']} id="CurrentNote2" x="10" y="592">{note ? note : ''}</text>
                 <text className={classes['CurrentPhase']} id="CurrentPhase" x="645" y="578">{current_phase}</text>
                 <g className={classes['MouseLayer']} id="MouseLayer">
-                    <polygon id="ada" onClick={this.onClick} onMouseOver={this.onHover} points="483,407 491,409 499,400 502,403 506,396,516,393,520,389,530,390,546,378,552,380,558,373 563,374 568,369 585,369 581,362 575,360 571,343 569,340 563,339 560,337 555,341,543,345,539,352,515,359,502,357 480,376 482,383 478,393" />
-                    <polygon id="adr" onClick={this.onClick} onMouseOver={this.onHover} points="309,374 308,372 288,354 291,350 281,351 275,348 271,342 266,325 258,319 258,305 266,300 269,302 268,305 271,311 274,305 279,306 281,319 298,337 310,346 319,352 321,354 319,371 321,374" />
-                    <polygon id="aeg" onClick={this.onClick} onMouseOver={this.onHover} points="361,423 357,412 362,413 361,406 369,408 366,399 355,392 362,388 353,378 356,372 363,379 368,373 365,368 389,366 395,369 391,374 393,375 390,382 398,381 400,397 397,400 402,402 404,410 408,412 404,417 413,415 413,421 402,432 390,429 376,430 371,428 368,430" />
-                    <polygon id="alb" onClick={this.onClick} onMouseOver={this.onHover} points="319,352 321,354 319,371 321,374 327,382 337,372 337,368 333,364 332,351 327,344 320,345" />
-                    <polygon id="ale" onClick={this.onClick} onMouseOver={this.onHover} points="459,462 447,462,441,467,432,471 426,470 424,474,417,476,399,469 394,469 388,476,389,482,385,487,393,494 393,526 412,530,424,529,440,521,456,525,465,534 474,532 471,526,475,522,470,514,465,514,455,495,463,480,459,473" />
-                    <polygon id="alg" onClick={this.onClick} onMouseOver={this.onHover} points="201,415 191,411,183,411,180,410,169,412,153,406,122,404,106,410 96,408 91,413,81,411,78,406 74,408 75,417,70,422,77,428,76,434 31,449 173,533 176,531 219,514 213,507 214,475 205,461 201,460 195,447 196,421" />
-                    <polygon id="als" onClick={this.onClick} onMouseOver={this.onHover} points="193,233 204,240 211,247 219,250 212,270 210,270 205,275 196,274 193,268 195,266 195,257 185,252 190,240" />
-                    <polygon id="ana" onClick={this.onClick} onMouseOver={this.onHover} points="480,376 472,378,464,376,452,379 447,386 449,393,435,401,433,407,439,407 442,413 448,412,456,414,465,420,480,415 483,407 478,393 482,383" />
-                    <polygon id="adl" onClick={this.onClick} onMouseOver={this.onHover} points="74,382 96,387 95,384 100,378 107,379 107,377 102,367 104,359 101,356 97,355 88,361 85,361 81,368 74,367 71,370" />
-                    <polygon id="ank" onClick={this.onClick} onMouseOver={this.onHover} points="440,355 456,337,471,335 475,332 482,338,485,338,491,340,504,340,522,337 536,328 547,324 554,324 558,327 560,337 555,341,543,345,539,352,515,359,502,357 480,376 472,378,464,376,452,379 447,386 442,385 444,371" />
-                    <polygon id="apu" onClick={this.onClick} onMouseOver={this.onHover} points="309,374 308,372 288,354 291,350 281,351 275,348 271,342 267,346 272,356 276,358 280,362 284,367 287,376 293,378 297,372 307,380 311,377" />
-                    <polygon id="ara" onClick={this.onClick} onMouseOver={this.onHover} points="559,554 569,554,584,548,588,551,595,545,598,545,645,531,658,532,678,515 690,502 704,474 715,477 715,559 559,559" />
-                    <polygon id="arc" onClick={this.onClick} onMouseOver={this.onHover} points="0,37 91,37 95,34 99,36 102,29 96,25 98,24 107,28 105,23 111,24 100,18 99,13 109,9 110,17 113,8 117,9 118,20 113,28 120,27 123,21 131,24 287,24 287,0 0,0" />
-                    <polygon id="arm" onClick={this.onClick} onMouseOver={this.onHover} points="571,343 569,340 563,339 560,337 558,327 561,321 574,317 580,324 580,329 588,334 595,348" />
-                    <polygon id="asw" onClick={this.onClick} onMouseOver={this.onHover} points="393,559 393,526 412,530,424,529,440,521,456,525,465,534 474,532 485,525,498,525 507,519 516,525,525,540,523,545,527,548 530,559" />
-                    <polygon id="aus" onClick={this.onClick} onMouseOver={this.onHover} points="233,272 239,276 260,274 265,278 267,276 264,268 268,268 272,264 275,262 284,264 288,258 302,265 302,274 298,284 295,285 287,284 279,290 271,290 259,288 254,285 247,289 242,288 238,281 233,279" />
-                    <polygon id="auv" onClick={this.onClick} onMouseOver={this.onHover} points="162,327 162,320 172,315 171,304 175,299 166,290 167,285 160,279 154,277 155,294 141,307 140,316 147,318 157,327" />
-                    <polygon id="aze" onClick={this.onClick} onMouseOver={this.onHover} points="574,317 580,324 580,329 588,334 595,348 607,333 612,341 623,340 619,328 619,314 625,310 621,308 617,309 609,301 604,312 576,302 573,305 579,309 582,313" />
-                    <polygon id="bal" onClick={this.onClick} onMouseOver={this.onHover} points="294,162 302,148 303,136 314,131 318,128 336,146 334,160 335,170 330,177 325,179 320,188 316,182 312,180" />
-                    <polygon id="bar" onClick={this.onClick} onMouseOver={this.onHover} points="107,377 115,370 120,370 122,368 119,358 135,339 151,337 160,332 162,327 157,327 147,318 145,324 124,326 113,321 107,327 108,337 101,356 104,359 102,367" />
-                    <polygon id="bel" onClick={this.onClick} onMouseOver={this.onHover} points="191,211 176,214 172,222 185,224 193,233 204,240 209,236 206,226 205,216 193,213" />
-                    <polygon id="ber" onClick={this.onClick} onMouseOver={this.onHover} points="286,189 278,187 279,182 273,181 260,189 258,204 256,207 257,221 288,213 288,206 285,203 285,194" />
-                    <polygon id="bhm" onClick={this.onClick} onMouseOver={this.onHover} points="273,163 276,170 281,170 285,162 294,162 312,180 305,181 297,187 286,189 278,187 279,182 273,181 260,189 255,183 251,182 251,180 249,173 261,173 266,176 271,171 270,167" />
-                    <polygon id="bie" onClick={this.onClick} onMouseOver={this.onHover} points="358,192 374,181 382,179 387,168 387,159 410,161 410,172 419,180 422,185 428,185 428,190 421,194 425,206 417,213 415,220 403,220 398,218 393,220 382,216 368,216 360,223 360,216 357,214 357,210 362,207 362,201" />
-                    <polygon id="bis" onClick={this.onClick} onMouseOver={this.onHover} points="109,232 112,237 117,238 130,252 130,264 135,269 128,286 129,287 120,302 110,299 106,300 82,288 72,285 67,280 63,279 63,232" />
-                    <polygon id="bor" onClick={this.onClick} onMouseOver={this.onHover} points="135,269 128,286 129,287 120,302 122,309 140,316 141,307 155,294 154,277 151,271" />
-                    <polygon id="bos" onClick={this.onClick} onMouseOver={this.onHover} points="313,342 298,328 290,315 290,310 295,308 315,310 321,312 321,323 325,325 323,331" />
-                    <polygon id="bri" onClick={this.onClick} onMouseOver={this.onHover} points="155,229 149,228 142,221 142,235 131,233 129,228 112,227 109,232 112,237 117,238 130,252 130,264 135,269 151,271 151,245 153,236" />
-                    <polygon id="brn" onClick={this.onClick} onMouseOver={this.onHover} points="472,0 466,9 470,17 463,20 452,16 456,11 450,6 440,7 409,21 395,17 383,15 379,17 373,15 378,10 367,5 360,6 359,10 355,6 352,11 349,5 342,10 322,18 311,24 287,24 287,0" />
-                    <polygon id="bul" onClick={this.onClick} onMouseOver={this.onHover} points="407,348 402,340 404,328 410,324 403,320 391,320 380,327 365,326 356,325 352,322 349,325 353,333 356,336 350,339 351,343 355,350 362,359 372,357 378,360 391,356 392,351 400,348" />
-                    <g id="cai" onClick={this.onClick} onMouseOver={this.onHover}>
+                    <polygon id="ada" onClick={onClick} onMouseOver={onHover} points="483,407 491,409 499,400 502,403 506,396,516,393,520,389,530,390,546,378,552,380,558,373 563,374 568,369 585,369 581,362 575,360 571,343 569,340 563,339 560,337 555,341,543,345,539,352,515,359,502,357 480,376 482,383 478,393" />
+                    <polygon id="adr" onClick={onClick} onMouseOver={onHover} points="309,374 308,372 288,354 291,350 281,351 275,348 271,342 266,325 258,319 258,305 266,300 269,302 268,305 271,311 274,305 279,306 281,319 298,337 310,346 319,352 321,354 319,371 321,374" />
+                    <polygon id="aeg" onClick={onClick} onMouseOver={onHover} points="361,423 357,412 362,413 361,406 369,408 366,399 355,392 362,388 353,378 356,372 363,379 368,373 365,368 389,366 395,369 391,374 393,375 390,382 398,381 400,397 397,400 402,402 404,410 408,412 404,417 413,415 413,421 402,432 390,429 376,430 371,428 368,430" />
+                    <polygon id="alb" onClick={onClick} onMouseOver={onHover} points="319,352 321,354 319,371 321,374 327,382 337,372 337,368 333,364 332,351 327,344 320,345" />
+                    <polygon id="ale" onClick={onClick} onMouseOver={onHover} points="459,462 447,462,441,467,432,471 426,470 424,474,417,476,399,469 394,469 388,476,389,482,385,487,393,494 393,526 412,530,424,529,440,521,456,525,465,534 474,532 471,526,475,522,470,514,465,514,455,495,463,480,459,473" />
+                    <polygon id="alg" onClick={onClick} onMouseOver={onHover} points="201,415 191,411,183,411,180,410,169,412,153,406,122,404,106,410 96,408 91,413,81,411,78,406 74,408 75,417,70,422,77,428,76,434 31,449 173,533 176,531 219,514 213,507 214,475 205,461 201,460 195,447 196,421" />
+                    <polygon id="als" onClick={onClick} onMouseOver={onHover} points="193,233 204,240 211,247 219,250 212,270 210,270 205,275 196,274 193,268 195,266 195,257 185,252 190,240" />
+                    <polygon id="ana" onClick={onClick} onMouseOver={onHover} points="480,376 472,378,464,376,452,379 447,386 449,393,435,401,433,407,439,407 442,413 448,412,456,414,465,420,480,415 483,407 478,393 482,383" />
+                    <polygon id="adl" onClick={onClick} onMouseOver={onHover} points="74,382 96,387 95,384 100,378 107,379 107,377 102,367 104,359 101,356 97,355 88,361 85,361 81,368 74,367 71,370" />
+                    <polygon id="ank" onClick={onClick} onMouseOver={onHover} points="440,355 456,337,471,335 475,332 482,338,485,338,491,340,504,340,522,337 536,328 547,324 554,324 558,327 560,337 555,341,543,345,539,352,515,359,502,357 480,376 472,378,464,376,452,379 447,386 442,385 444,371" />
+                    <polygon id="apu" onClick={onClick} onMouseOver={onHover} points="309,374 308,372 288,354 291,350 281,351 275,348 271,342 267,346 272,356 276,358 280,362 284,367 287,376 293,378 297,372 307,380 311,377" />
+                    <polygon id="ara" onClick={onClick} onMouseOver={onHover} points="559,554 569,554,584,548,588,551,595,545,598,545,645,531,658,532,678,515 690,502 704,474 715,477 715,559 559,559" />
+                    <polygon id="arc" onClick={onClick} onMouseOver={onHover} points="0,37 91,37 95,34 99,36 102,29 96,25 98,24 107,28 105,23 111,24 100,18 99,13 109,9 110,17 113,8 117,9 118,20 113,28 120,27 123,21 131,24 287,24 287,0 0,0" />
+                    <polygon id="arm" onClick={onClick} onMouseOver={onHover} points="571,343 569,340 563,339 560,337 558,327 561,321 574,317 580,324 580,329 588,334 595,348" />
+                    <polygon id="asw" onClick={onClick} onMouseOver={onHover} points="393,559 393,526 412,530,424,529,440,521,456,525,465,534 474,532 485,525,498,525 507,519 516,525,525,540,523,545,527,548 530,559" />
+                    <polygon id="aus" onClick={onClick} onMouseOver={onHover} points="233,272 239,276 260,274 265,278 267,276 264,268 268,268 272,264 275,262 284,264 288,258 302,265 302,274 298,284 295,285 287,284 279,290 271,290 259,288 254,285 247,289 242,288 238,281 233,279" />
+                    <polygon id="auv" onClick={onClick} onMouseOver={onHover} points="162,327 162,320 172,315 171,304 175,299 166,290 167,285 160,279 154,277 155,294 141,307 140,316 147,318 157,327" />
+                    <polygon id="aze" onClick={onClick} onMouseOver={onHover} points="574,317 580,324 580,329 588,334 595,348 607,333 612,341 623,340 619,328 619,314 625,310 621,308 617,309 609,301 604,312 576,302 573,305 579,309 582,313" />
+                    <polygon id="bal" onClick={onClick} onMouseOver={onHover} points="294,162 302,148 303,136 314,131 318,128 336,146 334,160 335,170 330,177 325,179 320,188 316,182 312,180" />
+                    <polygon id="bar" onClick={onClick} onMouseOver={onHover} points="107,377 115,370 120,370 122,368 119,358 135,339 151,337 160,332 162,327 157,327 147,318 145,324 124,326 113,321 107,327 108,337 101,356 104,359 102,367" />
+                    <polygon id="bel" onClick={onClick} onMouseOver={onHover} points="191,211 176,214 172,222 185,224 193,233 204,240 209,236 206,226 205,216 193,213" />
+                    <polygon id="ber" onClick={onClick} onMouseOver={onHover} points="286,189 278,187 279,182 273,181 260,189 258,204 256,207 257,221 288,213 288,206 285,203 285,194" />
+                    <polygon id="bhm" onClick={onClick} onMouseOver={onHover} points="273,163 276,170 281,170 285,162 294,162 312,180 305,181 297,187 286,189 278,187 279,182 273,181 260,189 255,183 251,182 251,180 249,173 261,173 266,176 271,171 270,167" />
+                    <polygon id="bie" onClick={onClick} onMouseOver={onHover} points="358,192 374,181 382,179 387,168 387,159 410,161 410,172 419,180 422,185 428,185 428,190 421,194 425,206 417,213 415,220 403,220 398,218 393,220 382,216 368,216 360,223 360,216 357,214 357,210 362,207 362,201" />
+                    <polygon id="bis" onClick={onClick} onMouseOver={onHover} points="109,232 112,237 117,238 130,252 130,264 135,269 128,286 129,287 120,302 110,299 106,300 82,288 72,285 67,280 63,279 63,232" />
+                    <polygon id="bor" onClick={onClick} onMouseOver={onHover} points="135,269 128,286 129,287 120,302 122,309 140,316 141,307 155,294 154,277 151,271" />
+                    <polygon id="bos" onClick={onClick} onMouseOver={onHover} points="313,342 298,328 290,315 290,310 295,308 315,310 321,312 321,323 325,325 323,331" />
+                    <polygon id="bri" onClick={onClick} onMouseOver={onHover} points="155,229 149,228 142,221 142,235 131,233 129,228 112,227 109,232 112,237 117,238 130,252 130,264 135,269 151,271 151,245 153,236" />
+                    <polygon id="brn" onClick={onClick} onMouseOver={onHover} points="472,0 466,9 470,17 463,20 452,16 456,11 450,6 440,7 409,21 395,17 383,15 379,17 373,15 378,10 367,5 360,6 359,10 355,6 352,11 349,5 342,10 322,18 311,24 287,24 287,0" />
+                    <polygon id="bul" onClick={onClick} onMouseOver={onHover} points="407,348 402,340 404,328 410,324 403,320 391,320 380,327 365,326 356,325 352,322 349,325 353,333 356,336 350,339 351,343 355,350 362,359 372,357 378,360 391,356 392,351 400,348" />
+                    <g id="cai" onClick={onClick} onMouseOver={onHover}>
                         <polygon points="498,458 493,460 482,462 479,462 474,464 464,461 459,462 459,473 463,480 455,495 465,514 470,514 475,522 471,526 474,532 485,525,498,525 507,519 493,491 480,475 485,475 493,466 501,463" />
                         <polygon points="482,462 479,462 480,475 483,475" />
                     </g>
-                    <polygon id="cas" onClick={this.onClick} onMouseOver={this.onHover} points="623,340 619,328 619,314 625,310 621,308 617,309 609,301 590,290 585,281 574,278 572,271 571,252 572,249 575,248 578,252 581,248 582,238 589,234 598,222 613,216 620,220 623,239 613,241 611,247 615,254 605,259 606,263 611,262 621,275 636,274 635,284 643,291 640,284 647,279 654,284 662,287 660,295 651,297 646,294 651,306 655,302 669,311 673,334 672,340 656,350 643,351 638,346 627,349" />
-                    <polygon id="cau" onClick={this.onClick} onMouseOver={this.onHover} points="609,301 590,290 585,281 574,278 572,271 547,268 541,272 544,297 541,303 557,304 561,306 565,303 573,305 576,302 604,312" />
-                    <polygon id="crp" onClick={this.onClick} onMouseOver={this.onHover} points="419,180 422,185 428,185 428,190 421,194 425,206 432,208 439,204 450,207 452,215 459,215 465,224 466,227 483,223 488,227 493,225 496,201 492,187 476,192 451,180 424,175" />
-                    <polygon id="cly" onClick={this.onClick} onMouseOver={this.onHover} points="144,132 139,128 140,123 139,118 143,115 142,107 150,102 158,101 167,104 161,111 156,115 149,125 149,132" />
-                    <polygon id="cro" onClick={this.onClick} onMouseOver={this.onHover} points="269,302 268,305 271,311 274,305 279,306 281,319 298,337 310,346 313,342 298,328 290,315 290,310 295,308 315,310 321,312 322,307 319,302 311,301 295,285 287,284 279,290 271,290" />
-                    <polygon id="cze" onClick={this.onClick} onMouseOver={this.onHover} points="290,230 281,230 273,236 261,237 259,240 275,262 284,264 288,258 302,265 317,251 316,244 312,242 301,243 297,235" />
-                    <g id="den" onClick={this.onClick} onMouseOver={this.onHover}>
+                    <polygon id="cas" onClick={onClick} onMouseOver={onHover} points="623,340 619,328 619,314 625,310 621,308 617,309 609,301 590,290 585,281 574,278 572,271 571,252 572,249 575,248 578,252 581,248 582,238 589,234 598,222 613,216 620,220 623,239 613,241 611,247 615,254 605,259 606,263 611,262 621,275 636,274 635,284 643,291 640,284 647,279 654,284 662,287 660,295 651,297 646,294 651,306 655,302 669,311 673,334 672,340 656,350 643,351 638,346 627,349" />
+                    <polygon id="cau" onClick={onClick} onMouseOver={onHover} points="609,301 590,290 585,281 574,278 572,271 547,268 541,272 544,297 541,303 557,304 561,306 565,303 573,305 576,302 604,312" />
+                    <polygon id="crp" onClick={onClick} onMouseOver={onHover} points="419,180 422,185 428,185 428,190 421,194 425,206 432,208 439,204 450,207 452,215 459,215 465,224 466,227 483,223 488,227 493,225 496,201 492,187 476,192 451,180 424,175" />
+                    <polygon id="cly" onClick={onClick} onMouseOver={onHover} points="144,132 139,128 140,123 139,118 143,115 142,107 150,102 158,101 167,104 161,111 156,115 149,125 149,132" />
+                    <polygon id="cro" onClick={onClick} onMouseOver={onHover} points="269,302 268,305 271,311 274,305 279,306 281,319 298,337 310,346 313,342 298,328 290,315 290,310 295,308 315,310 321,312 322,307 319,302 311,301 295,285 287,284 279,290 271,290" />
+                    <polygon id="cze" onClick={onClick} onMouseOver={onHover} points="290,230 281,230 273,236 261,237 259,240 275,262 284,264 288,258 302,265 317,251 316,244 312,242 301,243 297,235" />
+                    <g id="den" onClick={onClick} onMouseOver={onHover}>
                         <polygon points="249,173 248,172 240,171 239,162 243,147 246,143 254,142 260,139 261,145 258,152 261,159 254,161 249,166" />
                         <polygon points="261,173 266,176 271,171 270,167 273,163 272,160 268,160 264,162 258,164" />
                         <polygon points="261,159 254,161 249,166 249,173 261,173 258,164 264,162" />
                     </g>
-                    <polygon id="don" onClick={this.onClick} onMouseOver={this.onHover} points="473,273 495,260 498,259 502,253 509,250 509,246 506,244 506,238 490,241 477,250 462,249 459,266 461,272" />
-                    <polygon id="ebs" onClick={this.onClick} onMouseOver={this.onHover} points="462,305 470,296 480,294 477,288 468,292 459,284 473,273 495,260 498,259 499,261 486,270 491,276 487,288 482,289 489,296 501,297 522,308 533,311 539,318 536,328 522,337 504,340 491,340 485,338 482,338 475,332" />
-                    <polygon id="edi" onClick={this.onClick} onMouseOver={this.onHover} points="161,111 168,111 173,113 174,116 173,122 162,134 155,134 161,136 164,138 166,145 160,148 151,139 149,132 149,125 156,115" />
-                    <polygon id="eme" onClick={this.onClick} onMouseOver={this.onHover} points="413,421 419,417 424,418 431,425 440,422 442,413 448,412,456,414,465,420,480,415 483,407 491,409 499,400 502,403 496,410 498,414 497,420 503,449 498,458 493,460 482,462 479,462 474,464 464,461 459,462 447,462,441,467,432,471 426,470 402,446 402,432" />
-                    <polygon id="eng" onClick={this.onClick} onMouseOver={this.onHover} points="176,214 172,222 159,224 157,226 160,230 155,229 149,228 142,221 142,235 131,233 129,228 112,227 109,232 63,232 63,204 109,204 111,206 120,204 127,208 131,204 141,207 152,207 161,211 172,210" />
-                    <polygon id="esa" onClick={this.onClick} onMouseOver={this.onHover} points="394,469 369,461 356,459 349,459 342,461 348,474 353,520 358,539 365,553 371,559 393,559 393,494 385,487 389,482 388,476" />
-                    <polygon id="est" onClick={this.onClick} onMouseOver={this.onHover} points="382,118 369,117 359,118 351,123 352,131 358,133 358,140 368,137 379,139 385,133" />
-                    <polygon id="fin" onClick={this.onClick} onMouseOver={this.onHover} points="384,101 352,113 348,113 336,106 333,89 345,76 351,64 357,62 354,55 348,52 347,45 343,38 330,29 333,24 341,30 354,29 355,18 362,17 369,23 371,28 376,37 375,52 394,83 394,88" />
-                    <polygon id="fra" onClick={this.onClick} onMouseOver={this.onHover} points="256,207 242,213 233,214 228,219 228,226 223,237 223,242 227,248 238,251 242,249 242,242 257,221" />
-                    <polygon id="gda" onClick={this.onClick} onMouseOver={this.onHover} points="330,177 325,179 320,188 322,192 322,199 331,200 342,199 349,193 351,186 349,179 342,175 338,175 334,178" />
-                    <polygon id="geo" onClick={this.onClick} onMouseOver={this.onHover} points="522,308 533,311 539,318 536,328 547,324 554,324 558,327 561,321 574,317 582,313 579,309 573,305 565,303 561,306 557,304 541,303 526,303" />
-                    <polygon id="gib" onClick={this.onClick} onMouseOver={this.onHover} points="71,370 68,366 58,366 52,372 48,373 49,379 52,385 64,384 74,382" />
-                    <polygon id="gob" onClick={this.onClick} onMouseOver={this.onHover} points="336,146 344,140 347,141 352,147 356,148 359,145 358,140 358,133 352,131 351,123 359,118 369,117 382,118 384,112 393,112 385,106 384,101 352,113 348,113 336,106 333,89 345,76 351,64 357,62 354,55 348,52 341,50 334,65 336,72 312,95 309,109 316,113 319,121 318,128" />
-                    <polygon id="gol" onClick={this.onClick} onMouseOver={this.onHover} points="120,370 122,368 119,358 135,339 151,337 160,332 162,327 162,320 172,315 179,319 179,337 192,350 217,350 217,354 212,358 210,357 208,360 210,370 156,370 154,366 147,370" />
-                    <polygon id="gor" onClick={this.onClick} onMouseOver={this.onHover} points="459,139 456,131 456,122 467,105 485,92 513,87 536,83 555,89 559,101 555,125 535,125 531,132 509,143 506,152 482,138" />
-                    <polygon id="gre" onClick={this.onClick} onMouseOver={this.onHover} points="361,423 357,412 362,413 361,406 369,408 366,399 355,392 362,388 353,378 356,372 363,379 368,373 365,368 389,366 392,360 391,356 378,360 372,357 362,359 354,360 344,367 337,368 337,372 327,382 328,387 338,401 353,401 356,403 341,403 337,407 345,420 346,415 352,422 353,418" />
-                    <g id="ham" onClick={this.onClick} onMouseOver={this.onHover}>
+                    <polygon id="don" onClick={onClick} onMouseOver={onHover} points="473,273 495,260 498,259 502,253 509,250 509,246 506,244 506,238 490,241 477,250 462,249 459,266 461,272" />
+                    <polygon id="ebs" onClick={onClick} onMouseOver={onHover} points="462,305 470,296 480,294 477,288 468,292 459,284 473,273 495,260 498,259 499,261 486,270 491,276 487,288 482,289 489,296 501,297 522,308 533,311 539,318 536,328 522,337 504,340 491,340 485,338 482,338 475,332" />
+                    <polygon id="edi" onClick={onClick} onMouseOver={onHover} points="161,111 168,111 173,113 174,116 173,122 162,134 155,134 161,136 164,138 166,145 160,148 151,139 149,132 149,125 156,115" />
+                    <polygon id="eme" onClick={onClick} onMouseOver={onHover} points="413,421 419,417 424,418 431,425 440,422 442,413 448,412,456,414,465,420,480,415 483,407 491,409 499,400 502,403 496,410 498,414 497,420 503,449 498,458 493,460 482,462 479,462 474,464 464,461 459,462 447,462,441,467,432,471 426,470 402,446 402,432" />
+                    <polygon id="eng" onClick={onClick} onMouseOver={onHover} points="176,214 172,222 159,224 157,226 160,230 155,229 149,228 142,221 142,235 131,233 129,228 112,227 109,232 63,232 63,204 109,204 111,206 120,204 127,208 131,204 141,207 152,207 161,211 172,210" />
+                    <polygon id="esa" onClick={onClick} onMouseOver={onHover} points="394,469 369,461 356,459 349,459 342,461 348,474 353,520 358,539 365,553 371,559 393,559 393,494 385,487 389,482 388,476" />
+                    <polygon id="est" onClick={onClick} onMouseOver={onHover} points="382,118 369,117 359,118 351,123 352,131 358,133 358,140 368,137 379,139 385,133" />
+                    <polygon id="fin" onClick={onClick} onMouseOver={onHover} points="384,101 352,113 348,113 336,106 333,89 345,76 351,64 357,62 354,55 348,52 347,45 343,38 330,29 333,24 341,30 354,29 355,18 362,17 369,23 371,28 376,37 375,52 394,83 394,88" />
+                    <polygon id="fra" onClick={onClick} onMouseOver={onHover} points="256,207 242,213 233,214 228,219 228,226 223,237 223,242 227,248 238,251 242,249 242,242 257,221" />
+                    <polygon id="gda" onClick={onClick} onMouseOver={onHover} points="330,177 325,179 320,188 322,192 322,199 331,200 342,199 349,193 351,186 349,179 342,175 338,175 334,178" />
+                    <polygon id="geo" onClick={onClick} onMouseOver={onHover} points="522,308 533,311 539,318 536,328 547,324 554,324 558,327 561,321 574,317 582,313 579,309 573,305 565,303 561,306 557,304 541,303 526,303" />
+                    <polygon id="gib" onClick={onClick} onMouseOver={onHover} points="71,370 68,366 58,366 52,372 48,373 49,379 52,385 64,384 74,382" />
+                    <polygon id="gob" onClick={onClick} onMouseOver={onHover} points="336,146 344,140 347,141 352,147 356,148 359,145 358,140 358,133 352,131 351,123 359,118 369,117 382,118 384,112 393,112 385,106 384,101 352,113 348,113 336,106 333,89 345,76 351,64 357,62 354,55 348,52 341,50 334,65 336,72 312,95 309,109 316,113 319,121 318,128" />
+                    <polygon id="gol" onClick={onClick} onMouseOver={onHover} points="120,370 122,368 119,358 135,339 151,337 160,332 162,327 162,320 172,315 179,319 179,337 192,350 217,350 217,354 212,358 210,357 208,360 210,370 156,370 154,366 147,370" />
+                    <polygon id="gor" onClick={onClick} onMouseOver={onHover} points="459,139 456,131 456,122 467,105 485,92 513,87 536,83 555,89 559,101 555,125 535,125 531,132 509,143 506,152 482,138" />
+                    <polygon id="gre" onClick={onClick} onMouseOver={onHover} points="361,423 357,412 362,413 361,406 369,408 366,399 355,392 362,388 353,378 356,372 363,379 368,373 365,368 389,366 392,360 391,356 378,360 372,357 362,359 354,360 344,367 337,368 337,372 327,382 328,387 338,401 353,401 356,403 341,403 337,407 345,420 346,415 352,422 353,418" />
+                    <g id="ham" onClick={onClick} onMouseOver={onHover}>
                         <polygon points="260,189 255,183 251,182 251,180 249,173 248,172 240,171 239,173 241,179 240,184 240,187 232,191 231,188 226,187 224,189 225,195 223,204 218,210 213,210 212,214 218,214 228,219 233,214 242,213 256,207 258,204" />
                         <polygon points="251,182 251,180 240,184 240,186" />
                     </g>
-                    <polygon id="hel" onClick={this.onClick} onMouseOver={this.onHover} points="239,162 240,171 239,173 241,179 240,184 240,187 232,191 231,188 226,187 224,189 212,188 209,190 209,172 219,162" />
-                    <polygon id="hol" onClick={this.onClick} onMouseOver={this.onHover} points="224,189 212,188 209,190 203,195 191,211 193,213 205,216 206,226 212,214 213,210 218,210 223,204 225,195" />
-                    <polygon id="hun" onClick={this.onClick} onMouseOver={this.onHover} points="319,302 311,301 295,285 298,284 302,274 315,274 328,270 337,264 349,265 354,270 344,280 340,294 334,296 325,294" />
-                    <polygon id="ice" onClick={this.onClick} onMouseOver={this.onHover} points="91,37 95,34 99,36 102,29 96,25 98,24 107,28 105,23 111,24 100,18 99,13 109,9 110,17 113,8 117,9 118,20 113,28 120,27 123,21 131,24 136,30 145,29 151,35 152,44 150,49 136,54 120,51 110,53 103,46 102,41" />
-                    <polygon id="ion" onClick={this.onClick} onMouseOver={this.onHover} points="321,374 327,382 328,387 338,401 353,401 356,403 341,403 337,407 345,420 346,415 352,422 353,418 361,423 368,430 376,434 394,434 402,432 402,446 290,446 290,404 298,392 298,389 297,385 293,378 297,372 307,380 311,377 309,374" />
-                    <polygon id="ire" onClick={this.onClick} onMouseOver={this.onHover} points="78,166 80,161 85,161 94,152 87,145 93,143 91,138 94,135 101,139 106,138 112,131 119,131 128,137 129,146 126,149 120,150 119,162 110,174 100,172 84,176" />
-                    <polygon id="iri" onClick={this.onClick} onMouseOver={this.onHover} points="129,146 126,149 120,150 119,162 110,174 100,172 84,176 78,166 63,166 63,204 109,204 129,195 137,197 142,194 136,194 129,188 123,187 122,181 132,180 135,174 131,173 140,167 146,168 149,159 146,148 137,146" />
-                    <polygon id="irk" onClick={this.onClick} onMouseOver={this.onHover} points="619,462 610,464 605,458 584,453 583,447 549,439 544,433 542,426 564,404 563,393 558,384 563,374 568,369 585,369 596,375 608,407 609,430 605,434 608,438 607,445 615,453" />
-                    <polygon id="irn-nc" onClick={this.onClick} onMouseOver={this.onHover} points="715,331 673,334 672,340 656,350 643,351 638,346 627,349 623,340 612,341 607,333 595,348 571,343 575,360 581,362 585,369 596,375 608,407 715,400" />
-                    <polygon id="irn-sc" onClick={this.onClick} onMouseOver={this.onHover} points="608,407 609,430 615,438 632,439 648,450 654,459 666,455 673,456 696,475 704,474 715,477 715,400" />
-                    <polygon id="isr" onClick={this.onClick} onMouseOver={this.onHover} points="497,420 503,449 498,458 501,463 504,467 513,456 516,441 515,428 505,419" />
-                    <g id="ist" onClick={this.onClick} onMouseOver={this.onHover}>
+                    <polygon id="hel" onClick={onClick} onMouseOver={onHover} points="239,162 240,171 239,173 241,179 240,184 240,187 232,191 231,188 226,187 224,189 212,188 209,190 209,172 219,162" />
+                    <polygon id="hol" onClick={onClick} onMouseOver={onHover} points="224,189 212,188 209,190 203,195 191,211 193,213 205,216 206,226 212,214 213,210 218,210 223,204 225,195" />
+                    <polygon id="hun" onClick={onClick} onMouseOver={onHover} points="319,302 311,301 295,285 298,284 302,274 315,274 328,270 337,264 349,265 354,270 344,280 340,294 334,296 325,294" />
+                    <polygon id="ice" onClick={onClick} onMouseOver={onHover} points="91,37 95,34 99,36 102,29 96,25 98,24 107,28 105,23 111,24 100,18 99,13 109,9 110,17 113,8 117,9 118,20 113,28 120,27 123,21 131,24 136,30 145,29 151,35 152,44 150,49 136,54 120,51 110,53 103,46 102,41" />
+                    <polygon id="ion" onClick={onClick} onMouseOver={onHover} points="321,374 327,382 328,387 338,401 353,401 356,403 341,403 337,407 345,420 346,415 352,422 353,418 361,423 368,430 376,434 394,434 402,432 402,446 290,446 290,404 298,392 298,389 297,385 293,378 297,372 307,380 311,377 309,374" />
+                    <polygon id="ire" onClick={onClick} onMouseOver={onHover} points="78,166 80,161 85,161 94,152 87,145 93,143 91,138 94,135 101,139 106,138 112,131 119,131 128,137 129,146 126,149 120,150 119,162 110,174 100,172 84,176" />
+                    <polygon id="iri" onClick={onClick} onMouseOver={onHover} points="129,146 126,149 120,150 119,162 110,174 100,172 84,176 78,166 63,166 63,204 109,204 129,195 137,197 142,194 136,194 129,188 123,187 122,181 132,180 135,174 131,173 140,167 146,168 149,159 146,148 137,146" />
+                    <polygon id="irk" onClick={onClick} onMouseOver={onHover} points="619,462 610,464 605,458 584,453 583,447 549,439 544,433 542,426 564,404 563,393 558,384 563,374 568,369 585,369 596,375 608,407 609,430 605,434 608,438 607,445 615,453" />
+                    <polygon id="irn-nc" onClick={onClick} onMouseOver={onHover} points="715,331 673,334 672,340 656,350 643,351 638,346 627,349 623,340 612,341 607,333 595,348 571,343 575,360 581,362 585,369 596,375 608,407 715,400" />
+                    <polygon id="irn-sc" onClick={onClick} onMouseOver={onHover} points="608,407 609,430 615,438 632,439 648,450 654,459 666,455 673,456 696,475 704,474 715,477 715,400" />
+                    <polygon id="isr" onClick={onClick} onMouseOver={onHover} points="497,420 503,449 498,458 501,463 504,467 513,456 516,441 515,428 505,419" />
+                    <g id="ist" onClick={onClick} onMouseOver={onHover}>
                         <polygon points="389,366 395,369 391,374 393,375 390,382 398,381 409,385 429,386 433,383 442,385 444,371 440,355 420,357 418,356 409,352 407,348 400,348 392,351 391,356 392,360" />
                         <polygon points="393,375 400,371 406,371 426,361 418,360 421,357 418,356 414,360 400,365" />
                     </g>
-                    <polygon id="izm" onClick={this.onClick} onMouseOver={this.onHover} points="398,381 400,397 397,400 402,402 404,410 408,412 404,417 413,415 413,421 419,417 424,418 431,425 440,422 442,413 439,407 433,407 435,401 449,393 447,386 442,385 433,383 429,386 409,385" />
-                    <polygon id="jor" onClick={this.onClick} onMouseOver={this.onHover} points="504,467 508,473 511,482 519,481 528,471 528,465 539,460 531,451 539,449 540,443 549,439 544,433 542,426 530,438 516,441 513,456" />
-                    <polygon id="kaz" onClick={this.onClick} onMouseOver={this.onHover} points="715,101 689,106 671,117 659,140 669,147 676,147 676,152 649,159 627,173 594,168 591,173 584,172 571,190 574,196 570,201 559,195 557,208 562,225 573,227 589,234 598,222 613,216 620,220 623,239 613,241 611,247 615,254 605,259 606,263 611,262 621,275 636,274 635,284 643,291 640,284 647,279 654,284 662,287 660,295 651,297 646,294 651,306 655,302 669,311 673,334 715,331" />
-                    <polygon id="kha" onClick={this.onClick} onMouseOver={this.onHover} points="506,238 490,241 477,250 462,249 459,246 459,227 465,224 466,227 483,223 488,227 493,225 499,229 507,230 509,234" />
-                    <polygon id="kie" onClick={this.onClick} onMouseOver={this.onHover} points="425,206 432,208 439,204 450,207 452,215 459,215 465,224 459,227 459,246 462,249 459,266 461,272 456,274 448,274 444,269 435,245 409,239 403,220 415,220 417,213" />
-                    <polygon id="kra" onClick={this.onClick} onMouseOver={this.onHover} points="316,244 319,240 320,234 337,223 357,214 360,216 360,223 364,229 364,236 353,245 356,255 352,258 343,253 327,254 317,251" />
-                    <polygon id="lap" onClick={this.onClick} onMouseOver={this.onHover} points="379,17 373,15 378,10 367,5 360,6 359,10 355,6 352,11 349,5 342,10 322,18 311,24 308,34 312,37 320,42 319,33 330,34 330,29 333,24 341,30 354,29 355,18 362,17 369,23 371,28" />
-                    <polygon id="lat" onClick={this.onClick} onMouseOver={this.onHover} points="334,160 336,146 344,140 347,141 352,147 356,148 359,145 358,140 358,140 368,137 379,139 385,133 388,137 391,146 387,159 387,168 373,160 355,156" />
-                    <polygon id="lbn" onClick={this.onClick} onMouseOver={this.onHover} points="426,470 424,474,417,476,399,469 394,469 369,461 356,459 349,459 342,461 336,465 332,474 319,481 296,472 284,474 275,472 272,469 272,464 290,446 402,446" />
-                    <polygon id="lib" onClick={this.onClick} onMouseOver={this.onHover} points="342,461 336,465 332,474 319,481 296,472 284,474 275,472 272,469 272,464 251,456 229,453 223,469 214,475 213,507 219,514 237,526 253,528 271,539 294,530 350,559 371,559 365,553 358,539 353,520 348,474" />
-                    <g id="lig" onClick={this.onClick} onMouseOver={this.onHover}>
+                    <polygon id="izm" onClick={onClick} onMouseOver={onHover} points="398,381 400,397 397,400 402,402 404,410 408,412 404,417 413,415 413,421 419,417 424,418 431,425 440,422 442,413 439,407 433,407 435,401 449,393 447,386 442,385 433,383 429,386 409,385" />
+                    <polygon id="jor" onClick={onClick} onMouseOver={onHover} points="504,467 508,473 511,482 519,481 528,471 528,465 539,460 531,451 539,449 540,443 549,439 544,433 542,426 530,438 516,441 513,456" />
+                    <polygon id="kaz" onClick={onClick} onMouseOver={onHover} points="715,101 689,106 671,117 659,140 669,147 676,147 676,152 649,159 627,173 594,168 591,173 584,172 571,190 574,196 570,201 559,195 557,208 562,225 573,227 589,234 598,222 613,216 620,220 623,239 613,241 611,247 615,254 605,259 606,263 611,262 621,275 636,274 635,284 643,291 640,284 647,279 654,284 662,287 660,295 651,297 646,294 651,306 655,302 669,311 673,334 715,331" />
+                    <polygon id="kha" onClick={onClick} onMouseOver={onHover} points="506,238 490,241 477,250 462,249 459,246 459,227 465,224 466,227 483,223 488,227 493,225 499,229 507,230 509,234" />
+                    <polygon id="kie" onClick={onClick} onMouseOver={onHover} points="425,206 432,208 439,204 450,207 452,215 459,215 465,224 459,227 459,246 462,249 459,266 461,272 456,274 448,274 444,269 435,245 409,239 403,220 415,220 417,213" />
+                    <polygon id="kra" onClick={onClick} onMouseOver={onHover} points="316,244 319,240 320,234 337,223 357,214 360,216 360,223 364,229 364,236 353,245 356,255 352,258 343,253 327,254 317,251" />
+                    <polygon id="lap" onClick={onClick} onMouseOver={onHover} points="379,17 373,15 378,10 367,5 360,6 359,10 355,6 352,11 349,5 342,10 322,18 311,24 308,34 312,37 320,42 319,33 330,34 330,29 333,24 341,30 354,29 355,18 362,17 369,23 371,28" />
+                    <polygon id="lat" onClick={onClick} onMouseOver={onHover} points="334,160 336,146 344,140 347,141 352,147 356,148 359,145 358,140 358,140 368,137 379,139 385,133 388,137 391,146 387,159 387,168 373,160 355,156" />
+                    <polygon id="lbn" onClick={onClick} onMouseOver={onHover} points="426,470 424,474,417,476,399,469 394,469 369,461 356,459 349,459 342,461 336,465 332,474 319,481 296,472 284,474 275,472 272,469 272,464 290,446 402,446" />
+                    <polygon id="lib" onClick={onClick} onMouseOver={onHover} points="342,461 336,465 332,474 319,481 296,472 284,474 275,472 272,469 272,464 251,456 229,453 223,469 214,475 213,507 219,514 237,526 253,528 271,539 294,530 350,559 371,559 365,553 358,539 353,520 348,474" />
+                    <g id="lig" onClick={onClick} onMouseOver={onHover}>
                         <polygon points="179,319 183,320 190,325 193,324 210,318 218,313 224,313 230,317 236,334 242,341 249,350 192,350 179,337" />
                         <polygon points="217,350 214,347 213,338 220,330 221,341 219,348" />
                     </g>
-                    <polygon id="lit" onClick={this.onClick} onMouseOver={this.onHover} points="330,177 335,170 334,160 355,156 373,160 387,168 382,179 374,181 358,192 351,186 349,179 342,175 338,175 334,178" />
-                    <polygon id="lpl" onClick={this.onClick} onMouseOver={this.onHover} points="146,168 149,159 146,148 137,146 137,142 143,137 144,132 149,132 151,139 160,148 160,158 155,168 155,182 146,176" />
-                    <polygon id="lon" onClick={this.onClick} onMouseOver={this.onHover} points="169,184 171,185 173,183 180,187 178,197 167,206 173,207 172,210 161,211 152,207 150,194 157,187" />
-                    <polygon id="lyo" onClick={this.onClick} onMouseOver={this.onHover} points="175,299 166,290 167,285 160,279 168,270 170,262 185,252 195,257 195,266 193,268 196,274 205,275 194,286 181,284" />
-                    <polygon id="mac" onClick={this.onClick} onMouseOver={this.onHover} points="362,359 354,360 344,367 337,368 333,364 332,351 342,344 351,343 355,350" />
-                    <polygon id="mad" onClick={this.onClick} onMouseOver={this.onHover} points="113,321 107,327 108,337 101,356 97,355 88,361 85,361 82,350 64,340 56,332 65,314 72,313 74,310 107,316" />
-                    <polygon id="mal" onClick={this.onClick} onMouseOver={this.onHover} points="272,464 251,456 229,453 229,438 222,428 231,420 231,418 243,406 270,421 272,411 276,403 282,403 282,406 286,407 290,404 290,446" />
-                    <polygon id="mar" onClick={this.onClick} onMouseOver={this.onHover} points="172,315 179,319 183,320 190,325 189,307 194,302 203,301 207,299 206,289 204,284 197,289 194,286 181,284 175,299 171,304" />
-                    <polygon id="mat" onClick={this.onClick} onMouseOver={this.onHover} points="0,166 63,166 63,279 59,282 53,280 48,286 47,299 39,315 0,315" />
-                    <polygon id="mil" onClick={this.onClick} onMouseOver={this.onHover} points="247,289 246,309 242,316 233,313 225,296 227,289 239,291 242,288" />
-                    <polygon id="mol" onClick={this.onClick} onMouseOver={this.onHover} points="405,299 402,283 397,279 389,266 394,262 403,263 409,265 414,274 419,281 414,287 410,298" />
-                    <polygon id="mon" onClick={this.onClick} onMouseOver={this.onHover} points="190,325 193,324 210,318 203,301 194,302 189,307" />
-                    <polygon id="mor" onClick={this.onClick} onMouseOver={this.onHover} points="74,408 59,404 55,399 53,390 47,391 31,412 13,414 0,422 0,458 19,459 19,450 31,449 76,434 76,426 70,422 75,417" />
-                    <polygon id="mos" onClick={this.onClick} onMouseOver={this.onHover} points="387,159 410,161 410,172 419,180 424,175 451,180 476,192 492,187 513,173 507,166 506,152 482,138 459,139 440,136 422,129 388,137 391,146" />
-                    <polygon id="mun" onClick={this.onClick} onMouseOver={this.onHover} points="233,272 239,276 260,274 265,278 267,276 264,268 253,253 242,249 238,251 227,248 219,250 212,270 220,271 221,268" />
-                    <polygon id="mur" onClick={this.onClick} onMouseOver={this.onHover} points="453,34 445,33 434,51 446,59 438,65 425,60 421,60 420,66 431,75 430,78 412,74 406,61 407,55 397,50 394,44 422,47 432,39 433,32 426,27 409,21 395,17 383,15 379,17 371,28 376,37 375,52 394,83 394,88 414,94 450,96 467,105 485,92 513,87 479,48" />
-                    <polygon id="nap" onClick={this.onClick} onMouseOver={this.onHover} points="266,361 270,370 278,377 284,381 287,391 282,403 282,406 286,407 290,404 298,392 298,389 297,385 293,378 287,376 284,367 280,362 276,358 272,356" />
-                    <polygon id="nat" onClick={this.onClick} onMouseOver={this.onHover} points="0,166 78,166 80,161 85,161 94,152 87,145 93,143 91,138 94,135 101,139 106,138 112,131 119,131 128,137 129,146 137,146 137,142 143,137 144,132 139,128 140,123 139,118 143,115 142,107 150,102 150,49 136,54 120,51 110,53 103,46 102,41 92,37 0,37" />
-                    <polygon id="nav" onClick={this.onClick} onMouseOver={this.onHover} points="120,302 110,299 106,300 82,288 72,285 67,280 63,279 59,282 53,280 48,286 47,299 56,298 56,302 69,303 74,310 107,316 113,321 124,326 145,324 147,318 140,316 122,309" />
-                    <polygon id="nwy" onClick={this.onClick} onMouseOver={this.onHover} points="308,34 292,48 271,75 252,78 233,91 229,103 232,109 227,113 229,122 239,131 260,123 264,116 267,124 272,124 279,100 283,78 303,56 312,37" />
-                    <polygon id="nth" onClick={this.onClick} onMouseOver={this.onHover} points="243,147 239,162 219,162 209,172 209,190 203,195 191,211 176,214 172,210 173,207 167,206 178,197 180,187 173,183 171,185 169,184 172,181 172,164 166,157 166,145 164,138 161,136 155,134 162,134 173,122 174,116 173,113 227,113 229,122 229,147" />
-                    <polygon id="nwg" onClick={this.onClick} onMouseOver={this.onHover} points="312,24 308,34 292,48 271,75 252,78 233,91 229,103 232,109 227,113 173,113 168,111 161,111 167,104 158,101 150,102 150,49 152,44 151,35 145,29 136,30 131,24" />
-                    <polygon id="ode" onClick={this.onClick} onMouseOver={this.onHover} points="403,263 409,265 414,274 419,281 414,287 410,298 405,299 406,303 417,302 424,283 435,280 438,282 441,276 448,274 444,269 435,245 409,239 401,248" />
-                    <polygon id="par" onClick={this.onClick} onMouseOver={this.onHover} points="151,271 151,245 153,236 190,240 185,252 170,262 168,270 160,279 154,277" />
-                    <polygon id="per" onClick={this.onClick} onMouseOver={this.onHover} points="690,502 665,486 661,473 650,484 641,484 632,476 636,468 632,463 629,464 631,468 627,471 619,462 615,453 607,445 608,438 605,434 609,430 615,438 632,439 648,450 654,459 666,455 673,456 696,475 704,474" />
-                    <polygon id="pic" onClick={this.onClick} onMouseOver={this.onHover} points="172,222 159,224 157,226 160,230 155,229 153,236 190,240 193,233 185,224" />
-                    <polygon id="pie" onClick={this.onClick} onMouseOver={this.onHover} points="210,318 218,313 224,313 230,317 233,313 225,296 218,289 213,291 206,289 207,299 203,301" />
-                    <polygon id="pod" onClick={this.onClick} onMouseOver={this.onHover} points="360,223 364,229 364,236 353,245 356,255 352,258 349,265 354,270 376,273 383,266 389,266 394,262 403,263 401,248 409,239 403,220 398,218 393,220 382,216 368,216" />
-                    <polygon id="por" onClick={this.onClick} onMouseOver={this.onHover} points="47,299 39,315 27,332 31,341 29,348 30,351 25,359 36,366 42,365 43,359 50,355 48,345 53,340 52,331 56,332 65,314 72,313 74,310 69,303 56,302 56,298 47,299" />
-                    <polygon id="pru" onClick={this.onClick} onMouseOver={this.onHover} points="320,188 316,182 312,180 305,181 297,187 286,189 285,194 285,203 288,206 304,209 306,203 322,199 322,192" />
-                    <polygon id="red" onClick={this.onClick} onMouseOver={this.onHover} points="530,559 527,548 523,545 525,540 516,525 507,519 507,519 493,491 480,475 485,475 494,487 501,491 505,490 508,473 511,482 510,487 519,488 532,504 531,507 535,512 539,513 555,546 553,552 559,554 559,559" />
-                    <polygon id="rom" onClick={this.onClick} onMouseOver={this.onHover} points="242,341 249,350 254,356 266,361 272,356 267,346 257,334" />
-                    <g id="ros" onClick={this.onClick} onMouseOver={this.onHover}>
+                    <polygon id="lit" onClick={onClick} onMouseOver={onHover} points="330,177 335,170 334,160 355,156 373,160 387,168 382,179 374,181 358,192 351,186 349,179 342,175 338,175 334,178" />
+                    <polygon id="lpl" onClick={onClick} onMouseOver={onHover} points="146,168 149,159 146,148 137,146 137,142 143,137 144,132 149,132 151,139 160,148 160,158 155,168 155,182 146,176" />
+                    <polygon id="lon" onClick={onClick} onMouseOver={onHover} points="169,184 171,185 173,183 180,187 178,197 167,206 173,207 172,210 161,211 152,207 150,194 157,187" />
+                    <polygon id="lyo" onClick={onClick} onMouseOver={onHover} points="175,299 166,290 167,285 160,279 168,270 170,262 185,252 195,257 195,266 193,268 196,274 205,275 194,286 181,284" />
+                    <polygon id="mac" onClick={onClick} onMouseOver={onHover} points="362,359 354,360 344,367 337,368 333,364 332,351 342,344 351,343 355,350" />
+                    <polygon id="mad" onClick={onClick} onMouseOver={onHover} points="113,321 107,327 108,337 101,356 97,355 88,361 85,361 82,350 64,340 56,332 65,314 72,313 74,310 107,316" />
+                    <polygon id="mal" onClick={onClick} onMouseOver={onHover} points="272,464 251,456 229,453 229,438 222,428 231,420 231,418 243,406 270,421 272,411 276,403 282,403 282,406 286,407 290,404 290,446" />
+                    <polygon id="mar" onClick={onClick} onMouseOver={onHover} points="172,315 179,319 183,320 190,325 189,307 194,302 203,301 207,299 206,289 204,284 197,289 194,286 181,284 175,299 171,304" />
+                    <polygon id="mat" onClick={onClick} onMouseOver={onHover} points="0,166 63,166 63,279 59,282 53,280 48,286 47,299 39,315 0,315" />
+                    <polygon id="mil" onClick={onClick} onMouseOver={onHover} points="247,289 246,309 242,316 233,313 225,296 227,289 239,291 242,288" />
+                    <polygon id="mol" onClick={onClick} onMouseOver={onHover} points="405,299 402,283 397,279 389,266 394,262 403,263 409,265 414,274 419,281 414,287 410,298" />
+                    <polygon id="mon" onClick={onClick} onMouseOver={onHover} points="190,325 193,324 210,318 203,301 194,302 189,307" />
+                    <polygon id="mor" onClick={onClick} onMouseOver={onHover} points="74,408 59,404 55,399 53,390 47,391 31,412 13,414 0,422 0,458 19,459 19,450 31,449 76,434 76,426 70,422 75,417" />
+                    <polygon id="mos" onClick={onClick} onMouseOver={onHover} points="387,159 410,161 410,172 419,180 424,175 451,180 476,192 492,187 513,173 507,166 506,152 482,138 459,139 440,136 422,129 388,137 391,146" />
+                    <polygon id="mun" onClick={onClick} onMouseOver={onHover} points="233,272 239,276 260,274 265,278 267,276 264,268 253,253 242,249 238,251 227,248 219,250 212,270 220,271 221,268" />
+                    <polygon id="mur" onClick={onClick} onMouseOver={onHover} points="453,34 445,33 434,51 446,59 438,65 425,60 421,60 420,66 431,75 430,78 412,74 406,61 407,55 397,50 394,44 422,47 432,39 433,32 426,27 409,21 395,17 383,15 379,17 371,28 376,37 375,52 394,83 394,88 414,94 450,96 467,105 485,92 513,87 479,48" />
+                    <polygon id="nap" onClick={onClick} onMouseOver={onHover} points="266,361 270,370 278,377 284,381 287,391 282,403 282,406 286,407 290,404 298,392 298,389 297,385 293,378 287,376 284,367 280,362 276,358 272,356" />
+                    <polygon id="nat" onClick={onClick} onMouseOver={onHover} points="0,166 78,166 80,161 85,161 94,152 87,145 93,143 91,138 94,135 101,139 106,138 112,131 119,131 128,137 129,146 137,146 137,142 143,137 144,132 139,128 140,123 139,118 143,115 142,107 150,102 150,49 136,54 120,51 110,53 103,46 102,41 92,37 0,37" />
+                    <polygon id="nav" onClick={onClick} onMouseOver={onHover} points="120,302 110,299 106,300 82,288 72,285 67,280 63,279 59,282 53,280 48,286 47,299 56,298 56,302 69,303 74,310 107,316 113,321 124,326 145,324 147,318 140,316 122,309" />
+                    <polygon id="nwy" onClick={onClick} onMouseOver={onHover} points="308,34 292,48 271,75 252,78 233,91 229,103 232,109 227,113 229,122 239,131 260,123 264,116 267,124 272,124 279,100 283,78 303,56 312,37" />
+                    <polygon id="nth" onClick={onClick} onMouseOver={onHover} points="243,147 239,162 219,162 209,172 209,190 203,195 191,211 176,214 172,210 173,207 167,206 178,197 180,187 173,183 171,185 169,184 172,181 172,164 166,157 166,145 164,138 161,136 155,134 162,134 173,122 174,116 173,113 227,113 229,122 229,147" />
+                    <polygon id="nwg" onClick={onClick} onMouseOver={onHover} points="312,24 308,34 292,48 271,75 252,78 233,91 229,103 232,109 227,113 173,113 168,111 161,111 167,104 158,101 150,102 150,49 152,44 151,35 145,29 136,30 131,24" />
+                    <polygon id="ode" onClick={onClick} onMouseOver={onHover} points="403,263 409,265 414,274 419,281 414,287 410,298 405,299 406,303 417,302 424,283 435,280 438,282 441,276 448,274 444,269 435,245 409,239 401,248" />
+                    <polygon id="par" onClick={onClick} onMouseOver={onHover} points="151,271 151,245 153,236 190,240 185,252 170,262 168,270 160,279 154,277" />
+                    <polygon id="per" onClick={onClick} onMouseOver={onHover} points="690,502 665,486 661,473 650,484 641,484 632,476 636,468 632,463 629,464 631,468 627,471 619,462 615,453 607,445 608,438 605,434 609,430 615,438 632,439 648,450 654,459 666,455 673,456 696,475 704,474" />
+                    <polygon id="pic" onClick={onClick} onMouseOver={onHover} points="172,222 159,224 157,226 160,230 155,229 153,236 190,240 193,233 185,224" />
+                    <polygon id="pie" onClick={onClick} onMouseOver={onHover} points="210,318 218,313 224,313 230,317 233,313 225,296 218,289 213,291 206,289 207,299 203,301" />
+                    <polygon id="pod" onClick={onClick} onMouseOver={onHover} points="360,223 364,229 364,236 353,245 356,255 352,258 349,265 354,270 376,273 383,266 389,266 394,262 403,263 401,248 409,239 403,220 398,218 393,220 382,216 368,216" />
+                    <polygon id="por" onClick={onClick} onMouseOver={onHover} points="47,299 39,315 27,332 31,341 29,348 30,351 25,359 36,366 42,365 43,359 50,355 48,345 53,340 52,331 56,332 65,314 72,313 74,310 69,303 56,302 56,298 47,299" />
+                    <polygon id="pru" onClick={onClick} onMouseOver={onHover} points="320,188 316,182 312,180 305,181 297,187 286,189 285,194 285,203 288,206 304,209 306,203 322,199 322,192" />
+                    <polygon id="red" onClick={onClick} onMouseOver={onHover} points="530,559 527,548 523,545 525,540 516,525 507,519 507,519 493,491 480,475 485,475 494,487 501,491 505,490 508,473 511,482 510,487 519,488 532,504 531,507 535,512 539,513 555,546 553,552 559,554 559,559" />
+                    <polygon id="rom" onClick={onClick} onMouseOver={onHover} points="242,341 249,350 254,356 266,361 272,356 267,346 257,334" />
+                    <g id="ros" onClick={onClick} onMouseOver={onHover}>
                         <polygon points="498,259 499,261 486,270 491,276 487,288 482,289 489,296 501,297 522,308 526,303 541,303 544,297 541,272 528,267 523,251 521,248 509,246 509,250 502,253" />
                         <polygon points="498,259 499,261 523,251 521,248" />
                     </g>
-                    <polygon id="ruh" onClick={this.onClick} onMouseOver={this.onHover} points="212,214 218,214 228,219 228,226 223,237 223,242 227,248 219,250 211,247 204,240 209,236 206,226" />
-                    <polygon id="rum" onClick={this.onClick} onMouseOver={this.onHover} points="410,324 403,320 391,320 380,327 365,326 356,325 352,322 351,316 347,316 339,307 337,299 334,296 340,294 344,280 354,270 376,273 383,266 389,266 397,279 402,283 405,299 406,303 417,302 417,307 411,311" />
-                    <polygon id="sat" onClick={this.onClick} onMouseOver={this.onHover} points="0,315 39,315 27,332 31,341 29,348 30,351 25,359 36,366 42,365 48,373 49,379 42,386 47,391 31,412 13,414 0,422" />
-                    <polygon id="sau" onClick={this.onClick} onMouseOver={this.onHover} points="511,482 510,487 519,488 532,504 531,507 535,512 539,513 555,546 553,552 559,554 569,554,584,548,588,551,595,545,598,545,645,531,658,532,678,515 690,502 665,486 661,473 650,484 641,484 632,476 636,468 632,463 629,464 631,468 627,471 619,462 610,464 605,458 584,453 583,447 549,439 540,443 539,449 531,451 539,460 528,465 528,471 519,481" />
-                    <polygon id="sax" onClick={this.onClick} onMouseOver={this.onHover} points="264,268 268,268 272,264 275,262 259,240 261,237 273,236 281,230 290,230 288,213 257,221 242,242 242,249 253,253" />
-                    <polygon id="ser" onClick={this.onClick} onMouseOver={this.onHover} points="321,312 321,323 325,325 323,331 313,342 310,346 319,352 320,345 327,344 332,351 342,344 351,343 350,339 356,336 353,333 349,325 352,322 351,316 347,316 339,307 337,299 334,296 325,294 319,302 322,307" />
-                    <polygon id="sev" onClick={this.onClick} onMouseOver={this.onHover} points="462,305 470,296 480,294 477,288 468,292 459,284 473,273 461,272 456,274 448,274 441,276 438,282 436,284 440,287 450,284 452,288 447,290 444,296 453,298 453,305 457,306" />
-                    <polygon id="sib" onClick={this.onClick} onMouseOver={this.onHover} points="715,101 689,106 671,117 659,140 669,147 676,147 676,152 649,159 627,173 594,168 596,159 589,151 595,119 593,99 605,87 611,26 616,0 715,0" />
-                    <polygon id="sil" onClick={this.onClick} onMouseOver={this.onHover} points="316,244 312,242 301,243 297,235 290,230 288,213 288,206 304,209 319,230 320,234 319,240" />
-                    <polygon id="sin" onClick={this.onClick} onMouseOver={this.onHover} points="485,475 494,487 501,491 505,490 508,473 504,467 501,463 493,466" />
-                    <polygon id="ska" onClick={this.onClick} onMouseOver={this.onHover} points="243,147 246,143 254,142 260,139 261,145 258,152 261,159 264,162 268,160 272,160 275,155 269,143 271,137 267,124 264,116 260,123 239,131 229,122 229,147" />
-                    <polygon id="slk" onClick={this.onClick} onMouseOver={this.onHover} points="352,258 343,253 327,254 317,251 302,265 302,274 315,274 328,270 337,264 349,265" />
-                    <polygon id="stp" onClick={this.onClick} onMouseOver={this.onHover} points="382,118 384,112 393,112 385,106 384,101 394,88 414,94 450,96 467,105 456,122 456,131 459,139 440,136 422,129 388,137 385,133" />
-                    <polygon id="sog" onClick={this.onClick} onMouseOver={this.onHover} points="49,379 52,385 64,384 74,382 96,387 96,408 91,413,81,411,78,406 74,408 59,404 55,399 53,390 47,391 42,386" />
-                    <polygon id="svl" onClick={this.onClick} onMouseOver={this.onHover} points="42,365 43,359 50,355 48,345 53,340 52,331 56,332 64,340 82,350 85,361 81,368 74,367 71,370 71,370 68,366 58,366 52,372 48,373" />
-                    <polygon id="swe" onClick={this.onClick} onMouseOver={this.onHover} points="348,52 341,50 334,65 336,72 312,95 309,109 316,113 319,121 318,128 314,131 303,136 302,148 294,162 285,162 281,170 276,170 273,163 272,160 275,155 269,143 271,137 267,124 272,124 279,100 283,78 303,56 312,37 320,42 319,33 330,34 330,29 343,38 347,45" />
-                    <polygon id="swi" onClick={this.onClick} onMouseOver={this.onHover} points="210,270 194,286 197,289 204,284 206,289 213,291 218,289 225,296 227,289 239,291 242,288 238,281 233,279 233,272 221,268 220,271 212,270" />
-                    <polygon id="syr" onClick={this.onClick} onMouseOver={this.onHover} points="502,403 496,410 498,414 497,420 505,419 515,428 516,441 530,438 542,426 564,404 563,393 558,384 563,374 558,373 552,380 546,378 530,390 520,389 516,393 506,396" />
-                    <polygon id="tun" onClick={this.onClick} onMouseOver={this.onHover} points="229,453 229,438 222,428 231,420 231,418 227,417 220,420 221,412 216,410 210,411 206,415 201,415 196,421 195,447 201,460 205,461 214,475 223,469" />
-                    <polygon id="tus" onClick={this.onClick} onMouseOver={this.onHover} points="230,317 236,334 242,341 257,334 255,328 242,316 233,313" />
-                    <polygon id="tyr" onClick={this.onClick} onMouseOver={this.onHover} points="249,350 254,356 266,361 270,370 278,377 284,381 287,391 282,403 276,403 264,404 251,401 247,402 231,418 227,417 220,420 221,412 216,410 216,383 220,364 217,354 217,350" />
-                    <polygon id="ura" onClick={this.onClick} onMouseOver={this.onHover} points="472,0 466,9 470,17 463,20 452,16 456,11 450,6 440,7 445,9 448,20 455,24 453,34 479,48 513,87 536,83 555,89 585,93 593,99 605,87 611,26 616,0 715,0" />
-                    <polygon id="ven" onClick={this.onClick} onMouseOver={this.onHover} points="271,342 266,325 258,319 258,305 266,300 269,302 271,290 259,288 254,285 247,289 246,309 242,316 255,328 257,334 267,346" />
-                    <g id="vol" onClick={this.onClick} onMouseOver={this.onHover}>
+                    <polygon id="ruh" onClick={onClick} onMouseOver={onHover} points="212,214 218,214 228,219 228,226 223,237 223,242 227,248 219,250 211,247 204,240 209,236 206,226" />
+                    <polygon id="rum" onClick={onClick} onMouseOver={onHover} points="410,324 403,320 391,320 380,327 365,326 356,325 352,322 351,316 347,316 339,307 337,299 334,296 340,294 344,280 354,270 376,273 383,266 389,266 397,279 402,283 405,299 406,303 417,302 417,307 411,311" />
+                    <polygon id="sat" onClick={onClick} onMouseOver={onHover} points="0,315 39,315 27,332 31,341 29,348 30,351 25,359 36,366 42,365 48,373 49,379 42,386 47,391 31,412 13,414 0,422" />
+                    <polygon id="sau" onClick={onClick} onMouseOver={onHover} points="511,482 510,487 519,488 532,504 531,507 535,512 539,513 555,546 553,552 559,554 569,554,584,548,588,551,595,545,598,545,645,531,658,532,678,515 690,502 665,486 661,473 650,484 641,484 632,476 636,468 632,463 629,464 631,468 627,471 619,462 610,464 605,458 584,453 583,447 549,439 540,443 539,449 531,451 539,460 528,465 528,471 519,481" />
+                    <polygon id="sax" onClick={onClick} onMouseOver={onHover} points="264,268 268,268 272,264 275,262 259,240 261,237 273,236 281,230 290,230 288,213 257,221 242,242 242,249 253,253" />
+                    <polygon id="ser" onClick={onClick} onMouseOver={onHover} points="321,312 321,323 325,325 323,331 313,342 310,346 319,352 320,345 327,344 332,351 342,344 351,343 350,339 356,336 353,333 349,325 352,322 351,316 347,316 339,307 337,299 334,296 325,294 319,302 322,307" />
+                    <polygon id="sev" onClick={onClick} onMouseOver={onHover} points="462,305 470,296 480,294 477,288 468,292 459,284 473,273 461,272 456,274 448,274 441,276 438,282 436,284 440,287 450,284 452,288 447,290 444,296 453,298 453,305 457,306" />
+                    <polygon id="sib" onClick={onClick} onMouseOver={onHover} points="715,101 689,106 671,117 659,140 669,147 676,147 676,152 649,159 627,173 594,168 596,159 589,151 595,119 593,99 605,87 611,26 616,0 715,0" />
+                    <polygon id="sil" onClick={onClick} onMouseOver={onHover} points="316,244 312,242 301,243 297,235 290,230 288,213 288,206 304,209 319,230 320,234 319,240" />
+                    <polygon id="sin" onClick={onClick} onMouseOver={onHover} points="485,475 494,487 501,491 505,490 508,473 504,467 501,463 493,466" />
+                    <polygon id="ska" onClick={onClick} onMouseOver={onHover} points="243,147 246,143 254,142 260,139 261,145 258,152 261,159 264,162 268,160 272,160 275,155 269,143 271,137 267,124 264,116 260,123 239,131 229,122 229,147" />
+                    <polygon id="slk" onClick={onClick} onMouseOver={onHover} points="352,258 343,253 327,254 317,251 302,265 302,274 315,274 328,270 337,264 349,265" />
+                    <polygon id="stp" onClick={onClick} onMouseOver={onHover} points="382,118 384,112 393,112 385,106 384,101 394,88 414,94 450,96 467,105 456,122 456,131 459,139 440,136 422,129 388,137 385,133" />
+                    <polygon id="sog" onClick={onClick} onMouseOver={onHover} points="49,379 52,385 64,384 74,382 96,387 96,408 91,413,81,411,78,406 74,408 59,404 55,399 53,390 47,391 42,386" />
+                    <polygon id="svl" onClick={onClick} onMouseOver={onHover} points="42,365 43,359 50,355 48,345 53,340 52,331 56,332 64,340 82,350 85,361 81,368 74,367 71,370 71,370 68,366 58,366 52,372 48,373" />
+                    <polygon id="swe" onClick={onClick} onMouseOver={onHover} points="348,52 341,50 334,65 336,72 312,95 309,109 316,113 319,121 318,128 314,131 303,136 302,148 294,162 285,162 281,170 276,170 273,163 272,160 275,155 269,143 271,137 267,124 272,124 279,100 283,78 303,56 312,37 320,42 319,33 330,34 330,29 343,38 347,45" />
+                    <polygon id="swi" onClick={onClick} onMouseOver={onHover} points="210,270 194,286 197,289 204,284 206,289 213,291 218,289 225,296 227,289 239,291 242,288 238,281 233,279 233,272 221,268 220,271 212,270" />
+                    <polygon id="syr" onClick={onClick} onMouseOver={onHover} points="502,403 496,410 498,414 497,420 505,419 515,428 516,441 530,438 542,426 564,404 563,393 558,384 563,374 558,373 552,380 546,378 530,390 520,389 516,393 506,396" />
+                    <polygon id="tun" onClick={onClick} onMouseOver={onHover} points="229,453 229,438 222,428 231,420 231,418 227,417 220,420 221,412 216,410 210,411 206,415 201,415 196,421 195,447 201,460 205,461 214,475 223,469" />
+                    <polygon id="tus" onClick={onClick} onMouseOver={onHover} points="230,317 236,334 242,341 257,334 255,328 242,316 233,313" />
+                    <polygon id="tyr" onClick={onClick} onMouseOver={onHover} points="249,350 254,356 266,361 270,370 278,377 284,381 287,391 282,403 276,403 264,404 251,401 247,402 231,418 227,417 220,420 221,412 216,410 216,383 220,364 217,354 217,350" />
+                    <polygon id="ura" onClick={onClick} onMouseOver={onHover} points="472,0 466,9 470,17 463,20 452,16 456,11 450,6 440,7 445,9 448,20 455,24 453,34 479,48 513,87 536,83 555,89 585,93 593,99 605,87 611,26 616,0 715,0" />
+                    <polygon id="ven" onClick={onClick} onMouseOver={onHover} points="271,342 266,325 258,319 258,305 266,300 269,302 271,290 259,288 254,285 247,289 246,309 242,316 255,328 257,334 267,346" />
+                    <g id="vol" onClick={onClick} onMouseOver={onHover}>
                         <polygon points="572,271 571,252 572,249 575,248 578,252 581,248 582,238 589,234 573,227 562,225 557,208 559,195 570,201 574,196 571,190 584,172 591,173 594,168 596,159 589,151 595,119 593,99 585,93 555,89 559,101 555,125 535,125 531,132 509,143 506,152 507,166 513,173 492,187 496,201 493,225 499,229 507,230 509,234 506,238 506,244 509,246 509,250 509,246 521,248 523,251 528,267 541,272 547,268" />
                         <polygon points="521,248 549,233 575,248 572,249 549,236 523,251" />
                     </g>
-                    <polygon id="wal" onClick={this.onClick} onMouseOver={this.onHover} points="109,204 129,195 137,197 142,194 136,194 129,188 123,187 122,181 132,180 135,174 131,173 140,167 146,168 146,176 155,182 157,187 150,194 152,207 141,207 131,204 127,208 120,204 111,206" />
-                    <polygon id="war" onClick={this.onClick} onMouseOver={this.onHover} points="304,209 306,203 322,199 322,192 322,199 331,200 342,199 349,193 351,186 358,192 362,201 362,207 357,210 357,214 337,223 320,234 319,230" />
-                    <polygon id="wbs" onClick={this.onClick} onMouseOver={this.onHover} points="475,332 471,335 456,337 440,355 420,357 418,356 409,352 407,348 402,340 404,328 410,324 411,311 417,307 417,302 424,283 435,280 438,282 436,284 440,287 450,284 452,288 447,290 444,296 453,298 453,305 457,306 462,305" />
-                    <polygon id="wme" onClick={this.onClick} onMouseOver={this.onHover} points="216,410 210,411 206,415 201,415 191,411,183,411,180,410,169,412,153,406,122,404,106,410 96,408 96,387 95,384 100,378 107,379 107,377 115,370 147,370 150,371 156,370 210,370 208,380 211,384 216,383" />
-                    <polygon id="wsa" onClick={this.onClick} onMouseOver={this.onHover} points="0,458 19,459 19,450 31,449 173,533 176,531 219,514 237,526 253,528 271,539 294,530 350,559 0,559" />
-                    <polygon id="whi" onClick={this.onClick} onMouseOver={this.onHover} points="440,7 445,9 448,20 455,24 453,34 445,33 434,51 446,59 438,65 425,60 421,60 420,66 431,75 430,78 412,74 406,61 407,55 397,50 394,44 422,47 432,39 433,32 426,27 409,21" />
-                    <polygon id="yor" onClick={this.onClick} onMouseOver={this.onHover} points="169,184 172,181 172,164 166,157 166,145 160,148 160,158 155,168 155,182 157,187" />
+                    <polygon id="wal" onClick={onClick} onMouseOver={onHover} points="109,204 129,195 137,197 142,194 136,194 129,188 123,187 122,181 132,180 135,174 131,173 140,167 146,168 146,176 155,182 157,187 150,194 152,207 141,207 131,204 127,208 120,204 111,206" />
+                    <polygon id="war" onClick={onClick} onMouseOver={onHover} points="304,209 306,203 322,199 322,192 322,199 331,200 342,199 349,193 351,186 358,192 362,201 362,207 357,210 357,214 337,223 320,234 319,230" />
+                    <polygon id="wbs" onClick={onClick} onMouseOver={onHover} points="475,332 471,335 456,337 440,355 420,357 418,356 409,352 407,348 402,340 404,328 410,324 411,311 417,307 417,302 424,283 435,280 438,282 436,284 440,287 450,284 452,288 447,290 444,296 453,298 453,305 457,306 462,305" />
+                    <polygon id="wme" onClick={onClick} onMouseOver={onHover} points="216,410 210,411 206,415 201,415 191,411,183,411,180,410,169,412,153,406,122,404,106,410 96,408 96,387 95,384 100,378 107,379 107,377 115,370 147,370 150,371 156,370 210,370 208,380 211,384 216,383" />
+                    <polygon id="wsa" onClick={onClick} onMouseOver={onHover} points="0,458 19,459 19,450 31,449 173,533 176,531 219,514 237,526 253,528 271,539 294,530 350,559 0,559" />
+                    <polygon id="whi" onClick={onClick} onMouseOver={onHover} points="440,7 445,9 448,20 455,24 453,34 445,33 434,51 446,59 438,65 425,60 421,60 420,66 431,75 430,78 412,74 406,61 407,55 397,50 394,44 422,47 432,39 433,32 426,27 409,21" />
+                    <polygon id="yor" onClick={onClick} onMouseOver={onHover} points="169,184 172,181 172,164 166,157 166,145 160,148 160,158 155,168 155,182 157,187" />
                 </g>
             </svg>
         );
-    }
-}
+};
+
 SvgModern.propTypes = {
     game: PropTypes.instanceOf(Game).isRequired,
     mapData: PropTypes.instanceOf(MapData).isRequired,

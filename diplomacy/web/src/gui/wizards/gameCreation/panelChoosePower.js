@@ -19,82 +19,80 @@ import { FancyBox } from "../../components/fancyBox";
 import PropTypes from "prop-types";
 import { ArrowLeftIcon } from "@primer/octicons-react";
 
-export class PanelChoosePower extends React.Component {
-    render() {
-        this.props.powers.sort();
-        return (
-            <FancyBox title={"Choose your power"} onClose={this.props.cancel}>
-                <div className="row">
-                    <div className="col-sm">
-                        <button
-                            type="button"
-                            className="btn btn-secondary btn-sm btn-block inline"
-                            onClick={() => {
-                                this.props.onUpdateParams({ power_name: null });
-                                this.props.forward();
-                            }}
-                        >
-                            I just want to observe
-                        </button>
-                    </div>
-                    <div className="col-sm">
-                        <button
-                            type="button"
-                            className="btn btn-secondary btn-sm btn-block inline"
-                            onClick={() => {
-                                const powerName =
-                                    this.props.powers[Math.floor(Math.random() * this.props.powers.length)];
-                                this.props.onUpdateParams({ power_name: powerName, player_type: "human" });
-                                this.props.forward();
-                            }}
-                        >
-                            Choose randomly for me
-                        </button>
+export const PanelChoosePower = (props) => {
+    props.powers.sort();
+    return (
+        <FancyBox title={"Choose your power"} onClose={props.cancel}>
+            <div className="row">
+                <div className="col-sm">
+                    <button
+                        type="button"
+                        className="btn btn-secondary btn-sm btn-block inline"
+                        onClick={() => {
+                            props.onUpdateParams({ power_name: null });
+                            props.forward();
+                        }}
+                    >
+                        I just want to observe
+                    </button>
+                </div>
+                <div className="col-sm">
+                    <button
+                        type="button"
+                        className="btn btn-secondary btn-sm btn-block inline"
+                        onClick={() => {
+                            const powerName =
+                                props.powers[Math.floor(Math.random() * props.powers.length)];
+                            props.onUpdateParams({ power_name: powerName, player_type: "human" });
+                            props.forward();
+                        }}
+                    >
+                        Choose randomly for me
+                    </button>
+                </div>
+            </div>
+            <div className="row">
+                <div className="col">
+                    <div className="d-flex flex-row justify-content-center my-2">
+                        {(() => {
+                            const choice = [];
+                            for (let i = 0; i < props.powers.length; ++i) {
+                                choice.push(
+                                    <button
+                                        key={i}
+                                        type="button"
+                                        className={`btn btn-secondary btn-sm flex-grow-1 ${i === 0 ? "" : "ml-sm-1"}`}
+                                        onClick={() => {
+                                            props.onUpdateParams({
+                                                power_name: props.powers[i],
+                                                player_type: "human",
+                                            });
+                                            props.forward();
+                                        }}
+                                    >
+                                        {props.powers[i]}
+                                    </button>,
+                                );
+                            }
+                            return choice;
+                        })()}
                     </div>
                 </div>
-                <div className="row">
-                    <div className="col">
-                        <div className="d-flex flex-row justify-content-center my-2">
-                            {(() => {
-                                const choice = [];
-                                for (let i = 0; i < this.props.powers.length; ++i) {
-                                    choice.push(
-                                        <button
-                                            key={i}
-                                            type="button"
-                                            className={`btn btn-secondary btn-sm flex-grow-1 ${i === 0 ? "" : "ml-sm-1"}`}
-                                            onClick={() => {
-                                                this.props.onUpdateParams({
-                                                    power_name: this.props.powers[i],
-                                                    player_type: "human",
-                                                });
-                                                this.props.forward();
-                                            }}
-                                        >
-                                            {this.props.powers[i]}
-                                        </button>,
-                                    );
-                                }
-                                return choice;
-                            })()}
-                        </div>
-                    </div>
+            </div>
+            <div className="row">
+                <div className="col">
+                    <button
+                        type="button"
+                        className="btn btn-secondary btn-sm px-3"
+                        onClick={() => props.backward()}
+                    >
+                        <ArrowLeftIcon />
+                    </button>
                 </div>
-                <div className="row">
-                    <div className="col">
-                        <button
-                            type="button"
-                            className="btn btn-secondary btn-sm px-3"
-                            onClick={() => this.props.backward()}
-                        >
-                            <ArrowLeftIcon />
-                        </button>
-                    </div>
-                </div>
-            </FancyBox>
-        );
-    }
-}
+            </div>
+        </FancyBox>
+    );
+};
 
 PanelChoosePower.propTypes = {
     backward: PropTypes.func.isRequired,

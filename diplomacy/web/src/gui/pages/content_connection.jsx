@@ -14,7 +14,7 @@
 //  You should have received a copy of the GNU Affero General Public License along
 //  with this program.  If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
-import React from "react";
+import React, { useContext, useRef, useEffect } from "react";
 import { Connection } from "../../diplomacy/client/connection";
 import { ConnectionForm } from "../forms/connection_form";
 import { DipStorage } from "../utils/dipStorage";
@@ -22,35 +22,34 @@ import { Helmet } from "react-helmet";
 import { Navigation } from "../components/navigation";
 import { PageContext } from "../components/page_context";
 
-export class ContentConnection extends React.Component {
-    constructor(props) {
-        super(props);
-        this.connection = null;
-        this.onSubmit = this.onSubmit.bind(this);
-    }
+export const ContentConnection = () => {
+    const page = useContext(PageContext);
+    const connectionRef = useRef(null);
 
-    onSubmit(data) {
-        const page = this.context;
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
+
+    const onSubmit = (data) => {
         for (let fieldName of ["hostname", "port", "username", "password", "showServerFields"])
             if (!Object.prototype.hasOwnProperty.call(data, fieldName)) return page.error(`Missing ${fieldName}, got ${JSON.stringify(data)}`);
         page.info("Connecting ...");
         if (page.connection) {
             page.connection.close();
         }
-        if (this.connection) {
-            this.connection.close();
-            if (this.connection.currentConnectionProcessing) {
-                this.connection.currentConnectionProcessing.stop();
+        if (connectionRef.current) {
+            connectionRef.current.close();
+            if (connectionRef.current.currentConnectionProcessing) {
+                connectionRef.current.currentConnectionProcessing.stop();
             }
         }
-        this.connection = new Connection(data.hostname, data.port, window.location.protocol.toLowerCase() === "https:" || data.port == 443);
-        this.connection.onReconnectionError = page.onReconnectionError;
-        // Page is passed as logger object (with methods info(), error(), success()) when connecting.
-        this.connection
+        connectionRef.current = new Connection(data.hostname, data.port, window.location.protocol.toLowerCase() === "https:" || data.port == 443);
+        connectionRef.current.onReconnectionError = page.onReconnectionError;
+        connectionRef.current
             .connect(page)
             .then(() => {
-                page.connection = this.connection;
-                this.connection = null;
+                page.connection = connectionRef.current;
+                connectionRef.current = null;
                 page.success(`Successfully connected to server ${data.username}:${data.port}`);
                 page.connection
                     .authenticate(data.username, data.password)
@@ -74,19 +73,15 @@ export class ContentConnection extends React.Component {
                             page.updateMyGames(gamesInfo);
                         }
 
-                        // Check if there's a saved path to redirect to after login
                         const savedPath = DipStorage.getCurrentPath();
                         if (savedPath && savedPath !== "/") {
-                            // Clear the saved path to prevent stale redirects
                             DipStorage.clearCurrentPath();
-                            // Update state name to match the saved path
                             if (savedPath.startsWith("/game/")) {
                                 const gameId = savedPath.substring(6);
                                 page.setState({ name: `game: ${gameId}` });
                             } else if (savedPath === "/games") {
                                 page.setState({ name: "games" });
                             }
-                            // Redirect to the saved path
                             page.props.history.push(savedPath);
                             page.success(`Account ${data.username} connected.`);
                         } else {
@@ -100,24 +95,16 @@ export class ContentConnection extends React.Component {
             .catch((error) => {
                 page.error("Error while connecting: " + error + " Please re-try.");
             });
-    }
+    };
 
-    render() {
-        const title = "Connection";
-        return (
-            <main>
-                <Helmet>
-                    <title>{title} | Diplomacy</title>
-                </Helmet>
-                <Navigation title={title} />
-                <ConnectionForm onSubmit={this.onSubmit} />
-            </main>
-        );
-    }
-
-    componentDidMount() {
-        window.scrollTo(0, 0);
-    }
-}
-
-ContentConnection.contextType = PageContext;
+    const title = "Connection";
+    return (
+        <main>
+            <Helmet>
+                <title>{title} | Diplomacy</title>
+            </Helmet>
+            <Navigation title={title} />
+            <ConnectionForm onSubmit={onSubmit} />
+        </main>
+    );
+};

@@ -18,27 +18,25 @@ import React from "react";
 import { centerSymbolAroundUnit } from "./common";
 import PropTypes from "prop-types";
 
-export class Hold extends React.Component {
-    render() {
-        const opacity = this.props?.opacity === undefined ? 1 : this.props?.opacity;
-        const Coordinates = this.props.coordinates;
-        const Colors = this.props.colors;
-        const SymbolSizes = this.props.symbolSizes;
-        const symbol = "HoldUnit";
-        const [loc_x, loc_y] = centerSymbolAroundUnit(Coordinates, SymbolSizes, this.props.loc, false, symbol);
-        return (
-            <g stroke={Colors[this.props.powerName]} opacity={opacity}>
-                <use
-                    x={loc_x}
-                    y={loc_y}
-                    width={SymbolSizes[symbol].width}
-                    height={SymbolSizes[symbol].height}
-                    href={`#${symbol}`}
-                />
-            </g>
-        );
-    }
-}
+export const Hold = ({ opacity, coordinates, colors, symbolSizes, loc, powerName }) => {
+    const finalOpacity = opacity === undefined ? 1 : opacity;
+    const Coordinates = coordinates;
+    const Colors = colors;
+    const SymbolSizes = symbolSizes;
+    const symbol = "HoldUnit";
+    const [loc_x, loc_y] = centerSymbolAroundUnit(Coordinates, SymbolSizes, loc, false, symbol);
+    return (
+        <g stroke={Colors[powerName]} opacity={finalOpacity}>
+            <use
+                x={loc_x}
+                y={loc_y}
+                width={SymbolSizes[symbol].width}
+                height={SymbolSizes[symbol].height}
+                href={`#${symbol}`}
+            />
+        </g>
+    );
+};
 
 Hold.propTypes = {
     loc: PropTypes.string.isRequired,

@@ -14,159 +14,151 @@
 //  You should have received a copy of the GNU Affero General Public License along
 //  with this program.  If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
-import React from "react";
-import { Forms } from "../components/forms";
+import React, { useEffect } from "react";
+import { Forms, useFormAdapter } from "../components/forms";
 import { UTILS } from "../../diplomacy/utils/utils";
 import PropTypes from "prop-types";
 import { DipStorage } from "../utils/dipStorage";
 
 export const API_PORT = 443;
 
-export class ConnectionForm extends React.Component {
-    constructor(props) {
-        super(props);
-        // Load fields values from local storage.
-        const initialState = this.initState();
-        const savedState = DipStorage.getConnectionForm();
-        if (savedState) {
-            // Only load credentials from storage, not hostname/port
-            // Always use the defaults for hostname/port to ensure correct endpoint
-            if (savedState.username) initialState.username = savedState.username;
-            if (savedState.password) initialState.password = savedState.password;
-            if (savedState.showServerFields) initialState.showServerFields = savedState.showServerFields;
-        }
-        this.state = initialState;
-        this.updateServerFieldsView = this.updateServerFieldsView.bind(this);
-        this.onChange = this.onChange.bind(this);
+function initState() {
+    let defaultHostname = "diplomacy-api.feng-gu.com";
+    let defaultPort = 443;
+
+    const currentHostname = window.location.hostname;
+    if (
+        currentHostname === "localhost" ||
+        currentHostname === "127.0.0.1" ||
+        currentHostname === "0.0.0.0"
+    ) {
+        defaultHostname = "localhost";
+        defaultPort = 8433;
     }
 
-    componentDidMount() {
+    return {
+        hostname: defaultHostname,
+        port: defaultPort,
+        username: "",
+        password: "",
+        showServerFields: false,
+    };
+}
+
+export const ConnectionForm = ({ onChange: onChangeProp, onSubmit }) => {
+    const buildInitialState = () => {
+        const initial = initState();
+        const savedState = DipStorage.getConnectionForm();
+        if (savedState) {
+            if (savedState.username) initial.username = savedState.username;
+            if (savedState.password) initial.password = savedState.password;
+            if (savedState.showServerFields) initial.showServerFields = savedState.showServerFields;
+        }
+        return initial;
+    };
+
+    const [state, adapter] = useFormAdapter(buildInitialState);
+
+    useEffect(() => {
         // Auto-submit if credentials are saved in local storage
         const savedState = DipStorage.getConnectionForm();
-        if (savedState && savedState.username && savedState.password && this.props.onSubmit) {
-            // Use setTimeout to ensure the component is fully mounted
-            // Always use the production API endpoint for auto-submit
+        if (savedState && savedState.username && savedState.password && onSubmit) {
             setTimeout(() => {
-                this.props.onSubmit({
-                    ...this.state,
-                    hostname: this.state.hostname,
-                    port: this.state.port
+                onSubmit({
+                    ...adapter.state,
+                    hostname: adapter.state.hostname,
+                    port: adapter.state.port,
                 });
             }, 100);
         }
-    }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
-    initState() {
-        let defaultHostname = "diplomacy-api.feng-gu.com";
-        let defaultPort = 443;
+    const updateServerFieldsView = () => {
+        DipStorage.setConnectionshowServerFields(!state.showServerFields);
+        adapter.setState({ showServerFields: !state.showServerFields });
+    };
 
-        // Only use localhost when accessing from local machine
-        // All external access should go through Cloudflare tunnel
-        const currentHostname = window.location.hostname;
-        if (
-            currentHostname === "localhost" ||
-            currentHostname === "127.0.0.1" ||
-            currentHostname === "0.0.0.0"
-        ) {
-            defaultHostname = "localhost";
-            defaultPort = 8433;
-        }
-
-        return {
-            hostname: defaultHostname,
-            port: defaultPort,
-            username: "",
-            password: "",
-            showServerFields: false,
-        };
-    }
-
-    updateServerFieldsView() {
-        DipStorage.setConnectionshowServerFields(!this.state.showServerFields);
-        this.setState({ showServerFields: !this.state.showServerFields });
-    }
-
-    onChange(newState) {
-        const initialState = this.initState();
-        if (newState.hostname !== initialState.hostname) DipStorage.setConnectionHostname(newState.hostname);
+    const handleChange = (newState) => {
+        const initial = initState();
+        if (newState.hostname !== initial.hostname) DipStorage.setConnectionHostname(newState.hostname);
         else DipStorage.setConnectionHostname(null);
-        if (newState.port !== initialState.port) DipStorage.setConnectionPort(newState.port);
+        if (newState.port !== initial.port) DipStorage.setConnectionPort(newState.port);
         else DipStorage.setConnectionPort(null);
-        if (newState.username !== initialState.username) DipStorage.setConnectionUsername(newState.username);
+        if (newState.username !== initial.username) DipStorage.setConnectionUsername(newState.username);
         else DipStorage.setConnectionUsername(null);
-        if (newState.password !== initialState.password) DipStorage.setConnectionPassword(newState.password);
+        if (newState.password !== initial.password) DipStorage.setConnectionPassword(newState.password);
         else DipStorage.setConnectionPassword(null);
-        if (this.props.onChange) this.props.onChange(newState);
-    }
+        if (onChangeProp) onChangeProp(newState);
+    };
 
-    render() {
-        const onChange = Forms.createOnChangeCallback(this, this.onChange);
-        const onSubmit = Forms.createOnSubmitCallback(this, this.props.onSubmit);
-        return (
-            <form>
-                {Forms.createRow(
-                    Forms.createColLabel("username", "username:"),
-                    <input
-                        className={"form-control"}
-                        type={"text"}
-                        id={"username"}
-                        value={Forms.getValue(this.state, "username")}
-                        onChange={onChange}
-                    />,
-                )}
-                {Forms.createRow(
-                    Forms.createColLabel("password", "password:"),
-                    <input
-                        className={"form-control"}
-                        type={"password"}
-                        id={"password"}
-                        value={Forms.getValue(this.state, "password")}
-                        onChange={onChange}
-                    />,
-                )}
-                <div>
-                    <div className={this.state.showServerFields ? "mb-2" : "mb-4"}>
-                        <span className={"button-server"} onClick={this.updateServerFieldsView}>
-                            server settings{" "}
-                            {this.state.showServerFields
-                                ? UTILS.html.UNICODE_BOTTOM_ARROW
-                                : UTILS.html.UNICODE_TOP_ARROW}
-                        </span>
-                    </div>
-                    {this.state.showServerFields && (
-                        <div className={"mb-4"}>
-                            {Forms.createRow(
-                                <label className={"col"} htmlFor={"hostname"}>
-                                    hostname:
-                                </label>,
-                                <input
-                                    className={"form-control"}
-                                    type={"text"}
-                                    id={"hostname"}
-                                    value={Forms.getValue(this.state, "hostname")}
-                                    onChange={onChange}
-                                />,
-                            )}
-                            {Forms.createRow(
-                                <label className={"col"} htmlFor={"port"}>
-                                    port:
-                                </label>,
-                                <input
-                                    className={"form-control"}
-                                    type={"number"}
-                                    id={"port"}
-                                    value={Forms.getValue(this.state, "port")}
-                                    onChange={onChange}
-                                />,
-                            )}
-                        </div>
-                    )}
+    const onChange = Forms.createOnChangeCallback(adapter, handleChange);
+    const handleSubmit = Forms.createOnSubmitCallback(adapter, onSubmit);
+
+    return (
+        <form>
+            {Forms.createRow(
+                Forms.createColLabel("username", "username:"),
+                <input
+                    className={"form-control"}
+                    type={"text"}
+                    id={"username"}
+                    value={Forms.getValue(state, "username")}
+                    onChange={onChange}
+                />,
+            )}
+            {Forms.createRow(
+                Forms.createColLabel("password", "password:"),
+                <input
+                    className={"form-control"}
+                    type={"password"}
+                    id={"password"}
+                    value={Forms.getValue(state, "password")}
+                    onChange={onChange}
+                />,
+            )}
+            <div>
+                <div className={state.showServerFields ? "mb-2" : "mb-4"}>
+                    <span className={"button-server"} onClick={updateServerFieldsView}>
+                        server settings{" "}
+                        {state.showServerFields
+                            ? UTILS.html.UNICODE_BOTTOM_ARROW
+                            : UTILS.html.UNICODE_TOP_ARROW}
+                    </span>
                 </div>
-                {Forms.createRow("", Forms.createSubmit("connect", true, onSubmit))}
-            </form>
-        );
-    }
-}
+                {state.showServerFields && (
+                    <div className={"mb-4"}>
+                        {Forms.createRow(
+                            <label className={"col"} htmlFor={"hostname"}>
+                                hostname:
+                            </label>,
+                            <input
+                                className={"form-control"}
+                                type={"text"}
+                                id={"hostname"}
+                                value={Forms.getValue(state, "hostname")}
+                                onChange={onChange}
+                            />,
+                        )}
+                        {Forms.createRow(
+                            <label className={"col"} htmlFor={"port"}>
+                                port:
+                            </label>,
+                            <input
+                                className={"form-control"}
+                                type={"number"}
+                                id={"port"}
+                                value={Forms.getValue(state, "port")}
+                                onChange={onChange}
+                            />,
+                        )}
+                    </div>
+                )}
+            </div>
+            {Forms.createRow("", Forms.createSubmit("connect", true, handleSubmit))}
+        </form>
+    );
+};
 
 ConnectionForm.propTypes = {
     onChange: PropTypes.func,

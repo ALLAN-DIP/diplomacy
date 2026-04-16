@@ -15,72 +15,64 @@
 //  with this program.  If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
 import React from "react";
-import { Forms } from "../components/forms";
+import { Forms, useFormAdapter } from "../components/forms";
 import { STRINGS } from "../../diplomacy/utils/strings";
 import PropTypes from "prop-types";
 
-export class FindForm extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = this.initState();
-    }
+export const FindForm = ({ onChange: onChangeProp, onSubmit }) => {
+    const [state, adapter] = useFormAdapter({
+        game_id: "",
+        status: "",
+        include_protected: false,
+        for_omniscience: false,
+    });
 
-    initState() {
-        return {
-            game_id: "",
-            status: "",
-            include_protected: false,
-            for_omniscience: false,
-        };
-    }
+    const onChange = Forms.createOnChangeCallback(adapter, onChangeProp);
+    const handleSubmit = Forms.createOnSubmitCallback(adapter, onSubmit);
 
-    render() {
-        const onChange = Forms.createOnChangeCallback(this, this.props.onChange);
-        const onSubmit = Forms.createOnSubmitCallback(this, this.props.onSubmit);
-        return (
-            <form>
-                {Forms.createRow(
-                    Forms.createColLabel("game_id", "game id (should contain):"),
-                    <input
-                        className={"form-control"}
-                        id={"game_id"}
-                        type={"text"}
-                        value={Forms.getValue(this.state, "game_id")}
-                        onChange={onChange}
-                    />,
+    return (
+        <form>
+            {Forms.createRow(
+                Forms.createColLabel("game_id", "game id (should contain):"),
+                <input
+                    className={"form-control"}
+                    id={"game_id"}
+                    type={"text"}
+                    value={Forms.getValue(state, "game_id")}
+                    onChange={onChange}
+                />,
+            )}
+            {Forms.createRow(
+                Forms.createColLabel("status", "status:"),
+                <select
+                    className={"form-control custom-select"}
+                    id={"status"}
+                    value={Forms.getValue(state, "status")}
+                    onChange={onChange}
+                >
+                    {Forms.createSelectOptions(STRINGS.ALL_GAME_STATUSES, true)}
+                </select>,
+            )}
+            <div className={"form-check"}>
+                {Forms.createCheckbox(
+                    "include_protected",
+                    "include protected games.",
+                    Forms.getValue(state, "include_protected"),
+                    onChange,
                 )}
-                {Forms.createRow(
-                    Forms.createColLabel("status", "status:"),
-                    <select
-                        className={"form-control custom-select"}
-                        id={"status"}
-                        value={Forms.getValue(this.state, "status")}
-                        onChange={onChange}
-                    >
-                        {Forms.createSelectOptions(STRINGS.ALL_GAME_STATUSES, true)}
-                    </select>,
+            </div>
+            <div className={"form-check mb-4"}>
+                {Forms.createCheckbox(
+                    "for_omniscience",
+                    "for omniscience.",
+                    Forms.getValue(state, "for_omniscience"),
+                    onChange,
                 )}
-                <div className={"form-check"}>
-                    {Forms.createCheckbox(
-                        "include_protected",
-                        "include protected games.",
-                        Forms.getValue(this.state, "include_protected"),
-                        onChange,
-                    )}
-                </div>
-                <div className={"form-check mb-4"}>
-                    {Forms.createCheckbox(
-                        "for_omniscience",
-                        "for omniscience.",
-                        Forms.getValue(this.state, "for_omniscience"),
-                        onChange,
-                    )}
-                </div>
-                {Forms.createRow("", Forms.createSubmit("find games", true, onSubmit))}
-            </form>
-        );
-    }
-}
+            </div>
+            {Forms.createRow("", Forms.createSubmit("find games", true, handleSubmit))}
+        </form>
+    );
+};
 
 FindForm.propTypes = {
     onChange: PropTypes.func,

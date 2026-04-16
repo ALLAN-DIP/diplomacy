@@ -14,7 +14,7 @@
 //  You should have received a copy of the GNU Affero General Public License along
 //  with this program.  If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
-import React from "react";
+import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { Panels } from "./panelList";
 import { PanelChooseMap } from "./panelChooseMap";
@@ -25,111 +25,103 @@ import { Maps } from "./mapList";
 import { UTILS } from "../../../diplomacy/utils/utils";
 import "./gameCreationWizard.css";
 
-export class GameCreationWizard extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            panel: Panels.CHOOSE_MAP,
-            game_id: UTILS.createGameID(this.props.username),
-            power_name: null,
-            n_controls: -1,
-            deadline: 0,
-            registration_password: "",
+export const GameCreationWizard = (props) => {
+    const [state, setState] = useState({
+        panel: Panels.CHOOSE_MAP,
+        game_id: UTILS.createGameID(props.username),
+        power_name: null,
+        n_controls: -1,
+        deadline: 0,
+        registration_password: "",
 
-            map: Maps[0],
-            no_press: false,
-            player_type: "",
-        };
-        this.backward = this.backward.bind(this);
-        this.forward = this.forward.bind(this);
-        this.updateParams = this.updateParams.bind(this);
-    }
+        map: Maps[0],
+        no_press: false,
+        player_type: "",
+    });
 
-    updateParams(params) {
-        this.setState(params);
-    }
+    const updateParams = (params) => {
+        setState((prev) => ({ ...prev, ...params }));
+    };
 
-    goToPanel(panelID) {
-        if (panelID < Panels.CHOOSE_MAP) this.props.onCancel();
+    const goToPanel = (panelID) => {
+        if (panelID < Panels.CHOOSE_MAP) props.onCancel();
         else if (panelID > Panels.CHOOSE_SETTINGS) {
             const rules = ["POWER_CHOICE"];
-            if (this.state.no_press) rules.push("NO_PRESS");
-            if (!this.state.deadline) {
+            if (state.no_press) rules.push("NO_PRESS");
+            if (!state.deadline) {
                 rules.push("NO_DEADLINE");
                 rules.push("REAL_TIME");
             }
-            this.props.onSubmit({
-                game_id: this.state.game_id,
-                map_name: this.state.map.name,
-                power_name: this.state.power_name,
-                n_controls: this.state.n_controls,
-                deadline: this.state.deadline,
-                registration_password: this.state.registration_password || null,
+            props.onSubmit({
+                game_id: state.game_id,
+                map_name: state.map.name,
+                power_name: state.power_name,
+                n_controls: state.n_controls,
+                deadline: state.deadline,
+                registration_password: state.registration_password || null,
                 rules: rules,
-                player_type: this.state.player_type,
+                player_type: state.player_type,
             });
-        } else this.setState({ panel: panelID, registration_password: "" });
-    }
+        } else setState((prev) => ({ ...prev, panel: panelID, registration_password: "" }));
+    };
 
-    backward(step) {
-        this.goToPanel(this.state.panel - (step ? step : 1));
-    }
+    const backward = (step) => {
+        goToPanel(state.panel - (step ? step : 1));
+    };
 
-    forward(step) {
-        this.goToPanel(this.state.panel + (step ? step : 1));
-    }
+    const forward = (step) => {
+        goToPanel(state.panel + (step ? step : 1));
+    };
 
-    renderPanel() {
-        switch (this.state.panel) {
+    const renderPanel = () => {
+        switch (state.panel) {
             case Panels.CHOOSE_MAP:
                 return (
                     <PanelChooseMap
-                        forward={this.forward}
-                        params={this.state}
-                        onUpdateParams={this.updateParams}
-                        cancel={this.props.onCancel}
+                        forward={forward}
+                        params={state}
+                        onUpdateParams={updateParams}
+                        cancel={props.onCancel}
                     />
                 );
             case Panels.CHOOSE_PLAYERS:
                 return (
                     <PanelChoosePlayers
-                        backward={this.backward}
-                        forward={this.forward}
-                        onUpdateParams={this.updateParams}
-                        nbPowers={this.props.availableMaps[this.state.map.name].powers.length}
-                        cancel={this.props.onCancel}
+                        backward={backward}
+                        forward={forward}
+                        onUpdateParams={updateParams}
+                        nbPowers={props.availableMaps[state.map.name].powers.length}
+                        cancel={props.onCancel}
                     />
                 );
             case Panels.CHOOSE_POWER:
                 return (
                     <PanelChoosePower
-                        backward={this.backward}
-                        forward={this.forward}
-                        onUpdateParams={this.updateParams}
-                        powers={this.props.availableMaps[this.state.map.name].powers}
-                        cancel={this.props.onCancel}
+                        backward={backward}
+                        forward={forward}
+                        onUpdateParams={updateParams}
+                        powers={props.availableMaps[state.map.name].powers}
+                        cancel={props.onCancel}
                     />
                 );
             case Panels.CHOOSE_SETTINGS:
                 return (
                     <PanelChooseSettings
-                        backward={this.backward}
-                        forward={this.forward}
-                        onUpdateParams={this.updateParams}
-                        username={this.props.username}
-                        params={this.state}
-                        cancel={this.props.onCancel}
+                        backward={backward}
+                        forward={forward}
+                        onUpdateParams={updateParams}
+                        username={props.username}
+                        params={state}
+                        cancel={props.onCancel}
                     />
                 );
             default:
                 return "";
         }
-    }
+    };
 
-    render() {
-        return <div className="game-creation-wizard">{this.renderPanel()}</div>;
-    }
-}
+    return <div className="game-creation-wizard">{renderPanel()}</div>;
+};
 
 GameCreationWizard.propTypes = {
     onCancel: PropTypes.func.isRequired,

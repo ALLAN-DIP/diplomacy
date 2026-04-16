@@ -18,6 +18,34 @@ import React from "react";
 import { UTILS } from "../../diplomacy/utils/utils";
 import { Button } from "./button";
 
+/**
+ * Hook that returns a component-like adapter compatible with Forms static methods.
+ * Bridges functional components to Forms.createOnChangeCallback / createOnSubmitCallback / etc.
+ * which expect an object with .state and .setState().
+ *
+ * Usage:
+ *   const [state, adapter] = useFormAdapter(initialState);
+ *   const onChange = Forms.createOnChangeCallback(adapter, props.onChange);
+ *   // `state` for rendering, `adapter` for passing to Forms helpers.
+ */
+export function useFormAdapter(initialState) {
+    const [state, setStateRaw] = React.useState(initialState);
+    const ref = React.useRef(null);
+    if (!ref.current) {
+        ref.current = { state: initialState };
+    }
+    ref.current.state = state;
+    ref.current.setState = (update, callback) => {
+        setStateRaw((prev) => {
+            const next = typeof update === "function" ? update(prev) : { ...prev, ...update };
+            ref.current.state = next;
+            return next;
+        });
+        if (callback) Promise.resolve().then(callback);
+    };
+    return [state, ref.current];
+}
+
 export class Forms {
     static createOnChangeCallback(component, callback) {
         return (event) => {

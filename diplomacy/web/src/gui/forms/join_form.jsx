@@ -15,70 +15,54 @@
 //  with this program.  If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
 import React from "react";
-import { Forms } from "../components/forms";
+import { Forms, useFormAdapter } from "../components/forms";
 import PropTypes from "prop-types";
 
-export class JoinForm extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = this.initState();
-    }
+export const JoinForm = ({ game_id, password_required, powers, availablePowers, onChange: onChangeProp, onSubmit }) => {
+    const powerNameID = `power_name_${game_id}`;
+    const passwordID = `registration_password_${game_id}`;
+    const defaultPowerName = (powers && powers.length && powers[0]) || "";
 
-    initState() {
-        return {
-            [this.getPowerNameID()]: this.getDefaultPowerName(),
-            [this.getPasswordID()]: "",
-        };
-    }
+    const [state, adapter] = useFormAdapter({
+        [powerNameID]: defaultPowerName,
+        [passwordID]: "",
+    });
 
-    getPowerNameID() {
-        return `power_name_${this.props.game_id}`;
-    }
+    const onChange = Forms.createOnChangeCallback(adapter, onChangeProp);
+    const handleSubmit = Forms.createOnSubmitCallback(adapter, onSubmit);
 
-    getPasswordID() {
-        return `registration_password_${this.props.game_id}`;
-    }
-
-    getDefaultPowerName() {
-        return (this.props.powers && this.props.powers.length && this.props.powers[0]) || "";
-    }
-
-    render() {
-        const onChange = Forms.createOnChangeCallback(this, this.props.onChange);
-        const onSubmit = Forms.createOnSubmitCallback(this, this.props.onSubmit);
-        return (
-            <form className={"form-inline"}>
+    return (
+        <form className={"form-inline"}>
+            <div className={"form-group mr-2"}>
+                {Forms.createLabel(powerNameID, "Power:")}
+                <select
+                    id={powerNameID}
+                    className={"from-control custom-select ml-2"}
+                    value={Forms.getValue(state, powerNameID)}
+                    onChange={onChange}
+                >
+                    {Forms.createSelectOptions(availablePowers, true)}
+                </select>
+            </div>
+            {password_required ? (
                 <div className={"form-group mr-2"}>
-                    {Forms.createLabel(this.getPowerNameID(), "Power:")}
-                    <select
-                        id={this.getPowerNameID()}
-                        className={"from-control custom-select ml-2"}
-                        value={Forms.getValue(this.state, this.getPowerNameID())}
+                    {Forms.createLabel(passwordID, "", "sr-only")}
+                    <input
+                        id={passwordID}
+                        type={"password"}
+                        className={"form-control"}
+                        placeholder={"registration password"}
+                        value={Forms.getValue(state, passwordID)}
                         onChange={onChange}
-                    >
-                        {Forms.createSelectOptions(this.props.availablePowers, true)}
-                    </select>
+                    />
                 </div>
-                {this.props.password_required ? (
-                    <div className={"form-group mr-2"}>
-                        {Forms.createLabel(this.getPasswordID(), "", "sr-only")}
-                        <input
-                            id={this.getPasswordID()}
-                            type={"password"}
-                            className={"form-control"}
-                            placeholder={"registration password"}
-                            value={Forms.getValue(this.state, this.getPasswordID())}
-                            onChange={onChange}
-                        />
-                    </div>
-                ) : (
-                    ""
-                )}
-                {Forms.createSubmit("join", false, onSubmit)}
-            </form>
-        );
-    }
-}
+            ) : (
+                ""
+            )}
+            {Forms.createSubmit("join", false, handleSubmit)}
+        </form>
+    );
+};
 
 JoinForm.propTypes = {
     game_id: PropTypes.string.isRequired,

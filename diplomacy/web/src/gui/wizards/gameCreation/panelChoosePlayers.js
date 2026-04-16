@@ -19,76 +19,74 @@ import { FancyBox } from "../../components/fancyBox";
 import PropTypes from "prop-types";
 import { ArrowLeftIcon } from "@primer/octicons-react";
 
-export class PanelChoosePlayers extends React.Component {
-    render() {
-        return (
-            <FancyBox title={"Number of human players"} onClose={this.props.cancel}>
-                <div className="row">
-                    <div className="col-sm">
-                        <button
-                            type="button"
-                            className="btn btn-secondary btn-sm btn-block inline"
-                            onClick={() => {
-                                this.props.onUpdateParams({ n_controls: 0 });
-                                this.props.forward(2);
-                            }}
-                        >
-                            None - just bots
-                        </button>
-                    </div>
-                    <div className="col-sm">
-                        <button
-                            type="button"
-                            className="btn btn-secondary btn-sm btn-block inline"
-                            onClick={() => {
-                                this.props.onUpdateParams({ n_controls: this.props.nbPowers });
-                                this.props.forward();
-                            }}
-                        >
-                            All humans - no bots
-                        </button>
+export const PanelChoosePlayers = (props) => {
+    return (
+        <FancyBox title={"Number of human players"} onClose={props.cancel}>
+            <div className="row">
+                <div className="col-sm">
+                    <button
+                        type="button"
+                        className="btn btn-secondary btn-sm btn-block inline"
+                        onClick={() => {
+                            props.onUpdateParams({ n_controls: 0 });
+                            props.forward(2);
+                        }}
+                    >
+                        None - just bots
+                    </button>
+                </div>
+                <div className="col-sm">
+                    <button
+                        type="button"
+                        className="btn btn-secondary btn-sm btn-block inline"
+                        onClick={() => {
+                            props.onUpdateParams({ n_controls: props.nbPowers });
+                            props.forward();
+                        }}
+                    >
+                        All humans - no bots
+                    </button>
+                </div>
+            </div>
+            <div className="row">
+                <div className="col">
+                    <div className="d-flex flex-row justify-content-center my-2">
+                        {(() => {
+                            const choice = [];
+                            for (let i = 0; i < props.nbPowers; ++i) {
+                                choice.push(
+                                    <button
+                                        key={i}
+                                        type="button"
+                                        className={`btn btn-secondary btn-sm flex-grow-1 ${i === 0 ? "" : "ml-sm-1"}`}
+                                        onClick={() => {
+                                            props.onUpdateParams({ n_controls: i + 1 });
+                                            props.forward();
+                                        }}
+                                    >
+                                        {i + 1}
+                                    </button>,
+                                );
+                            }
+                            return choice;
+                        })()}
                     </div>
                 </div>
-                <div className="row">
-                    <div className="col">
-                        <div className="d-flex flex-row justify-content-center my-2">
-                            {(() => {
-                                const choice = [];
-                                for (let i = 0; i < this.props.nbPowers; ++i) {
-                                    choice.push(
-                                        <button
-                                            key={i}
-                                            type="button"
-                                            className={`btn btn-secondary btn-sm flex-grow-1 ${i === 0 ? "" : "ml-sm-1"}`}
-                                            onClick={() => {
-                                                this.props.onUpdateParams({ n_controls: i + 1 });
-                                                this.props.forward();
-                                            }}
-                                        >
-                                            {i + 1}
-                                        </button>,
-                                    );
-                                }
-                                return choice;
-                            })()}
-                        </div>
-                    </div>
+            </div>
+            <div className="row">
+                <div className="col">
+                    <button
+                        type="button"
+                        className="btn btn-secondary btn-sm px-3"
+                        onClick={() => props.backward()}
+                    >
+                        <ArrowLeftIcon />
+                    </button>
                 </div>
-                <div className="row">
-                    <div className="col">
-                        <button
-                            type="button"
-                            className="btn btn-secondary btn-sm px-3"
-                            onClick={() => this.props.backward()}
-                        >
-                            <ArrowLeftIcon />
-                        </button>
-                    </div>
-                </div>
-            </FancyBox>
-        );
-    }
-}
+            </div>
+        </FancyBox>
+    );
+};
 
 PanelChoosePlayers.propTypes = {
     backward: PropTypes.func.isRequired,

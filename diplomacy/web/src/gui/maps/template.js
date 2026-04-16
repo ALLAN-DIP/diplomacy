@@ -17,17 +17,12 @@ import { Convoy } from "../common/convoy";
 import { Build } from "../common/build";
 import { Disband } from "../common/disband";
 
-export class PythonTemplate /* classname */ extends React.Component {
-    constructor(props) {
-        super(props);
-        this.onClick = this.onClick.bind(this);
-        this.onHover = this.onHover.bind(this);
+export const PythonTemplate = (props) => {
+    const onClick = (event) => {
+        if (props.orderBuilding) return handleClickedID(getClickedID(event));
     }
-    onClick(event) {
-        if (this.props.orderBuilding) return this.handleClickedID(getClickedID(event));
-    }
-    onHover(event) {
-        return this.handleHoverID(getClickedID(event));
+    const onHover = (event) => {
+        return handleHoverID(getClickedID(event));
     }
 
     /**
@@ -35,13 +30,13 @@ export class PythonTemplate /* classname */ extends React.Component {
      * @param orderBuilding
      * @param {Province} province - province hovered upon
      */
-    onPrediction(orderBuilding, province) {
-        const localGame = this.props.game; // Game Object
+    const onPrediction = (orderBuilding, province) => {
+        const localGame = props.game; // Game Object
         const phaseType = localGame.phase.slice(-1); // 'M'/'A'/'R' - movement/adjustment/retreat
         const requestedPower = orderBuilding.power;
         var requestedProvince = "";
         const provinceController = province.controller;
-        const powers = Object.values(this.props.game.powers).map((power) => power.name);
+        const powers = Object.values(props.game.powers).map((power) => power.name);
 
         /* Get correct naming of province*/
         if (phaseType === "M") {
@@ -65,7 +60,7 @@ export class PythonTemplate /* classname */ extends React.Component {
         } else {
             /* ADJUSTMENT PHASE */
             const orderTypes = POSSIBLE_ORDERS["A"];
-            const possibleOrders = this.props.game.ordersTree;
+            const possibleOrders = props.game.ordersTree;
             const orderableLocations = new Set();
 
             for (const type of orderTypes) {
@@ -92,31 +87,31 @@ export class PythonTemplate /* classname */ extends React.Component {
             }
         }
         if (requestedProvince === "") {
-            this.props.onError(`No orderable locations at province ${province.name}`);
-            return this.props.onChangeOrderDistribution(requestedPower, null, provinceController);
+            props.onError(`No orderable locations at province ${province.name}`);
+            return props.onChangeOrderDistribution(requestedPower, null, provinceController);
         }
 
-        for (var orderDist of this.props.orderDistribution) {
+        for (var orderDist of props.orderDistribution) {
             if (orderDist.province === requestedProvince) {
                 return false; // advice is already displayed
             }
         }
 
-        this.props.onChangeOrderDistribution(requestedPower, requestedProvince, provinceController);
+        props.onChangeOrderDistribution(requestedPower, requestedProvince, provinceController);
         return true;
     }
 
-    handleClickedID(id) {
-        const province = this.props.mapData.getProvince(id);
+    const handleClickedID = (id) => {
+        const province = props.mapData.getProvince(id);
         if (!province) throw new Error(`Cannot find a province named ${id}`);
 
-        const orderBuilding = this.props.orderBuilding;
-        if (this.props.shiftKeyPressed) {
-            if (this.onPrediction(orderBuilding, province)) {
+        const orderBuilding = props.orderBuilding;
+        if (props.shiftKeyPressed) {
+            if (onPrediction(orderBuilding, province)) {
                 return;
             }
         }
-        if (!orderBuilding.builder) return this.props.onError("No orderable locations.");
+        if (!orderBuilding.builder) return props.onError("No orderable locations.");
         const stepLength = orderBuilding.builder.steps.length;
         if (orderBuilding.path.length >= stepLength)
             throw new Error(
@@ -127,7 +122,7 @@ export class PythonTemplate /* classname */ extends React.Component {
         const lengthAfterClick = orderBuilding.path.length + 1;
         let validLocations = [];
         const testedPath = [orderBuilding.type].concat(orderBuilding.path);
-        const value = UTILS.javascript.getTreeValue(this.props.game.ordersTree, testedPath);
+        const value = UTILS.javascript.getTreeValue(props.game.ordersTree, testedPath);
         if (value !== null) {
             const checker = orderBuilding.builder.steps[lengthAfterClick - 1];
             try {
@@ -137,10 +132,10 @@ export class PythonTemplate /* classname */ extends React.Component {
                     if (value.includes(possibleLocation)) validLocations.push(possibleLocation);
                 }
             } catch (error) {
-                return this.props.onError(error);
+                return props.onError(error);
             }
         }
-        if (!validLocations.length) return this.props.onError("Disallowed.");
+        if (!validLocations.length) return props.onError("Disallowed.");
 
         if (validLocations.length > 1 && orderBuilding.type === "S" && orderBuilding.path.length >= 2) {
             /* We are building a support order and we have a multiple choice for a location.        */
@@ -176,8 +171,8 @@ export class PythonTemplate /* classname */ extends React.Component {
         }
 
         if (validLocations.length > 1) {
-            if (this.props.onSelectLocation) {
-                return this.props.onSelectLocation(
+            if (props.onSelectLocation) {
+                return props.onSelectLocation(
                     validLocations,
                     orderBuilding.power,
                     orderBuilding.type,
@@ -191,11 +186,11 @@ export class PythonTemplate /* classname */ extends React.Component {
         let orderBuildingType = orderBuilding.type;
         if (lengthAfterClick === stepLength && orderBuildingType === "M") {
             const moveOrderPath = ["M"].concat(orderBuilding.path, validLocations[0]);
-            const moveTypes = UTILS.javascript.getTreeValue(this.props.game.ordersTree, moveOrderPath);
+            const moveTypes = UTILS.javascript.getTreeValue(props.game.ordersTree, moveOrderPath);
             if (moveTypes !== null) {
-                if (moveTypes.length === 2 && this.props.onSelectVia) {
+                if (moveTypes.length === 2 && props.onSelectVia) {
                     /* This move can be done either regularly or VIA a fleet. Let user choose. */
-                    return this.props.onSelectVia(validLocations[0], orderBuilding.power, orderBuilding.path);
+                    return props.onSelectVia(validLocations[0], orderBuilding.power, orderBuilding.path);
                 } else {
                     orderBuildingType = moveTypes[0];
                 }
@@ -206,23 +201,23 @@ export class PythonTemplate /* classname */ extends React.Component {
             orderBuildingType,
             orderBuilding.path,
             validLocations[0],
-            this.props.onOrderBuilding,
-            this.props.onOrderBuilt,
-            this.props.onError,
+            props.onOrderBuilding,
+            props.onOrderBuilt,
+            props.onError,
         );
     }
-    handleHoverID(id) {
-        if (this.props.onHover) {
-            const province = this.props.mapData.getProvince(id);
+    const handleHoverID = (id) => {
+        if (props.onHover) {
+            const province = props.mapData.getProvince(id);
             if (province) {
-                this.props.onHover(province.name, this.getRelatedOrders(province.name));
+                props.onHover(province.name, getRelatedOrders(province.name));
             }
         }
     }
-    getRelatedOrders(name) {
+    const getRelatedOrders = (name) => {
         const orders = [];
-        if (this.props.orders) {
-            for (let powerOrders of Object.values(this.props.orders)) {
+        if (props.orders) {
+            for (let powerOrders of Object.values(props.orders)) {
                 if (powerOrders) {
                     for (let order of powerOrders) {
                         const pieces = order.split(/ +/);
@@ -233,10 +228,10 @@ export class PythonTemplate /* classname */ extends React.Component {
         }
         return orders;
     }
-    getNeighbors(extraLocation) {
-        const selectedPath = [this.props.orderBuilding.type].concat(this.props.orderBuilding.path);
+    const getNeighbors = (extraLocation) => {
+        const selectedPath = [props.orderBuilding.type].concat(props.orderBuilding.path);
         if (extraLocation) selectedPath.push(extraLocation);
-        const possibleNeighbors = UTILS.javascript.getTreeValue(this.props.game.ordersTree, selectedPath);
+        const possibleNeighbors = UTILS.javascript.getTreeValue(props.game.ordersTree, selectedPath);
         const neighbors = possibleNeighbors ? possibleNeighbors.map((neighbor) => parseLocation(neighbor)) : [];
         return neighbors.length ? neighbors : null;
     }
@@ -250,7 +245,7 @@ export class PythonTemplate /* classname */ extends React.Component {
      * @param {string} key - The keycode for react component to have unique key
      * @returns renderComponents - Json object that stores the order component into the corresponding order rendering list
      */
-    renderOrder(order, powerName, game, opacity = undefined, key = "O") {
+    const renderOrder = (order, powerName, game, opacity = undefined, key = "O") => {
         var renderComponents = {
             renderedOrders: [],
             renderedOrders2: [],
@@ -381,11 +376,11 @@ export class PythonTemplate /* classname */ extends React.Component {
         return renderComponents;
     }
 
-    render() {
+    const render = () => {
         const classes = "PythonTemplate"; /* classes */
-        const game = this.props.game;
-        const mapData = this.props.mapData;
-        const orders = this.props.orders;
+        const game = props.game;
+        const mapData = props.mapData;
+        const orders = props.orders;
 
         /* Current phase. */
         const current_phase = game.phase[0] === "?" || game.phase === "COMPLETED" ? "FINAL" : game.phase;
@@ -444,7 +439,7 @@ export class PythonTemplate /* classname */ extends React.Component {
                 if (orders) {
                     const powerOrders = (orders && orders.hasOwnProperty(power.name) && orders[power.name]) || [];
                     for (let order of powerOrders) {
-                        const component = this.renderOrder(order, power.name, game);
+                        const component = renderOrder(order, power.name, game);
                         renderedOrders.push(...component.renderedOrders);
                         renderedOrders2.push(...component.renderedOrders2);
                         renderedHighestOrders.push(...component.renderedHighestOrders);
@@ -453,13 +448,13 @@ export class PythonTemplate /* classname */ extends React.Component {
             }
 
         /* If can display visual distribution advice, push the corresponding advice order components for rendering */
-        if (this.props.orderDistribution && this.props.displayVisualAdvice) {
-            for (var provinceDistribution of this.props.orderDistribution) {
+        if (props.orderDistribution && props.displayVisualAdvice) {
+            for (var provinceDistribution of props.orderDistribution) {
                 var orderDistribution = provinceDistribution.distribution;
                 var provincePower = provinceDistribution.power;
                 for (var order in orderDistribution) {
                     if (orderDistribution.hasOwnProperty(order)) {
-                        const component = this.renderOrder(
+                        const component = renderOrder(
                             order,
                             provincePower,
                             game,
@@ -474,9 +469,9 @@ export class PythonTemplate /* classname */ extends React.Component {
             }
         }
 
-        if (this.props.hoverDistributionOrder) {
-            for (const orderObj of this.props.hoverDistributionOrder) {
-                const component = this.renderOrder(orderObj.order, orderObj.power, game, 1, "H");
+        if (props.hoverDistributionOrder) {
+            for (const orderObj of props.hoverDistributionOrder) {
+                const component = renderOrder(orderObj.order, orderObj.power, game, 1, "H");
                 renderedOrders.push(...component.renderedOrders);
                 renderedOrders2.push(...component.renderedOrders2);
                 renderedHighestOrders.push(...component.renderedHighestOrders);
@@ -484,26 +479,26 @@ export class PythonTemplate /* classname */ extends React.Component {
         }
 
         /** For textual advice, user is able to show or hide an advice order*/
-        if (this.props.visibleDistributionOrder) {
-            for (const orderObj of this.props.visibleDistributionOrder) {
-                const component = this.renderOrder(orderObj.order, orderObj.power, game, 1, "V");
+        if (props.visibleDistributionOrder) {
+            for (const orderObj of props.visibleDistributionOrder) {
+                const component = renderOrder(orderObj.order, orderObj.power, game, 1, "V");
                 renderedOrders.push(...component.renderedOrders);
                 renderedOrders2.push(...component.renderedOrders2);
                 renderedHighestOrders.push(...component.renderedHighestOrders);
             }
         }
 
-        if (this.props.orderBuilding && this.props.orderBuilding.path.length) {
-            const clicked = parseLocation(this.props.orderBuilding.path[0]);
-            const province = this.props.mapData.getProvince(clicked);
+        if (props.orderBuilding && props.orderBuilding.path.length) {
+            const clicked = parseLocation(props.orderBuilding.path[0]);
+            const province = props.mapData.getProvince(clicked);
             if (!province) throw new Error("Unknown clicked province " + clicked);
             const clickedID = province.getID(classes);
             if (!clicked) throw new Error(`Unknown path (${clickedID}) for province (${clicked}).`);
             classes[clickedID] = "provinceRed";
-            const neighbors = this.getNeighbors();
+            const neighbors = getNeighbors();
             if (neighbors) {
                 for (let neighbor of neighbors) {
-                    const neighborProvince = this.props.mapData.getProvince(neighbor);
+                    const neighborProvince = props.mapData.getProvince(neighbor);
                     if (!neighborProvince) throw new Error("Unknown neighbor province " + neighbor);
                     const neighborID = neighborProvince.getID(classes);
                     if (!neighborID)
@@ -513,7 +508,7 @@ export class PythonTemplate /* classname */ extends React.Component {
             }
         }
 
-        if (this.props.showAbbreviations === false) {
+        if (props.showAbbreviations === false) {
             classes["BriefLabelLayer"] = "visibilityHidden";
         }
 
@@ -522,8 +517,9 @@ export class PythonTemplate /* classname */ extends React.Component {
 "PythonTemplate"/* svg */
         );
     }
-}
-PythonTemplate /* classname */.propTypes = {
+};
+
+PythonTemplate.propTypes = {
     game: PropTypes.instanceOf(Game).isRequired,
     mapData: PropTypes.instanceOf(MapData).isRequired,
     orders: PropTypes.object,

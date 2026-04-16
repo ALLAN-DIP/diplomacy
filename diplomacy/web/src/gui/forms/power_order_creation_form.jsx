@@ -15,7 +15,7 @@
 //  with this program.  If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
 import React from "react";
-import { Forms } from "../components/forms";
+import { Forms, useFormAdapter } from "../components/forms";
 import { ORDER_BUILDER } from "../utils/order_building";
 import { STRINGS } from "../../diplomacy/utils/strings";
 import PropTypes from "prop-types";
@@ -23,107 +23,105 @@ import { Power } from "../../diplomacy/engine/power";
 
 const HotKey = require("react-shortcut");
 
-export class PowerOrderCreationForm extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = this.initState();
-    }
+export const PowerOrderCreationForm = ({
+    orderType,
+    orderTypes,
+    power,
+    role,
+    onChange: onChangeProp,
+    onPass,
+    onVote,
+    onSetWaitFlag,
+}) => {
+    const [state, adapter] = useFormAdapter({ order_type: orderType });
 
-    initState() {
-        return { order_type: this.props.orderType };
-    }
+    const onChange = Forms.createOnChangeCallback(adapter, onChangeProp);
+    const onReset = Forms.createOnResetCallback(adapter, onChangeProp, { order_type: orderType });
+    const onSetOrderType = (letter) => {
+        adapter.setState({ order_type: letter }, () => {
+            if (onChangeProp) onChangeProp(adapter.state);
+        });
+    };
 
-    render() {
-        const onChange = Forms.createOnChangeCallback(this, this.props.onChange);
-        const onReset = Forms.createOnResetCallback(this, this.props.onChange, this.initState());
-        const onSetOrderType = (letter) => {
-            this.setState({ order_type: letter }, () => {
-                if (this.props.onChange) this.props.onChange(this.state);
-            });
-        };
-        let title = "";
-        let titleClass = "mr-4";
-        const header = [];
-        const votes = [];
-        if (this.props.orderTypes.length) {
-            title = "Create order:";
-            header.push(
-                ...this.props.orderTypes.map((orderLetter, index) => (
-                    <div key={index} className={"form-check-inline"}>
-                        {Forms.createRadio(
-                            "order_type",
-                            orderLetter,
-                            ORDER_BUILDER[orderLetter].name,
-                            this.props.orderType,
-                            onChange,
-                        )}
-                    </div>
-                )),
-            );
-            header.push(Forms.createReset("reset", false, onReset));
-        } else if (this.props.power.order_is_set) {
-            title = "Unorderable power.";
-            titleClass += " neutral";
-        } else {
-            title = "No orders available for this power.";
-        }
-        /* if (!this.props.power.order_is_set) {
-            header.push(Forms.createButton('pass', this.props.onPass));
-        } */
-
-        if (this.props.role !== STRINGS.OMNISCIENT_TYPE) {
-            votes.push(
-                <strong key={0} className={"ml-4 mr-2"}>
-                    Vote for draw:
-                </strong>,
-            );
-            switch (this.props.power.vote) {
-                case "yes":
-                    votes.push(Forms.createButton("no", () => this.props.onVote("no"), "danger"));
-                    votes.push(Forms.createButton("neutral", () => this.props.onVote("neutral"), "info"));
-                    break;
-                case "no":
-                    votes.push(Forms.createButton("yes", () => this.props.onVote("yes"), "success"));
-                    votes.push(Forms.createButton("neutral", () => this.props.onVote("neutral"), "info"));
-                    break;
-                case "neutral":
-                    votes.push(Forms.createButton("yes", () => this.props.onVote("yes"), "success"));
-                    votes.push(Forms.createButton("no", () => this.props.onVote("no"), "danger"));
-                    break;
-                default:
-                    votes.push(Forms.createButton("yes", () => this.props.onVote("yes"), "success"));
-                    votes.push(Forms.createButton("no", () => this.props.onVote("no"), "danger"));
-                    votes.push(Forms.createButton("neutral", () => this.props.onVote("neutral"), "info"));
-                    break;
-            }
-        }
-        return (
-            <div>
-                <div>
-                    <strong key={"title"} className={titleClass}>
-                        {title}
-                    </strong>
-                </div>
-                <form className={"form-inline power-actions-form"}>
-                    {header}
-                    {Forms.createButton(
-                        this.props.power.wait ? "ready" : "unready",
-                        this.props.onSetWaitFlag,
-                        this.props.power.wait ? "success" : "danger",
+    let title = "";
+    let titleClass = "mr-4";
+    const header = [];
+    const votes = [];
+    if (orderTypes.length) {
+        title = "Create order:";
+        header.push(
+            ...orderTypes.map((orderLetter, index) => (
+                <div key={index} className={"form-check-inline"}>
+                    {Forms.createRadio(
+                        "order_type",
+                        orderLetter,
+                        ORDER_BUILDER[orderLetter].name,
+                        orderType,
+                        onChange,
                     )}
-                    <HotKey keys={["escape"]} onKeysCoincide={onReset} />
-                    {this.props.orderTypes.map((letter, index) => (
-                        <HotKey
-                            key={index}
-                            keys={[letter.toLowerCase()]}
-                            onKeysCoincide={() => onSetOrderType(letter)}
-                        />
-                    ))}
-                </form>
-            </div>
+                </div>
+            )),
         );
+        header.push(Forms.createReset("reset", false, onReset));
+    } else if (power.order_is_set) {
+        title = "Unorderable power.";
+        titleClass += " neutral";
+    } else {
+        title = "No orders available for this power.";
     }
-}
+
+    if (role !== STRINGS.OMNISCIENT_TYPE) {
+        votes.push(
+            <strong key={0} className={"ml-4 mr-2"}>
+                Vote for draw:
+            </strong>,
+        );
+        switch (power.vote) {
+            case "yes":
+                votes.push(Forms.createButton("no", () => onVote("no"), "danger"));
+                votes.push(Forms.createButton("neutral", () => onVote("neutral"), "info"));
+                break;
+            case "no":
+                votes.push(Forms.createButton("yes", () => onVote("yes"), "success"));
+                votes.push(Forms.createButton("neutral", () => onVote("neutral"), "info"));
+                break;
+            case "neutral":
+                votes.push(Forms.createButton("yes", () => onVote("yes"), "success"));
+                votes.push(Forms.createButton("no", () => onVote("no"), "danger"));
+                break;
+            default:
+                votes.push(Forms.createButton("yes", () => onVote("yes"), "success"));
+                votes.push(Forms.createButton("no", () => onVote("no"), "danger"));
+                votes.push(Forms.createButton("neutral", () => onVote("neutral"), "info"));
+                break;
+        }
+    }
+    return (
+        <div>
+            <div>
+                <strong key={"title"} className={titleClass}>
+                    {title}
+                </strong>
+            </div>
+            <form className={"form-inline power-actions-form"}>
+                {header}
+                {Forms.createButton(
+                    power.wait ? "ready" : "unready",
+                    onSetWaitFlag,
+                    power.wait ? "success" : "danger",
+                )}
+                <HotKey keys={["escape"]} onKeysCoincide={onReset} />
+                {orderTypes.map((letter, index) => (
+                    <HotKey
+                        key={index}
+                        keys={[letter.toLowerCase()]}
+                        onKeysCoincide={() => onSetOrderType(letter)}
+                    />
+                ))}
+            </form>
+        </div>
+    );
+};
 
 PowerOrderCreationForm.propTypes = {
     orderType: PropTypes.oneOf(Object.keys(ORDER_BUILDER)),
@@ -132,7 +130,7 @@ PowerOrderCreationForm.propTypes = {
     role: PropTypes.string,
     onChange: PropTypes.func,
     onSubmit: PropTypes.func,
-    onPass: PropTypes.func, // onPass(), to submit empty orders set (powers want to do nothing at this phase)
-    onVote: PropTypes.func, // onVote(voteString)
-    onSetWaitFlag: PropTypes.func, // onSetWaitFlag(),
+    onPass: PropTypes.func,
+    onVote: PropTypes.func,
+    onSetWaitFlag: PropTypes.func,
 };

@@ -20,23 +20,21 @@ import { Button } from "./button";
 
 const TIMES = "\u00D7";
 
-export class FancyBox extends React.Component {
-    render() {
-        return (
-            <div className="fancy-box">
-                <div className="fancy-bar p-1 d-flex flex-row">
-                    <div className="flex-grow-1 fancy-title d-flex flex-column justify-content-center pr-0 pr-sm-1">
-                        {this.props.title}
-                    </div>
-                    <div className="fancy-button">
-                        <Button title={TIMES} color={"danger"} onClick={this.props.onClose} />
-                    </div>
+export const FancyBox = (props) => {
+    return (
+        <div className="fancy-box">
+            <div className="fancy-bar p-1 d-flex flex-row">
+                <div className="flex-grow-1 fancy-title d-flex flex-column justify-content-center pr-0 pr-sm-1">
+                    {props.title}
                 </div>
-                <div className="fancy-content p-2">{this.props.children}</div>
+                <div className="fancy-button">
+                    <Button title={TIMES} color={"danger"} onClick={props.onClose} />
+                </div>
             </div>
-        );
-    }
-}
+            <div className="fancy-content p-2">{props.children}</div>
+        </div>
+    );
+};
 
 FancyBox.propTypes = {
     title: PropTypes.string.isRequired,
