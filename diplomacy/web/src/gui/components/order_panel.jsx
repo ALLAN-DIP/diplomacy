@@ -21,7 +21,6 @@ import { STRINGS } from "../../diplomacy/utils/strings";
 import { PowerOrderCreationForm } from "../forms/power_order_creation_form";
 import { PowerOrders } from "./power_orders";
 import { PowerOrdersActionBar } from "./power_orders_actions_bar";
-import { Tooltip } from "@mui/material";
 import { QuestionIcon } from "@primer/octicons-react";
 
 /**
@@ -101,29 +100,15 @@ function OrderPanelBase({
         suggestionTypeDisplay.push(
             <React.Fragment key="order-prob">
                 order probability{" "}
-                <Tooltip
+                <span
                     title={
-                        <>
-                            <p>
-                                Hold <kbd>Shift</kbd> and click on a province to
-                                display recommended/predicted orders for the
-                                province&apos;s unit.
-                            </p>
-                            <p>
-                                Click the province a second time to place an
-                                order.
-                            </p>
-                            <p>
-                                Release <kbd>Shift</kbd> to clear all
-                                selections.
-                            </p>
-                        </>
+                        "Hold Shift and click on a province to display recommended/predicted orders for the province's unit. " +
+                        "Click the province a second time to place an order. " +
+                        "Release Shift to clear all selections."
                     }
                 >
-                    <span>
-                        <QuestionIcon />
-                    </span>
-                </Tooltip>
+                    <QuestionIcon />
+                </span>
             </React.Fragment>
         );
 

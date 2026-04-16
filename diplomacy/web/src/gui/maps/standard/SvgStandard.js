@@ -38,12 +38,15 @@ import { Disband } from "../common/disband";
 
 const SvgStandardBase = (props) => {
 
-const onClick = (event) => {
-        if (props.orderBuilding) return handleClickedID(getClickedID(event));
-    };
-    const onHover = (event) => {
-        return handleHoverID(getClickedID(event));
-    };
+const handleClickedIDRef = React.useRef(null);
+    const handleHoverIDRef = React.useRef(null);
+
+    const onClick = React.useCallback((event) => {
+        if (handleClickedIDRef.current) return handleClickedIDRef.current(getClickedID(event));
+    }, []);
+    const onHover = React.useCallback((event) => {
+        if (handleHoverIDRef.current) return handleHoverIDRef.current(getClickedID(event));
+    }, []);
 
     /**
      * Update predictions for displaying the order distribution in the selected province
@@ -54,7 +57,7 @@ const onClick = (event) => {
         const localGame = props.game; // Game Object
         const phaseType = localGame.phase.slice(-1); // 'M'/'A'/'R' - movement/adjustment/retreat
         const requestedPower = orderBuilding.power;
-        var requestedProvince = "";
+        let requestedProvince = "";
         const provinceController = province.controller;
         const powers = Object.values(props.game.powers).map((power) => power.name);
 
@@ -62,7 +65,7 @@ const onClick = (event) => {
         if (phaseType === "M") {
             /* MOVEMENT PHASE */
             for (const power of powers) {
-                var occupiedProvince = province.getOccupied(power);
+                const occupiedProvince = province.getOccupied(power);
                 if (occupiedProvince) {
                     requestedProvince = occupiedProvince.name.toUpperCase();
                     break;
@@ -71,7 +74,7 @@ const onClick = (event) => {
         } else if (phaseType === "R") {
             /* RETREAT PHASE */
             for (const power of powers) {
-                var retreatProvince = province.getRetreated(power);
+                const retreatProvince = province.getRetreated(power);
                 if (retreatProvince) {
                     requestedProvince = retreatProvince.retreatUnit.split(" ")[1];
                     break;
@@ -248,6 +251,13 @@ const onClick = (event) => {
         }
         return orders;
     };
+
+    // Keep refs in sync so memoized onClick/onHover always call the latest logic.
+    handleClickedIDRef.current = (id) => {
+        if (props.orderBuilding) return handleClickedID(id);
+    };
+    handleHoverIDRef.current = handleHoverID;
+
     const getNeighbors = (extraLocation) => {
         const selectedPath = [props.orderBuilding.type].concat(props.orderBuilding.path);
         if (extraLocation) selectedPath.push(extraLocation);
@@ -1073,6 +1083,7 @@ const onClick = (event) => {
 };
 
 export const SvgStandard = React.memo(SvgStandardBase);
+export default SvgStandard;
 
 SvgStandardBase.propTypes = {
     game: PropTypes.instanceOf(Game).isRequired,

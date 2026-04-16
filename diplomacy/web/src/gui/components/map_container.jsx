@@ -14,21 +14,23 @@
 //  You should have received a copy of the GNU Affero General Public License along
 //  with this program.  If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
-import React, { useMemo } from "react";
+import React, { useMemo, Suspense } from "react";
 import PropTypes from "prop-types";
 import { MapData } from "../utils/map_data";
-import { SvgStandard } from "../maps/standard/SvgStandard";
-import { SvgAncMed } from "../maps/ancmed/SvgAncMed";
-import { SvgModern } from "../maps/modern/SvgModern";
-import { SvgPure } from "../maps/pure/SvgPure";
+
+const SvgStandard = React.lazy(() => import("../maps/standard/SvgStandard"));
+const SvgAncMed = React.lazy(() => import("../maps/ancmed/SvgAncMed"));
+const SvgModern = React.lazy(() => import("../maps/modern/SvgModern"));
+const SvgPure = React.lazy(() => import("../maps/pure/SvgPure"));
+
+const mapComponents = {
+    standard: SvgStandard,
+    ancmed: SvgAncMed,
+    modern: SvgModern,
+    pure: SvgPure,
+};
 
 function getMapComponent(mapName) {
-    const mapComponents = {
-        standard: SvgStandard,
-        ancmed: SvgAncMed,
-        modern: SvgModern,
-        pure: SvgPure,
-    };
     return mapComponents[mapName] || SvgStandard;
 }
 
@@ -100,24 +102,26 @@ function MapContainerBase({
     if (mode === "current") {
         return (
             <div id="current-map" key="current-map">
-                <Map
-                    game={gameEngine}
-                    showAbbreviations={showAbbreviations}
-                    mapData={mapData}
-                    onError={onError}
-                    orderBuilding={orderBuilding}
-                    onOrderBuilding={onOrderBuilding}
-                    onOrderBuilt={onOrderBuilt}
-                    orders={formattedOrders}
-                    shiftKeyPressed={shiftKeyPressed}
-                    onChangeOrderDistribution={onChangeOrderDistribution}
-                    orderDistribution={orderDistribution}
-                    displayVisualAdvice={displayVisualAdvice}
-                    visibleDistributionOrder={visibleDistributionOrder}
-                    hoverDistributionOrder={hoverDistributionOrder}
-                    onSelectLocation={onSelectLocation}
-                    onSelectVia={onSelectVia}
-                />
+                <Suspense fallback={<div>Loading map…</div>}>
+                    <Map
+                        game={gameEngine}
+                        showAbbreviations={showAbbreviations}
+                        mapData={mapData}
+                        onError={onError}
+                        orderBuilding={orderBuilding}
+                        onOrderBuilding={onOrderBuilding}
+                        onOrderBuilt={onOrderBuilt}
+                        orders={formattedOrders}
+                        shiftKeyPressed={shiftKeyPressed}
+                        onChangeOrderDistribution={onChangeOrderDistribution}
+                        orderDistribution={orderDistribution}
+                        displayVisualAdvice={displayVisualAdvice}
+                        visibleDistributionOrder={visibleDistributionOrder}
+                        hoverDistributionOrder={hoverDistributionOrder}
+                        onSelectLocation={onSelectLocation}
+                        onSelectVia={onSelectVia}
+                    />
+                </Suspense>
             </div>
         );
     }
@@ -131,15 +135,17 @@ function MapContainerBase({
 
     return (
         <div id="past-map" key="past-map">
-            <Map
-                game={gameEngine}
-                showAbbreviations={showAbbreviations}
-                mapData={mapData}
-                onError={onError}
-                orders={resultsOrders}
-                onHover={showOrders ? onHover : null}
-                onSelectVia={onSelectVia}
-            />
+            <Suspense fallback={<div>Loading map…</div>}>
+                <Map
+                    game={gameEngine}
+                    showAbbreviations={showAbbreviations}
+                    mapData={mapData}
+                    onError={onError}
+                    orders={resultsOrders}
+                    onHover={showOrders ? onHover : null}
+                    onSelectVia={onSelectVia}
+                />
+            </Suspense>
         </div>
     );
 }

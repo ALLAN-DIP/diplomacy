@@ -21,7 +21,7 @@ import { STRINGS } from "../../diplomacy/utils/strings";
 import PropTypes from "prop-types";
 import { Power } from "../../diplomacy/engine/power";
 
-const HotKey = require("react-shortcut");
+import { HotKey } from "../utils/useHotKey";
 
 export const PowerOrderCreationForm = ({
     orderType,

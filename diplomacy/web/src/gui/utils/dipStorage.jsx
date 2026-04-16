@@ -21,6 +21,7 @@ global
   - hostname
   - port
   - showServerFields
+  (password is intentionally NOT stored — use session tokens only)
 users
 - (username)
   - games
@@ -34,27 +35,48 @@ let STORAGE = null;
 export class DipStorage {
     static load() {
         if (!STORAGE) {
-            const global = window.localStorage.global;
-            const users = window.localStorage.users;
-            STORAGE = {
-                global: (global && JSON.parse(global)) || {
-                    connection: {
-                        username: null,
-                        password: null,
-                        hostname: null,
-                        port: null,
-                        showServerFields: null,
-                    },
+            const defaultGlobal = {
+                connection: {
+                    username: null,
+                    hostname: null,
+                    port: null,
+                    showServerFields: null,
                 },
-                users: (users && JSON.parse(users)) || {},
             };
+            let storedGlobal = null;
+            let storedUsers = null;
+            try {
+                storedGlobal = window.localStorage.global;
+                storedUsers = window.localStorage.users;
+            } catch (err) {
+                console.warn("DipStorage: localStorage unavailable, using in-memory only", err);
+            }
+            const parse = (raw, fallback) => {
+                if (!raw) return fallback;
+                try {
+                    return JSON.parse(raw);
+                } catch (err) {
+                    console.warn("DipStorage: failed to parse stored value, resetting", err);
+                    return fallback;
+                }
+            };
+            STORAGE = {
+                global: parse(storedGlobal, defaultGlobal),
+                users: parse(storedUsers, {}),
+            };
+            // Scrub any plaintext password previously stored
+            delete STORAGE.global.connection.password;
         }
     }
 
     static save() {
         if (STORAGE) {
-            window.localStorage.global = JSON.stringify(STORAGE.global);
-            window.localStorage.users = JSON.stringify(STORAGE.users);
+            try {
+                window.localStorage.global = JSON.stringify(STORAGE.global);
+                window.localStorage.users = JSON.stringify(STORAGE.users);
+            } catch (err) {
+                console.warn("DipStorage: failed to persist to localStorage", err);
+            }
         }
     }
 
@@ -83,12 +105,6 @@ export class DipStorage {
     static setConnectionUsername(username) {
         DipStorage.load();
         STORAGE.global.connection.username = username;
-        DipStorage.save();
-    }
-
-    static setConnectionPassword(password) {
-        DipStorage.load();
-        STORAGE.global.connection.password = password;
         DipStorage.save();
     }
 

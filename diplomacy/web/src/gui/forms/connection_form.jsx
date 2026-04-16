@@ -14,7 +14,7 @@
 //  You should have received a copy of the GNU Affero General Public License along
 //  with this program.  If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
-import React, { useEffect } from "react";
+import React from "react";
 import { Forms, useFormAdapter } from "../components/forms";
 import { UTILS } from "../../diplomacy/utils/utils";
 import PropTypes from "prop-types";
@@ -51,27 +51,12 @@ export const ConnectionForm = ({ onChange: onChangeProp, onSubmit }) => {
         const savedState = DipStorage.getConnectionForm();
         if (savedState) {
             if (savedState.username) initial.username = savedState.username;
-            if (savedState.password) initial.password = savedState.password;
             if (savedState.showServerFields) initial.showServerFields = savedState.showServerFields;
         }
         return initial;
     };
 
     const [state, adapter] = useFormAdapter(buildInitialState);
-
-    useEffect(() => {
-        // Auto-submit if credentials are saved in local storage
-        const savedState = DipStorage.getConnectionForm();
-        if (savedState && savedState.username && savedState.password && onSubmit) {
-            setTimeout(() => {
-                onSubmit({
-                    ...adapter.state,
-                    hostname: adapter.state.hostname,
-                    port: adapter.state.port,
-                });
-            }, 100);
-        }
-    }, []); // eslint-disable-line
 
     const updateServerFieldsView = () => {
         DipStorage.setConnectionshowServerFields(!state.showServerFields);
@@ -86,8 +71,6 @@ export const ConnectionForm = ({ onChange: onChangeProp, onSubmit }) => {
         else DipStorage.setConnectionPort(null);
         if (newState.username !== initial.username) DipStorage.setConnectionUsername(newState.username);
         else DipStorage.setConnectionUsername(null);
-        if (newState.password !== initial.password) DipStorage.setConnectionPassword(newState.password);
-        else DipStorage.setConnectionPassword(null);
         if (onChangeProp) onChangeProp(newState);
     };
 

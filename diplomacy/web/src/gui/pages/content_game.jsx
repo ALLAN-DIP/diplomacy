@@ -37,11 +37,6 @@ import { Game } from "../../diplomacy/engine/game";
 import { Queue } from "../../diplomacy/utils/queue";
 import "@chatscope/chat-ui-kit-styles/dist/default/styles.min.css";
 import "./content_game.css";
-import { default as Tabs2 } from "@mui/material/Tabs";
-import { default as Tab2 } from "@mui/material/Tab";
-import Box from "@mui/material/Box";
-import Badge from "@mui/material/Badge";
-import Grid from "@mui/material/Grid";
 import {
     MainContainer,
     ChatContainer,
@@ -58,8 +53,7 @@ import { OrderPanel } from "../components/order_panel";
 import { ChatPanel } from "../components/chat_panel";
 import { PowerInfoPanel, LogsPanel } from "../components/stats_panel";
 import { usePromiseState } from "../utils/usePromiseState";
-
-const HotKey = require("react-shortcut");
+import { HotKey } from "../utils/useHotKey";
 
 /* Order management in game page.
  * When editing orders locally, we have to compare it to server orders
@@ -1634,53 +1628,73 @@ export const ContentGame = ({ data }) => {
         }
 
         return (
-            <Box className={"col-6 mb-4"}>
-                <Grid container spacing={2}>
-                    <Grid item xs={12} sx={{ height: "100%" }}>
-                        <Box sx={{ width: "100%", height: "550px" }}>
-                            <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
-                                <Tabs2
-                                    value={state.tabVal}
-                                    onChange={updateTabVal}
-                                    aria-label="basic tabs example"
-                                >
+            <div className={"col-6 mb-4"}>
+                <div className="row">
+                    <div className="col-12" style={{ height: "100%" }}>
+                        <div style={{ width: "100%", height: "550px" }}>
+                            <div style={{ borderBottom: "1px solid rgba(0, 0, 0, 0.12)" }}>
+                                <ul className="nav nav-tabs" role="tablist">
                                     {displayTab[STRINGS.MESSAGES] && (
-                                        <Tab2 label="Message Advice" value={STRINGS.MESSAGES} />
+                                        <li className="nav-item" role="presentation">
+                                            <button
+                                                type="button"
+                                                className={`nav-link${state.tabVal === STRINGS.MESSAGES ? " active" : ""}`}
+                                                onClick={(e) => updateTabVal(e, STRINGS.MESSAGES)}
+                                            >
+                                                Message Advice
+                                            </button>
+                                        </li>
                                     )}
                                     {displayTab[STRINGS.COMMENTARY] && (
-                                        <Tab2
-                                            label={
-                                                <span
-                                                    style={{
-                                                        marginRight: "8px",
-                                                    }}
-                                                >
+                                        <li className="nav-item" role="presentation">
+                                            <button
+                                                type="button"
+                                                className={`nav-link${state.tabVal === STRINGS.COMMENTARY ? " active" : ""}`}
+                                                onClick={(e) => {
+                                                    updateTabVal(e, STRINGS.COMMENTARY);
+                                                    if (isCurrent) {
+                                                        setState({
+                                                            tabCurrentMessages: state.commentaryProtagonist,
+                                                            lastSwitchPanelTime: Date.now(),
+                                                        });
+                                                    }
+                                                    updateReadCommentary();
+                                                }}
+                                            >
+                                                <span style={{ marginRight: "8px" }}>
                                                     Commentary
                                                     {state.showBadge && (
                                                         <>
                                                             {" "}
-                                                            <Badge variant="dot" color="warning"></Badge>
+                                                            <span
+                                                                style={{
+                                                                    display: "inline-block",
+                                                                    width: "8px",
+                                                                    height: "8px",
+                                                                    borderRadius: "50%",
+                                                                    backgroundColor: "#ed6c02",
+                                                                    verticalAlign: "middle",
+                                                                }}
+                                                            />
                                                         </>
                                                     )}
                                                 </span>
-                                            }
-                                            value={STRINGS.COMMENTARY}
-                                            onClick={() => {
-                                                if (isCurrent) {
-                                                    setState({
-                                                        tabCurrentMessages: state.commentaryProtagonist,
-                                                        lastSwitchPanelTime: Date.now(),
-                                                    });
-                                                } // make sure commentary tab is selected for the correct conversation
-                                                updateReadCommentary();
-                                            }}
-                                        />
+                                            </button>
+                                        </li>
                                     )}
                                     {displayTab[STRINGS.INTENT_LOG] && (
-                                        <Tab2 label="Captain's Log" value={STRINGS.INTENT_LOG} />
+                                        <li className="nav-item" role="presentation">
+                                            <button
+                                                type="button"
+                                                className={`nav-link${state.tabVal === STRINGS.INTENT_LOG ? " active" : ""}`}
+                                                onClick={(e) => updateTabVal(e, STRINGS.INTENT_LOG)}
+                                            >
+                                                Captain&apos;s Log
+                                            </button>
+                                        </li>
                                     )}
-                                </Tabs2>
-                            </Box>
+                                </ul>
+                            </div>
                             {state.tabVal === STRINGS.MESSAGES && (
                                 <ChatContainer
                                     style={{
@@ -1842,10 +1856,10 @@ export const ContentGame = ({ data }) => {
                                     </ChatContainer>
                                 </MainContainer>
                             )}
-                        </Box>
-                    </Grid>
-                </Grid>
-            </Box>
+                        </div>
+                    </div>
+                </div>
+            </div>
         );
     };
 

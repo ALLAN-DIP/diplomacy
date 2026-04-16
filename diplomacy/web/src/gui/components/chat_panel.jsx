@@ -18,9 +18,6 @@ import React from "react";
 import PropTypes from "prop-types";
 import { Col } from "./layouts";
 import { MessageInputArea } from "./MessageInputArea";
-import Box from "@mui/material/Box";
-import Card from "@mui/material/Card";
-import CardContent from "@mui/material/CardContent";
 import {
     MainContainer,
     ChatContainer,
@@ -262,62 +259,51 @@ export const ChatPanel = React.forwardRef(function ChatPanel(
         // Current phase: card layout with message input
         const orders = getOrders(engine);
         return (
-            <Box className={isWide ? "col-12 mb-4" : "col-6 mb-4"}>
-                <Card
-                    elevation={3}
-                    sx={{
-                        borderRadius: 2,
+            <div className={isWide ? "col-12 mb-4" : "col-6 mb-4"}>
+                <div
+                    style={{
+                        borderRadius: "8px",
                         overflow: "hidden",
                         height: "550px",
+                        backgroundColor: "#fff",
+                        boxShadow:
+                            "0 3px 3px -2px rgba(0,0,0,0.2), 0 3px 4px 0 rgba(0,0,0,0.14), 0 1px 8px 0 rgba(0,0,0,0.12)",
                     }}
                 >
-                    <CardContent
-                        sx={{
-                            p: 0,
-                            height: "100%",
-                            "&:last-child": { pb: 0 },
-                        }}
-                    >
-                        <Box sx={{ width: "100%", height: "100%" }}>
-                            <MainContainer responsive>
-                                <Sidebar
-                                    position="left"
-                                    scrollable={true}
-                                >
-                                    <ConversationList>
-                                        {wrappedConvList}
-                                    </ConversationList>
-                                </Sidebar>
-                                <ChatContainer>
-                                    <MessageList>
-                                        {renderedMessages}
-                                    </MessageList>
-                                </ChatContainer>
-                            </MainContainer>
-                            {engine.isPlayerGame() && (
-                                <MessageInputArea
-                                    ref={messageInputRef}
-                                    sendMessage={sendMessage}
-                                    networkGame={engine.client}
-                                    currentTabId={currentTabId}
-                                    disabled={
-                                        phaseType === "M" &&
-                                        (!hasInitialOrders ||
-                                            (orders[currentPowerName] &&
-                                                Object.keys(
-                                                    orders[currentPowerName]
-                                                ).length <
-                                                    engine.orderableLocations[
-                                                        currentPowerName
-                                                    ].length))
-                                    }
-                                    hasInitialOrders={hasInitialOrders}
-                                />
-                            )}
-                        </Box>
-                    </CardContent>
-                </Card>
-            </Box>
+                    <div style={{ width: "100%", height: "100%" }}>
+                        <MainContainer responsive>
+                            <Sidebar position="left" scrollable={true}>
+                                <ConversationList>
+                                    {wrappedConvList}
+                                </ConversationList>
+                            </Sidebar>
+                            <ChatContainer>
+                                <MessageList>{renderedMessages}</MessageList>
+                            </ChatContainer>
+                        </MainContainer>
+                        {engine.isPlayerGame() && (
+                            <MessageInputArea
+                                ref={messageInputRef}
+                                sendMessage={sendMessage}
+                                networkGame={engine.client}
+                                currentTabId={currentTabId}
+                                disabled={
+                                    phaseType === "M" &&
+                                    (!hasInitialOrders ||
+                                        (orders[currentPowerName] &&
+                                            Object.keys(
+                                                orders[currentPowerName]
+                                            ).length <
+                                                engine.orderableLocations[
+                                                    currentPowerName
+                                                ].length))
+                                }
+                                hasInitialOrders={hasInitialOrders}
+                            />
+                        )}
+                    </div>
+                </div>
+            </div>
         );
     }
 

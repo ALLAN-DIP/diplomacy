@@ -803,6 +803,7 @@ const onClick = (event) => {
 };
 
 export const SvgPure = React.memo(SvgPureBase);
+export default SvgPure;
 
 SvgPureBase.propTypes = {
     game: PropTypes.instanceOf(Game).isRequired,

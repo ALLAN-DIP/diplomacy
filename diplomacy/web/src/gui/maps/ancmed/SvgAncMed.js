@@ -1086,6 +1086,7 @@ const onClick = (event) => {
 };
 
 export const SvgAncMed = React.memo(SvgAncMedBase);
+export default SvgAncMed;
 
 SvgAncMedBase.propTypes = {
     game: PropTypes.instanceOf(Game).isRequired,

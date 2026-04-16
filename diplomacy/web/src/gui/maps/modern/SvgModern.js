@@ -1392,6 +1392,7 @@ const onClick = (event) => {
 };
 
 export const SvgModern = React.memo(SvgModernBase);
+export default SvgModern;
 
 SvgModernBase.propTypes = {
     game: PropTypes.instanceOf(Game).isRequired,
