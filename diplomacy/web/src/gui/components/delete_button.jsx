@@ -14,39 +14,35 @@
 //  You should have received a copy of the GNU Affero General Public License along
 //  with this program.  If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
-import React from "react";
+import React, { useState, useRef } from "react";
 import { Button } from "./button";
 import PropTypes from "prop-types";
 
-export class DeleteButton extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = { step: 0 };
-        this.onClick = this.onClick.bind(this);
-    }
+export const DeleteButton = ({ title, confirmTitle, waitingTitle, onClick }) => {
+    const [step, setStep] = useState(0);
+    const stepRef = useRef(0);
 
-    onClick() {
-        this.setState({ step: this.state.step + 1 }, () => {
-            if (this.state.step === 2) this.props.onClick();
-        });
-    }
+    const handleClick = () => {
+        const nextStep = stepRef.current + 1;
+        stepRef.current = nextStep;
+        setStep(nextStep);
+        if (nextStep === 2) onClick();
+    };
 
-    render() {
-        let title = "";
-        let color = "";
-        if (this.state.step === 0) {
-            title = this.props.title;
-            color = "secondary";
-        } else if (this.state.step === 1) {
-            title = this.props.confirmTitle;
-            color = "danger";
-        } else if (this.state.step === 2) {
-            title = this.props.waitingTitle;
-            color = "danger";
-        }
-        return <Button title={title} color={color} onClick={this.onClick} small={true} large={true} />;
+    let displayTitle = "";
+    let color = "";
+    if (step === 0) {
+        displayTitle = title;
+        color = "secondary";
+    } else if (step === 1) {
+        displayTitle = confirmTitle;
+        color = "danger";
+    } else if (step === 2) {
+        displayTitle = waitingTitle;
+        color = "danger";
     }
-}
+    return <Button title={displayTitle} color={color} onClick={handleClick} small={true} large={true} />;
+};
 
 DeleteButton.propTypes = {
     title: PropTypes.string.isRequired,

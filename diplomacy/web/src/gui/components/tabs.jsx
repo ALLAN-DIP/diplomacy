@@ -18,52 +18,34 @@ import React from "react";
 import { Action } from "./action";
 import PropTypes from "prop-types";
 
-export class Tabs extends React.Component {
-    /** PROPERTIES
-     * active: index of active menu (must be > menu.length).
-     * highlights: dictionary mapping a menu indice to a highlight message
-     * onChange: callback(index): receive index of menu to display.
-     * **/
-
-    generateTabAction(tabTitle, tabId, isActive, onChange, highlight) {
-        return (
-            <Action
-                isActive={isActive}
-                title={tabTitle}
-                onClick={() => onChange(tabId)}
-                highlight={highlight}
-                key={tabId}
-            />
+export const Tabs = ({ menu, titles, onChange, children, active, highlights = {} }) => {
+    if (!menu.length) throw new Error(`No tab menu given.`);
+    if (menu.length !== titles.length)
+        throw new Error(`Menu length (${menu.length}) != titles length (${titles.length})`);
+    if (active && !menu.includes(active))
+        throw new Error(
+            `Invalid active tab name, got ${active}, expected one of: ${menu.join(", ")}`,
         );
-    }
-
-    render() {
-        if (!this.props.menu.length) throw new Error(`No tab menu given.`);
-        if (this.props.menu.length !== this.props.titles.length)
-            throw new Error(`Menu length (${this.props.menu.length}) != titles length (${this.props.titles.length})`);
-        if (this.props.active && !this.props.menu.includes(this.props.active))
-            throw new Error(
-                `Invalid active tab name, got ${this.props.active}, expected one of: ${this.props.menu.join(", ")}`,
-            );
-        const active = this.props.active || this.props.menu[0];
-        return (
-            <div className={"tabs mb-3"}>
-                <nav className={"tabs-bar nav nav-tabs justify-content-center mb-3"}>
-                    {this.props.menu.map((tabName, index) =>
-                        this.generateTabAction(
-                            this.props.titles[index],
-                            tabName,
-                            active === tabName,
-                            this.props.onChange,
-                            (Object.prototype.hasOwnProperty.call(this.props.highlights, tabName) && this.props.highlights[tabName]) || null,
-                        ),
-                    )}
-                </nav>
-                {this.props.children}
-            </div>
-        );
-    }
-}
+    const activeTab = active || menu[0];
+    return (
+        <div className={"tabs mb-3"}>
+            <nav className={"tabs-bar nav nav-tabs justify-content-center mb-3"}>
+                {menu.map((tabName, index) => (
+                    <Action
+                        isActive={activeTab === tabName}
+                        title={titles[index]}
+                        onClick={() => onChange(tabName)}
+                        highlight={
+                            (Object.prototype.hasOwnProperty.call(highlights, tabName) && highlights[tabName]) || null
+                        }
+                        key={tabName}
+                    />
+                ))}
+            </nav>
+            {children}
+        </div>
+    );
+};
 
 Tabs.propTypes = {
     menu: PropTypes.arrayOf(PropTypes.string).isRequired, // tab names
@@ -72,8 +54,4 @@ Tabs.propTypes = {
     children: PropTypes.array.isRequired,
     active: PropTypes.string, // current active tab name
     highlights: PropTypes.object, // {tab name => highlight message (optional)}
-};
-
-Tabs.defaultProps = {
-    highlights: {},
 };

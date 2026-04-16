@@ -19,25 +19,23 @@ import PropTypes from "prop-types";
 import { Button } from "../components/button";
 import { FancyBox } from "../components/fancyBox";
 
-export class SelectLocationForm extends React.Component {
-    render() {
-        const title = `Select location to continue building order: ${this.props.path.join(" ")}`;
-        return (
-            <FancyBox title={title} onClose={this.props.onClose}>
-                <div>
-                    {this.props.locations.map((location, index) => (
-                        <Button
-                            key={index}
-                            title={location}
-                            large={true}
-                            onClick={() => this.props.onSelect(location)}
-                        />
-                    ))}
-                </div>
-            </FancyBox>
-        );
-    }
-}
+export const SelectLocationForm = ({ locations, onSelect, onClose, path }) => {
+    const title = `Select location to continue building order: ${path.join(" ")}`;
+    return (
+        <FancyBox title={title} onClose={onClose}>
+            <div>
+                {locations.map((location, index) => (
+                    <Button
+                        key={index}
+                        title={location}
+                        large={true}
+                        onClick={() => onSelect(location)}
+                    />
+                ))}
+            </div>
+        </FancyBox>
+    );
+};
 
 SelectLocationForm.propTypes = {
     locations: PropTypes.arrayOf(PropTypes.string).isRequired,

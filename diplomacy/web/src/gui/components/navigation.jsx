@@ -18,58 +18,56 @@ import React from "react";
 import { PersonIcon } from "@primer/octicons-react";
 import PropTypes from "prop-types";
 
-export class Navigation extends React.Component {
-    render() {
-        const hasNavigation = this.props.navigation && this.props.navigation.length;
-        if (hasNavigation) {
-            return (
-                <div className={"title game-header"}>
-                    <div className={"game-header-main"}>
-                        <strong>{this.props.title}</strong>
-                        {this.props.afterTitle ? this.props.afterTitle : ""}
-                        {this.props.phaseSel ? this.props.phaseSel : ""}
-                        <div className={"game-header-user"}>
-                            <div className="dropdown">
-                                <button
-                                    className="btn btn-secondary dropdown-toggle"
-                                    type="button"
-                                    id="dropdownMenuButton"
-                                    data-toggle="dropdown"
-                                    aria-haspopup="true"
-                                    aria-expanded="false"
-                                >
-                                    {(this.props.username && (
-                                        <span>
-                                            <u className={"mr-2"}>{this.props.username}</u>
-                                            <PersonIcon />
+export const Navigation = ({ title, afterTitle, navigation, phaseSel, username }) => {
+    const hasNavigation = navigation && navigation.length;
+    if (hasNavigation) {
+        return (
+            <div className={"title game-header"}>
+                <div className={"game-header-main"}>
+                    <strong>{title}</strong>
+                    {afterTitle ? afterTitle : ""}
+                    {phaseSel ? phaseSel : ""}
+                    <div className={"game-header-user"}>
+                        <div className="dropdown">
+                            <button
+                                className="btn btn-secondary dropdown-toggle"
+                                type="button"
+                                id="dropdownMenuButton"
+                                data-toggle="dropdown"
+                                aria-haspopup="true"
+                                aria-expanded="false"
+                            >
+                                {(username && (
+                                    <span>
+                                        <u className={"mr-2"}>{username}</u>
+                                        <PersonIcon />
+                                    </span>
+                                )) ||
+                                    "Menu"}
+                            </button>
+                            <div className="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton">
+                                {navigation.map((nav, index) => {
+                                    const navTitle = nav[0];
+                                    const navAction = nav[1];
+                                    return (
+                                        <span key={index} className="dropdown-item" onClick={navAction}>
+                                            {navTitle}
                                         </span>
-                                    )) ||
-                                        "Menu"}
-                                </button>
-                                <div className="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton">
-                                    {this.props.navigation.map((nav, index) => {
-                                        const navTitle = nav[0];
-                                        const navAction = nav[1];
-                                        return (
-                                            <span key={index} className="dropdown-item" onClick={navAction}>
-                                                {navTitle}
-                                            </span>
-                                        );
-                                    })}
-                                </div>
+                                    );
+                                })}
                             </div>
                         </div>
                     </div>
                 </div>
-            );
-        }
-        return (
-            <div className={"title"}>
-                <strong>{this.props.title}</strong>
             </div>
         );
     }
-}
+    return (
+        <div className={"title"}>
+            <strong>{title}</strong>
+        </div>
+    );
+};
 
 Navigation.propTypes = {
     title: PropTypes.string.isRequired,

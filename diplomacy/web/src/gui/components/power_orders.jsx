@@ -18,61 +18,59 @@ import React from "react";
 import PropTypes from "prop-types";
 import { Button } from "./button";
 
-export class PowerOrders extends React.Component {
-    render() {
-        const orderEntries = this.props.orders ? Object.entries(this.props.orders) : null;
-        let display = null;
-        if (orderEntries) {
-            if (orderEntries.length) {
-                orderEntries.sort((a, b) => a[1].order.localeCompare(b[1].order));
-                display = (
-                    <div className={"container order-list"}>
-                        {orderEntries.map((entry, index) => (
-                            <div
-                                className={
-                                    `row order-entry entry-${1 + (index % 2)} ` + (entry[1].local ? "local" : "server")
-                                }
-                                key={index}
-                            >
-                                <div className={"col align-self-center order"}>
-                                    <span className={"order-string"}>{entry[1].order}</span>
-                                    {entry[1].local ? "" : <span className={"order-mark"}> [S]</span>}
-                                </div>
-                                <div className={"col remove-button"}>
-                                    <Button
-                                        title={"-"}
-                                        onClick={() => this.props.onRemove(this.props.name, entry[1])}
-                                    />
-                                </div>
+export const PowerOrders = ({ wait, name, orders, serverCount, onRemove }) => {
+    const orderEntries = orders ? Object.entries(orders) : null;
+    let display = null;
+    if (orderEntries) {
+        if (orderEntries.length) {
+            orderEntries.sort((a, b) => a[1].order.localeCompare(b[1].order));
+            display = (
+                <div className={"container order-list"}>
+                    {orderEntries.map((entry, index) => (
+                        <div
+                            className={
+                                `row order-entry entry-${1 + (index % 2)} ` + (entry[1].local ? "local" : "server")
+                            }
+                            key={index}
+                        >
+                            <div className={"col align-self-center order"}>
+                                <span className={"order-string"}>{entry[1].order}</span>
+                                {entry[1].local ? "" : <span className={"order-mark"}> [S]</span>}
                             </div>
-                        ))}
-                    </div>
-                );
-            } else if (this.props.serverCount === 0) {
-                display = <div className={"empty-orders"}>Empty orders set</div>;
-            } else {
-                display = <div className={"empty-orders"}>Local empty orders set</div>;
-            }
-        } else {
-            if (this.props.serverCount < 0) {
-                display = <div className={"no-orders"}>You must draft your orders before sending messages.</div>;
-            } else {
-                display = <div className={"empty-orders"}>Asking to unset orders</div>;
-            }
-        }
-        return (
-            <div className={"power-orders"}>
-                <div className={"title"}>
-                    <span className={"name"}>{this.props.name}</span>
-                    <span className={this.props.wait ? "wait" : "no-wait"}>
-                        {(this.props.wait ? " not" : " ") + " ready"}
-                    </span>
+                            <div className={"col remove-button"}>
+                                <Button
+                                    title={"-"}
+                                    onClick={() => onRemove(name, entry[1])}
+                                />
+                            </div>
+                        </div>
+                    ))}
                 </div>
-                {display}
-            </div>
-        );
+            );
+        } else if (serverCount === 0) {
+            display = <div className={"empty-orders"}>Empty orders set</div>;
+        } else {
+            display = <div className={"empty-orders"}>Local empty orders set</div>;
+        }
+    } else {
+        if (serverCount < 0) {
+            display = <div className={"no-orders"}>You must draft your orders before sending messages.</div>;
+        } else {
+            display = <div className={"empty-orders"}>Asking to unset orders</div>;
+        }
     }
-}
+    return (
+        <div className={"power-orders"}>
+            <div className={"title"}>
+                <span className={"name"}>{name}</span>
+                <span className={wait ? "wait" : "no-wait"}>
+                    {(wait ? " not" : " ") + " ready"}
+                </span>
+            </div>
+            {display}
+        </div>
+    );
+};
 
 PowerOrders.propTypes = {
     wait: PropTypes.bool,

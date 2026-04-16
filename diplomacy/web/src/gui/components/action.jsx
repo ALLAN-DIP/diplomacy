@@ -17,40 +17,28 @@
 import React from "react";
 import PropTypes from "prop-types";
 
-export class Action extends React.Component {
-    // title
-    // isActive
-    // onClick
-    // See Button parameters.
-
-    render() {
-        return (
-            <div className="action nav-item" onClick={this.props.onClick}>
-                <div
-                    className={
-                        "nav-link" +
-                        (this.props.isActive ? " active" : "") +
-                        (this.props.highlight !== null ? " updated" : "")
-                    }
-                >
-                    {this.props.title}
-                    {this.props.highlight !== null && this.props.highlight !== undefined && (
-                        <span className={"update"}>{this.props.highlight}</span>
-                    )}
-                </div>
+export const Action = ({ title, onClick, highlight = null, isActive = false }) => {
+    return (
+        <div className="action nav-item" onClick={onClick}>
+            <div
+                className={
+                    "nav-link" +
+                    (isActive ? " active" : "") +
+                    (highlight !== null ? " updated" : "")
+                }
+            >
+                {title}
+                {highlight !== null && highlight !== undefined && (
+                    <span className={"update"}>{highlight}</span>
+                )}
             </div>
-        );
-    }
-}
+        </div>
+    );
+};
 
 Action.propTypes = {
     title: PropTypes.string.isRequired,
     onClick: PropTypes.func.isRequired,
     highlight: PropTypes.any,
     isActive: PropTypes.bool,
-};
-
-Action.defaultProps = {
-    highlight: null,
-    isActive: false,
 };

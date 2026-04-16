@@ -17,39 +17,22 @@
 import React from "react";
 import PropTypes from "prop-types";
 
-class Div extends React.Component {
-    getClassName() {
-        return "";
-    }
-
-    render() {
-        return (
-            <div className={this.getClassName() + (this.props.className ? " " + this.props.className : "")}>
-                {this.props.children}
-            </div>
-        );
-    }
-}
-
-Div.propTypes = {
+const layoutPropTypes = {
     className: PropTypes.string,
     children: PropTypes.oneOfType([PropTypes.array, PropTypes.object]),
 };
 
-export class Bar extends Div {
-    getClassName() {
-        return "bar";
-    }
-}
+const createLayoutComponent = (baseClassName) => {
+    const Component = ({ className, children }) => (
+        <div className={baseClassName + (className ? " " + className : "")}>
+            {children}
+        </div>
+    );
+    Component.propTypes = layoutPropTypes;
+    Component.displayName = baseClassName.charAt(0).toUpperCase() + baseClassName.slice(1);
+    return Component;
+};
 
-export class Row extends Div {
-    getClassName() {
-        return "row";
-    }
-}
-
-export class Col extends Div {
-    getClassName() {
-        return "col";
-    }
-}
+export const Bar = createLayoutComponent("bar");
+export const Row = createLayoutComponent("row");
+export const Col = createLayoutComponent("col");
