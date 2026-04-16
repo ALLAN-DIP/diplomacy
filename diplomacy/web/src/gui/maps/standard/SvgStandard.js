@@ -36,14 +36,14 @@ import { Convoy } from "../common/convoy";
 import { Build } from "../common/build";
 import { Disband } from "../common/disband";
 
-export const SvgStandard = (props) => {
+const SvgStandardBase = (props) => {
 
 const onClick = (event) => {
         if (props.orderBuilding) return handleClickedID(getClickedID(event));
-    }
+    };
     const onHover = (event) => {
         return handleHoverID(getClickedID(event));
-    }
+    };
 
     /**
      * Update predictions for displaying the order distribution in the selected province
@@ -119,7 +119,7 @@ const onClick = (event) => {
 
         props.onChangeOrderDistribution(requestedPower, requestedProvince, provinceController);
         return true;
-    }
+    };
 
     const handleClickedID = (id) => {
         const province = props.mapData.getProvince(id);
@@ -225,7 +225,7 @@ const onClick = (event) => {
             props.onOrderBuilt,
             props.onError,
         );
-    }
+    };
     const handleHoverID = (id) => {
         if (props.onHover) {
             const province = props.mapData.getProvince(id);
@@ -233,7 +233,7 @@ const onClick = (event) => {
                 props.onHover(province.name, getRelatedOrders(province.name));
             }
         }
-    }
+    };
     const getRelatedOrders = (name) => {
         const orders = [];
         if (props.orders) {
@@ -247,14 +247,14 @@ const onClick = (event) => {
             }
         }
         return orders;
-    }
+    };
     const getNeighbors = (extraLocation) => {
         const selectedPath = [props.orderBuilding.type].concat(props.orderBuilding.path);
         if (extraLocation) selectedPath.push(extraLocation);
         const possibleNeighbors = UTILS.javascript.getTreeValue(props.game.ordersTree, selectedPath);
         const neighbors = possibleNeighbors ? possibleNeighbors.map((neighbor) => parseLocation(neighbor)) : [];
         return neighbors.length ? neighbors : null;
-    }
+    };
 
     /**
      * Render orders, including for distribution advice
@@ -394,7 +394,7 @@ const onClick = (event) => {
             console.error(`Unable to parse order to render: ${JSON.stringify(order)}.`);
         }
         return renderComponents;
-    }
+    };
 
     const classes = {
             _ank: "nopower",
@@ -1072,7 +1072,9 @@ const onClick = (event) => {
         );
 };
 
-SvgStandard.propTypes = {
+export const SvgStandard = React.memo(SvgStandardBase);
+
+SvgStandardBase.propTypes = {
     game: PropTypes.instanceOf(Game).isRequired,
     mapData: PropTypes.instanceOf(MapData).isRequired,
     orders: PropTypes.object,

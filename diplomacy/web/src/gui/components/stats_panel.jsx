@@ -14,7 +14,7 @@
 //  You should have received a copy of the GNU Affero General Public License along
 //  with this program.  If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
-import React from "react";
+import React, { memo } from "react";
 import PropTypes from "prop-types";
 import { AdminPowersInfoTable } from "./admin_powers_info_table";
 import { PowerView } from "../utils/power_view";
@@ -42,7 +42,7 @@ const TABLE_POWER_VIEW = {
     comm_status: ["Comm. Status", 4],
 };
 
-export function PowerInfoPanel({ engine, currentPowerName }) {
+function PowerInfoPanelBase({ engine, currentPowerName }) {
     const isAdminRole =
         engine.role === "omniscient_type" ||
         engine.role === "observer_type" ||
@@ -79,12 +79,14 @@ export function PowerInfoPanel({ engine, currentPowerName }) {
     );
 }
 
-PowerInfoPanel.propTypes = {
+export const PowerInfoPanel = memo(PowerInfoPanelBase);
+
+PowerInfoPanelBase.propTypes = {
     engine: PropTypes.object.isRequired,
     currentPowerName: PropTypes.string,
 };
 
-export function LogsPanel({
+function LogsPanelBase({
     engine,
     role,
     logData,
@@ -145,7 +147,9 @@ export function LogsPanel({
     );
 }
 
-LogsPanel.propTypes = {
+export const LogsPanel = memo(LogsPanelBase);
+
+LogsPanelBase.propTypes = {
     engine: PropTypes.object.isRequired,
     role: PropTypes.string.isRequired,
     logData: PropTypes.string.isRequired,

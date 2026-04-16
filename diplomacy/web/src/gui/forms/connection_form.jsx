@@ -71,8 +71,7 @@ export const ConnectionForm = ({ onChange: onChangeProp, onSubmit }) => {
                 });
             }, 100);
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, []); // eslint-disable-line
 
     const updateServerFieldsView = () => {
         DipStorage.setConnectionshowServerFields(!state.showServerFields);

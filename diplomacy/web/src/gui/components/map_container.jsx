@@ -14,7 +14,7 @@
 //  You should have received a copy of the GNU Affero General Public License along
 //  with this program.  If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
-import React from "react";
+import React, { useMemo } from "react";
 import PropTypes from "prop-types";
 import { MapData } from "../utils/map_data";
 import { SvgStandard } from "../maps/standard/SvgStandard";
@@ -36,7 +36,7 @@ function getMapComponent(mapName) {
  * MapContainer renders the game map in either interactive (current phase) or
  * read-only (results/history) mode.
  */
-export function MapContainer({
+function MapContainerBase({
     mode,
     gameEngine,
     mapInfo,
@@ -64,26 +64,40 @@ export function MapContainer({
     onHover,
 }) {
     const Map = getMapComponent(gameEngine.map_name);
-    const mapData = new MapData(mapInfo, gameEngine);
 
-    if (mode === "current") {
-        // Build the orders dict for the current map
-        const formattedOrders = {};
+    // Memoize MapData — it's an expensive wrapper around mapInfo + gameEngine.
+    // gameEngine is a stable mutable reference; mapInfo never changes mid-game.
+    const mapData = useMemo(() => new MapData(mapInfo, gameEngine), [mapInfo, gameEngine]);
+
+    // Memoize formatted orders for the current-phase map. Re-derives only when
+    // the raw orders object, hover orders, or the active power changes.
+    const formattedOrders = useMemo(() => {
+        const result = {};
         if (orders) {
             for (let entry of Object.entries(orders)) {
-                formattedOrders[entry[0]] = [];
+                result[entry[0]] = [];
                 if (entry[1]) {
                     for (let orderObject of Object.values(entry[1]))
-                        formattedOrders[entry[0]].push(orderObject.order);
+                        result[entry[0]].push(orderObject.order);
                 }
             }
         }
-        if (hoverOrders && powerName && formattedOrders[powerName]) {
+        if (hoverOrders && powerName && result[powerName]) {
             for (let oo of hoverOrders) {
-                formattedOrders[powerName].push(oo);
+                result[powerName].push(oo);
             }
         }
+        return result;
+    }, [orders, hoverOrders, powerName]);
 
+    // Memoize the orderBuilding descriptor so the SVG map only sees a new
+    // object when the type or path actually changes.
+    const orderBuilding = useMemo(
+        () => getOrderBuilding && getOrderBuilding(powerName, orderType, orderPath),
+        [getOrderBuilding, powerName, orderType, orderPath],
+    );
+
+    if (mode === "current") {
         return (
             <div id="current-map" key="current-map">
                 <Map
@@ -91,7 +105,7 @@ export function MapContainer({
                     showAbbreviations={showAbbreviations}
                     mapData={mapData}
                     onError={onError}
-                    orderBuilding={getOrderBuilding(powerName, orderType, orderPath)}
+                    orderBuilding={orderBuilding}
                     onOrderBuilding={onOrderBuilding}
                     onOrderBuilt={onOrderBuilt}
                     orders={formattedOrders}
@@ -130,7 +144,13 @@ export function MapContainer({
     );
 }
 
-MapContainer.propTypes = {
+/**
+ * Memoized MapContainer — skips re-rendering when none of the map-relevant
+ * props have changed (e.g. a chat message arriving should not redraw the SVG).
+ */
+export const MapContainer = React.memo(MapContainerBase);
+
+MapContainerBase.propTypes = {
     mode: PropTypes.oneOf(["current", "results"]).isRequired,
     gameEngine: PropTypes.object.isRequired,
     mapInfo: PropTypes.object.isRequired,

@@ -14,7 +14,7 @@
 //  You should have received a copy of the GNU Affero General Public License along
 //  with this program.  If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
-import React, { useContext, useRef, useEffect } from "react";
+import React, { useContext, useRef, useEffect, useCallback, useMemo } from "react";
 import { SelectLocationForm } from "../forms/select_location_form";
 import { SelectViaForm } from "../forms/select_via_form";
 import { Order } from "../utils/order";
@@ -197,19 +197,19 @@ function getOrderBuilding(powerName, orderType, orderPath) {
 
 export const ContentGame = ({ data }) => {
     const page = useContext(PageContext);
-    const { state, setState, stateRef, forceUpdate } = usePromiseState(buildInitialState(data));
+    const { state, setState, stateRef, forceUpdate, forceUpdateTick } = usePromiseState(buildInitialState(data));
     const scheduleTimeoutRef = useRef(null);
     const messageInputRef = useRef(null);
 
     // [ Methods used to handle current map.
 
-    const clearOrderBuildingPath = () => {
+    const clearOrderBuildingPath = useCallback(() => {
         return setState({
             orderBuildingPath: [],
         });
-    };
+    }, []);
 
-    const setSelectedLocation = (location, powerName, orderType, orderPath) => {
+    const setSelectedLocation = useCallback((location, powerName, orderType, orderPath) => {
         if (!location) return;
         extendOrderBuilding(
             powerName,
@@ -220,9 +220,9 @@ export const ContentGame = ({ data }) => {
             onOrderBuilt,
             page.error,
         );
-    };
+    }, []);
 
-    const setSelectedVia = (moveType, powerName, orderPath, location) => {
+    const setSelectedVia = useCallback((moveType, powerName, orderPath, location) => {
         if (!moveType || !["M", "V"].includes(moveType)) return;
         extendOrderBuilding(
             powerName,
@@ -233,9 +233,9 @@ export const ContentGame = ({ data }) => {
             onOrderBuilt,
             page.error,
         );
-    };
+    }, []);
 
-    const onSelectLocation = (possibleLocations, powerName, orderType, orderPath) => {
+    const onSelectLocation = useCallback((possibleLocations, powerName, orderType, orderPath) => {
         page.dialog((onClose) => (
             <SelectLocationForm
                 path={orderPath}
@@ -250,9 +250,9 @@ export const ContentGame = ({ data }) => {
                 }}
             />
         ));
-    };
+    }, []);
 
-    const onSelectVia = (location, powerName, orderPath) => {
+    const onSelectVia = useCallback((location, powerName, orderPath) => {
         page.dialog((onClose) => (
             <SelectViaForm
                 path={orderPath}
@@ -268,7 +268,7 @@ export const ContentGame = ({ data }) => {
                 }}
             />
         ));
-    };
+    }, []);
 
     // ]
 
@@ -471,7 +471,7 @@ export const ContentGame = ({ data }) => {
 
     // ]
 
-    const onChangeOrderDistribution = (requestedPower, requestedProvince, provinceController) => {
+    const onChangeOrderDistribution = useCallback((requestedPower, requestedProvince, provinceController) => {
         if (stateRef.current.displayVisualAdvice === null || stateRef.current.displayVisualAdvice === undefined) {
             return;
         }
@@ -517,7 +517,7 @@ export const ContentGame = ({ data }) => {
             });
             setState({ orderDistribution: updatedOrderDistribution });
         }
-    };
+    }, []);
 
     const includeOrder = (orderArr, order) => {
         for (var orderObj of orderArr) {
@@ -767,7 +767,7 @@ export const ContentGame = ({ data }) => {
         handleExit();
     };
 
-    const onProcessGame = () => {
+    const onProcessGame = useCallback(() => {
         data.client
             .process()
             .then(() => {
@@ -778,7 +778,7 @@ export const ContentGame = ({ data }) => {
             .catch((err) => {
                 page.error(err.toString());
             });
-    };
+    }, []);
 
     const getCurrentPowerName = () => {
         const engine = data;
@@ -822,7 +822,7 @@ export const ContentGame = ({ data }) => {
         }
     };
 
-    const reloadPowerServerOrders = (powerName) => {
+    const reloadPowerServerOrders = useCallback((powerName) => {
         const serverOrders = data.getServerOrders();
         const engine = data;
         const allOrders = __get_orders(engine);
@@ -832,18 +832,18 @@ export const ContentGame = ({ data }) => {
         allOrders[powerName] = serverOrders[powerName];
         __store_orders(allOrders);
         return setState({ orders: allOrders });
-    };
+    }, []);
 
-    const reloadServerOrders = () => {
+    const reloadServerOrders = useCallback(() => {
         setState({ orderBuildingPath: [] }).then(() => {
             const currentPowerName = getCurrentPowerName();
             if (currentPowerName) {
                 reloadPowerServerOrders(currentPowerName);
             }
         });
-    };
+    }, []);
 
-    const onRemoveOrder = async (powerName, order) => {
+    const onRemoveOrder = useCallback(async (powerName, order) => {
         const orders = __get_orders(data);
         if (
             Object.prototype.hasOwnProperty.call(orders, powerName) &&
@@ -858,9 +858,9 @@ export const ContentGame = ({ data }) => {
             await setState({ orders: orders, hoverOrders: [] });
         }
         setOrders();
-    };
+    }, []);
 
-    const onRemoveAllCurrentPowerOrders = async () => {
+    const onRemoveAllCurrentPowerOrders = useCallback(async () => {
         const currentPowerName = getCurrentPowerName();
         if (currentPowerName) {
             const engine = data;
@@ -875,17 +875,17 @@ export const ContentGame = ({ data }) => {
             await setState({ orders: allOrders });
         }
         setOrders();
-    };
+    }, []);
 
-    const onSetEmptyOrdersSet = (powerName) => {
+    const onSetEmptyOrdersSet = useCallback((powerName) => {
         const orders = __get_orders(data);
         orders[powerName] = {};
         __store_orders(orders);
         setOrders();
         return setState({ orders: orders, hoverOrders: [] });
-    };
+    }, []);
 
-    const setOrders = () => {
+    const setOrders = useCallback(() => {
         const serverOrders = data.getServerOrders();
         const orders = __get_orders(data);
 
@@ -951,18 +951,18 @@ export const ContentGame = ({ data }) => {
                     reloadServerOrders();
                 });
         }
-    };
+    }, []);
 
     // ]
 
-    const onOrderBuilding = (powerName, path) => {
+    const onOrderBuilding = useCallback((powerName, path) => {
         const pathToSave = path.slice(1);
         return setState({ orderBuildingPath: pathToSave }).then(() =>
             page.success(`Building order ${pathToSave.join(" ")} ...`),
         );
-    };
+    }, []);
 
-    const onOrderBuilt = (powerName, orderString) => {
+    const onOrderBuilt = useCallback((powerName, orderString) => {
         let state = Object.assign({}, stateRef.current);
         state.orderBuildingPath = [];
         if (!orderString) {
@@ -998,17 +998,17 @@ export const ContentGame = ({ data }) => {
             __store_orders(allOrders);
             setOrders();
         });
-    };
+    }, []);
 
-    const onChangeOrderType = (form) => {
+    const onChangeOrderType = useCallback((form) => {
         return setState({
             orderBuildingType: form.order_type,
             orderBuildingPath: [],
             hoverOrders: [],
         });
-    };
+    }, []);
 
-    const vote = (decision) => {
+    const vote = useCallback((decision) => {
         const engine = data;
         const networkGame = engine.client;
         const controllablePowers = engine.getControllablePowers();
@@ -1021,7 +1021,7 @@ export const ContentGame = ({ data }) => {
                 Diplog.error(error.stack);
                 page.error(`Error while setting vote for ${currentPowerName}: ${error.toString()}`);
             });
-    };
+    }, []);
 
     const setCommStatus = (commStatus) => {
         let newCommStatus = commStatus === STRINGS.READY ? STRINGS.READY : STRINGS.READY;
@@ -1046,7 +1046,7 @@ export const ContentGame = ({ data }) => {
             });
     };
 
-    const setWaitFlag = (waitFlag) => {
+    const setWaitFlag = useCallback((waitFlag) => {
         const engine = data;
         const networkGame = engine.client;
         const controllablePowers = engine.getControllablePowers();
@@ -1061,7 +1061,7 @@ export const ContentGame = ({ data }) => {
                 Diplog.error(error.stack);
                 page.error(`Error while setting wait flag for ${currentPowerName}: ${error.toString()}`);
             });
-    };
+    }, []);
 
     const __change_past_phase = (newPhaseIndex) => {
         return setState({
@@ -1133,12 +1133,12 @@ export const ContentGame = ({ data }) => {
         }
     };
 
-    const displayLocationOrders = (loc, orders) => {
+    const displayLocationOrders = useCallback((loc, orders) => {
         return setState({
             historyCurrentLoc: loc || null,
             historyCurrentOrders: orders && orders.length ? orders : null,
         });
-    };
+    }, []);
 
     // [ Rendering methods.
 
@@ -1522,7 +1522,7 @@ export const ContentGame = ({ data }) => {
                         <MapContainer
                             mode="results"
                             gameEngine={engine}
-                            mapInfo={getMapInfo()}
+                            mapInfo={mapInfo}
                             showAbbreviations={state.showAbbreviations}
                             onError={page.error}
                             showOrders={state.historyShowOrders}
@@ -2305,13 +2305,13 @@ export const ContentGame = ({ data }) => {
                         <MapContainer
                             mode="current"
                             gameEngine={engine}
-                            mapInfo={getMapInfo()}
+                            mapInfo={mapInfo}
                             showAbbreviations={state.showAbbreviations}
                             onError={page.error}
                             powerName={powerName}
                             orderType={orderType}
                             orderPath={orderPath}
-                            orders={__get_orders(engine)}
+                            orders={memoizedMapOrders}
                             hoverOrders={state.hoverOrders}
                             shiftKeyPressed={state.shiftKeyPressed}
                             onOrderBuilding={onOrderBuilding}
@@ -2420,6 +2420,17 @@ export const ContentGame = ({ data }) => {
     const engine = data;
     const controllablePowers = engine.getControllablePowers();
     const currentPowerName = getCurrentPowerName();
+
+    // Memoize the map info — stable for the lifetime of a game session.
+    const mapInfo = useMemo(() => page.availableMaps[data.map_name], []); // eslint-disable-line
+
+    // Memoize the orders passed to the map. Re-derives only when local orders
+    // change or a forceUpdate() fires (which covers server-side order updates).
+    const memoizedMapOrders = useMemo(
+        () => __get_orders(engine),
+        [state.orders, forceUpdateTick], // eslint-disable-line
+    );
+
     const serverOrders = __get_orders(engine);
     const powerOrders = serverOrders[currentPowerName] || [];
 

@@ -14,7 +14,7 @@ import { useState, useRef, useCallback, useEffect } from "react";
 
 export function usePromiseState(initialState) {
     const [state, setStateRaw] = useState(initialState);
-    const [, setForceUpdateTick] = useState(0);
+    const [forceUpdateTick, setForceUpdateTick] = useState(0);
     const stateRef = useRef(state);
     const pendingResolvers = useRef([]);
 
@@ -45,5 +45,5 @@ export function usePromiseState(initialState) {
         });
     }, []);
 
-    return { state, setState, stateRef, forceUpdate };
+    return { state, setState, stateRef, forceUpdate, forceUpdateTick };
 }

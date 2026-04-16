@@ -14,7 +14,7 @@
 //  You should have received a copy of the GNU Affero General Public License along
 //  with this program.  If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
-import React from "react";
+import React, { memo } from "react";
 import PropTypes from "prop-types";
 import { UTILS } from "../../diplomacy/utils/utils";
 import { STRINGS } from "../../diplomacy/utils/strings";
@@ -28,7 +28,7 @@ import { QuestionIcon } from "@primer/octicons-react";
  * OrderPanel renders the order creation form, order list, and action buttons
  * for the current phase.
  */
-export function OrderPanel({
+function OrderPanelBase({
     engine,
     currentPowerName,
     currentPower,
@@ -223,7 +223,9 @@ export function OrderPanel({
     );
 }
 
-OrderPanel.propTypes = {
+export const OrderPanel = memo(OrderPanelBase);
+
+OrderPanelBase.propTypes = {
     engine: PropTypes.object.isRequired,
     currentPowerName: PropTypes.string.isRequired,
     currentPower: PropTypes.object.isRequired,
