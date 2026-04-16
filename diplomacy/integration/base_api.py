@@ -18,6 +18,7 @@
 from abc import ABCMeta, abstractmethod
 import logging
 from tornado.httpclient import AsyncHTTPClient
+from diplomacy import settings
 from diplomacy.utils.export import load_saved_games_from_disk
 
 # Constants
@@ -27,20 +28,22 @@ LOGGER = logging.getLogger(__name__)
 class BaseAPI(metaclass=ABCMeta):
     """Base API class"""
 
-    def __init__(self, api_key, connect_timeout=30, request_timeout=60):
+    def __init__(self, api_key, connect_timeout=None, request_timeout=None):
         """Constructor
 
         :param api_key: The API key to use for sending API requests
-        :param connect_timeout: The maximum amount of time to wait for the connection to be established
-        :param request_timeout: The maximum amount of time to wait for the request to be processed
+        :param connect_timeout: The maximum amount of time to wait for the connection to be established.
+            Defaults to ``diplomacy.settings.API_CONNECT_TIMEOUT``.
+        :param request_timeout: The maximum amount of time to wait for the request to be processed.
+            Defaults to ``diplomacy.settings.API_REQUEST_TIMEOUT``.
         :type api_key: str
         :type connect_timeout: int, optional
         :type request_timeout: int, optional
         """
         self.api_key = api_key
         self.http_client = AsyncHTTPClient()
-        self.connect_timeout = connect_timeout
-        self.request_timeout = request_timeout
+        self.connect_timeout = connect_timeout if connect_timeout is not None else settings.API_CONNECT_TIMEOUT
+        self.request_timeout = request_timeout if request_timeout is not None else settings.API_REQUEST_TIMEOUT
 
     @abstractmethod
     async def get_game_and_power(self, game_file):

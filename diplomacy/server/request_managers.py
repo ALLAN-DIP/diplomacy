@@ -25,11 +25,15 @@ Server coroutines used here are usually:
 - notifications sending
 """
 # pylint:disable=too-many-lines
+from __future__ import annotations
+
 import asyncio
 import logging
+from typing import TYPE_CHECKING, Awaitable, Callable, Union
 
 from tornado.concurrent import Future
 
+from diplomacy import settings
 from diplomacy.communication import notifications, requests, responses
 from diplomacy.server.notifier import Notifier
 from diplomacy.server.server_game import ServerGame
@@ -45,16 +49,26 @@ from diplomacy.utils.common import hash_password
 from diplomacy.utils.constants import OrderSettings
 from diplomacy.utils.game_phase_data import GamePhaseData
 
+if TYPE_CHECKING:
+    from diplomacy.server.connection_handler import ConnectionHandler
+    from diplomacy.server.server import Server
+
 LOGGER = logging.getLogger(__name__)
+
+# A request handler either returns a response (or None), or returns an
+# awaitable that resolves to one.  `handle_request` inspects the callable to
+# decide how to dispatch.  We use `Callable[..., ...]` so the mapping can hold
+# handlers specialized for concrete request subclasses — callable parameter
+# types are contravariant, and an exact match would reject them.
+HandlerResult = Union[responses._AbstractResponse, None]
+Handler = Callable[..., Union[HandlerResult, Awaitable[HandlerResult]]]
 
 # =================
 # Request managers.
 # =================
 
-SERVER_GAME_RULES = ["NO_PRESS", "IGNORE_ERRORS", "POWER_CHOICE"]
 
-
-def on_clear_centers(server, request, connection_handler):
+def on_clear_centers(server: 'Server', request: requests.ClearCenters, connection_handler: 'ConnectionHandler') -> None:
     """Manage request ClearCenters.
 
     :param server: server which receives the request.
@@ -72,7 +86,7 @@ def on_clear_centers(server, request, connection_handler):
     )
 
 
-def on_clear_orders(server, request, connection_handler):
+def on_clear_orders(server: 'Server', request: requests.ClearOrders, connection_handler: 'ConnectionHandler') -> None:
     """Manage request ClearOrders.
 
     :param server: server which receives the request.
@@ -95,7 +109,7 @@ def on_clear_orders(server, request, connection_handler):
     )
 
 
-def on_clear_units(server, request, connection_handler):
+def on_clear_units(server: 'Server', request: requests.ClearUnits, connection_handler: 'ConnectionHandler') -> None:
     """Manage request ClearUnits.
 
     :param server: server which receives the request.
@@ -113,7 +127,7 @@ def on_clear_units(server, request, connection_handler):
     )
 
 
-def on_create_game(server, request, connection_handler):
+def on_create_game(server: 'Server', request: requests.CreateGame, connection_handler: 'ConnectionHandler') -> responses.DataGame:
     """Manage request CreateGame.
 
     :param server: server which receives the request.
@@ -169,7 +183,7 @@ def on_create_game(server, request, connection_handler):
     # LOGGER.debug("password = " + str(password or ''))
     server_game = ServerGame(
         map_name=request.map_name,
-        rules=request.rules or SERVER_GAME_RULES,
+        rules=request.rules or settings.SERVER_GAME_RULES,
         game_id=game_id,
         initial_state=state,
         n_controls=request.n_controls,
@@ -202,7 +216,7 @@ def on_create_game(server, request, connection_handler):
     return responses.DataGame(data=client_game, request_id=request.request_id)
 
 
-def on_delete_account(server, request, connection_handler):
+def on_delete_account(server: 'Server', request: requests.DeleteAccount, connection_handler: 'ConnectionHandler') -> None:
     """Manage request DeleteAccount.
 
     :param server: server which receives the request.
@@ -251,7 +265,7 @@ def on_delete_account(server, request, connection_handler):
         server.save_data()
 
 
-def on_delete_game(server, request, connection_handler):
+def on_delete_game(server: 'Server', request: requests.DeleteGame, connection_handler: 'ConnectionHandler') -> None:
     """Manage request DeleteGame.
 
     :param server: server which receives the request.
@@ -268,7 +282,7 @@ def on_delete_game(server, request, connection_handler):
     Notifier(server, ignore_tokens=[request.token]).notify_game_deleted(level.game)
 
 
-def on_get_all_possible_orders(server, request, connection_handler):
+def on_get_all_possible_orders(server: 'Server', request: requests.GetAllPossibleOrders, connection_handler: 'ConnectionHandler') -> responses.DataPossibleOrders:
     """Manage request GetAllPossibleOrders
 
     :param server: server which receives the request
@@ -285,7 +299,7 @@ def on_get_all_possible_orders(server, request, connection_handler):
     )
 
 
-def on_get_available_maps(server, request, connection_handler):
+def on_get_available_maps(server: 'Server', request: requests.GetAvailableMaps, connection_handler: 'ConnectionHandler') -> responses.DataMaps:
     """Manage request GetAvailableMaps.
 
     :param server: server which receives the request.
@@ -299,7 +313,7 @@ def on_get_available_maps(server, request, connection_handler):
     return responses.DataMaps(data=server.available_maps, request_id=request.request_id)
 
 
-def on_get_daide_port(server, request, connection_handler):
+def on_get_daide_port(server: 'Server', request: requests.GetDaidePort, connection_handler: 'ConnectionHandler') -> responses.DataPort:
     """Manage request GetDaidePort.
 
     :param server: server which receives the request.
@@ -319,7 +333,7 @@ def on_get_daide_port(server, request, connection_handler):
     return responses.DataPort(data=daide_port, request_id=request.request_id)
 
 
-def on_get_dummy_waiting_powers(server, request, connection_handler):
+def on_get_dummy_waiting_powers(server: 'Server', request: requests.GetDummyWaitingPowers, connection_handler: 'ConnectionHandler') -> responses.DataGamesToPowerNames:
     """Manage request GetAllDummyPowerNames.
 
     :param server: server which receives the request.
@@ -336,7 +350,7 @@ def on_get_dummy_waiting_powers(server, request, connection_handler):
     )
 
 
-def on_get_games_info(server, request, connection_handler):
+def on_get_games_info(server: 'Server', request: requests.GetGamesInfo, connection_handler: 'ConnectionHandler') -> responses.DataGames:
     """Manage request GetGamesInfo.
 
     :param server: server which receives the request.
@@ -375,7 +389,7 @@ def on_get_games_info(server, request, connection_handler):
     return responses.DataGames(data=games, request_id=request.request_id)
 
 
-def on_get_phase_history(server, request, connection_handler):
+def on_get_phase_history(server: 'Server', request: requests.GetPhaseHistory, connection_handler: 'ConnectionHandler') -> responses.DataGamePhases:
     """Manage request GetPhaseHistory.
 
     :param server: server which receives the request.
@@ -393,7 +407,7 @@ def on_get_phase_history(server, request, connection_handler):
     return responses.DataGamePhases(data=game_phases, request_id=request.request_id)
 
 
-def on_get_playable_powers(server, request, connection_handler):
+def on_get_playable_powers(server: 'Server', request: requests.GetPlayablePowers, connection_handler: 'ConnectionHandler') -> responses.DataPowerNames:
     """Manage request GetPlayablePowers.
 
     :param server: server which receives the request.
@@ -409,7 +423,7 @@ def on_get_playable_powers(server, request, connection_handler):
     )
 
 
-def on_join_game(server, request, connection_handler):
+def on_join_game(server: 'Server', request: requests.JoinGame, connection_handler: 'ConnectionHandler') -> responses.DataGame:
     """Manage request JoinGame.
 
     :param server: server which receives the request.
@@ -598,7 +612,7 @@ def on_join_game(server, request, connection_handler):
     return responses.DataGame(data=client_game, request_id=request.request_id)
 
 
-def on_join_powers(server, request, connection_handler):
+def on_join_powers(server: 'Server', request: requests.JoinPowers, connection_handler: 'ConnectionHandler') -> None:
     """Manage request JoinPowers.
     Current code does not care about rule POWER_CHOICE. It only
     checks if queried powers can be joined by request sender.
@@ -717,7 +731,7 @@ def on_join_powers(server, request, connection_handler):
     server.save_game(server_game)
 
 
-def on_leave_game(server, request, connection_handler):
+def on_leave_game(server: 'Server', request: requests.LeaveGame, connection_handler: 'ConnectionHandler') -> None:
     """Manage request LeaveGame.
     If user is an (omniscient) observer, stop observation.
     Else, stop to control given power name.
@@ -741,7 +755,7 @@ def on_leave_game(server, request, connection_handler):
     server.save_game(level.game)
 
 
-def on_list_games(server, request, connection_handler):
+def on_list_games(server: 'Server', request: requests.ListGames, connection_handler: 'ConnectionHandler') -> responses.DataGames:
     """Manage request ListGames.
 
     :param server: server which receives the request.
@@ -790,7 +804,7 @@ def on_list_games(server, request, connection_handler):
     return responses.DataGames(data=selected_game_indices, request_id=request.request_id)
 
 
-def on_logout(server, request, connection_handler):
+def on_logout(server: 'Server', request: requests.Logout, connection_handler: 'ConnectionHandler') -> None:
     """Manage request Logout.
 
     :param server: server which receives the request.
@@ -804,7 +818,7 @@ def on_logout(server, request, connection_handler):
     server.remove_token(request.token)
 
 
-def on_process_game(server, request, connection_handler):
+def on_process_game(server: 'Server', request: requests.ProcessGame, connection_handler: 'ConnectionHandler') -> None:
     """Manage request ProcessGame. Force a game to be processed the sooner.
 
     :param server: server which receives the request.
@@ -822,7 +836,7 @@ def on_process_game(server, request, connection_handler):
         # Force power to not wait and tag it as if it has orders.
         # (this is valid only for this processing and will be reset for next phase).
         power = level.game.get_power(power_name)
-        power.order_is_set = OrderSettings.ORDER_SET
+        power.order_is_set = OrderSettings.ORDER_SET.value
         power.wait = False
     if level.game.status == strings.FORMING:
         level.game.set_status(strings.ACTIVE)
@@ -831,7 +845,7 @@ def on_process_game(server, request, connection_handler):
     server.save_game(level.game)
 
 
-async def on_query_schedule(server, request, connection_handler):
+async def on_query_schedule(server: 'Server', request: requests.QuerySchedule, connection_handler: 'ConnectionHandler') -> responses.DataGameSchedule:
     """Manage request QuerySchedule.
 
     :param server: server which receives the request.
@@ -853,7 +867,7 @@ async def on_query_schedule(server, request, connection_handler):
     )
 
 
-def on_save_game(server, request, connection_handler):
+def on_save_game(server: 'Server', request: requests.SaveGame, connection_handler: 'ConnectionHandler') -> responses.DataSavedGame:
     """Manage request SaveGame
 
     :param server: server which receives the request
@@ -867,7 +881,7 @@ def on_save_game(server, request, connection_handler):
     return responses.DataSavedGame(data=game_json, request_id=request.request_id)
 
 
-def on_send_recipient_annotation(server, request, connection_handler):
+def on_send_recipient_annotation(server: 'Server', request: requests.SendRecipientAnnotation, connection_handler: 'ConnectionHandler') -> responses.DataTimeStamp:
     level = verify_request(
         server, request, connection_handler, observer_role=False, omniscient_role=False
     )
@@ -878,7 +892,7 @@ def on_send_recipient_annotation(server, request, connection_handler):
     return responses.DataTimeStamp(data=time_sent, request_id=request.request_id)
 
 
-def on_send_stance(server, request, connection_handler):
+def on_send_stance(server: 'Server', request: requests.SendStance, connection_handler: 'ConnectionHandler') -> None:
     """Manage request SendStance.
 
     :param server: server which receives the request.
@@ -897,7 +911,7 @@ def on_send_stance(server, request, connection_handler):
     server.save_game(level.game)
 
 
-def on_send_is_bot(server, request, connection_handler):
+def on_send_is_bot(server: 'Server', request: requests.SendIsBot, connection_handler: 'ConnectionHandler') -> None:
     level = verify_request(
         server, request, connection_handler, observer_role=False, omniscient_role=False
     )
@@ -907,7 +921,7 @@ def on_send_is_bot(server, request, connection_handler):
     server.save_game(level.game)
 
 
-def on_send_deceiving(server, request, connection_handler):
+def on_send_deceiving(server: 'Server', request: requests.SendDeceiving, connection_handler: 'ConnectionHandler') -> None:
     level = verify_request(
         server, request, connection_handler, observer_role=False, omniscient_role=False
     )
@@ -917,7 +931,7 @@ def on_send_deceiving(server, request, connection_handler):
     server.save_game(level.game)
 
 
-def on_send_commentary_durations(server, request, connection_handler):
+def on_send_commentary_durations(server: 'Server', request: requests.SendCommentaryDurations, connection_handler: 'ConnectionHandler') -> None:
     level = verify_request(
         server, request, connection_handler, observer_role=False, omniscient_role=False
     )
@@ -927,7 +941,7 @@ def on_send_commentary_durations(server, request, connection_handler):
     server.save_game(level.game)
 
 
-def on_send_order_log(server, request, connection_handler):
+def on_send_order_log(server: 'Server', request: requests.SendOrderLog, connection_handler: 'ConnectionHandler') -> None:
     level = verify_request(
         server, request, connection_handler, observer_role=False, omniscient_role=True
     )
@@ -937,7 +951,7 @@ def on_send_order_log(server, request, connection_handler):
     server.save_game(level.game)
 
 
-def on_send_order_suggestions(server, request, connection_handler):
+def on_send_order_suggestions(server: 'Server', request: requests.SendOrderSuggestions, connection_handler: 'ConnectionHandler') -> None:
     level = verify_request(server, request, connection_handler)
     token, power, suggestions = request.token, request.power, request.suggestions
     assert_game_not_finished(level.game)
@@ -945,7 +959,7 @@ def on_send_order_suggestions(server, request, connection_handler):
     server.save_game(level.game)
 
 
-def on_send_game_message(server, request, connection_handler):
+def on_send_game_message(server: 'Server', request: requests.SendGameMessage, connection_handler: 'ConnectionHandler') -> responses.DataTimeStamp:
     """Manage request SendGameMessage.
 
     :param server: server which receives the request.
@@ -1014,7 +1028,7 @@ def on_send_game_message(server, request, connection_handler):
     return responses.DataTimeStamp(data=message.time_sent, request_id=request.request_id)
 
 
-def on_set_dummy_powers(server, request, connection_handler):
+def on_set_dummy_powers(server: 'Server', request: requests.SetDummyPowers, connection_handler: 'ConnectionHandler') -> None:
     """Manage request SetDummyPowers.
 
     :param server: server which receives the request.
@@ -1049,7 +1063,7 @@ def on_set_dummy_powers(server, request, connection_handler):
         server.save_game(level.game)
 
 
-def on_set_game_state(server, request, connection_handler):
+def on_set_game_state(server: 'Server', request: requests.SetGameState, connection_handler: 'ConnectionHandler') -> None:
     """Manage request SetGameState.
 
     :param server: server which receives the request.
@@ -1062,6 +1076,10 @@ def on_set_game_state(server, request, connection_handler):
     level = verify_request(
         server, request, connection_handler, observer_role=False, power_role=False
     )
+    # NOTE: SetGameState's request model does not include 'logs' or 'order_logs';
+    # pass empty dicts so GamePhaseData can still be constructed. Also fixes a
+    # pre-existing typo that referenced the module `requests` instead of the
+    # incoming `request` object.
     level.game.set_phase_data(
         GamePhaseData(
             request.phase,
@@ -1070,8 +1088,10 @@ def on_set_game_state(server, request, connection_handler):
             request.results,
             request.messages,
             request.stances,
+            {},  # logs
+            {},  # order_logs
             request.is_bot,
-            requests.deceiving,
+            request.deceiving,
         )
     )
     server.stop_game_if_needed(level.game)
@@ -1079,7 +1099,7 @@ def on_set_game_state(server, request, connection_handler):
     server.save_game(level.game)
 
 
-def on_set_game_status(server, request, connection_handler):
+def on_set_game_status(server: 'Server', request: requests.SetGameStatus, connection_handler: 'ConnectionHandler') -> None:
     """Manage request SetGameStatus.
 
     :param server: server which receives the request.
@@ -1121,7 +1141,7 @@ def on_set_game_status(server, request, connection_handler):
         server.save_game(level.game)
 
 
-def on_set_grade(server, request, connection_handler):
+def on_set_grade(server: 'Server', request: requests.SetGrade, connection_handler: 'ConnectionHandler') -> None:
     """Manage request SetGrade.
 
     :param server: server which receives the request.
@@ -1181,7 +1201,8 @@ def on_set_grade(server, request, connection_handler):
 
     else:
         # Requested omniscient or moderator grade update for a specific game.
-
+        # game_id is required (non-None) for 'moderator' and 'omniscient' grades.
+        assert game_id is not None
         # Get related game.
         server_game = server.get_game(game_id)
 
@@ -1232,7 +1253,7 @@ def on_set_grade(server, request, connection_handler):
                 )
 
 
-def on_send_log_data(server, request, connection_handler):
+def on_send_log_data(server: 'Server', request: requests.SendLogData, connection_handler: 'ConnectionHandler') -> responses.DataTimeStamp:
     """Manage request SendLogData
 
     :param server: server which receives the request.
@@ -1256,7 +1277,7 @@ def on_send_log_data(server, request, connection_handler):
     return responses.DataTimeStamp(data=log.time_sent, request_id=request.request_id)
 
 
-def on_set_orders(server, request, connection_handler):
+def on_set_orders(server: 'Server', request: requests.SetOrders, connection_handler: 'ConnectionHandler') -> None:
     """Manage request SetOrders.
 
     :param server: server which receives the request.
@@ -1295,7 +1316,7 @@ def on_set_orders(server, request, connection_handler):
     server.save_game(level.game)
 
 
-def on_set_comm_status(server, request, connection_handler):
+def on_set_comm_status(server: 'Server', request: requests.SetCommStatus, connection_handler: 'ConnectionHandler') -> None:
     """Manage request SetCommStatus
     :param server: server which receives the request.
     :param request: request to manage.
@@ -1318,7 +1339,7 @@ def on_set_comm_status(server, request, connection_handler):
     server.save_game(level.game)
 
 
-def on_set_wait_flag(server, request, connection_handler):
+def on_set_wait_flag(server: 'Server', request: requests.SetWaitFlag, connection_handler: 'ConnectionHandler') -> None:
     """Manage request SetWaitFlag.
 
     :param server: server which receives the request.
@@ -1342,7 +1363,7 @@ def on_set_wait_flag(server, request, connection_handler):
     server.save_game(level.game)
 
 
-def on_sign_in(server, request, connection_handler):
+def on_sign_in(server: 'Server', request: requests.SignIn, connection_handler: 'ConnectionHandler') -> responses.DataToken:
     """Manage request SignIn.
 
     :param server: server which receives the request.
@@ -1375,7 +1396,7 @@ def on_sign_in(server, request, connection_handler):
     return responses.DataToken(data=token, request_id=request.request_id)
 
 
-def on_synchronize(server, request, connection_handler):
+def on_synchronize(server: 'Server', request: requests.Synchronize, connection_handler: 'ConnectionHandler') -> responses.DataGameInfo:
     """Manage request Synchronize.
 
     :param server: server which receives the request.
@@ -1464,7 +1485,7 @@ def on_synchronize(server, request, connection_handler):
     )
 
 
-def on_unknown_token(server, request, connection_handler):
+def on_unknown_token(server: 'Server', request: requests.UnknownToken, connection_handler: 'ConnectionHandler') -> responses.NoResponse:
     """Manage notification request UnknownToken.
 
     :param server: server which receives the request.
@@ -1481,7 +1502,7 @@ def on_unknown_token(server, request, connection_handler):
     return responses.NoResponse()
 
 
-def on_vote(server, request, connection_handler):
+def on_vote(server: 'Server', request: requests.Vote, connection_handler: 'ConnectionHandler') -> None:
     """Manage request Vote.
 
     :param server: server which receives the request.
@@ -1518,7 +1539,7 @@ def on_vote(server, request, connection_handler):
 
 
 # Mapping dictionary from request class to request handler function.
-MAPPING = {
+MAPPING: dict[type[requests._AbstractRequest], Handler] = {
     requests.ClearCenters: on_clear_centers,
     requests.ClearOrders: on_clear_orders,
     requests.ClearUnits: on_clear_units,
@@ -1563,7 +1584,11 @@ MAPPING = {
 }
 
 
-def handle_request(server, request, connection_handler):
+def handle_request(
+    server: 'Server',
+    request: requests._AbstractRequest,
+    connection_handler: 'ConnectionHandler',
+) -> Union[HandlerResult, Awaitable[HandlerResult], 'Future[HandlerResult]']:
     """(coroutine) Find request handler function for associated request, run it and return its result.
 
     :param server: a Server object to pass to handler function.

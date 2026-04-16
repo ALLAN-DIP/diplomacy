@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import PropTypes from "prop-types";
 
 export function useHotKey(keys, onKeysCoincide) {
     const cbRef = useRef(onKeysCoincide);
@@ -23,3 +24,8 @@ export function HotKey({ keys, onKeysCoincide }) {
     useHotKey(keys, onKeysCoincide);
     return null;
 }
+
+HotKey.propTypes = {
+    keys: PropTypes.arrayOf(PropTypes.string).isRequired,
+    onKeysCoincide: PropTypes.func.isRequired,
+};

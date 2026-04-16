@@ -51,20 +51,23 @@ from diplomacy.engine.renderer import Renderer
 from diplomacy.utils import PriorityDict, common, exceptions, parsing, strings
 from diplomacy.utils.jsonable import Jsonable
 from diplomacy.utils.sorted_dict import SortedDict
-from diplomacy.utils.constants import OrderSettings, DEFAULT_GAME_RULES
+from diplomacy.utils.constants import OrderSettings, TokenType, DEFAULT_GAME_RULES
 from diplomacy.utils.game_phase_data import GamePhaseData, MESSAGES_TYPE, LOGS_TYPE
 
 # Constants
-UNDETERMINED, POWER, UNIT, LOCATION, COAST, ORDER, MOVE_SEP, OTHER = (
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-)
+# Module-level aliases for the ``TokenType`` IntEnum. See ``engine/map.py`` for
+# the canonical definition and semantics (in particular, ``Map.vet`` encodes
+# "unknown token of this kind" by negating the tag, and the negation-aware
+# comparisons below in ``_add_unit_types`` rely on these being ``IntEnum``
+# members — which are ints and support unary minus).
+UNDETERMINED = TokenType.UNDETERMINED
+POWER = TokenType.POWER
+UNIT = TokenType.UNIT
+LOCATION = TokenType.LOCATION
+COAST = TokenType.COAST
+ORDER = TokenType.ORDER
+MOVE_SEP = TokenType.MOVE_SEP
+OTHER = TokenType.OTHER
 LOGGER = logging.getLogger(__name__)
 
 
@@ -1824,9 +1827,9 @@ class Game(Jsonable):
         else:
             self._update_orders(power, orders, expand=expand, replace=replace)
         power.order_is_set = (
-            OrderSettings.ORDER_SET
+            OrderSettings.ORDER_SET.value
             if self.get_orders(power.name)
-            else OrderSettings.ORDER_SET_EMPTY
+            else OrderSettings.ORDER_SET_EMPTY.value
         )
 
     def set_comm_status(self, power_name, comm_status):
@@ -1859,8 +1862,7 @@ class Game(Jsonable):
         if not self.has_power(power_name):
             return
 
-        # type: diplomacy.engine.power.Power
-        power = self.get_power(power_name.upper())
+        power: "diplomacy.engine.power.Power" = self.get_power(power_name.upper())
         power.wait = wait
 
     def clear_units(self, power_name=None):

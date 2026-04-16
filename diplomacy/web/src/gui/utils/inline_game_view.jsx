@@ -20,6 +20,7 @@ import { STRINGS } from "../../diplomacy/utils/strings";
 import { ContentGame } from "../pages/content_game";
 import { Button } from "../components/button";
 import { DeleteButton } from "../components/delete_button";
+import { Game } from "../../diplomacy/engine/game";
 
 export class InlineGameView {
     constructor(page, gameData, maps) {
@@ -61,7 +62,32 @@ export class InlineGameView {
     }
 
     showGame() {
-        this.page.load(`game: ${this.game.game_id}`, <ContentGame data={this.game} />);
+        // If `this.game` is just the summary from `listGames` (not a full
+        // Game instance with messages/state history), ContentGame will crash
+        // when it tries to call Game methods. Re-join to pull full state
+        // from the server, then show.
+        if (this.game instanceof Game) {
+            this.page.load(`game: ${this.game.game_id}`, <ContentGame data={this.game} />);
+            return;
+        }
+        this.page.channel
+            .joinGame({ game_id: this.game.game_id })
+            .then((networkGame) => {
+                this.game = networkGame.local;
+                this.page.addToMyGames(this.game);
+                return networkGame.getAllPossibleOrders().then((allPossibleOrders) => {
+                    this.game.setPossibleOrders(allPossibleOrders);
+                    this.page.load(
+                        `game: ${this.game.game_id}`,
+                        <ContentGame data={this.game} />,
+                    );
+                });
+            })
+            .catch((error) => {
+                this.page.error(
+                    "Error when loading game " + this.game.game_id + ": " + error,
+                );
+            });
     }
 
     getJoinUI() {

@@ -67,7 +67,8 @@ export const ChatPanel = React.forwardRef(function ChatPanel(
         tabPastMessages,
         annotatedMessages,
         hasInitialOrders,
-        messageHighlights,
+        // eslint-disable-next-line no-unused-vars
+        messageHighlights, // passed in from content_game; reserved for future badge highlighting
         // Callbacks
         onChangeTabCurrentMessages,
         onChangeTabPastMessages,

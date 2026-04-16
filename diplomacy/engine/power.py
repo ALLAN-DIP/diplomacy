@@ -95,8 +95,11 @@ class Power(Jsonable):
         strings.HOMES: parsing.OptionalValueType(parsing.SequenceType(str)),
         strings.INFLUENCE: parsing.DefaultValueType(parsing.SequenceType(str), []),
         strings.NAME: parsing.PrimitiveType(str),
+        # NB: default is the raw int value (not the IntEnum member) because
+        # parsing.EnumerationType.validate does a strict `type() is type()` check
+        # against the set of allowed values, which are plain ints.
         strings.ORDER_IS_SET: parsing.DefaultValueType(
-            OrderSettings.ALL_SETTINGS, OrderSettings.ORDER_NOT_SET
+            OrderSettings.ALL_SETTINGS, OrderSettings.ORDER_NOT_SET.value
         ),
         strings.ORDERS: parsing.DefaultValueType(parsing.DictType(str, str), {}),
         strings.RETREATS: parsing.DefaultValueType(
@@ -219,11 +222,11 @@ class Power(Jsonable):
             self.adjust = []
             self.orders = {}
             if self.is_eliminated():
-                self.order_is_set = OrderSettings.ORDER_SET_EMPTY
+                self.order_is_set = OrderSettings.ORDER_SET_EMPTY.value
                 self.wait = False
                 self.comm_status = strings.READY
             else:
-                self.order_is_set = OrderSettings.ORDER_NOT_SET
+                self.order_is_set = OrderSettings.ORDER_NOT_SET.value
                 self.wait = True
                 self.comm_status = strings.READY
         self.goner = 0
@@ -253,7 +256,7 @@ class Power(Jsonable):
         assert self.is_server_power()
 
         self.game = game
-        self.order_is_set = OrderSettings.ORDER_NOT_SET
+        self.order_is_set = OrderSettings.ORDER_NOT_SET.value
         self.wait = True
         self.comm_status = strings.READY
 

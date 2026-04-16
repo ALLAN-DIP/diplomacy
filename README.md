@@ -10,6 +10,19 @@ The complete documentation is available at [diplomacy.readthedocs.io](https://di
 
 Update: the documentation isn't updated for the latest changes. See [Feng's Diplomacy Documentation](https://fengs-organization-3.gitbook.io/diplomacy-documentation/) for (not all) example usage.
 
+## Recent Updates
+
+Highlights of recent work on this fork:
+
+- **Native `async`/`await` server.** The Tornado server was migrated off `@gen.coroutine` to native `async`/`await`, and backup I/O no longer blocks the Tornado IO loop.
+- **Parallel notification dispatch.** Notifications are now dispatched in parallel across multiple workers, removing a busy-poll race condition on the notification queue.
+- **Reliability fixes.** Reconnection handling, exponential backoff, and error handling have been hardened; leaked sockets from pending futures are now cancelled/closed, tokens can be removed even when absent, and the UI no longer crashes when loading a disk game with no rules.
+- **Security & validation.** Dependency updates, tightened form validation, and wildcard CORS support for configurable allowed origins.
+- **Frontend overhaul.** Game content split into panels with a responsive header, Material-UI Card-based chat, React functional components throughout, React lazy loading with Suspense, memo'd order strings, and a faster orders tree.
+- **`uv` for Python, Bun for web.** Python dependency management moved from `pip` to [`uv`](https://github.com/astral-sh/uv) (see `pyproject.toml` / `uv.lock`); the web project is managed with [Bun](https://bun.sh).
+- **Cloudflare Tunnel.** `compose.yaml` now ships a `cloudflared` sidecar with path-based routing rules for optional external access.
+- **Map wizard.** Specific map variants (and some maps entirely) can now be disabled in the game creation wizard.
+
 ## Getting Started
 
 ### Installation
@@ -18,6 +31,12 @@ The latest version of the package can be installed with:
 
 ```shell
 pip install 'diplomacy @ git+https://git@github.com/ALLAN-DIP/diplomacy.git'
+```
+
+Or, with [`uv`](https://github.com/astral-sh/uv) (the tool this project now uses for dependency management):
+
+```shell
+uv pip install 'diplomacy @ git+https://git@github.com/ALLAN-DIP/diplomacy.git'
 ```
 
 The package has been tested with Python 3.7 and 3.11, and it should work with all versions between them.
@@ -37,7 +56,21 @@ docker compose up --detach
 
 The web interface will be accessible at <http://localhost:3000>.
 
-### Local Development
+`compose.yaml` also defines an optional `cloudflared` sidecar that runs a Cloudflare Tunnel for external access. Drop your tunnel credentials into `cloudflared-config/` (which is git-ignored) to enable it, or remove the `cloudflared` service from `compose.yaml` if you don't need it.
+
+### Local Development (backend)
+
+Python dependencies are managed with [`uv`](https://github.com/astral-sh/uv). To set up a local environment from the locked dependency set:
+
+```shell
+# Install dependencies and the project into a local .venv
+uv sync
+
+# Run the server from the resulting environment
+uv run python -m diplomacy.server.run
+```
+
+### Local Development (web)
 
 For local development of the web interface, we use [Bun](https://bun.sh) as the package manager:
 

@@ -23,10 +23,23 @@ from copy import deepcopy
 import os
 from diplomacy import settings
 from diplomacy.utils import KEYWORDS, ALIASES
+from diplomacy.utils.constants import TokenType
 import diplomacy.utils.errors as err
 
 # Constants
-UNDETERMINED, POWER, UNIT, LOCATION, COAST, ORDER, MOVE_SEP, OTHER = 0, 1, 2, 3, 4, 5, 6, 7
+# Module-level aliases for the ``TokenType`` IntEnum — preserved so the many
+# existing call sites in this file continue to read naturally (``data_type = POWER``
+# rather than ``data_type = TokenType.POWER``). Because ``TokenType`` is an
+# ``IntEnum``, these aliases still behave like ints (including the ``-data_type``
+# negation used below to tag invalid tokens).
+UNDETERMINED = TokenType.UNDETERMINED
+POWER = TokenType.POWER
+UNIT = TokenType.UNIT
+LOCATION = TokenType.LOCATION
+COAST = TokenType.COAST
+ORDER = TokenType.ORDER
+MOVE_SEP = TokenType.MOVE_SEP
+OTHER = TokenType.OTHER
 MAP_CACHE = {}
 
 

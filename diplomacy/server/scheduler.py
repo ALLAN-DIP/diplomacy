@@ -27,6 +27,7 @@ To set unit as a second, create Scheduler with unit_in_seconds = 1.
     In such case, a task with deadline 2 means 2 seconds to wait to process this task.
 """
 import asyncio
+from typing import Dict
 
 from tornado.locks import Lock
 from tornado.queues import Queue
@@ -163,7 +164,7 @@ class Scheduler:
         self.current_time = 0
         self.callback_process = callback_process
         self.data_in_heap = PriorityDict()  # data => Deadline
-        self.data_in_queue = {}  # type: dict{object, _Task}  # data => associated Task in queue
+        self.data_in_queue = {}  # type: Dict[object, _Task]  # data => associated Task in queue
         self.tasks_queue = Queue()
         # Lock to modify this object safely inside one Tornado thread:
         # http://www.tornadoweb.org/en/stable/locks.html

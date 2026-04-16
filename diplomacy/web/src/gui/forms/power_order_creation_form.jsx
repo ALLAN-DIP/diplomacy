@@ -29,11 +29,12 @@ export const PowerOrderCreationForm = ({
     power,
     role,
     onChange: onChangeProp,
-    onPass,
+    // eslint-disable-next-line no-unused-vars
+    onPass, // TODO: wire up Pass button — parent (order_panel.jsx) already supplies this callback
     onVote,
     onSetWaitFlag,
 }) => {
-    const [state, adapter] = useFormAdapter({ order_type: orderType });
+    const [, adapter] = useFormAdapter({ order_type: orderType });
 
     const onChange = React.useCallback(
         Forms.createOnChangeCallback(adapter, onChangeProp),

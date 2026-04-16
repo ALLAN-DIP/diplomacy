@@ -122,8 +122,18 @@ function buildInitialState(data) {
         showAbbreviations: true,
         mapSize: 6,
         logData: "",
-        hasInitialOrders: data.getInitialOrders(data.role),
-        annotatedMessages: data.getAnnotatedMessages(),
+        // `data` is normally a Game instance, but when the component is mounted
+        // via the URL route (page refresh on /game/:gameId) it can be raw game
+        // data from the server that lacks these methods. Fall back to the raw
+        // fields in that case so the page doesn't crash on mount.
+        hasInitialOrders:
+            typeof data.getInitialOrders === "function"
+                ? data.getInitialOrders(data.role)
+                : ((data.hasInitialOrders || data.has_initial_orders || {})[data.role] || false),
+        annotatedMessages:
+            typeof data.getAnnotatedMessages === "function"
+                ? data.getAnnotatedMessages()
+                : (data.annotated_messages || {}),
         stances: data.stances[data.role] || {},
         isBot: data.is_bot[data.role] || {
             AUSTRIA: false,
@@ -266,10 +276,6 @@ export const ContentGame = ({ data }) => {
 
     // ]
 
-    const getMapInfo = () => {
-        return page.availableMaps[data.map_name];
-    };
-
     const clearScheduleTimeout = () => {
         if (scheduleTimeoutRef.current) {
             clearInterval(scheduleTimeoutRef.current);
@@ -361,25 +367,6 @@ export const ContentGame = ({ data }) => {
                     }).then(() =>
                         page.info(`Game update (${notification.name}) to ${networkGame.local.phase}.`),
                     );
-                }
-            })
-            .catch((error) => page.error("Error when updating possible orders: " + error.toString()));
-    };
-
-    const notifiedLocalStateChange = (networkGame, notification) => {
-        return networkGame
-            .getAllPossibleOrders()
-            .then((allPossibleOrders) => {
-                networkGame.local.setPossibleOrders(allPossibleOrders);
-                if (networkGameIsDisplayed(networkGame)) {
-                    reloadDeadlineTimer(networkGame);
-                    let result = null;
-                    if (notification.power_name) {
-                        result = reloadPowerServerOrders(notification.power_name);
-                    } else {
-                        result = forceUpdate();
-                    }
-                    return result.then(() => page.info(`Possible orders re-loaded.`));
                 }
             })
             .catch((error) => page.error("Error when updating possible orders: " + error.toString()));
@@ -534,10 +521,6 @@ export const ContentGame = ({ data }) => {
         });
     };
 
-    const onChangeMainTab = (tab) => {
-        return setState({ tabMain: tab });
-    };
-
     const onChangeTabCurrentMessages = (tab) => {
         return setState({ tabCurrentMessages: tab });
     };
@@ -647,31 +630,6 @@ export const ContentGame = ({ data }) => {
             .catch((error) => {
                 page.error(error.toString());
             });
-    };
-
-    const sendGameStance = (networkGame, powerName, stance) => {
-        const info = {
-            power_name: powerName,
-            stance: stance,
-        };
-        networkGame.sendStance({ stance: info });
-    };
-
-    const sendIsBot = (networkGame, powerName, isBot) => {
-        const info = {
-            power_name: powerName,
-            is_bot: isBot,
-        };
-        networkGame.sendIsBot({ is_bot: info });
-    };
-
-    const sendDeceiving = (networkGame, controlledPower, targetPower, deceiving) => {
-        const info = {
-            controlled_power: controlledPower,
-            target_power: targetPower,
-            deceiving: deceiving,
-        };
-        networkGame.sendDeceiving({ info: info });
     };
 
     const sendMessage = (networkGame, recipient, body, deception, messageType) => {
@@ -1024,29 +982,6 @@ export const ContentGame = ({ data }) => {
             });
     }, []);
 
-    const setCommStatus = (commStatus) => {
-        let newCommStatus = commStatus === STRINGS.READY ? STRINGS.READY : STRINGS.READY;
-        const engine = data;
-        const networkGame = engine.client;
-        const controllablePowers = engine.getControllablePowers();
-        const currentPowerName = stateRef.current.power || (controllablePowers.length ? controllablePowers[0] : null);
-        if (!currentPowerName) throw new Error(`Internal error: unable to detect current selected power name.`);
-        networkGame
-            .setCommStatus({
-                comm_status: newCommStatus,
-                power_name: currentPowerName,
-            })
-            .then(() => {
-                forceUpdate(() =>
-                    page.success(`Comm. status set to ${newCommStatus} for ${currentPowerName}`),
-                );
-            })
-            .catch((error) => {
-                Diplog.error(error.stack);
-                page.error(`Error while setting comm. status for ${currentPowerName}: ${error.toString()}`);
-            });
-    };
-
     const setWaitFlag = useCallback((waitFlag) => {
         const engine = data;
         const networkGame = engine.client;
@@ -1108,30 +1043,8 @@ export const ContentGame = ({ data }) => {
         __change_past_phase(-1, 1);
     };
 
-    const onChangeShowPastOrders = (event) => {
-        return setState({ historyShowOrders: event.target.checked });
-    };
-
     const onChangeShowAbbreviations = (event) => {
         return setState({ showAbbreviations: event.target.checked });
-    };
-
-    const onClickMessage = (message) => {
-        if (!message.read) {
-            message.read = true;
-            let protagonist = message.sender;
-            if (message.recipient === "GLOBAL") protagonist = message.recipient;
-            page.load(`game: ${data.game_id}`, <ContentGame data={data} />);
-            if (
-                Object.prototype.hasOwnProperty.call(stateRef.current.messageHighlights, protagonist) &&
-                stateRef.current.messageHighlights[protagonist] > 0
-            ) {
-                const messageHighlights = Object.assign({}, stateRef.current.messageHighlights);
-                --messageHighlights[protagonist];
-                --messageHighlights["messages"];
-                setState({ messageHighlights: messageHighlights });
-            }
-        }
     };
 
     const displayLocationOrders = useCallback((loc, orders) => {
@@ -1396,19 +1309,6 @@ export const ContentGame = ({ data }) => {
         );
 
         return receivedSuggestions;
-    };
-
-    const getSuggestedMoveList = (currentPowerName, protagonist, isAdmin, engine, messageChannels, suggestionType) => {
-        let globalMessages = messageChannels["GLOBAL"] || [];
-        const receivedSuggestions = getSuggestedMoves(currentPowerName, engine, globalMessages);
-
-        if (suggestionType === null) {
-            return null;
-        }
-
-        const latestMoveSuggestion = getLatestSuggestedMoves(receivedSuggestions, suggestionType);
-
-        return latestMoveSuggestion;
     };
 
     const __get_engine_to_display = (initialEngine) => {
@@ -2373,7 +2273,7 @@ export const ContentGame = ({ data }) => {
         return renderCurrentMoveAdvice(engine, role, pastPhases[phaseIndex] === initialEngine.phase);
     };
 
-    const renderMessageAdviceTab = (toDisplay, initialEngine, role, isWide) => {
+    const renderMessageAdviceTab = (toDisplay, initialEngine, role) => {
         const { engine, pastPhases, phaseIndex } = __get_engine_to_display(initialEngine);
 
         return renderCurrentMessageAdvice(engine, role, pastPhases[phaseIndex] === initialEngine.phase);
@@ -2657,8 +2557,6 @@ export const ContentGame = ({ data }) => {
         phasePanel = renderTabResults(true, engine);
     }
 
-    const isAdmin = engine.role === "omniscient_type" || engine.role === "master_type";
-
     const showMessageAdviceTab =
         hasSuggestionType(suggestionType, UTILS.SuggestionType.MESSAGE) ||
         hasSuggestionType(suggestionType, UTILS.SuggestionType.COMMENTARY);
@@ -2667,7 +2565,7 @@ export const ContentGame = ({ data }) => {
             {phasePanel}
             <Row className={"mb-4"}>
                 {renderTabChat(true, engine, currentPowerName, !showMessageAdviceTab)}
-                {showMessageAdviceTab && renderMessageAdviceTab(true, engine, currentPowerName, false)}
+                {showMessageAdviceTab && renderMessageAdviceTab(true, engine, currentPowerName)}
             </Row>
             <Row>
                 {!engine.isPlayerGame() && (

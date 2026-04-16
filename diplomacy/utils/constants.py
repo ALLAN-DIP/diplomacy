@@ -15,7 +15,8 @@
 #  with this program.  If not, see <https://www.gnu.org/licenses/>.
 # ==============================================================================
 """Some constant / config values used in Diplomacy package."""
-from enum import IntFlag, unique
+from enum import IntEnum, IntFlag, unique
+from typing import ClassVar, Set
 
 # Number of times to try to connect before throwing an exception.
 NB_CONNECTION_ATTEMPTS = 12
@@ -67,14 +68,48 @@ NOTIFICATION_QUEUE_MAX_SIZE = 10000
 DEFAULT_GAME_RULES = ("SOLITAIRE", "NO_PRESS", "IGNORE_ERRORS", "POWER_CHOICE")
 
 
-class OrderSettings:
-    """Constants to define flags for attribute Power.order_is_set."""
+@unique
+class OrderSettings(IntEnum):
+    """Flags for attribute ``Power.order_is_set``."""
 
-    # pylint:disable=too-few-public-methods
     ORDER_NOT_SET = 0
     ORDER_SET_EMPTY = 1
     ORDER_SET = 2
-    ALL_SETTINGS = {ORDER_NOT_SET, ORDER_SET_EMPTY, ORDER_SET}
+
+    # Declared here (without a value) so static type checkers can see it; the
+    # actual set is assigned just below after the class is defined. ClassVar
+    # prevents Python's enum machinery from treating this as an enum member.
+    ALL_SETTINGS: ClassVar[Set[int]]
+
+
+# Set of allowed raw-int values for the ``order_is_set`` field, used by the
+# JSON parser (``parsing.EnumerationType``). Kept as plain ``int`` values
+# because ``EnumerationType.validate`` does a strict ``type(element) is type(value)``
+# check, so the validator must see the same concrete type that arrives from JSON.
+# Attached to the class for backwards compatibility with ``OrderSettings.ALL_SETTINGS``.
+OrderSettings.ALL_SETTINGS = {setting.value for setting in OrderSettings}
+
+
+@unique
+class TokenType(IntEnum):
+    """Tags used by ``Map.vet`` to label each token parsed from an order string.
+
+    The tuple ``(token, data_type)`` produced by ``Map.vet`` stores one of these
+    tags as ``data_type``. When parsing in strict mode and the token is not a
+    known alias or keyword, ``Map.vet`` negates the tag (``data_type = -data_type``)
+    to signal "token of this kind, but invalid". ``Game._add_unit_types`` then
+    reads the negative value to emit the appropriate error. ``IntEnum`` preserves
+    that arithmetic because its members *are* ints.
+    """
+
+    UNDETERMINED = 0
+    POWER = 1
+    UNIT = 2
+    LOCATION = 3
+    COAST = 4
+    ORDER = 5
+    MOVE_SEP = 6
+    OTHER = 7
 
 
 @unique

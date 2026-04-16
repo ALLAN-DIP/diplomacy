@@ -26,6 +26,7 @@ import { DipStorage } from "../utils/dipStorage";
 import { PageContext } from "../components/page_context";
 import { loadGameFromDisk } from "../utils/load_game_from_disk";
 import { usePromiseState } from "../utils/usePromiseState";
+import { Game } from "../../diplomacy/engine/game";
 import PropTypes from "prop-types";
 
 const ContentConnection = React.lazy(() =>
@@ -44,6 +45,31 @@ import "react-confirm-alert/src/react-confirm-alert.css";
 function wrapMessage(message) {
     return message ? `(${UTILS.date()}) ${message}` : "";
 }
+
+/**
+ * Route target for /game/:gameId. Extracted as a named component so we can
+ * declare prop-types for the router's `match` object (otherwise ESLint flags
+ * the inline render-prop for accessing undocumented props).
+ */
+const GameRoute = ({ match, page }) => {
+    if (!page.channel) return <Redirect to="/" />;
+    const game = page.getGame(match.params.gameId);
+    // Only a full Game instance carries the state (messages, history, methods)
+    // that ContentGame needs. Raw entries from `listGames` are just summaries
+    // — drop back to the games list so the user can re-join and pick up full
+    // state.
+    if (!(game instanceof Game)) return <Redirect to="/games" />;
+    return <ContentGame data={game} />;
+};
+
+GameRoute.propTypes = {
+    match: PropTypes.shape({
+        params: PropTypes.shape({
+            gameId: PropTypes.string,
+        }),
+    }),
+    page: PropTypes.object,
+};
 
 function sortGames(games) {
     games.sort((a, b) => (a.role ? 1 : 0) - (b.role ? 1 : 0) || a.game_id.localeCompare(b.game_id));
@@ -387,11 +413,7 @@ const PageBase = ({ history }) => {
                         />
                         <Route
                             path="/game/:gameId"
-                            render={(props) => {
-                                if (!page.channel) return <Redirect to="/" />;
-                                const game = page.getGame(props.match.params.gameId);
-                                return game ? <ContentGame data={game} /> : <Redirect to="/games" />;
-                            }}
+                            render={(routeProps) => <GameRoute {...routeProps} page={page} />}
                         />
                         <Redirect to="/" />
                     </Switch>

@@ -80,8 +80,11 @@ Check :class:`.NetworkGame` for available game request methods (and associated r
 
 Then come here to get parameters and returned values for associated requests.
 """
+from __future__ import annotations
+
 import inspect
 import logging
+from typing import Any
 
 from diplomacy.engine.message import Message
 from diplomacy.engine.log import Log
@@ -109,6 +112,10 @@ class _AbstractRequest(NetworkData):
     """
 
     __slots__ = ["request_id", "re_sent"]
+    # Declared types for static analysis; actual values populated by
+    # NetworkData/Jsonable __init__ from kwargs/defaults.
+    request_id: str
+    re_sent: bool
     header = {
         strings.REQUEST_ID: str,
         strings.NAME: str,
@@ -120,8 +127,6 @@ class _AbstractRequest(NetworkData):
 
     def __init__(self, **kwargs):
         """Constructor."""
-        self.request_id = None  # type: str
-        self.re_sent = None  # type: bool
         super(_AbstractRequest, self).__init__(**kwargs)
 
     @classmethod
@@ -136,11 +141,11 @@ class _AbstractChannelRequest(_AbstractRequest):
     """
 
     __slots__ = ["token"]
+    token: str
     header = parsing.update_model(_AbstractRequest.header, {strings.TOKEN: str})
     level = strings.CHANNEL
 
     def __init__(self, **kwargs):
-        self.token = None  # type: str
         super(_AbstractChannelRequest, self).__init__(**kwargs)
 
 
@@ -150,6 +155,9 @@ class _AbstractGameRequest(_AbstractChannelRequest):
     """
 
     __slots__ = ["game_id", "game_role", "phase"]
+    game_id: str
+    game_role: str
+    phase: str
 
     header = parsing.extend_model(
         _AbstractChannelRequest.header,
@@ -166,9 +174,6 @@ class _AbstractGameRequest(_AbstractChannelRequest):
     phase_dependent = True
 
     def __init__(self, **kwargs):
-        self.game_id = None  # type: str
-        self.game_role = None  # type: str
-        self.phase = None  # type: str
         super(_AbstractGameRequest, self).__init__(**kwargs)
 
     # Return "address" of request sender inside related game (ie. channel token + game role).
@@ -196,10 +201,10 @@ class GetDaidePort(_AbstractRequest):
     """
 
     __slots__ = ["game_id"]
+    game_id: str
     params = {strings.GAME_ID: str}
 
     def __init__(self, **kwargs):
-        self.game_id = None
         super(GetDaidePort, self).__init__(**kwargs)
 
 
@@ -398,10 +403,10 @@ class GetPlayablePowers(_AbstractChannelRequest):
     """
 
     __slots__ = ["game_id"]
+    game_id: str
     params = {strings.GAME_ID: str}
 
     def __init__(self, **kwargs):
-        self.game_id = None
         super(GetPlayablePowers, self).__init__(**kwargs)
 
 
@@ -437,6 +442,10 @@ class JoinGame(_AbstractChannelRequest):
     """
 
     __slots__ = ["game_id", "power_name", "registration_password", "player_type"]
+    game_id: str
+    power_name: "str | None"
+    registration_password: "str | None"
+    player_type: "str | None"
     params = {
         strings.GAME_ID: str,
         strings.POWER_NAME: parsing.OptionalValueType(str),
@@ -447,10 +456,6 @@ class JoinGame(_AbstractChannelRequest):
     }
 
     def __init__(self, **kwargs):
-        self.game_id = None
-        self.power_name = None
-        self.registration_password = None
-        self.player_type = None
         super(JoinGame, self).__init__(**kwargs)
 
 
@@ -474,6 +479,9 @@ class JoinPowers(_AbstractChannelRequest):
     """
 
     __slots__ = ["game_id", "power_names", "registration_password"]
+    game_id: str
+    power_names: "set[str]"
+    registration_password: "str | None"
     params = {
         strings.GAME_ID: str,
         strings.POWER_NAMES: parsing.SequenceType(str, sequence_builder=set),
@@ -481,9 +489,6 @@ class JoinPowers(_AbstractChannelRequest):
     }
 
     def __init__(self, **kwargs):
-        self.game_id = None
-        self.power_names = None
-        self.registration_password = None
         super(JoinPowers, self).__init__(**kwargs)
 
 
@@ -580,6 +585,10 @@ class SetGrade(_AbstractChannelRequest):
     """
 
     __slots__ = ["grade", "grade_update", "username", "game_id"]
+    grade: str
+    grade_update: str
+    username: str
+    game_id: "str | None"
     params = {
         strings.GRADE: parsing.EnumerationType(strings.ALL_GRADES),
         strings.GRADE_UPDATE: parsing.EnumerationType(strings.ALL_GRADE_UPDATES),
@@ -588,10 +597,6 @@ class SetGrade(_AbstractChannelRequest):
     }
 
     def __init__(self, **kwargs):
-        self.grade = None
-        self.grade_update = None
-        self.username = None
-        self.game_id = None
         super(SetGrade, self).__init__(**kwargs)
 
 
@@ -829,10 +834,10 @@ class SendGameMessage(_AbstractGameRequest):
     """
 
     __slots__ = ["message"]
+    message: Message
     params = {strings.MESSAGE: parsing.JsonableClassType(Message)}
 
     def __init__(self, **kwargs):
-        self.message = None  # type: Message
         super(SendGameMessage, self).__init__(**kwargs)
 
 
@@ -840,10 +845,10 @@ class SendLogData(_AbstractGameRequest):
     """Data to log intent, rationalize decision, note observations about universe"""
 
     __slots__ = ["log"]
+    log: Log
     params = {strings.LOG: parsing.JsonableClassType(Log)}
 
     def __init__(self, **kwargs):
-        self.log = None
         super(SendLogData, self).__init__(**kwargs)
 
 
@@ -886,6 +891,13 @@ class SetGameState(_AbstractGameRequest):
     """
 
     __slots__ = ["state", "orders", "results", "messages", "stances", "is_bot", "deceiving"]
+    state: dict
+    orders: "dict[str, list[str]]"
+    results: "dict[str, list[str]]"
+    messages: SortedDict
+    stances: "dict[str, dict[str, int]]"
+    is_bot: "dict[str, dict[str, bool]]"
+    deceiving: "dict[str, dict[str, bool]]"
     params = {
         strings.STATE: dict,
         strings.ORDERS: parsing.DictType(str, parsing.SequenceType(str)),
@@ -903,13 +915,6 @@ class SetGameState(_AbstractGameRequest):
     }
 
     def __init__(self, **kwargs):
-        self.state = {}
-        self.orders = {}
-        self.results = {}
-        self.messages = {}  # type: SortedDict
-        self.stances = {}
-        self.is_bot = {}
-        self.deceiving = {}
         super(SetGameState, self).__init__(**kwargs)
 
 
@@ -1021,11 +1026,11 @@ class Synchronize(_AbstractGameRequest):
     """
 
     __slots__ = ["timestamp"]
+    timestamp: int
     params = {strings.TIMESTAMP: int}
     phase_dependent = False
 
     def __init__(self, **kwargs):
-        self.timestamp = None  # type: int
         super(Synchronize, self).__init__(**kwargs)
 
 

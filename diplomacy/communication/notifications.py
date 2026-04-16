@@ -16,6 +16,7 @@
 # ==============================================================================
 """Server -> Client notifications."""
 import inspect
+from typing import Dict
 
 from diplomacy.engine.game import Game
 from diplomacy.engine.message import Message
@@ -160,7 +161,7 @@ class VoteUpdated(_GameNotification):
     }
 
     def __init__(self, **kwargs):
-        self.vote = None  # type: dict{str, str}
+        self.vote = None  # type: Dict[str, str]
         super(VoteUpdated, self).__init__(**kwargs)
 
 
