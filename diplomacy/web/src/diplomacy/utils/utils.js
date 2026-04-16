@@ -22,6 +22,10 @@ export const UTILS = {
     NB_CONNECTION_ATTEMPTS: 12,
     ATTEMPT_DELAY_SECONDS: 5,
     REQUEST_TIMEOUT_SECONDS: 30,
+    // Exponential backoff for reconnection retries.
+    // Delay before each retry = min(BASE * 2^attempt, MAX), plus ±20% jitter.
+    RECONNECT_BASE_DELAY_SECONDS: 1,
+    RECONNECT_MAX_DELAY_SECONDS: 60,
 
     /** Return a random integer in interval [from, to). **/
     randomInteger: function (from, to) {

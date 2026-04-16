@@ -945,7 +945,14 @@ export const ContentGame = ({ data }) => {
                     page.success("Orders sent.");
                 })
                 .catch((err) => {
-                    page.error(err.toString());
+                    if (err && err.code === "STALE_PHASE") {
+                        page.error(
+                            `The game advanced to phase "${err.serverPhase}" while you were disconnected — ` +
+                            `your orders for "${powerName}" were not submitted. Please review and resubmit.`,
+                        );
+                    } else {
+                        page.error(err.toString());
+                    }
                 })
                 .then(() => {
                     reloadServerOrders();

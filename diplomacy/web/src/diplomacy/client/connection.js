@@ -98,6 +98,16 @@ class Reconnection {
     }
 
     syncDone() {
+        // Guard against stale Reconnection instances: if a newer reconnection
+        // has already taken over (e.g. the socket dropped a second time before
+        // this one finished syncing), bail out silently.  Without this check,
+        // two concurrent Reconnection objects can both reach this point and
+        // double-send requests or set isReconnecting prematurely.
+        if (this.connection.currentReconnection !== this) {
+            Diplog.warn("Stale Reconnection instance detected; aborting syncDone.");
+            return;
+        }
+
         const requestsToSendUpdated = {};
         for (let context of Object.values(this.connection.requestsToSend)) {
             let keep = true;
@@ -112,19 +122,22 @@ class Reconnection {
                 ) {
                     const server_phase = this.games_phases[context.request.game_id][context.request.game_role].phase;
                     if (request_phase !== server_phase) {
-                        context.future.setException(
-                            new Error(
-                                "Game " +
-                                context.request.game_id +
-                                ": request " +
-                                context.request.name +
-                                ": request phase " +
-                                request_phase +
-                                " does not match current server game phase " +
-                                server_phase +
-                                ".",
-                            ),
+                        const err = new Error(
+                            "Game " +
+                            context.request.game_id +
+                            ": request " +
+                            context.request.name +
+                            ": request phase " +
+                            request_phase +
+                            " does not match current server game phase " +
+                            server_phase +
+                            ".",
                         );
+                        err.code = "STALE_PHASE";
+                        err.gameName = context.request.game_id;
+                        err.requestPhase = request_phase;
+                        err.serverPhase = server_phase;
+                        context.future.setException(err);
                         keep = false;
                     }
                 }
@@ -201,7 +214,15 @@ class ConnectionProcessing {
                 "), retrying ...",
             );
             ++this.attemptIndex;
-            setTimeout(this.tryConnect, 0);
+            // Exponential backoff with ±20% jitter to avoid thundering-herd
+            // reconnection storms when many clients drop simultaneously.
+            const baseMs =
+                Math.min(
+                    UTILS.RECONNECT_MAX_DELAY_SECONDS,
+                    UTILS.RECONNECT_BASE_DELAY_SECONDS * Math.pow(2, this.attemptIndex - 1),
+                ) * 1000;
+            const jitterMs = (Math.random() - 0.5) * 0.4 * baseMs;
+            setTimeout(this.tryConnect, Math.round(baseMs + jitterMs));
         }
     }
 
@@ -249,6 +270,9 @@ export class Connection {
         this.requestsToSend = {};
         this.requestsWaitingResponses = {};
         this.currentConnectionProcessing = null;
+        // Tracks the most-recent Reconnection instance so that stale ones
+        // can detect they have been superseded (see Reconnection.syncDone).
+        this.currentReconnection = null;
 
         // Attribute used to make distinction between a connection
         // explicitly closed by client and a connection closed for
@@ -315,7 +339,9 @@ export class Connection {
             this.isReconnecting.clear();
             this.__connect()
                 .then(() => {
-                    new Reconnection(this).reconnect();
+                    const reconnection = new Reconnection(this);
+                    this.currentReconnection = reconnection;
+                    reconnection.reconnect();
                     if (this.onReconnection) this.onReconnection();
                 })
                 .catch((error) => {
