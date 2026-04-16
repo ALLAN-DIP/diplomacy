@@ -17,12 +17,23 @@
 """Utility classes and functions used for request management.
 Put here to avoid having file request_managers.py with too many lines.
 """
+import logging
 from collections.__init__ import namedtuple
 
 from diplomacy.communication import notifications
 from diplomacy.server.notifier import Notifier
 
 from diplomacy.utils import strings, exceptions
+
+LOGGER = logging.getLogger(__name__)
+
+
+def log_future_exception(future):
+    """Done-callback for fire-and-forget coroutines: logs any exception they raise."""
+    try:
+        future.result()
+    except Exception:
+        LOGGER.exception("Fire-and-forget async operation failed")
 
 
 class SynchronizedData(namedtuple("SynchronizedData", ("timestamp", "order", "type", "data"))):

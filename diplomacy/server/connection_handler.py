@@ -193,6 +193,10 @@ class ConnectionHandler(WebSocketHandler):
         except ValueError as exc:
             # Error occurred because either message is not a JSON string
             # or parsed JSON object is not a dict.
+            remote_ip = getattr(self.request, "remote_ip", "unknown")
+            LOGGER.warning(
+                "Failed to parse client message from %s: %s", remote_ip, exc
+            )
             response = responses.Error(
                 error_type=exceptions.ResponseException.__name__, message=str(exc)
             )
@@ -212,6 +216,17 @@ class ConnectionHandler(WebSocketHandler):
                 response = responses.Error(
                     error_type=type(exc).__name__,
                     message=exc.message,
+                    request_id=json_request.get(strings.REQUEST_ID, None),
+                )
+            except Exception:
+                LOGGER.exception(
+                    "Unhandled exception while processing request (name=%s, request_id=%s)",
+                    json_request.get(strings.NAME, None),
+                    json_request.get(strings.REQUEST_ID, None),
+                )
+                response = responses.Error(
+                    error_type=exceptions.ResponseException.__name__,
+                    message="Internal server error.",
                     request_id=json_request.get(strings.REQUEST_ID, None),
                 )
 

@@ -80,6 +80,7 @@ from diplomacy.communication import notifications
 from diplomacy.daide.server import Server as DaideServer
 from diplomacy.server.connection_handler import ConnectionHandler
 from diplomacy.server.notifier import Notifier
+from diplomacy.server.request_manager_utils import log_future_exception
 from diplomacy.server.scheduler import Scheduler
 from diplomacy.server.server_game import ServerGame
 from diplomacy.server.users import Users
@@ -790,7 +791,7 @@ class Server:
                 # Game must be scheduled only if active.
                 if server_game.is_game_active:
                     LOGGER.debug("Game loaded and scheduled: %s", server_game.game_id)
-                    self.schedule_game(server_game)
+                    self.schedule_game(server_game).add_done_callback(log_future_exception)
         return server_game
 
     def delete_game(self, server_game):
@@ -855,7 +856,7 @@ class Server:
         :type server_game: ServerGame
         """
         server_game.set_status(strings.ACTIVE)
-        self.schedule_game(server_game)
+        self.schedule_game(server_game).add_done_callback(log_future_exception)
         Notifier(self).notify_game_status(server_game)
 
     def stop_game_if_needed(self, server_game):
@@ -878,7 +879,7 @@ class Server:
                     break
             if stop_game:
                 server_game.set_status(strings.FORMING)
-                self.unschedule_game(server_game)
+                self.unschedule_game(server_game).add_done_callback(log_future_exception)
                 Notifier(self).notify_game_status(server_game)
 
     def user_is_master(self, username, server_game):
