@@ -22,6 +22,11 @@ global
   - port
   - showServerFields
   (password is intentionally NOT stored — use session tokens only)
+- session
+  - token       (server auth token for auto-reconnect)
+  - username    (the username that owns this token)
+  - hostname    (server hostname the token was issued against)
+  - port        (server port the token was issued against)
 users
 - (username)
   - games
@@ -176,6 +181,25 @@ export class DipStorage {
     static clearCurrentPath() {
         DipStorage.load();
         STORAGE.global.currentPath = null;
+        DipStorage.save();
+    }
+
+    // --- Session token persistence for auto-reconnect ---
+
+    static setSession(token, username, hostname, port) {
+        DipStorage.load();
+        STORAGE.global.session = { token, username, hostname, port };
+        DipStorage.save();
+    }
+
+    static getSession() {
+        DipStorage.load();
+        return STORAGE.global.session || null;
+    }
+
+    static clearSession() {
+        DipStorage.load();
+        STORAGE.global.session = null;
         DipStorage.save();
     }
 }

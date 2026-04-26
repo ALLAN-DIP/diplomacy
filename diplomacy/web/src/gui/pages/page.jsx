@@ -16,13 +16,15 @@
 // ==============================================================================
 /** Main component to use to create app GUI. **/
 
-import React, { Suspense, useRef } from "react";
+import React, { Suspense, useRef, useEffect, useState } from "react";
 
 import { Switch, Route, withRouter, Redirect } from "react-router-dom";
 
 import { UTILS } from "../../diplomacy/utils/utils";
 import { Diplog } from "../../diplomacy/utils/diplog";
 import { DipStorage } from "../utils/dipStorage";
+import { Connection } from "../../diplomacy/client/connection";
+import { Channel } from "../../diplomacy/client/channel";
 import { PageContext } from "../components/page_context";
 import { loadGameFromDisk } from "../utils/load_game_from_disk";
 import { usePromiseState } from "../utils/usePromiseState";
@@ -85,6 +87,13 @@ const PageBase = ({ history }) => {
         body: null,
         games: {},
         myGames: {},
+    });
+
+    // True while we are trying to silently restore a persisted session.
+    // Route guards check this to show a spinner instead of redirecting.
+    const [isSessionRestoring, setIsSessionRestoring] = useState(() => {
+        // Only enter the restoring state if there actually is a saved session.
+        return !!DipStorage.getSession();
     });
 
     // Stable page object that is the context value.
@@ -183,6 +192,7 @@ const PageBase = ({ history }) => {
         page.channel = null;
         page.availableMaps = null;
         DipStorage.clearCurrentPath();
+        DipStorage.clearSession();
         const message = wrapMessage(error ? `${error.toString()}` : `Disconnected from channel and server.`);
         Diplog.success(message);
         return setState({
@@ -209,6 +219,88 @@ const PageBase = ({ history }) => {
             return __disconnect();
         }
     };
+
+    // --- Auto-reconnect from persisted session token ---
+    // Runs once on mount. If a valid session exists in localStorage, open a
+    // new WebSocket, construct a Channel with the stored token, and verify it
+    // by making a lightweight channel-level request (getAvailableMaps). The
+    // server's attach_connection_handler will re-map the token to the new
+    // WebSocket handler, so no password is needed.
+    useEffect(() => {
+        const session = DipStorage.getSession();
+        if (!session || !session.token || page.channel) {
+            setIsSessionRestoring(false);
+            return;
+        }
+
+        const { token, username, hostname, port } = session;
+        const useSSL = window.location.protocol.toLowerCase() === "https:" || port == 443;
+        const conn = new Connection(hostname, port, useSSL);
+        conn.onReconnectionError = page.onReconnectionError;
+
+        conn.connect(page)
+            .then(() => {
+                page.connection = conn;
+
+                // Manually reconstruct the Channel with the persisted token
+                // and register it on the connection so subsequent requests
+                // include the token and the server can map it.
+                const channel = new Channel(conn, username, token);
+                conn.channels[token] = channel;
+                page.channel = channel;
+
+                // Validate the token with a lightweight request. If the token
+                // expired or was revoked the server will respond with an error
+                // and we fall through to the catch below.
+                return channel.getAvailableMaps();
+            })
+            .then((availableMaps) => {
+                for (let mapName of Object.keys(availableMaps))
+                    availableMaps[mapName].powers.sort();
+                page.availableMaps = availableMaps;
+
+                // Restore user's game list from local storage hints.
+                const userGameIndices = DipStorage.getUserGames(username);
+                if (userGameIndices && userGameIndices.length) {
+                    return page.channel.getGamesInfo({ games: userGameIndices });
+                }
+                return null;
+            })
+            .then((gamesInfo) => {
+                if (gamesInfo) {
+                    page.updateMyGames(gamesInfo);
+                }
+
+                Diplog.success(`Session restored for ${username}.`);
+                setIsSessionRestoring(false);
+
+                // Navigate to the route the user was on, or /games by default.
+                const savedPath = DipStorage.getCurrentPath();
+                if (savedPath && savedPath !== "/") {
+                    if (savedPath.startsWith("/game/")) {
+                        const gameId = savedPath.substring(6);
+                        page.setState({ name: `game: ${gameId}` });
+                    } else if (savedPath === "/games") {
+                        page.setState({ name: "games" });
+                    }
+                    history.push(savedPath);
+                } else {
+                    page.setState({ name: "games" });
+                    history.push("/games");
+                }
+            })
+            .catch((error) => {
+                Diplog.warn("Session restore failed: " + error);
+                // Token is stale / server unreachable — clear it so we don't
+                // retry on every mount.
+                DipStorage.clearSession();
+                if (conn) conn.close();
+                page.connection = null;
+                page.channel = null;
+                setIsSessionRestoring(false);
+            });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     // --- Game management ---
     page.updateMyGames = (gamesToAdd) => {
@@ -399,24 +491,32 @@ const PageBase = ({ history }) => {
                         </div>
                     }
                 >
-                    <Switch>
-                        <Route exact path="/" component={ContentConnection} />
-                        <Route
-                            path="/games"
-                            render={() =>
-                                page.channel ? (
-                                    <ContentGames myGames={page.getMyGames()} gamesFound={page.getGamesFound()} />
-                                ) : (
-                                    <Redirect to="/" />
-                                )
-                            }
-                        />
-                        <Route
-                            path="/game/:gameId"
-                            render={(routeProps) => <GameRoute {...routeProps} page={page} />}
-                        />
-                        <Redirect to="/" />
-                    </Switch>
+                    {isSessionRestoring ? (
+                        <div className="loading-fallback">
+                            <div className="spinner-border text-primary" role="status">
+                                <span className="sr-only">Restoring session...</span>
+                            </div>
+                        </div>
+                    ) : (
+                        <Switch>
+                            <Route exact path="/" component={ContentConnection} />
+                            <Route
+                                path="/games"
+                                render={() =>
+                                    page.channel ? (
+                                        <ContentGames myGames={page.getMyGames()} gamesFound={page.getGamesFound()} />
+                                    ) : (
+                                        <Redirect to="/" />
+                                    )
+                                }
+                            />
+                            <Route
+                                path="/game/:gameId"
+                                render={(routeProps) => <GameRoute {...routeProps} page={page} />}
+                            />
+                            <Redirect to="/" />
+                        </Switch>
+                    )}
                 </Suspense>
             </div>
         </PageContext.Provider>

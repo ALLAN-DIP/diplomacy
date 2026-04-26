@@ -55,6 +55,15 @@ export const ContentConnection = () => {
                     .authenticate(data.username, data.password)
                     .then((channel) => {
                         page.channel = channel;
+                        // Persist session so the user can survive page
+                        // refreshes / direct-URL navigation without
+                        // re-entering credentials.
+                        DipStorage.setSession(
+                            channel.token,
+                            data.username,
+                            data.hostname,
+                            data.port,
+                        );
                         return channel.getAvailableMaps();
                     })
                     .then((availableMaps) => {
