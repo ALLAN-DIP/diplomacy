@@ -54,6 +54,6 @@ EXPOSE 8434-8600
 # Place .venv/bin at the front of the PATH
 ENV PATH="/app/.venv/bin:$PATH"
 
-CMD ["sh", "-c", "python -m http.server 80 --directory diplomacy/web/build/ & python -m diplomacy.server.run"]
+CMD ["sh", "-c", "python -m diplomacy.server.spa_server --port 80 --directory diplomacy/web/build & python -m diplomacy.server.run"]
 
 LABEL org.opencontainers.image.source=https://github.com/ALLAN-DIP/diplomacy
