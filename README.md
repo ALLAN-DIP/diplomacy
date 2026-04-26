@@ -25,6 +25,20 @@ Highlights of recent work on this fork:
 
 ## Getting Started
 
+### Cloning
+
+This repository includes [Pybert](https://github.com/Obertura777/Pybert) as a Git submodule. When cloning, pull the submodule contents as well:
+
+```shell
+git clone --recurse-submodules https://github.com/ALLAN-DIP/diplomacy.git
+```
+
+If you've already cloned the repo without `--recurse-submodules`, run this from the repo root to fetch the submodule contents:
+
+```shell
+git submodule update --init --recursive
+```
+
 ### Installation
 
 The latest version of the package can be installed with:

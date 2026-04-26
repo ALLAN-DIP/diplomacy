@@ -29,7 +29,7 @@ import bcrypt
 from diplomacy.utils.exceptions import CommonKeyException
 
 # Datetime since timestamp 0.
-EPOCH = datetime.utcfromtimestamp(0)
+EPOCH = datetime(1970, 1, 1)
 
 # Regex used for conversion from camel case to snake case.
 REGEX_CONSECUTIVE_UPPER_CASES = re.compile("[A-Z]{2,}")

@@ -83,6 +83,8 @@ filterwarnings = [
   # TODO: Fix warning that shows up in Python 3.11 but not 3.7
   # See https://docs.pytest.org/en/8.3.x/how-to/failures.html#warning-about-unraisable-exceptions-and-unhandled-thread-exceptions
   "ignore::pytest.PytestUnraisableExceptionWarning",
+  # Python 3.12 deprecated implicit event loop creation in asyncio; Tornado internals still trigger it.
+  "ignore:There is no current event loop:DeprecationWarning",
 ]
 log_cli_level = "INFO"
 minversion = "6.0"
