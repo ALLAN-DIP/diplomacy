@@ -479,10 +479,10 @@ def on_join_game(server: 'Server', request: requests.JoinGame, connection_handle
                 # Register request token as omniscient token.
                 server_game.add_omniscient_token(token)
                 token_already_registered = False
-            elif not request.re_sent:
-                # Token already registered but request is a new one.
-                # This should not happen (programming error?).
-                raise exceptions.ResponseException("Token already omniscient from a new request.")
+            # else: token already registered — this can happen legitimately
+            # when a client restores a persisted session and re-joins a game
+            # it was already observing.  Fall through with
+            # token_already_registered = True so we return the game data.
 
             # Create client game.
             client_game = server_game.as_omniscient_game(username)
@@ -497,10 +497,8 @@ def on_join_game(server: 'Server', request: requests.JoinGame, connection_handle
                 # Register request token as observer token.
                 server_game.add_observer_token(token)
                 token_already_registered = False
-            elif not request.re_sent:
-                # Token already registered but request is a new one.
-                # This should not happen (programming error?).
-                raise exceptions.ResponseException("Token already observer.")
+            # else: token already registered — legitimate after session
+            # restore.  Fall through with token_already_registered = True.
 
             # Create client game.
             client_game = server_game.as_observer_game(username)
