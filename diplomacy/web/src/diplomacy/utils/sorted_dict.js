@@ -36,11 +36,12 @@ export class SortedDict {
     put(key, value) {
         const realKey = key;
         key = this.__key_fn(key);
+        const lengthBefore = this.__keys.length;
         const position = UTILS.binarySearch.insert(this.__keys, key);
-        if (position === this.__data.length) {
-            this.__data.push({ realKey, value });
-        } else if (this.__data[position].value !== value) {
+        if (this.__keys.length > lengthBefore) {
             this.__data.splice(position, 0, { realKey, value });
+        } else {
+            this.__data[position] = { realKey, value };
         }
         return position;
     }
