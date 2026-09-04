@@ -14,7 +14,7 @@
 //  You should have received a copy of the GNU Affero General Public License along
 //  with this program.  If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
-import React, { memo } from "react";
+import React from "react";
 import PropTypes from "prop-types";
 import { AdminPowersInfoTable } from "./admin_powers_info_table";
 import { PowerView } from "../utils/power_view";
@@ -42,7 +42,12 @@ const TABLE_POWER_VIEW = {
     comm_status: ["Comm. Status", 4],
 };
 
-function PowerInfoPanelBase({ engine, currentPowerName }) {
+// NOTE: deliberately NOT wrapped in React.memo. Both panels below read from
+// `engine`, a mutable object whose identity never changes as the game evolves,
+// so a shallow prop comparison always reports "nothing changed" and the panel
+// would never re-render (e.g. a player joining would never show up in the
+// controller column). They are cheap to render; render them every time.
+function PowerInfoPanel({ engine, currentPowerName }) {
     const isAdminRole =
         engine.role === "omniscient_type" ||
         engine.role === "observer_type" ||
@@ -79,14 +84,14 @@ function PowerInfoPanelBase({ engine, currentPowerName }) {
     );
 }
 
-export const PowerInfoPanel = memo(PowerInfoPanelBase);
+export { PowerInfoPanel };
 
-PowerInfoPanelBase.propTypes = {
+PowerInfoPanel.propTypes = {
     engine: PropTypes.object.isRequired,
     currentPowerName: PropTypes.string,
 };
 
-function LogsPanelBase({
+function LogsPanel({
     engine,
     role,
     logData,
@@ -147,9 +152,9 @@ function LogsPanelBase({
     );
 }
 
-export const LogsPanel = memo(LogsPanelBase);
+export { LogsPanel };
 
-LogsPanelBase.propTypes = {
+LogsPanel.propTypes = {
     engine: PropTypes.object.isRequired,
     role: PropTypes.string.isRequired,
     logData: PropTypes.string.isRequired,

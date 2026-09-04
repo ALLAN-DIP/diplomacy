@@ -82,5 +82,4 @@ if __name__ == "__main__":
     initialize_logging()
     default_port = int(os.environ.get("SERVER_PORT", constants.DEFAULT_PORT))
     default_daide_ports = os.environ.get("DAIDE_PORT_RANGE", constants.DEFAULT_DAIDE_PORT_RANGE)
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(main())
+    asyncio.run(main())

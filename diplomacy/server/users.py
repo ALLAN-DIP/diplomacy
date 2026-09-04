@@ -229,27 +229,39 @@ class Users(Jsonable):
 
     def attach_connection_handler(self, token, connection_handler):
         """Associate given token with given connection handler if token is known.
-        If there is a previous connection handler associated to given token, it should be
-        the same as given connection handler, otherwise an error is raised
-        (meaning previous connection handler was not correctly disconnected from given token.
-        It should be a programming error).
+
+        A reconnect can deliver its first authenticated request before Tornado
+        invokes ``on_close`` for the previous WebSocket.  In that case, move
+        the token to the new handler atomically.  Removing it from the old
+        handler's reverse index is important: the delayed old ``on_close``
+        must not detach the replacement connection.
 
         :param token: token
         :param connection_handler: connection handler
         """
         if self.has_token(token):
             previous_connection = self.get_connection_handler(token)
-            if previous_connection:
-                assert (
-                    previous_connection == connection_handler
-                ), "A new connection handler cannot be attached to a token always connected to another handler."
+            if previous_connection == connection_handler:
+                return
+            if previous_connection is not None:
+                LOGGER.warning(
+                    "Transferring token from a previous connection handler."
+                )
+                previous_tokens = self.connection_handler_to_tokens.get(
+                    previous_connection
+                )
+                if previous_tokens is not None:
+                    previous_tokens.discard(token)
+                    if not previous_tokens:
+                        self.connection_handler_to_tokens.pop(previous_connection)
             else:
                 LOGGER.warning("Attaching a new connection handler to a token.")
-                if connection_handler not in self.connection_handler_to_tokens:
-                    self.connection_handler_to_tokens[connection_handler] = set()
-                self.token_to_connection_handler[token] = connection_handler
-                self.connection_handler_to_tokens[connection_handler].add(token)
-                self.token_timestamp[token] = common.timestamp_microseconds()
+
+            if connection_handler not in self.connection_handler_to_tokens:
+                self.connection_handler_to_tokens[connection_handler] = set()
+            self.token_to_connection_handler[token] = connection_handler
+            self.connection_handler_to_tokens[connection_handler].add(token)
+            self.token_timestamp[token] = common.timestamp_microseconds()
 
     def disconnect_token(self, token):
         """Remove given token."""

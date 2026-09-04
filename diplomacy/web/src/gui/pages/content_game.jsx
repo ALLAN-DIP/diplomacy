@@ -25,7 +25,7 @@ import { Message } from "../../diplomacy/engine/message";
 import { STRINGS } from "../../diplomacy/utils/strings";
 import { Diplog } from "../../diplomacy/utils/diplog";
 import { DipStorage } from "../utils/dipStorage";
-import Helmet from "react-helmet";
+import { Helmet } from "react-helmet-async";
 import { Navigation } from "../components/navigation";
 import { PageContext } from "../components/page_context";
 import PropTypes from "prop-types";
@@ -314,7 +314,13 @@ export const ContentGame = ({ data }) => {
     // [ Network game notifications.
 
     const networkGameIsDisplayed = (networkGame) => {
-        return page.getName() === `game: ${networkGame.local.game_id}`;
+        // This component is mounted only for the game it renders, and its
+        // notification callbacks are unbound on unmount, so any notification
+        // reaching us belongs to the game on screen. Comparing game ids is
+        // enough — `page.getName()` can lag the router (browser back/forward
+        // doesn't go through page.load), and gating on it silently dropped
+        // every board refresh whenever the two got out of sync.
+        return networkGame.local.game_id === data.game_id;
     };
 
     const notifiedNetworkGame = (networkGame, notification) => {
@@ -364,9 +370,11 @@ export const ContentGame = ({ data }) => {
                         visibleDistributionOrder: [],
                         hasInitialOrders: false,
                         hoverOrders: [],
-                    }).then(() =>
-                        page.info(`Game update (${notification.name}) to ${networkGame.local.phase}.`),
-                    );
+                    })
+                        .then(() => forceUpdate())
+                        .then(() =>
+                            page.info(`Game update (${notification.name}) to ${networkGame.local.phase}.`),
+                        );
                 }
             })
             .catch((error) => page.error("Error when updating possible orders: " + error.toString()));
@@ -391,11 +399,20 @@ export const ContentGame = ({ data }) => {
         );
     };
 
+    const unbindCallbacks = (networkGame) => {
+        if (networkGame.callbacksBound) {
+            networkGame.clearAllCallbacks();
+            networkGame.callbacksBound = false;
+            // Stop the consumer loop started by consumeAsync().
+            if (networkGame.queue) networkGame.queue.append(null);
+        }
+    };
+
     const bindCallbacks = (networkGame) => {
         const collector = (game, notification) => {
             game.queue.append(notification);
         };
-        const consumer = (notification) => {
+        const handle = (notification) => {
             switch (notification.name) {
                 case "powers_controllers":
                     return notifiedPowersControllers(networkGame, notification);
@@ -424,6 +441,21 @@ export const ContentGame = ({ data }) => {
                 default:
                     throw new Error(`Unhandled notification: ${notification.name}`);
             }
+        };
+        // Queue.consumeAsync() chains on the value returned here, so it stops
+        // consuming forever if we throw or return something that isn't a
+        // promise. Never let one bad notification kill the whole stream.
+        const consumer = (notification) => {
+            let result;
+            try {
+                result = handle(notification);
+            } catch (error) {
+                Diplog.error(`Error while handling notification: ${error.toString()}`);
+                return noPromise();
+            }
+            return Promise.resolve(result).catch((error) => {
+                Diplog.error(`Error while handling notification ${notification.name}: ${error.toString()}`);
+            });
         };
         if (!networkGame.callbacksBound) {
             networkGame.queue = new Queue();
@@ -1424,6 +1456,7 @@ export const ContentGame = ({ data }) => {
                             mode="results"
                             gameEngine={engine}
                             mapInfo={mapInfo}
+                            version={forceUpdateTick}
                             showAbbreviations={state.showAbbreviations}
                             onError={page.error}
                             showOrders={state.historyShowOrders}
@@ -2227,6 +2260,7 @@ export const ContentGame = ({ data }) => {
                             mode="current"
                             gameEngine={engine}
                             mapInfo={mapInfo}
+                            version={forceUpdateTick}
                             showAbbreviations={state.showAbbreviations}
                             onError={page.error}
                             powerName={powerName}
@@ -2282,6 +2316,11 @@ export const ContentGame = ({ data }) => {
     // componentDidMount + componentWillUnmount
     useEffect(() => {
         window.scrollTo(0, 0);
+        // Bind here rather than during render: the previous mount of this page
+        // left `callbacksBound` set, so a component that re-mounts (navigating
+        // back into the game) would otherwise never re-subscribe and would
+        // receive no notifications at all.
+        if (data.client) bindCallbacks(data.client);
         if (data.client) reloadDeadlineTimer(data.client);
         data.displayed = true;
 
@@ -2323,6 +2362,7 @@ export const ContentGame = ({ data }) => {
 
         return () => {
             clearScheduleTimeout();
+            if (data.client) unbindCallbacks(data.client);
             data.displayed = false;
             document.onkeydown = null;
             document.onkeyup = null;
@@ -2353,7 +2393,7 @@ export const ContentGame = ({ data }) => {
     );
 
     const serverOrders = __get_orders(engine);
-    const powerOrders = serverOrders[currentPowerName] || [];
+    const powerOrders = serverOrders[currentPowerName] || {};
 
     const title = gameTitle(engine);
     const navigation = [
@@ -2365,7 +2405,6 @@ export const ContentGame = ({ data }) => {
         [`${UTILS.html.UNICODE_SMALL_LEFT_ARROW} Logout`, page.logout],
     ];
     const phaseType = engine.getPhaseType();
-    if (data.client) bindCallbacks(data.client);
 
     if (engine.phase === "FORMING")
         return (
@@ -2571,7 +2610,7 @@ export const ContentGame = ({ data }) => {
                 {!engine.isPlayerGame() && (
                     <PowerInfoPanel engine={engine} currentPowerName={currentPowerName} />
                 )}
-                {page.channel.username === "admin" && (
+                {page.channel?.username === "admin" && (
                     <LogsPanel
                         engine={engine}
                         role={currentPowerName}
@@ -2592,7 +2631,7 @@ export const ContentGame = ({ data }) => {
             <Navigation
                 title={title}
                 afterTitle={navAfterTitle}
-                username={page.channel.username}
+                username={page.channel?.username}
                 phaseSel={__form_phases(pastPhases, phaseIndex)}
                 navigation={navigation}
             />

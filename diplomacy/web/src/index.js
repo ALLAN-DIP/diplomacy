@@ -18,6 +18,7 @@ import "./polyfill";
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter } from 'react-router-dom';
+import { HelmetProvider } from 'react-helmet-async';
 import { Page } from "./gui/pages/page";
 import "popper.js";
 import "bootstrap/dist/js/bootstrap";
@@ -29,8 +30,10 @@ import "./index.css";
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
     <React.StrictMode>
-        <BrowserRouter>
-            <Page />
-        </BrowserRouter>
+        <HelmetProvider>
+            <BrowserRouter>
+                <Page />
+            </BrowserRouter>
+        </HelmetProvider>
     </React.StrictMode>
 );

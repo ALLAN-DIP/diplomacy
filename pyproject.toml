@@ -27,7 +27,10 @@ requires-python = ">=3.7"
 license = { text = "AGPL-3.0-or-later" }
 dependencies = [
   "bcrypt",
+  "cairosvg>=2.7.1",
+  "reportlab>=4.4.3",
   "requests",
+  "svglib>=1.5.1",
   "tornado>=5.0",
   "tqdm",
   "ujson",

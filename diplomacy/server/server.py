@@ -383,6 +383,11 @@ class Server:
             "cookie_secret": common.generate_token(),
             "xsrf_cookies": True,
             "websocket_ping_interval": self.ping_seconds,
+            # Allow clients two complete ping intervals to answer.  Request and
+            # notification callbacks are user code and can briefly keep a
+            # client's event loop busy (AI players are a common example).  A
+            # timeout shorter than the ping interval disconnects otherwise
+            # healthy clients before they get a chance to service the ping.
             "websocket_ping_timeout": 2 * self.ping_seconds,
             "websocket_max_message_size": 5 * 1024 * 1024,
         }

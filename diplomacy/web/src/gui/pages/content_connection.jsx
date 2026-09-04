@@ -18,7 +18,7 @@ import React, { useContext, useRef, useEffect } from "react";
 import { Connection } from "../../diplomacy/client/connection";
 import { ConnectionForm } from "../forms/connection_form";
 import { DipStorage } from "../utils/dipStorage";
-import { Helmet } from "react-helmet";
+import { Helmet } from "react-helmet-async";
 import { Navigation } from "../components/navigation";
 import { PageContext } from "../components/page_context";
 

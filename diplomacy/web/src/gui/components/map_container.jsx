@@ -42,6 +42,7 @@ function MapContainerBase({
     mode,
     gameEngine,
     mapInfo,
+    version,
     showAbbreviations,
     onError,
     // Current-mode props
@@ -68,8 +69,13 @@ function MapContainerBase({
     const Map = getMapComponent(gameEngine.map_name);
 
     // Memoize MapData — it's an expensive wrapper around mapInfo + gameEngine.
-    // gameEngine is a stable mutable reference; mapInfo never changes mid-game.
-    const mapData = useMemo(() => new MapData(mapInfo, gameEngine), [mapInfo, gameEngine]);
+    // `gameEngine` is a *mutable* object whose identity never changes when the
+    // server pushes updates (units moved, centers taken, controllers changed),
+    // and MapData snapshots that state at construction time. So the snapshot
+    // must also be rebuilt whenever `version` changes: ContentGame bumps it on
+    // every notification that mutates the engine. Without it the board would
+    // stay frozen at whatever the game looked like when the map first mounted.
+    const mapData = useMemo(() => new MapData(mapInfo, gameEngine), [mapInfo, gameEngine, version]);
 
     // Memoize formatted orders for the current-phase map. Re-derives only when
     // the raw orders object, hover orders, or the active power changes.
@@ -160,6 +166,8 @@ MapContainerBase.propTypes = {
     mode: PropTypes.oneOf(["current", "results"]).isRequired,
     gameEngine: PropTypes.object.isRequired,
     mapInfo: PropTypes.object.isRequired,
+    // Revision counter for the mutable `gameEngine`; see the MapData memo.
+    version: PropTypes.number,
     showAbbreviations: PropTypes.bool.isRequired,
     onError: PropTypes.func.isRequired,
     // Current-mode props

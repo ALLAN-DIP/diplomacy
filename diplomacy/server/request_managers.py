@@ -1022,7 +1022,6 @@ def on_send_game_message(server: 'Server', request: requests.SendGameMessage, co
         level.game, message
     )
     server.save_game(level.game)
-    server.backup_now(force=True)
     return responses.DataTimeStamp(data=message.time_sent, request_id=request.request_id)
 
 

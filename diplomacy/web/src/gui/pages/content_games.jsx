@@ -19,7 +19,7 @@ import { Tabs } from "../components/tabs";
 import { Table } from "../components/table";
 import { FindForm } from "../forms/find_form";
 import { InlineGameView } from "../utils/inline_game_view";
-import { Helmet } from "react-helmet";
+import { Helmet } from "react-helmet-async";
 import { Navigation } from "../components/navigation";
 import { PageContext } from "../components/page_context";
 import { ContentGame } from "./content_game";

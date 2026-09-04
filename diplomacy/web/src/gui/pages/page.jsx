@@ -34,12 +34,8 @@ import PropTypes from "prop-types";
 const ContentConnection = React.lazy(() =>
     import("./content_connection").then((module) => ({ default: module.ContentConnection })),
 );
-const ContentGames = React.lazy(() =>
-    import("./content_games").then((module) => ({ default: module.ContentGames })),
-);
-const ContentGame = React.lazy(() =>
-    import("./content_game").then((module) => ({ default: module.ContentGame })),
-);
+const ContentGames = React.lazy(() => import("./content_games").then((module) => ({ default: module.ContentGames })));
+const ContentGame = React.lazy(() => import("./content_game").then((module) => ({ default: module.ContentGame })));
 
 import { confirmAlert } from "react-confirm-alert";
 import "react-confirm-alert/src/react-confirm-alert.css";
@@ -255,8 +251,7 @@ const PageBase = ({ history }) => {
                 return channel.getAvailableMaps();
             })
             .then((availableMaps) => {
-                for (let mapName of Object.keys(availableMaps))
-                    availableMaps[mapName].powers.sort();
+                for (let mapName of Object.keys(availableMaps)) availableMaps[mapName].powers.sort();
                 page.availableMaps = availableMaps;
 
                 // Restore user's game list from local storage hints.
@@ -299,7 +294,6 @@ const PageBase = ({ history }) => {
                 page.channel = null;
                 setIsSessionRestoring(false);
             });
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     // --- Game management ---
