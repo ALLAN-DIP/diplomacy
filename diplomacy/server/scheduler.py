@@ -274,19 +274,27 @@ class Scheduler:
         while True:
             task = await self.tasks_queue.get()  # type: _Task
             try:
-                if task.valid and (
-                    not isinstance(task, _ImmediateTask) or task.can_still_process()
-                ):
-                    if asyncio.iscoroutinefunction(self.callback_process):
-                        remove_data = await self.callback_process(task.data)
-                    else:
-                        remove_data = self.callback_process(task.data)
-                    remove_data = remove_data or not task.deadline.delay
+                if task.valid:
+                    can_process = (
+                        not isinstance(task, _ImmediateTask) or task.can_still_process()
+                    )
+                    remove_data = True
+                    if can_process:
+                        if asyncio.iscoroutinefunction(self.callback_process):
+                            remove_data = await self.callback_process(task.data)
+                        else:
+                            remove_data = self.callback_process(task.data)
+                        remove_data = remove_data or not task.deadline.delay
+
+                    # A rejected immediate task has still been consumed from the queue.
+                    # Remove its bookkeeping entry so a later no_wait() call can enqueue
+                    # a fresh task when the validator becomes true again.
                     async with self.lock:
-                        del self.data_in_queue[task.data]
-                        if not remove_data:
-                            self.data_in_heap[task.data] = _Deadline(
-                                self.current_time, task.deadline.delay
-                            )
+                        if self.data_in_queue.get(task.data) is task:
+                            del self.data_in_queue[task.data]
+                            if can_process and not remove_data:
+                                self.data_in_heap[task.data] = _Deadline(
+                                    self.current_time, task.deadline.delay
+                                )
             finally:
                 self.tasks_queue.task_done()
