@@ -35,17 +35,8 @@ import { Button } from "../components/button";
 import { saveGameToDisk } from "../utils/saveGameToDisk";
 import { Game } from "../../diplomacy/engine/game";
 import { Queue } from "../../diplomacy/utils/queue";
-import "@chatscope/chat-ui-kit-styles/dist/default/styles.min.css";
 import "./content_game.css";
-import {
-    MainContainer,
-    ChatContainer,
-    MessageList,
-    MessageSeparator,
-    MessageInput,
-    ConversationHeader,
-    Message as ChatMessage,
-} from "@chatscope/chat-ui-kit-react";
+import { ChatShell, MessageList, MessageSeparator, ChatMessage, ChatInput } from "../components/chat";
 
 // Subcomponents
 import { MapContainer } from "../components/map_container";
@@ -121,7 +112,6 @@ function buildInitialState(data) {
         orderBuildingPath: [],
         showAbbreviations: true,
         mapSize: 6,
-        logData: "",
         // `data` is normally a Game instance, but when the component is mounted
         // via the URL route (page refresh on /game/:gameId) it can be raw game
         // data from the server that lacks these methods. Fall back to the raw
@@ -157,26 +147,30 @@ function buildInitialState(data) {
     };
 }
 
+function formatRemainingTime(remainingTime) {
+    const remainingHour = Math.floor(remainingTime / 3600);
+    const remainingMinute = Math.floor((remainingTime - remainingHour * 3600) / 60);
+    const remainingSecond = remainingTime - remainingHour * 3600 - remainingMinute * 60;
+    let text = "";
+    if (remainingHour > 0) {
+        text += `${remainingHour}h `;
+    }
+    if (remainingMinute > 0) {
+        text += `${remainingMinute}m `;
+    }
+    return text + `${remainingSecond}s`;
+}
+
 function gameTitle(game) {
     let title = `${game.game_id} | `;
     const players = game.status === "active" ? game.status : `${game.countControlledPowers()} / 7 |`;
     title += players;
     const remainingTime = game.deadline_timer;
-    const remainingHour = Math.floor(remainingTime / 3600);
-    const remainingMinute = Math.floor((remainingTime - remainingHour * 3600) / 60);
-    const remainingSecond = remainingTime - remainingHour * 3600 - remainingMinute * 60;
 
     if (remainingTime === undefined) {
         title += ` (deadline: ${game.deadline} sec)`;
     } else {
-        title += " (remaining ";
-        if (remainingHour > 0) {
-            title += `${remainingHour}h `;
-        }
-        if (remainingMinute > 0) {
-            title += `${remainingMinute}m `;
-        }
-        title += `${remainingSecond}s)`;
+        title += ` (remaining ${formatRemainingTime(remainingTime)})`;
     }
     return title;
 }
@@ -283,14 +277,23 @@ export const ContentGame = ({ data }) => {
         }
     };
 
+    const showDeadlineCountdown = () => {
+        if (data.deadline_timer > 0) page.success(`Deadline in ${formatRemainingTime(data.deadline_timer)}`);
+    };
+
     const updateDeadlineTimer = () => {
         const engine = data;
         --engine.deadline_timer;
         if (engine.deadline_timer <= 0) {
             engine.deadline_timer = 0;
             clearScheduleTimeout();
+            // Drop the stale countdown instead of leaving "1s" on screen.
+            page.success();
         }
-        if (networkGameIsDisplayed(engine.client)) forceUpdate();
+        if (networkGameIsDisplayed(engine.client)) {
+            showDeadlineCountdown();
+            forceUpdate();
+        }
     };
 
     const reloadDeadlineTimer = (networkGame) => {
@@ -302,6 +305,7 @@ export const ContentGame = ({ data }) => {
                 const server_end = schedule.time_added + schedule.delay;
                 const server_remaining = server_end - server_current;
                 data.deadline_timer = server_remaining * schedule.time_unit;
+                showDeadlineCountdown();
                 if (!scheduleTimeoutRef.current)
                     scheduleTimeoutRef.current = setInterval(updateDeadlineTimer, schedule.time_unit * 1000);
             })
@@ -563,10 +567,6 @@ export const ContentGame = ({ data }) => {
 
     const setMessageInputValue = (val) => {
         if (messageInputRef.current) messageInputRef.current.setValue(val);
-    };
-
-    const setlogDataInputValue = (val) => {
-        return setState({ logData: val });
     };
 
     const sendOrderLog = (networkGame, logType, order) => {
@@ -1500,22 +1500,15 @@ export const ContentGame = ({ data }) => {
         powerLogs.forEach((log) => {
             if (log.phase !== prevPhase) {
                 curPhase = log.phase;
-                renderedLogs.push(<MessageSeparator>{curPhase}</MessageSeparator>);
+                renderedLogs.push(<MessageSeparator key={`log-sep-${curPhase}`}>{curPhase}</MessageSeparator>);
 
                 prevPhase = curPhase;
             }
 
             renderedLogs.push(
-                // eslint-disable-next-line react/jsx-key
-                <ChatMessage
-                    model={{
-                        message: log.message,
-                        sent: log.time_sent,
-                        sender: role,
-                        direction: "outgoing",
-                        position: "single",
-                    }}
-                ></ChatMessage>,
+                <ChatMessage key={`log-${log.time_sent}`} direction="outgoing" sender={role}>
+                    {log.message}
+                </ChatMessage>,
             );
         });
 
@@ -1564,7 +1557,7 @@ export const ContentGame = ({ data }) => {
             <div className={"col-6 mb-4"}>
                 <div className="row">
                     <div className="col-12" style={{ height: "100%" }}>
-                        <div style={{ width: "100%", height: "550px" }}>
+                        <div className="d-flex flex-column" style={{ width: "100%", height: "550px" }}>
                             <div style={{ borderBottom: "1px solid rgba(0, 0, 0, 0.12)" }}>
                                 <ul className="nav nav-tabs" role="tablist">
                                     {displayTab[STRINGS.MESSAGES] && (
@@ -1629,20 +1622,7 @@ export const ContentGame = ({ data }) => {
                                 </ul>
                             </div>
                             {state.tabVal === STRINGS.MESSAGES && (
-                                <ChatContainer
-                                    style={{
-                                        display: "flex",
-                                        flexDirection: "column",
-                                        flexGrow: 1,
-                                        border: "1px solid black",
-                                        boxSizing: "border-box",
-                                        marginTop: "10px",
-                                    }}
-                                >
-                                    <ConversationHeader>
-                                        <ConversationHeader.Content userName={`Messages Advice to ${protagonist}`} />
-                                    </ConversationHeader>
-
+                                <ChatShell className="flex-grow-1 mt-2" header={`Messages Advice to ${protagonist}`}>
                                     {state.hasInitialOrders && (
                                         <MessageList>
                                             {suggestedMessagesForCurrentPower.map((msg, msgIndex) => {
@@ -1659,19 +1639,9 @@ export const ContentGame = ({ data }) => {
                                                             marginBottom: "2px",
                                                         }}
                                                     >
-                                                        <ChatMessage
-                                                            style={{
-                                                                flexGrow: 1,
-                                                            }}
-                                                            model={{
-                                                                message: msg.message,
-                                                                sent: msg.time_sent,
-                                                                sender: msg.sender,
-                                                                direction: "outgoing",
-                                                                position: "single",
-                                                            }}
-                                                            avatarPosition={"tl"}
-                                                        ></ChatMessage>
+                                                        <ChatMessage fill direction="outgoing" sender={msg.sender}>
+                                                            {msg.message}
+                                                        </ChatMessage>
                                                         <div
                                                             style={{
                                                                 flexDirection: "column",
@@ -1717,77 +1687,47 @@ export const ContentGame = ({ data }) => {
                                             })}
                                         </MessageList>
                                     )}
-                                </ChatContainer>
+                                </ChatShell>
                             )}
 
                             {state.tabVal === STRINGS.COMMENTARY && (
-                                <MainContainer responsive>
-                                    <ChatContainer>
-                                        <ConversationHeader>
-                                            <ConversationHeader.Content userName={"Commentary"} />
-                                        </ConversationHeader>
-                                        <MessageList>
-                                            {suggestedCommentaryForCurrentPower.map((com, comIndex) => {
-                                                const html = !state.hasInitialOrders
-                                                    ? `<div class="blurred">${com.commentary}</div>`
-                                                    : com.commentary;
-                                                return (
-                                                    <div
-                                                        key={comIndex}
-                                                        style={{
-                                                            alignItems: "flex-end",
-                                                            display: !Object.prototype.hasOwnProperty.call(state.annotatedMessages,
-                                                                com.time_sent,
-                                                            )
-                                                                ? "flex"
-                                                                : "none",
-                                                        }}
-                                                    >
-                                                        <ChatMessage
-                                                            style={{
-                                                                flexGrow: 1,
-                                                            }}
-                                                            model={{
-                                                                sent: com.time_sent,
-                                                                sender: com.sender,
-                                                                direction: "incoming",
-                                                                position: "single",
-                                                            }}
-                                                            avatarPosition={"tl"}
-                                                        >
-                                                            <ChatMessage.HtmlContent html={html} />
-                                                        </ChatMessage>
-                                                    </div>
-                                                );
-                                            })}
-                                        </MessageList>
-                                        { }
-                                    </ChatContainer>
-                                </MainContainer>
+                                <ChatShell className="flex-grow-1 mt-2" header="Commentary">
+                                    <MessageList>
+                                        {suggestedCommentaryForCurrentPower.map((com, comIndex) => {
+                                            return (
+                                                <div
+                                                    key={comIndex}
+                                                    style={{
+                                                        alignItems: "flex-end",
+                                                        display: !Object.prototype.hasOwnProperty.call(state.annotatedMessages,
+                                                            com.time_sent,
+                                                        )
+                                                            ? "flex"
+                                                            : "none",
+                                                    }}
+                                                >
+                                                    <ChatMessage fill sender={com.sender} blurred={!state.hasInitialOrders}>
+                                                        {com.commentary}
+                                                    </ChatMessage>
+                                                </div>
+                                            );
+                                        })}
+                                    </MessageList>
+                                </ChatShell>
                             )}
 
                             {state.tabVal === STRINGS.INTENT_LOG && (
-                                <MainContainer responsive>
-                                    <ChatContainer>
-                                        <ConversationHeader>
-                                            <ConversationHeader.Content
-                                                userName={
-                                                    role.toString() + " (" + curController + ")" + ": Captain's Log"
-                                                }
-                                            />
-                                        </ConversationHeader>
-                                        <MessageList>{renderedLogs}</MessageList>
-                                        {engine.isPlayerGame() && (
-                                            <MessageInput
-                                                attachButton={false}
-                                                onChange={(val) => setlogDataInputValue(val)}
-                                                onSend={() => {
-                                                    sendLogData(engine.client, state.logData);
-                                                }}
-                                            />
-                                        )}
-                                    </ChatContainer>
-                                </MainContainer>
+                                <ChatShell
+                                    className="flex-grow-1 mt-2"
+                                    header={role.toString() + " (" + curController + ")" + ": Captain's Log"}
+                                    footer={
+                                        engine.isPlayerGame() && (
+                                            <ChatInput onSend={(text) => sendLogData(engine.client, text)} />
+                                        )
+                                    }
+                                >
+                                    <MessageList>{renderedLogs}</MessageList>
+                                </ChatShell>
                             )}
                         </div>
                     </div>
@@ -1853,17 +1793,9 @@ export const ContentGame = ({ data }) => {
                             setState({ hoverOrders: [] });
                         }}
                     >
-                        <ChatMessage
-                            style={{ flexGrow: 1 }}
-                            model={{
-                                message: move,
-                                sent: latestMoveSuggestionFull.time_sent,
-                                sender: latestMoveSuggestionFull.sender,
-                                direction: "incoming",
-                                position: "single",
-                            }}
-                            avatarPosition={"tl"}
-                        ></ChatMessage>
+                        <ChatMessage fill sender={latestMoveSuggestionFull.sender}>
+                            {move}
+                        </ChatMessage>
                         <div
                             style={{
                                 flexGrow: 0,
@@ -1910,17 +1842,9 @@ export const ContentGame = ({ data }) => {
                             setState({ hoverOrders: [] });
                         }}
                     >
-                        <ChatMessage
-                            style={{ flexGrow: 1 }}
-                            model={{
-                                message: "Full Set:",
-                                sent: latestMoveSuggestionFull.time_sent,
-                                sender: latestMoveSuggestionFull.sender,
-                                direction: "incoming",
-                                position: "single",
-                            }}
-                            avatarPosition={"tl"}
-                        ></ChatMessage>
+                        <ChatMessage fill sender={latestMoveSuggestionFull.sender}>
+                            {"Full Set:"}
+                        </ChatMessage>
                         <div
                             style={{
                                 flexGrow: 0,
@@ -1980,17 +1904,9 @@ export const ContentGame = ({ data }) => {
                             setState({ hoverOrders: [] });
                         }}
                     >
-                        <ChatMessage
-                            style={{ flexGrow: 1 }}
-                            model={{
-                                message: move,
-                                sent: latestMoveSuggestionPartial.time_sent,
-                                sender: latestMoveSuggestionPartial.sender,
-                                direction: "incoming",
-                                position: "single",
-                            }}
-                            avatarPosition={"tl"}
-                        ></ChatMessage>
+                        <ChatMessage fill sender={latestMoveSuggestionPartial.sender}>
+                            {move}
+                        </ChatMessage>
                         <div
                             style={{
                                 flexGrow: 0,
@@ -2037,17 +1953,9 @@ export const ContentGame = ({ data }) => {
                             setState({ hoverOrders: [] });
                         }}
                     >
-                        <ChatMessage
-                            style={{ flexGrow: 1 }}
-                            model={{
-                                message: `Advice based on ${latestMoveSuggestionPartial.givenMoves.join(", ")}:`,
-                                sent: latestMoveSuggestionPartial.time_sent,
-                                sender: latestMoveSuggestionPartial.sender,
-                                direction: "incoming",
-                                position: "single",
-                            }}
-                            avatarPosition={"tl"}
-                        ></ChatMessage>
+                        <ChatMessage fill sender={latestMoveSuggestionPartial.sender}>
+                            {`Advice based on ${latestMoveSuggestionPartial.givenMoves.join(", ")}:`}
+                        </ChatMessage>
                         <div
                             style={{
                                 flexGrow: 0,
@@ -2122,14 +2030,9 @@ export const ContentGame = ({ data }) => {
                             setState({ hoverDistributionOrder: [] });
                         }}
                     >
-                        <ChatMessage
-                            style={{ flexGrow: 1 }}
-                            model={{
-                                message: move,
-                                direction: "incoming",
-                                position: "single",
-                            }}
-                        ></ChatMessage>
+                        <ChatMessage fill>
+                            {move}
+                        </ChatMessage>
                         <div
                             style={{
                                 flexGrow: 0,
@@ -2193,15 +2096,9 @@ export const ContentGame = ({ data }) => {
 
             distributionSuggestionComponent = (
                 <div>
-                    <ChatMessage
-                        style={{ flexGrow: 1 }}
-                        model={{
-                            message: `Order probabilities for ${orderDistribution.province}:`,
-                            direction: "incoming",
-                            position: "single",
-                        }}
-                        avatarPosition={"tl"}
-                    ></ChatMessage>
+                    <ChatMessage fill>
+                        {`Order probabilities for ${orderDistribution.province}:`}
+                    </ChatMessage>
                     {distributionMessages}
                 </div>
             );
@@ -2217,19 +2114,8 @@ export const ContentGame = ({ data }) => {
         }
 
         return (
-            <div className={"col-2 mb-4"}>
-                <ChatContainer
-                    style={{
-                        display: "flex",
-                        border: "1px solid black",
-                        boxSizing: "border-box",
-                        marginTop: "10px",
-                    }}
-                >
-                    <ConversationHeader>
-                        <ConversationHeader.Content userName={`Order Advice`} />
-                    </ConversationHeader>
-
+            <div className={"col-2 mb-4 move-advice-column"}>
+                <ChatShell className="move-advice-panel" header="Order Advice">
                     {state.hasInitialOrders && (
                         <MessageList className="move-suggestion-list">
                             {fullSuggestionComponent}
@@ -2237,7 +2123,7 @@ export const ContentGame = ({ data }) => {
                             {distributionSuggestionComponent}
                         </MessageList>
                     )}
-                </ChatContainer>
+                </ChatShell>
             </div>
         );
     };
@@ -2614,8 +2500,6 @@ export const ContentGame = ({ data }) => {
                     <LogsPanel
                         engine={engine}
                         role={currentPowerName}
-                        logData={state.logData}
-                        setLogDataInputValue={setlogDataInputValue}
                         sendLogData={sendLogData}
                     />
                 )}

@@ -18,15 +18,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import { AdminPowersInfoTable } from "./admin_powers_info_table";
 import { PowerView } from "../utils/power_view";
-import {
-    MainContainer,
-    ChatContainer,
-    MessageList,
-    MessageSeparator,
-    MessageInput,
-    ConversationHeader,
-    Message as ChatMessage,
-} from "@chatscope/chat-ui-kit-react";
+import { ChatShell, MessageList, MessageSeparator, ChatMessage, ChatInput } from "./chat";
 
 /**
  * StatsPanel renders the admin power info table and captain's log for
@@ -94,13 +86,15 @@ PowerInfoPanel.propTypes = {
 function LogsPanel({
     engine,
     role,
-    logData,
-    setLogDataInputValue,
     sendLogData,
 }) {
     const curController = engine.powers[role].getController();
 
     const powerLogs = engine.getLogsForPower(role, true);
+    const canWrite = engine.isPlayerGame();
+    // Nothing to show and nothing to type into: don't render an empty box.
+    if (!powerLogs.length && !canWrite) return null;
+
     let renderedLogs = [];
     let curPhase = "";
     let prevPhase = "";
@@ -116,39 +110,24 @@ function LogsPanel({
         }
 
         renderedLogs.push(
-            <ChatMessage
-                key={`log-${log.time_sent}`}
-                model={{
-                    message: log.message,
-                    sent: log.time_sent,
-                    sender: role,
-                    direction: "outgoing",
-                    position: "single",
-                }}
-            ></ChatMessage>
+            <ChatMessage key={`log-${log.time_sent}`} direction="outgoing" sender={role}>
+                {log.message}
+            </ChatMessage>
         );
     });
 
     return (
-        <div style={{ height: "500px" }}>
-            <MainContainer responsive>
-                <ChatContainer>
-                    <ConversationHeader>
-                        <ConversationHeader.Content userName={curController} />
-                    </ConversationHeader>
-                    <MessageList>{renderedLogs}</MessageList>
-                    {engine.isPlayerGame() && (
-                        <MessageInput
-                            attachButton={false}
-                            onChange={(val) => setLogDataInputValue(val)}
-                            onSend={() => {
-                                sendLogData(engine.client, logData);
-                            }}
-                        />
-                    )}
-                </ChatContainer>
-            </MainContainer>
-        </div>
+        <ChatShell
+            height="500px"
+            header={curController}
+            footer={
+                canWrite && (
+                    <ChatInput onSend={(text) => sendLogData(engine.client, text)} />
+                )
+            }
+        >
+            <MessageList>{renderedLogs}</MessageList>
+        </ChatShell>
     );
 }
 
@@ -157,7 +136,5 @@ export { LogsPanel };
 LogsPanel.propTypes = {
     engine: PropTypes.object.isRequired,
     role: PropTypes.string.isRequired,
-    logData: PropTypes.string.isRequired,
-    setLogDataInputValue: PropTypes.func.isRequired,
     sendLogData: PropTypes.func.isRequired,
 };

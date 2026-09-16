@@ -19,37 +19,14 @@ import PropTypes from "prop-types";
 import { Col } from "./layouts";
 import { MessageInputArea } from "./MessageInputArea";
 import {
-    MainContainer,
-    ChatContainer,
+    POWER_ICONS,
+    ChatShell,
+    ConversationList,
+    ConversationItem,
     MessageList,
     MessageSeparator,
-    Sidebar,
-    ConversationList,
-    Conversation,
-    Avatar,
-    Message as ChatMessage,
-} from "@chatscope/chat-ui-kit-react";
-
-import AUS from "../assets/AUS.png";
-import ENG from "../assets/ENG.png";
-import FRA from "../assets/FRA.png";
-import GER from "../assets/GER.png";
-import ITA from "../assets/ITA.png";
-import RUS from "../assets/RUS.png";
-import TUR from "../assets/TUR.png";
-import GLOBAL from "../assets/GLOBAL.png";
-
-const POWER_ICONS = {
-    AUSTRIA: AUS,
-    ENGLAND: ENG,
-    FRANCE: FRA,
-    GERMANY: GER,
-    ITALY: ITA,
-    RUSSIA: RUS,
-    TURKEY: TUR,
-    Centaur: GLOBAL,
-    omniscient_type: GLOBAL,
-};
+    ChatMessage,
+} from "./chat";
 
 /**
  * ChatPanel renders the conversation list sidebar and message history for
@@ -103,44 +80,26 @@ export const ChatPanel = React.forwardRef(function ChatPanel(
         ? onChangeTabCurrentMessages
         : onChangeTabPastMessages;
 
-    // Build conversation list
-    const convList = tabNames.map((protagonist) => (
-        <Conversation
-            style={isCurrent ? { minWidth: "220px" } : undefined}
-            info={
-                isCurrent && isAdmin && protagonist !== "GLOBAL"
-                    ? engine.powers[protagonist].getController()
-                    : isCurrent
-                    ? undefined
-                    : undefined
-            }
-            className={
-                protagonist === currentTabId
-                    ? "cs-conversation--active"
-                    : null
-            }
-            onClick={() => onChangeTab(protagonist)}
-            key={protagonist}
-            name={protagonist}
-            unreadCnt={countUnreadMessages(engine, role, protagonist)}
-            unreadDot={hasUnreadAdvice(engine, role, protagonist)}
-        >
-            <Avatar
-                src={POWER_ICONS[protagonist]}
-                name={protagonist}
-                size="sm"
-            />
-        </Conversation>
-    ));
-
-    // Wrap past-mode conversations in a min-width div
-    const wrappedConvList = isCurrent
-        ? convList
-        : convList.map((conv) => (
-              <div key={conv.key} style={{ minWidth: "220px" }}>
-                  {conv}
-              </div>
-          ));
+    const conversationList = (
+        <ConversationList>
+            {tabNames.map((protagonist) => (
+                <ConversationItem
+                    key={protagonist}
+                    name={protagonist}
+                    avatar={POWER_ICONS[protagonist]}
+                    info={
+                        isCurrent && isAdmin && protagonist !== "GLOBAL"
+                            ? engine.powers[protagonist].getController()
+                            : undefined
+                    }
+                    active={protagonist === currentTabId}
+                    onClick={() => onChangeTab(protagonist)}
+                    unreadCnt={countUnreadMessages(engine, role, protagonist)}
+                    unreadDot={hasUnreadAdvice(engine, role, protagonist)}
+                />
+            ))}
+        </ConversationList>
+    );
 
     // Build messages
     const renderedMessages = [];
@@ -157,9 +116,6 @@ export const ChatPanel = React.forwardRef(function ChatPanel(
         sender = msg.sender;
         rec = msg.recipient;
         curPhase = msg.phase;
-        const html = msg.hide
-            ? `<div class="blurred">${msg.message}</div>`
-            : msg.message;
 
         if (curPhase !== prevPhase) {
             renderedMessages.push(
@@ -175,21 +131,13 @@ export const ChatPanel = React.forwardRef(function ChatPanel(
 
         renderedMessages.push(
             <ChatMessage
-                model={{
-                    sent: msg.time_sent,
-                    sender: sender,
-                    direction: dir,
-                    position: "single",
-                }}
-                avatarPosition={dir === "outgoing" ? "tr" : "tl"}
                 key={`${sender}-${rec}-${m}`}
+                direction={dir}
+                sender={sender}
+                avatar={POWER_ICONS[sender]}
+                blurred={msg.hide}
             >
-                <Avatar
-                    src={POWER_ICONS[sender]}
-                    name={sender}
-                    size="sm"
-                />
-                <ChatMessage.HtmlContent html={html} />
+                {msg.message}
             </ChatMessage>
         );
 
@@ -261,28 +209,11 @@ export const ChatPanel = React.forwardRef(function ChatPanel(
         const orders = getOrders(engine);
         return (
             <div className={isWide ? "col-12 mb-4" : "col-6 mb-4"}>
-                <div
-                    style={{
-                        borderRadius: "8px",
-                        overflow: "hidden",
-                        height: "550px",
-                        backgroundColor: "#fff",
-                        boxShadow:
-                            "0 3px 3px -2px rgba(0,0,0,0.2), 0 3px 4px 0 rgba(0,0,0,0.14), 0 1px 8px 0 rgba(0,0,0,0.12)",
-                    }}
-                >
-                    <div style={{ width: "100%", height: "100%" }}>
-                        <MainContainer responsive>
-                            <Sidebar position="left" scrollable={true}>
-                                <ConversationList>
-                                    {wrappedConvList}
-                                </ConversationList>
-                            </Sidebar>
-                            <ChatContainer>
-                                <MessageList>{renderedMessages}</MessageList>
-                            </ChatContainer>
-                        </MainContainer>
-                        {engine.isPlayerGame() && (
+                <ChatShell
+                    height="550px"
+                    sidebar={conversationList}
+                    footer={
+                        engine.isPlayerGame() && (
                             <MessageInputArea
                                 ref={messageInputRef}
                                 sendMessage={sendMessage}
@@ -301,31 +232,21 @@ export const ChatPanel = React.forwardRef(function ChatPanel(
                                 }
                                 hasInitialOrders={hasInitialOrders}
                             />
-                        )}
-                    </div>
-                </div>
+                        )
+                    }
+                >
+                    <MessageList key={currentTabId}>{renderedMessages}</MessageList>
+                </ChatShell>
             </div>
         );
     }
 
     // Past phase: simpler layout without message input
     return (
-        <div
-            className={isWide ? "col-12" : "col-6"}
-            style={{ height: "500px" }}
-        >
-            <MainContainer responsive>
-                <Sidebar
-                    style={{ maxWidth: "220px" }}
-                    position="left"
-                    scrollable={false}
-                >
-                    <ConversationList>{wrappedConvList}</ConversationList>
-                </Sidebar>
-                <ChatContainer>
-                    <MessageList>{renderedMessages}</MessageList>
-                </ChatContainer>
-            </MainContainer>
+        <div className={isWide ? "col-12" : "col-6"}>
+            <ChatShell height="500px" sidebar={conversationList}>
+                <MessageList key={currentTabId}>{renderedMessages}</MessageList>
+            </ChatShell>
         </div>
     );
 });

@@ -472,13 +472,6 @@ button.collapsed .roll {
   flex: 1;
 }
 
-.move-suggestion-list>.cs-message-list__scroll-wrapper {
-  padding-left: 0.25em;
-  padding-right: 0.25em;
-  /* Not clear why, but needed for scrolling on overflow to work */
-  position: absolute;
-}
-
 /** Page login. **/
 /** Page games. **/
 /** Page game. **/

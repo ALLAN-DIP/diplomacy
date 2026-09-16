@@ -1,7 +1,5 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { Row } from "./layouts";
-import { Button } from "./button";
 
 /**
  * Controlled message draft textarea with Truth/Lie send buttons.
@@ -29,32 +27,34 @@ export const MessageInputArea = React.forwardRef(function MessageInputArea(
     }
 
     return (
-        <Row>
+        <div className="input-group chat-input">
             <textarea
-                style={{ resize: "both" }}
-                cols={30}
+                className="form-control"
+                rows={1}
                 onChange={(e) => setValue(e.target.value)}
                 value={value}
                 disabled={disabled}
                 placeholder={disabled ? "You need to set orders for all units before sending messages." : ""}
             />
-            <Button
-                key="t"
-                pickEvent={true}
-                title="Truth"
-                color="success"
-                onClick={() => handleSend("Truth")}
-                disabled={!hasInitialOrders}
-            />
-            <Button
-                key="f"
-                pickEvent={true}
-                title="Lie"
-                color="danger"
-                onClick={() => handleSend("Lie")}
-                disabled={!hasInitialOrders}
-            />
-        </Row>
+            <div className="input-group-append">
+                <button
+                    type="button"
+                    className="btn btn-success"
+                    onClick={() => handleSend("Truth")}
+                    disabled={!hasInitialOrders}
+                >
+                    Truth
+                </button>
+                <button
+                    type="button"
+                    className="btn btn-danger"
+                    onClick={() => handleSend("Lie")}
+                    disabled={!hasInitialOrders}
+                >
+                    Lie
+                </button>
+            </div>
+        </div>
     );
 });
 

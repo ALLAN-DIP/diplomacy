@@ -267,21 +267,21 @@
 
 
 
-.cs-message {
-    margin-bottom: 8px !important;
+/* Order Advice fills its column's height (set by the map) without stretching the row. */
+.move-advice-column {
+    position: relative;
 }
 
-.cs-message__content {
-    border-radius: 6px !important;
-    /* Removed box-shadow for minimalistic approach */
-}
-
-.cs-conversation-header {
-    padding: 12px 16px !important;
+.move-advice-panel {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    bottom: 0;
+    left: 15px;
 }
 
 .move-suggestion-list {
-    padding: 10px;
+    padding: 10px 4px;
 }
 
 /* ============================================
